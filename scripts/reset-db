@@ -1,0 +1,2 @@
+#!/bin/bash
+cd constata_lib && cd db && sqlx database reset -y

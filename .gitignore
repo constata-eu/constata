@@ -1,0 +1,17 @@
+/target
+*/target
+*.swp
+*.swo
+constata-cli
+constata_conf.json
+./vscode
+/docker/bitcoin-0.21.1
+Session.vim
+constata_lib/content.html
+email_bot/src/test_support/tokencache.json
+back-office-panel/build/
+back-office-panel/node_modules/
+*.po~
+telegram_bot/po
+email_bot/po
+constata_lib/po

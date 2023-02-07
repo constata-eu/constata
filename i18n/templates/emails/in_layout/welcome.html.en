@@ -1,0 +1,24 @@
+{% extends "emails/in_layout/_layout.html" %}
+{% import "emails/_macros.html.en" as macros %}
+
+{% block main %}
+  Welcome to Constata.
+  <br/><br/>
+  You can start issuing Diplomas, Certificates of Attendance and Invitations.
+  <br/><br/>
+  {{ macros::email_verification(url_to_verify_email = url_to_verify_email, keep_private = keep_private) }}
+  {{ macros::accept_tyc(url_to_tyc = url_to_tyc) }}
+  {% if has_credentials %}
+    Find attached your password-protected credentials, you can use them to sign-in from other devices.
+    <br/><br/>
+  {% endif %}
+  Only use your credentials on our website
+  <a href="https://api.constata.eu">https://api.constata.eu</a>
+  <br/><br/>
+  Contact us immediately if you believe someone else accessed your account.
+  <br/>
+{% endblock main %}
+
+{% block footer %}
+  {% include "emails/_footer_outgoing.html.en" %}
+{% endblock footer %}

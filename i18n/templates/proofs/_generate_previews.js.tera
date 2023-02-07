@@ -1,0 +1,32 @@
+function generatePreviews(){
+  for (doc of document.querySelectorAll(".document-part")) {
+    const container = doc.parentNode.querySelectorAll(".previews")[0];
+    const preview = document.createElement("div");
+    preview.classList.add("preview");
+
+    const type = doc.dataset.contentType;
+    const friendly_name = doc.dataset.friendlyName;
+    const bytes = doc.querySelectorAll(".payload")[0].innerHTML;
+
+    if(type == "application/pdf" && navigator.mimeTypes["application/pdf"]) {
+      container.appendChild(preview);
+      preview.innerHTML = `<object data="data:${type};base64,${bytes}" type="${type}"></object>`;
+    }else if(type.startsWith("image")){
+      container.appendChild(preview);
+      preview.innerHTML = `<img src="data:${type};base64,${bytes}"/>`;
+    }else if(type.startsWith("text")){
+      container.appendChild(preview);
+      const iframe = document.createElement('iframe', { sandbox: null});
+      preview.appendChild(iframe);
+      let text = (new TextDecoder()).decode(base64ToBytes(bytes));
+      iframe.contentWindow.document.write(text);
+      setTimeout(function(){
+        iframe.height = (iframe.contentWindow.document.body.scrollHeight + 10) + 'px';
+      },50);
+    }else if(type.startsWith("video")){
+      container.appendChild(preview);
+      preview.innerHTML = `<video controls src="data:${type};base64,${bytes}"/>`;
+    }
+  }
+}
+

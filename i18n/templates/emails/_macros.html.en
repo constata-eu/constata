@@ -1,0 +1,96 @@
+{% macro hello_and_document(document_friendly_name) %}
+  Hello! We have received your message with subject <b><i>"{{document_friendly_name}}"</i></b>.
+{% endmacro hello_and_document %}
+
+{% macro accept_tyc(url_to_tyc) %}
+  {% if url_to_tyc %}
+    Also remember to review and accept our <b>Terms and Conditions</b>.
+    <br/><br/>
+    <a style="padding: 10px; margin: 15px 0; background: #1059CE; color: #fafafa; text-decoration: none; font-weight: bold; text-transform: uppercase; font-size: 12px;" target="_blank" href="{{url_to_tyc | safe }}">Review Terms and Conditions</a>
+    <br/>
+  {% endif %}
+{% endmacro accept_tyc %}
+
+{% macro email_verification(url_to_verify_email, keep_private) %}
+  {% if url_to_verify_email %}
+    We need to confirm that you have received this email.
+    <br/><br/>
+    <a style="padding: 10px; margin: 15px 0; background: #1059CE; color: #fafafa; text-decoration: none; font-weight: bold; text-transform: uppercase; font-size: 12px;" target="_blank" href="{{url_to_verify_email | safe }}">Confirm email</a>
+    <br/><br/>
+  {% endif %}
+{% endmacro email_verification %}
+
+{% macro welcome_and_start(give_welcome, document_friendly_name, accepted, eta, url_to_tyc) %}
+    {% if give_welcome %}
+        Remember that when you write or CC us, we certify your message.
+        <br/><br/>
+        We also include all replies to the certificate, as long as they keep <b>ace@constata.eu</b> as a recipient or in CC.
+    {% endif %}
+
+    {% if accepted %}
+        <br/><br/>
+        Estimated time for this certification is {{ eta }} minutes. You'll get the certificate in your inbox.
+    {% elif not url_to_tyc %}
+        <br/><br/>
+        Before we continue, you must buy the tokens needed for this certification.
+    {% endif %}
+{% endmacro welcome_and_start %}
+
+{% macro terms_acceptance(has_enough_tokens, url_to_tyc, is_email_for_parked, parked_count) %}
+    {% if url_to_tyc %}
+        <br/>
+        In order to certify
+        {% if is_email_for_parked %}
+          {{ parked_count | pluralize(singular="it", plural="them") }}
+        {% else %}
+          it
+        {% endif %}
+        you need to review and accept our <b>Terms and Conditions</b>.
+        <br/><br/>
+        <a style="padding: 10px; margin: 15px 0; background: #1059CE; color: #fafafa; text-decoration: none; font-weight: bold; text-transform: uppercase; font-size: 12px;" target="_blank" href="{{url_to_tyc | safe }}">Accept Terms and Conditions</a>
+        <br/><br/>
+        
+        Once accepted
+        {% if has_enough_tokens %}
+            your message will be certified after a few minutes and you'll receive it in your inbox.
+        {% else %}
+            you will need to purchase some tokens needed to pay this certification.
+        {% endif %}
+        {% if not is_email_for_parked %}
+            <br/><br/>
+        {% endif %}
+    {% endif %}
+{% endmacro terms_acceptance %}
+
+{% macro cost_and_give_gift(gift, has_enough_tokens, cost, missing_tokens_for_other) %}
+    <br/><br/>
+    The cost of this certification is <b>{{ cost }} token{{ cost | pluralize }}</b>.
+    {% if missing_tokens_for_other > 0  %}
+      Besides that, you need <b>{{ missing_tokens_for_other }} token{{missing_tokens_for_other | pluralize }}</b>
+      to certify all your pending documents.
+    {% endif %}
+    {% if gift %}
+        <br/>
+        <b>We gave you {{ gift | round | int }} free token{{ gift | pluralize }}</b>,
+        {% if has_enough_tokens %}
+            so that you get your certificate free of charge.
+        {% else %}
+            but it wasn't enough.
+        {% endif %}
+        <br/><br/>
+        <b>Certificate cost = {{ cost | round | int }} token{{ cost | pluralize }}</b><br/>
+        <b>Free Tokens = {{ gift | round | int }} token{{ gift | pluralize }}</b>
+    {% endif %}
+{% endmacro gift %}
+
+{% macro enough_tokens(has_enough_tokens, missing_tokens, total_price, buy_tokens_link) %}
+    {% if not has_enough_tokens %}
+        <br/><br/>
+        You can buy the <b>{{ missing_tokens | round | int }} missing token{{ missing_tokens | pluralize }}</b> for <b>{{ total_price }} EUR</b>.
+        <br/><br/>
+        <a style="padding: 10px; margin: 15px 0; background: #1059CE; color: #fafafa; text-decoration: none; font-weight: bold; text-transform: uppercase; font-size: 12px;" target="_blank" href="{{buy_tokens_link | safe }}">Buy Tokens</a>
+        <br/><br/>
+        Once you have bought the missing tokens your message will be certified in a matter of minutes and you'll get it in your inbox.
+    {% endif %}
+{% endmacro enough_tokens %}
+

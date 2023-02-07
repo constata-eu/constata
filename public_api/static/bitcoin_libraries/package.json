@@ -1,0 +1,24 @@
+{
+  "dependencies": {
+    "bip32": "^3.0.1",
+    "bip39": "^3.0.4",
+    "bitcoinjs-lib": "^6.0.1",
+    "bitcoinjs-message": "^2.2.0",
+    "bn": "^1.0.5",
+    "buffer": "^6.0.3",
+    "countrily": "^1.5.2",
+    "country-list": "^2.2.0",
+    "ecpair": "^2.0.1",
+    "fs": "^0.0.1-security",
+    "miscreant": "^0.3.2",
+    "request": "^2.88.2",
+    "tiny-secp256k1": "^1.1.6",
+    "translate": "^1.4.1",
+    "uniq": "^1.0.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.18.2",
+    "@babel/preset-env": "^7.18.2",
+    "babelify": "^10.0.0"
+  }
+}

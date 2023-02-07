@@ -1,0 +1,102 @@
+[package]
+name = "constata_lib"
+version = "0.1.0"
+authors = ["nubis <nubis@constata.eu>"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rocket = { version = "0.5.0-rc.1", features = ["json"] }
+serde = "1.0"
+base64-serde = "0.6.1"
+base64 = "0.13.0"
+serde_with = { version = "1.6.4", features = ["hex"]}
+serde_derive = "1.0"
+serde_json = "1.0.85"
+bitcoincore-rpc = "0.13.0"
+itertools = "0.10.1"
+thiserror = "1.0"
+sqlx = "0.6.0"
+sqlx-models-orm = "0.1.6"
+rust_decimal = "*"
+rust_decimal_macros = "*"
+dialoguer = "0.8.0"
+async-trait = "^0.1.52"
+enum_derive = "*"
+zip = "0.5"
+tokio = { version = "1.2.0", features = ["full"] }
+validator = { version = "0.12", features = ["derive"] }
+chrono = { version = "0.4", features = ["serde"] }
+mailparse = "0.13.3"
+ureq = { version = "*", features = ["json", "charset"] }
+simplestcrypt = "*"
+bitcoin-wallet = { git = "https://github.com/rust-bitcoin/rust-wallet" }
+galvanic-test = { version = "0.2", optional = true }
+galvanic-assert = { version = "0.8.7", optional = true }
+regex = "1"
+mockito = { version = "0.28", optional = true }
+time-test = { version = "0.2.2", optional = true }
+anyhow = { version = "*", optional = true }
+lazy_static = "1.4.0"
+ring = "0.16.17"
+tempfile = "3"
+tree_magic_mini = { version = "3.0.2", features = ["with-gpl-data"] }
+mime2ext = "0.1.49"
+url = "2.2.2"
+log = "*"
+log4rs = { version = "1.0.0", features = ["json_encoder", "gzip", "all_components"] }
+rand = "0.8.4"
+num-traits = "*"
+chbs = "0.1.0"
+hmac = "0.11.0"
+sha2 = "0.9.8"
+hex = "0.4.3"
+duplicate = "*"
+juniper = { git = "https://github.com/constata-eu/juniper.git", features = ["chrono"]}
+google-authenticator = "0.3.0"
+csv = "1.1"
+headless_chrome = "*"
+failure = "*"
+async-recursion = "*"
+rust-s3 = "*"
+gettext = "*"
+gettext-utils = "*"
+gettext-macros = "*"
+i18n = { path = "../i18n" }
+byte-unit = "*"
+
+[dependencies.bitcoin]
+version = "0.26.0"
+features = ["base64"]
+
+[dependencies.stripe-rust]
+git = "https://github.com/constata-eu/stripe-rs"
+default-features = false
+features = ["full", "rustls-tls", "webhook-events"]
+
+[dev-dependencies]
+galvanic-test = "0.2"
+galvanic-assert = "0.8.7"
+regex = "1"
+mockito = "0.28"
+time-test = "0.2.2"
+anyhow = "*"
+
+[features]
+default = []
+test_support = [
+  "galvanic-test",
+  "galvanic-assert",
+  "mockito",
+  "time-test",
+  "anyhow",
+]
+
+[lib]
+name = "constata_lib"
+path = "src/lib.rs"
+
+[[bin]]
+name = "migrator"
+path = "src/migrator.rs"

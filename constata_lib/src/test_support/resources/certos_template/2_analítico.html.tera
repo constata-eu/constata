@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Aprobaciones del plan vigente</title>
+    <meta charset="UTF-8">
+  </head>
+  <body>
+    <h1>Certificado analítico de estudios</h1>
+    <dl>
+      <dt>Certifico que:</dt><dd>{{ name }}</dd>
+      <dt>Matrícula universitaria:</dt><dd>N.121212</dd>
+      <dt>De la carrera de:</dt><dd>Economía Descentralizada</dd>
+      <dt>Ha obtenido el título de:</dt><dd>Genio/a mundial histórico.</dd>
+    </dl>
+
+    <table border="true" cellpadding="5px" width="100%">
+      <tr>
+        <th>Asignatura</th>
+        <th>Nota</th>
+        <th>Fecha</th>
+      </tr>
+      <tr>
+        <td>Macroeconomía</td>
+        <td>8</td>
+        <td>10/01/2009</td>
+      </tr>
+      <tr>
+        <td>Criptografía</td>
+        <td>9</td>
+        <td>01/03/2006</td>
+      </tr>
+      <tr>
+        <td>Historia del dinero</td>
+        <td>9</td>
+        <td>03/08/2007</td>
+      </tr>
+      <tr>
+        <td>Programación de software</td>
+        <td>6</td>
+        <td>15/07/2008</td>
+      </tr>
+      <tr>
+        <td>Análisis de sistemas</td>
+        <td>8</td>
+        <td>03/04/2009</td>
+      </tr>
+      <tr>
+        <td>Ciencias políticas</td>
+        <td>10</td>
+        <td>08/03/2008</td>
+      </tr>
+      <tr>
+        <td>Regulación financiera</td>
+        <td>5</td>
+        <td>08/08/2009</td>
+      </tr>
+      <tr>
+        <td>Comunicación social</td>
+        <td>4</td>
+        <td>30/04/2008</td>
+      </tr>
+      <tr>
+        <td>Seguridad informática</td>
+        <td>8</td>
+        <td>25/07/2007</td>
+      </tr>
+      <tr>
+        <td>Contabilidad</td>
+        <td>10</td>
+        <td>15/03/2007</td>
+      </tr>
+      <tr>
+        <td>Matemática</td>
+        <td>8</td>
+        <td>19/11/2008</td>
+      </tr>
+      <tr>
+        <td>Algoritmos</td>
+        <td>9</td>
+        <td>22/10/2007</td>
+      </tr>
+      <tr>
+        <td>Neurología</td>
+        <td>7</td>
+        <td>21/08/2008</td>
+      </tr>
+    </table>
+  </body>
+</html>

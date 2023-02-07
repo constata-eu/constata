@@ -1,0 +1,4 @@
+#!/bin/bash
+rm -r target/debug/.fingerprint/i18n-* &&
+rm -r target/debug/.fingerprint/private_api-* &&
+rm -r target/debug/.fingerprint/public_api-*

@@ -1,0 +1,3 @@
+#!/bin/bash
+export RECORD_TELEGRAM_SESSION=1
+cd telegram_bot && cargo test -- --nocapture record_session

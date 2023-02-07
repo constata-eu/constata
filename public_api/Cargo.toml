@@ -1,0 +1,50 @@
+[package]
+name = "public_api"
+version = "0.1.0"
+authors = ["nubis <nubis@constata.eu>"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+constata_lib = { path = "../constata_lib" }
+i18n = { path = "../i18n" }
+serde = "1.0"
+serde_json = "1.0"
+rocket = { version = "0.5.0-rc.1", features = ["json"] }
+chrono = { version = "0.4", features = ["serde"] }
+bitcoincore-rpc = "0.13.0"
+num-traits = "*"
+rust_decimal = "*"
+rust_decimal_macros = "*"
+hex = "0.4.3"
+base64-serde = "0.6.1"
+base64 = "0.13.0"
+rocket_cors = { git = "https://github.com/lawliet89/rocket_cors", branch = "master" }
+serde_with = { version = "1.6.4", features = ["hex"]}
+ureq = { version = "*", features = ["json", "charset"] }
+simplestcrypt = "*"
+chrono-tz = "0.6"
+sqlx-models-orm = "0.1.6"
+juniper = { git = "https://github.com/constata-eu/juniper.git", features = ["chrono"]}
+juniper_rocket = { git = "https://github.com/constata-eu/juniper.git" }
+rocket-recaptcha-v3 = "*"
+validators = "*"
+include_dir = { version="*", features= ["glob"]}
+
+[dependencies.rocket_dyn_templates]
+version = "0.1.0-rc.1"
+features = ["tera"]
+
+[dependencies.bitcoin]
+version = "0.26.0"
+features = ["base64"]
+
+[dev-dependencies]
+constata_lib = { path = "../constata_lib", features = ["test_support"] }
+galvanic-test = "0.2"
+galvanic-assert = "0.8.7"
+zip = "0.5"
+tokio = { version = "1.2.0", features = ["full"] }
+anyhow = "*"
+mockito = "0.28"

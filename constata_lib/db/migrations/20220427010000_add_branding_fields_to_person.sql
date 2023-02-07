@@ -1,0 +1,2 @@
+ALTER TABLE persons ADD COLUMN logo_url VARCHAR;
+ALTER TABLE persons ADD COLUMN nickname VARCHAR;

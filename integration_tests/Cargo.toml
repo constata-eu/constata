@@ -1,0 +1,25 @@
+[package]
+name = "integration_tests"
+version = "0.1.0"
+authors = ["Constata <hola@constata.eu>"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+constata_lib = { path = "../constata_lib", features = ["test_support"] }
+i18n = { path = "../i18n" }
+tokio = { version = "1.2.0", features = ["full"] }
+assert_cmd = "*"
+thirtyfour = "0.31"
+regex = "*"
+ureq = { version = "*", features = ["json", "charset"] }
+serde_json = "*"
+chrono = { version = "0.4", features = ["serde"] }
+
+[dependencies.bitcoin]
+version = "0.26.0"
+features = ["base64"]
+
+[lib]
+name = "integration_tests"

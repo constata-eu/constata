@@ -1,0 +1,1 @@
+ALTER TABLE terms_acceptances ADD COLUMN created_at TIMESTAMPTZ;

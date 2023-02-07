@@ -1,0 +1,390 @@
+{% extends "public_api/for_login/_base.html.tera" %}
+
+{% block logged_view %}
+  <div class="d-flex py-5 py-md-5 my-2 align-content-center flex-column flex-wrap container container-constata">
+    <div class="column g-6 bg-white text-dark rounded p-3">
+      <h2 class="mb-3 font-weight-bold">
+        {%- block __main_title -%}{%- endblock __main_title -%}
+      </h2>
+      <p>
+        {%- block __fill_in_this_details -%}{%- endblock __fill_in_this_details -%}
+      </p>
+      <form class="needs-validation form-kyc" novalidate>
+        <div class="col-md m-1">
+          <label for="name" class="form-label">
+            {%- block __name -%}{%- endblock __name -%}
+          </label>
+          <input id="name" class="form-control" type="text" />
+          <div class="invalid-feedback">
+            {%- block __mandatory_field -%}{%- endblock __mandatory_field -%}
+          </div>
+        </div>
+        <div class="col-md m-1">
+          <label for="last-name" class="form-label">
+            {%- block __last_name -%}{%- endblock __last_name -%}
+          </label>
+          <input id="last-name" class="form-control" type="text" />
+          <div class="invalid-feedback">
+            {%- block __mandatory_last_name -%}{%- endblock __mandatory_last_name -%}
+          </div>
+        </div>
+        <div class="col-md m-1">
+          <label for="id-type" class="form-label">
+            {%- block __document_type -%}{%- endblock __document_type -%}
+          </label>
+          <input id="id-type" class="form-control" type="text" />
+        </div>
+        <div class="col-md m-1">
+          <label for="id-number" class="form-label">
+            {%- block __document_number -%}{%- endblock __document_number -%}
+          </label>
+          <input id="id-number" class="form-control" type="text" />
+        </div>
+        <div class="col-md m-1">
+          <label for="birthdate">
+            {%- block __birth_date -%}{%- endblock __birth_date -%}
+          </label>
+          <input id="birthdate" class="form-control" type="date" />
+        </div>
+
+        <div class="col-md m-1">
+          <label for="country" class="form-label">
+            {%- block __country -%}{%- endblock __country -%}
+          </label>
+          <select id="country" class="custom-select">
+            <option selected disabled></option>
+          </select>
+        </div>
+        <div class="col-md m-1">
+          <label for="nationality" class="form-label">
+            {%- block __nationality -%}{%- endblock __nationality -%}
+          </label>
+          <select id="nationality" class="custom-select">
+            <option selected disabled></option>
+          </select>
+        </div>
+        <div class="col-md m-1">
+          <label for="job-title" class="form-label">
+            {%- block __job -%}{%- endblock __job -%}
+          </label>
+          <input id="job-title" class="form-control" type="text" />
+        </div>
+        <div class="col-md m-1">
+          <label for="legal-entity-name" class="form-label">
+            {%- block __legal_entity_name -%}{%- endblock __legal_entity_name -%}
+          </label>
+          <input id="legal-entity-name" class="form-control" type="text" />
+        </div>
+        <div class="col-md m-1">
+          <label for="legal-entity-country" class="form-label">
+            {%- block __legal_entity_country -%}{%- endblock __legal_entity_country -%}
+          </label>
+          <select id="legal-entity-country" class="custom-select">
+            <option selected disabled></option>
+          </select>
+        </div>
+        <div class="col-md m-1">
+          <label for="legal-entity-registration" class="form-label">
+            {%- block __legal_entity_registration -%}{%- endblock __legal_entity_registration -%}
+          </label>
+          <input id="legal-entity-registration" class="form-control" type="text" />
+        </div>
+        <div class="col-md m-1">
+          <label for="legal-entity-tax-id" class="form-label">
+            {%- block __legal_entity_tax_id -%}{%- endblock __legal_entity_tax_id -%}
+          </label>
+          <input id="legal-entity-tax-id" class="form-control" type="text" />
+        </div>
+        <div class="col-md m-1">
+          <label for="evidence-kyc" class="input-group-text">
+            {%- block __documents -%}{%- endblock __documents -%}
+          </label>
+          <input id="evidence-kyc" class="form-control" type="file" accept=".pdf,.jpg,.jpeg,.png" multiple />
+          <div class="invalid-feedback">
+            {%- block __files_not_larger_than -%}{%- endblock __files_not_larger_than -%}
+          </div>
+          {%- block __info_for_files -%}{%- endblock __info_for_files -%}
+        </div>
+        <div class="col-md m-1 m-t-2">
+          <button class="btn btn-blue btn-lg btn-block font-weight-bold send-kyc-request" type="submit">
+            {%- block __send -%}{%- endblock __send -%}
+          </button>
+        </div>
+        <div class="col-md m-1">
+          {%- block __info_about_mandatory_fields -%}{%- endblock __info_about_mandatory_fields -%}
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal text-dark" tabindex="-1" id="modal-confirmation" style="background: rgba(150, 170, 140, .5)">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-body">
+          {%- block __confirm_body -%}{%- endblock __confirm_body -%}
+        </div>
+        <div class="modal-footer">
+          <button type="button" onclick="hideAllModals()" class="btn btn-secondary font-weight-bold">
+            {%- block __back -%}{%- endblock __back -%}
+          </button>
+          <button type="button" onclick="createNewKycRequest()" class="btn btn-blue btn-primary font-weight-bold confirm-download-conf">
+            {%- block __continue -%}{%- endblock __continue -%}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal text-dark" tabindex="-1" id="modal-finish" style="background: rgba(150, 170, 140, .5)">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            {%- block __finish_title -%}{%- endblock __finish_title -%}
+          </h5>
+        </div>
+        <div class="modal-body">
+          {%- block __finish_body -%}{%- endblock __finish_body -%}
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock logged_view %}
+
+{% block to_log_view %}
+    <div class="d-flex py-5 py-md-5 my-2 align-content-center flex-column flex-wrap container container-constata">
+      <div class="column g-6 bg-white text-dark rounded p-3">
+        <h2 class="mb-3 font-weight-bold">
+          {%- block __must_login_title -%}{%- endblock __must_login_title -%}
+        </h2>
+        <p>
+          {%- block __must_login_text -%}{%- endblock __must_login_text -%}
+        </p>
+      </div>
+    </div>
+{% endblock to_log_view %}
+
+{% block other_body %}
+  <div class="views" id="other-body" style="display:none;">
+    <div class="d-flex py-5 py-md-5 my-2 align-content-center flex-column flex-wrap container container-constata" >
+      <div class="column g-6 bg-white text-dark rounded p-3">
+          <h2 class="mb-3 font-weight-bold">
+            {%- block __oops -%}{%- endblock __oops -%}
+          </h2>
+          <p>
+            <b>
+              {%- block __oops_request_in_process -%}{%- endblock __oops_request_in_process -%}
+            </b>
+          </p>
+        </div>
+    </div>
+  </div>
+{% endblock other_body %}
+
+{% block script %}
+  const Countrily = require("countrily");
+  const translate = require("translate");
+
+  const modalConfirmation = document.getElementById("modal-confirmation");
+  const modalFinish = document.getElementById("modal-finish");
+  const lastName = document.getElementById("last-name");
+  const evidenceKyc = document.getElementById("evidence-kyc");
+
+  const checkValidName = (element) => {
+    if (element?.value?.length >= 2) markValid(element);
+    else markInvalid(element);
+  }
+
+  const setElementValue = (id, newValue) => {
+    document.getElementById(id).value = newValue;
+  }
+
+  const getElementValue = (id) => {
+    return document.getElementById(id)?.value;
+  }
+
+  const checkLimit25mb = (element) => {
+    const evidenceKycFiles = element?.files;
+    let finalSize = 0;
+    for (file of element?.files) {
+      finalSize += file.size;
+    }
+    if (finalSize <= 25 * 1024 * 1024 & finalSize >= 1) markValid(element);
+    else markInvalid(element);
+  }
+
+  const validateKyc = (event, name, lastName, evidenceKyc) => {
+    event.preventDefault();
+    event.stopPropagation();
+    checkValidName(name);
+    checkValidName(lastName);
+    checkLimit25mb(evidenceKyc);
+    if (document.querySelectorAll(".is-invalid").length > 0) return false;
+    else return true;
+  }
+
+  const validatePassword = (event, pass) => {
+    event.preventDefault();
+    event.stopPropagation();
+    checkLength(pass);
+    if (document.querySelectorAll(".is-invalid").length > 0) return false;
+    else return true;
+  }
+
+  const convertBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const fileReader = new FileReader();
+      fileReader.readAsDataURL(file);
+  
+      fileReader.onload = () => {
+        resolve(fileReader.result);
+      };
+  
+      fileReader.onerror = (error) => {
+        reject(error);
+      };
+    });
+  };
+
+  const getExistingKycEndorsement = async () => {
+    const storage = getStorage();
+    const [keyPair, address] = await getKeyPair(storage.encrypted_key, window.pass, storage.environment);
+    if (Buffer.from(storage.public_key, 'hex').equals(keyPair.publicKey)) {
+      let url = `${window.location.origin}/kyc_request/kyc_endorsement`;
+
+      const result = await fetch(await createGetWithAuth(url));
+      
+      if(result.ok) {
+        let response = await result.json();
+        return response;
+      } else {
+        handleErrors(await result.text());
+      }
+    }
+    return false;
+  }
+
+  const autoCompleteKycRequest = async () => {
+    const kyc_endorsement = await getExistingKycEndorsement();
+    if (kyc_endorsement) {
+      setElementValue("name", kyc_endorsement.name);
+      setElementValue("last-name", kyc_endorsement.last_name);
+      setElementValue("id-type", kyc_endorsement.id_type);
+      setElementValue("id-number", kyc_endorsement.id_number);
+      if (kyc_endorsement.birthdate) {
+        setElementValue("birthdate", new Date(kyc_endorsement.birthdate).toISOString().slice(0, 10));
+      }
+      setElementValue("country", kyc_endorsement.country);
+      setElementValue("nationality", kyc_endorsement.nationality);
+      setElementValue("job-title", kyc_endorsement.job_title);
+      setElementValue("legal-entity-name", kyc_endorsement.legal_entity_name);
+      setElementValue("legal-entity-country", kyc_endorsement.legal_entity_country);
+      setElementValue("legal-entity-registration", kyc_endorsement.legal_entity_registration);
+      setElementValue("legal-entity-tax-id", kyc_endorsement.legal_entity_tax_id);
+    }
+  }
+
+  const sendNewKycRequest = async (body) => {
+    const storage = getStorage();
+    const [keyPair, address] = await getKeyPair(storage.encrypted_key, window.pass, storage.environment);
+    if (Buffer.from(storage.public_key, 'hex').equals(keyPair.publicKey)) {
+      let url = `${window.location.origin}/kyc_request`;
+
+      const result = await fetch(await createPostWithAuth(url, body));
+      
+      if(result.ok) {
+        let response = await result.json();
+        return response;
+      } else {
+        handleErrors(await result.text());
+      }
+    }
+    return false;
+  }
+
+  const createNewKycRequest = async () => {
+    showModal(modalLoading);
+    const nameValue = getElementValue("name");
+    const lastNameValue = getElementValue("last-name");
+    const idTypeValue = getElementValue("id-type");
+    const idNumberValue = getElementValue("id-number");
+    const birthdateValue = new Date(getElementValue("birthdate") + "T00:00:00");
+    const countryValue = getElementValue("country");
+    const nationalityValue = getElementValue("nationality");
+    const jobTitleValue = getElementValue("job-title");
+    const legalEntityNameValue = getElementValue("legal-entity-name");
+    const legalEntityCountryValue = getElementValue("legal-entity-country");
+    const legalEntityRegistrationValue = getElementValue("legal-entity-registration");
+    const legalEntityTaxIdValue = getElementValue("legal-entity-tax-id");
+    const evidenceKycFiles = evidenceKyc?.files;
+    let evidenceKycValue = []
+    for (file of evidenceKycFiles) {
+        let raw_base64 = await convertBase64(file);
+        evidenceKycValue.push({
+          "payload": raw_base64.split('base64,')[1],
+          "filename": file.name,
+          "contentType": file.type,
+        });
+    }
+
+    let body = JSON.stringify({name: nameValue, lastName: lastNameValue, idType: idTypeValue,
+      idNumber: idNumberValue, birthdate: birthdateValue, country: countryValue,
+      nationality: nationalityValue, jobTitle: jobTitleValue, legalEntityName: legalEntityNameValue,
+      legalEntityCountry: legalEntityCountryValue, legalEntityRegistration: legalEntityRegistrationValue,
+      legalEntityTaxId: legalEntityTaxIdValue, evidence: evidenceKycValue
+    });
+    
+    if (!await sendNewKycRequest(body)) return;
+    else showModal(modalFinish);
+  }
+
+  forms.forEach(form => {
+    form.addEventListener('submit', async (event) => {
+      if (form.classList.contains("form-kyc")) {
+        if (!validateKyc(event, event.currentTarget.name, lastName, evidenceKyc)) return;
+        showModal(modalConfirmation);
+      };
+      if (form.classList.contains("form-daily-password")) {
+        if (!validatePassword(event, dailyPassword)) return;
+        window.pass = dailyPassword.value;
+        autoCompleteKycRequest();
+        hideAllModals();
+        forms.forEach(form => form.reset());
+        inputs.forEach(input => resetMark(input));
+      }
+    }, false)
+  });
+
+
+  const setCountries = () => {
+    const country = document.getElementById("country");
+    const legalEntityCountry = document.getElementById("legal-entity-country");
+    Countrily.all().map(async value => {
+      if (!value.translations) return;
+      country.innerHTML += `<option value="${value.name}">${value.translations.es}</option>`
+      legalEntityCountry.innerHTML += `<option value="${value.name}">${value.translations.es}</option>`
+    })
+  }
+
+  const setDemonyms = () => {
+    const nationality = document.getElementById("nationality");
+    Countrily.all().map(async value => {
+      if (!value.demonym) return;
+      let translatedDemonym = await translate(value.demonym, "es");
+      nationality.innerHTML += `<option value="${value.demonym}">${translatedDemonym.charAt(0).toUpperCase() + translatedDemonym.slice(1)}</option>`
+    })
+  }
+
+  const main = () => {
+    setCountries();
+    setDemonyms();
+    if (checkStorage()) {
+      showModal(modalDailyPassword);
+    }
+  };
+
+  main();
+  document.getElementById("finish-login").addEventListener('click', () => { autoCompleteKycRequest() });
+
+{% endblock script %}

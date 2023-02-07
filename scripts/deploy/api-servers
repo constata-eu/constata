@@ -1,0 +1,75 @@
+#!/bin/bash
+trap "exit" INT
+
+BRANCH=$(git rev-parse --abbrev-ref HEAD) 
+
+if [[ $1 == "production" && $BRANCH != "master" ]]
+then
+  echo Wont deploy anything but MASTER to productionc
+  exit 1
+fi
+
+if [[ -n $(git status --porcelain) ]]
+then
+  echo "Can't deploy while you have uncommited files"
+  exit 1
+fi
+
+if ! git pull origin $BRANCH
+then
+  echo Could not pull from $BRANCH
+  exit 1
+fi
+
+if [[ -n $(git status | grep ahead) ]]
+then
+  echo "Your branch is ahead of origin, push your changes first"
+  exit 1
+fi
+
+echo "Preparing to release." &&
+rm -rf target/release/.fingerprint/i18n-* &&
+rm -rf target/release/.fingerprint/i18n-* &&
+rm -rf target/release/.fingerprint/private_api-* &&
+rm -rf target/release/.fingerprint/public_api-* &&
+
+cd scripts/deploy &&
+docker build -t constata-rust-builder:1.0 . &&
+cd - &&
+docker run --net=host --rm -v $PWD:/user/constata-rust-builder/src constata-rust-builder:1.0 cargo build --release --bin migrator --bin public_api --bin admin_cli --bin private_api --bin worker --bin signer
+
+until [[ -n $password ]]
+do
+  echo -n Services encryption password:
+  read -s password
+  echo 
+done
+echo Got password
+
+rm -rf /tmp/deploy-files &&
+mkdir /tmp/deploy-files &&
+cp target/release/{migrator,public_api,admin_cli,private_api,worker,signer} /tmp/deploy-files &&
+echo "Copying deploy files" &&
+scp -r /tmp/deploy-files root@$1:/var/www/ &&
+ssh root@$1 '
+cd /var/www &&
+mkdir -p templates &&
+echo "Changing ownership" &&
+chown -R www-data.www-data deploy-files &&
+echo "Stopping servers" &&
+systemctl stop constata_public_api constata_private_api worker signer &&
+echo "Backing up old files, moving in new ones" &&
+for f in "public_api" "admin_cli" "private_api" "migrator" "worker" "signer";
+  do mv $f $f.old;
+  mv deploy-files/$f .;
+done &&
+echo "Running migrations" &&
+echo "'$password'" | ./migrator &&
+echo "Start new servers" &&
+systemctl start worker constata_public_api constata_private_api signer &&
+echo Wait a moment for password sync &&
+sleep 3 &&
+for s in `ls /run/systemd/ask-password/sck.*`;
+  do echo -n "+'"$password"'" | nc -uU -q0 $s;
+done &&
+systemctl status constata_public_api constata_private_api worker signer'

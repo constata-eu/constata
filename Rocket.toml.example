@@ -1,0 +1,57 @@
+[global]
+limits = { json = "50MB", graphql = "50MB" }
+url = "http://localhost:8000"
+database_uri = "postgres://constata:password@localhost/constata_development"
+network = "regtest"
+wallet_encrypted_hex = "dba671549da62772712ae20a1dd7474f1d0a973e523b5f9597f55f56374591e1ed23adc40a25c113ad0301c016ea61d5139623dd497f11bea8e5f00b211c3ed37bd87f45259b996c58d418c357862c5f"
+wallet_xpub = "tpubD6NzVbkrYhZ4YKfD682itquoDwS2TdSdhvo4KZjiLmvU7i595WPerkUBGncWr8owQmbsuREGRJ8AfyyGX3DvQ8JALQ6z1VWFHsqvsHAsSAD"
+wallet_address = "bcrt1qsj2h8ernt4amc674l60vu925flvn57ff9lyry2"
+# The password was password.
+bitcoin_rpc_uri = "http://localhost:10203"
+bitcoin_rpc_user = "user"
+bitcoin_rpc_pass = "password"
+api_key = "supersecret"
+minimum_bulletin_interval = 0
+bump_interval = 0
+pubkey_domain_endorsement_retry_wait = 0
+audit_log_path = "/tmp/constata_audit.log"
+audit_log_max_size = 50000000
+payment_success_redirect="https://constata.eu/#/invoices/muchas-gracias"
+payment_error_redirect="https://constata.eu/#/invoices/error-al-pagar"
+testing_database=true
+email_bot_sender="TESTING Constata EU <ace.testing@constata.eu>"
+telegram_timeout=15
+telegram_token="XXXXXXXXXX:YYYYYYYYYYYYYYYYYYZZZZZZZZZZZZZZZZZ"
+recaptcha_threshold=0.0
+
+[global.recaptcha.v3]
+html_key="yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy-"
+secret_key="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+[global.storage]
+url="ams3.digitaloceanspaces.com"
+key="XXXXXXXXXXXXXXXXXXXX"
+secret="YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY"
+bucket="constata-development"
+local=true
+
+[global.storage_backup]
+url="eu-west-3"
+key="XXXXXXXXXXXXXXXXXXXX"
+secret="YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY"
+bucket="constata-development"
+local=true
+
+[global.stripe]
+checkout_domain="http://127.0.0.1:31337"
+secret_key="xxxxxxx_yyyyyyyyy"
+public_key="yy_xxxxxxxxxxxxxx"
+events_secret="xxxxx_yyyyyyyyy"
+token_product_code="price_zzzzzzzzzzzzzzzzzzzzzzzz"
+
+[global.btcpay]
+base_url="https://btcpay.constata.eu"
+store_id="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+api_key="xxstring"
+webhooks_secret="yyyyyyyyyyyyyy"
+

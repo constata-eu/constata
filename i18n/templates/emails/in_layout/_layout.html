@@ -1,0 +1,32 @@
+{% extends "emails/_bare_layout.html" %}
+
+{% block container  %}
+  <tr>
+    <td style="padding:20px 30px 4px 30px;font-size:0;background-color:#fafafa;border:1px solid #f0f0f5;border-color:rgba(201,201,207,.35);border-radius:11px 11px 0 0; border-bottom:0;">
+      <!--[if mso]>
+      <table role="presentation" width="100%">
+      <tr>
+      <td style="width:145px;" align="left" valign="top">
+      <![endif]-->
+      <div class="col-sml" style="display:inline-block;width:100%;max-width:145px;vertical-align:top;text-align:center;font-family:Inter, system-ui;font-size:14px;color:#363636;">
+        <img src="https://constata.eu/assets/images/logo.png" width="120" style="width:120px;max-width:90%;margin-bottom:20px;margin-right:20px;">
+      </div>
+      <!--[if mso]>
+      </td>
+      <td style="width:395px;padding-bottom:20px;" valign="top">
+      <![endif]-->
+      <div class="col-lge" style="display:inline-block;width:100%;max-width:395px;vertical-align:top;padding-bottom:20px;font-family:Inter, system-ui;font-size:15px;line-height:22px;color:#363636;">
+        <p style="margin-top:0;margin-bottom:10px;">
+          {% block main %}
+          {% endblock main %}
+        </p>
+      <!--[if mso]><i style="letter-spacing: 25px;mso-font-width:-100%">&nbsp;</i><![endif]--></a>
+      </div>
+      <!--[if mso]>
+      </td>
+      </tr>
+      </table>
+      <![endif]-->
+    </td>
+  </tr>
+{% endblock container %}

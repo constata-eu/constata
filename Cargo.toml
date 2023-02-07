@@ -1,0 +1,15 @@
+[workspace]
+members = [
+  "constata_lib",
+  "public_api",
+  "private_api",
+  "stamper",
+  "email_bot",
+  "telegram_bot",
+  "worker",
+  "stamper",
+  "integration_tests",
+  "admin_cli",
+  "i18n",
+]
+

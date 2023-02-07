@@ -1,0 +1,28 @@
+[package]
+name = "admin_cli"
+version = "0.1.0"
+authors = ["nubis <nubis@constata.eu>"]
+edition = "2021"
+
+[dependencies]
+constata_lib = { path = "../constata_lib" }
+hex = "0.4.2"
+dialoguer = "0.8.0"
+tokio = { version = "1.2.0", features = ["full"] }
+bitcoin-wallet = { git = "https://github.com/rust-bitcoin/rust-wallet" }
+clap = { version = "3.1.18", features = ["derive", "cargo"] }
+qr2term = "0.2.3"
+
+[dependencies.bitcoin]
+version = "0.26.0"
+features = ["base64"]
+
+[dev-dependencies]
+galvanic-test = "0.2"
+galvanic-assert = "0.8.7"
+anyhow = "*"
+constata_lib = { path = "../constata_lib", features = ["test_support"] }
+
+[[bin]]
+name = "admin_cli"
+path = "src/bin.rs"

@@ -1,0 +1,757 @@
+{
+  "resources": {
+    "Request": {
+      "create": "Crear una Emisión",
+      "fields": {
+        "createdAt": "Creado el",
+        "download": "Descargar",
+        "download_csv": "CSV original",
+        "entries": "Entradas",
+        "errors": "Errores",
+        "evidence": "",
+        "id": "ID",
+        "name": "Nombre",
+        "nameLike": "Por nombre:",
+        "nextStep": "Próximo paso",
+        "nextSteps": {
+          "completed": "Ha completado todos los pasos",
+          "created": "Debe firmar las entradas",
+          "received": "Debe esperar a que las entradas se creen",
+          "signed": "Debe esperar a que las entradas sean selladas y notificadas"
+        },
+        "payload": "Archivo",
+        "state": "Estado",
+        "stateEq": "Por Estado",
+        "states": {
+          "created": "Creadas",
+          "signed": "Firmadas",
+          "completed": "Completadas"
+        },
+        "templateId": "Plantilla",
+        "templateIdEq": "Por plantilla:"
+      },
+      "name": "Emisión |||| Emisiones",
+      "admin_title": "Emisiones"
+    },
+    "Entry": {
+      "field": "CAMPO",
+      "fields": {
+        "createdAt": "Creado el",
+        "downloadProof": "Descargar Certificado",
+        "errors": "Errores",
+        "hasEmailCallback": "Notificación por email",
+        "id": "ID",
+        "name": "Nombre",
+        "params": "Parámetros",
+        "paramsLike": "Por parámetros:",
+        "proof": "Certificado",
+        "requestId": "Emisión",
+        "rowNumber": "Línea",
+        "state": "Estado"
+      },
+      "name": "Entrada |||| Entradas",
+      "value": "VALOR"
+    },
+    "Template": {
+      "create": "Crear una Plantilla",
+      "fields": {
+        "createdAt": "Creado el",
+        "customMessage": "Mensaje Personalizado",
+        "evidence": "",
+        "id": "ID",
+        "name": "Nombre",
+        "nameLike": "Por nombre:",
+        "payload": "Archivo"
+      },
+      "name": "Plantilla |||| Plantillas",
+      "admin_title": "Plantillas"
+    },
+    "SignUp": {
+      "ConfirmPassStep": {
+        "done": "Contraseña confirmada",
+        "label": "Confirme su contraseña"
+      },
+      "DownloadStep": {
+        "filename": "firma.json",
+        "download": "Descargar firma y acceder",
+        "email": "hola@constata.eu",
+        "title": "¡Ya está!",
+        "usage": "Descargue su firma digital protegida con contraseña, guárdela, úsela para acceder desde otros dispositivos."
+      },
+      "EmailAddressStep": {
+        "change": "Cambiar",
+        "done": "Email",
+        "no_email": "No provisto",
+        "endorse": "Mostrarlo en sus emisiones, para que los destinatarios puedan identificarle.",
+        "helper": "Puede dejarlo vacío",
+        "label": "Correo electrónico",
+        "news": "Comunicarle novedades o incidencias en nuestros servicios.",
+        "poll": "Consultarle sobre su satisfacción y recibir sus comentarios.",
+        "send_copy": "Enviarle una copia de respaldo de su firma cifrada.",
+        "support": "Brindarle soporte técnico y comercial por correo electrónico.",
+        "title": "Puede dejarnos su correo para:"
+      },
+      "PasswordStep": {
+        "change": "Cambiar",
+        "done": "Contraseña inventada, no la olvide.",
+        "dont_remember": "Recomendamos que no la autocomplete en su navegador.",
+        "label": "Nueva contraseña",
+        "make_it_easy": "Que sea fácil de recordar y de escribir cada vez.",
+        "no_change": "No podrá cambiarla. Si necesita cambiarla contáctenos.",
+        "no_recovery": "Si la olvida, no podrá volver a usar esta firma.",
+        "phrase": "Es preferible una frase a usar símbolos especiales.",
+        "title": "Invente una contraseña",
+        "we_remember": "Si verifica su cuenta podremos recuperar sus datos ya firmados.",
+        "will_encrypt": "Esta contraseña protegerá su firma digital."
+      },
+      "PrivacyStep": {
+        "acceptPrivacyPolicy": "Aceptar la política de privacidad y las cookies.",
+        "accept_our_policy": "Usted debe leer y aceptar la política de privacidad y las cookies.",
+        "data_privacy": "No vendemos sus datos. No le rastreamos. Respetamos su privacidad.",
+        "done": "Política de privacidad y cookies aceptadas.",
+        "link": "Leer política de privacidad",
+        "mandatory": "No podrá crear su firma si no acepta estas cookies.",
+        "mustAcceptPrivacyPolicy": "Debe aceptar la política de privacidad y las cookies.",
+        "one_cookie": "Usamos cookies para asegurarnos de que usted no es un robot.",
+        "owner": "Son cookies de un tercero: el servicio Recaptcha de Google.",
+        "review": "Revisar",
+        "title": "Acerca de su privacidad."
+      },
+      "TycStep": {
+        "acceptTyc": "Aceptar políticas y condiciones del servicio.",
+        "accept_our_policies": "Usted debe leer y aceptar las políticas y condiciones del servicio.",
+        "bitcoin_backed": "La emisión estará respaldada por blockchain de Bitcoin y Constata.",
+        "done": "Políticas y condiciones aceptadas.",
+        "giveaway": "Le regalamos los primeros 10 tokens que necesite cada mes.",
+        "issue_documents": "Usted podrá emitir diplomas, certificados de asistencia e invitaciones.",
+        "link": "Leer políticas y condiciones del servicio",
+        "mustAcceptTyc": "Debe aceptar las políticas y condiciones.",
+        "review": "Revisar",
+        "title": "Acerca del servicio de Constata",
+        "tokens_needed": "Para realizar una emisión necesita tokens, que valen 1EUR cada uno.",
+        "valid_forever_free": "Se puede compartir y validar las emisiones para siempre sin cargo.",
+        "we_keep_a_copy": "Guardamos una copia de respaldo de sus emisiones por 5 años."
+      },
+      "WordsStep": {
+        "done": "Copia de respaldo completada, guárdela bien.",
+        "if_you_lose": "Si pierde su firma pero recuerda su contraseña, podrá recuperarla.",
+        "must_contact_us": "Deberá contactarnos para realizar la recuperación.",
+        "optional": "Este paso es opcional, pero recomendado.",
+        "store_physically": "Puede guardar un respaldo de su firma en papel.",
+        "title": "Respaldo en papel.",
+        "view_again": "Ver",
+        "write_it_down": "Escriba las palabras en un papel, el órden es importante."
+      },
+      "description": "Está por crear una firma digital cifrada con ayuda de Constata.",
+      "email_taken": "Este correo electrónico ya está asociado a una firma, por favor utilice otro. Si usted no tiene otra firma en constata o esto le parece un error, contáctenos.",
+      "invalid_email": "Si ingresa un email debe ser válido",
+      "invalid_password": "Contraseña inválida",
+      "invalid_recaptcha": "Captcha inválido",
+      "mismatch_passwords": "Las contraseñas no son iguales",
+      "ready": "Continuar",
+      "IntroStep": {
+        "checklist": "Le tomará 3 minutos.",
+        "done": "Generación de firma digital iniciada.",
+        "for_login": "Sirve para acceder a nuestra herramienta WEB3.",
+        "for_signing": "Sirve para firmar diplomas y certificados.",
+        "help": "Estamos para responder sus consultas.",
+        "ill_do_it_later": "Lo haré luego",
+        "no_account": "No estará asociada a su identidad.",
+        "no_recovery": "Si olvida su contraseña no podrá recuperarla.",
+        "safekeep": "Deberá guardarla responsablemente.",
+        "start_btn": "Comenzar",
+        "unique": "Nadie más podrá firmar por usted.",
+        "verify_later": "Podrá asociarla a su identidad por un cargo adicional."
+      },
+      "title": "Creando Firma"
+    }
+  },
+  "patch": {
+    "action": {
+      "clear_input_value": "Limpiar valor",
+      "confirm": "Confirmar",
+      "unselect": "Deseleccionar"
+    },
+    "auth": {
+      "auth_check_error": "Por favor inicie sesión para continuar",
+      "user_menu": "Perfil"
+    },
+    "navigation": {
+      "page_rows_per_page": "Filas por página:",
+      "skip_nav": "Saltar al contenido"
+    }
+  },
+  "certos": {
+    "account_state": {
+      "pending_invoice": {
+        "button": "Elegir forma de pago",
+        "text": "Tiene un certificado pendiente de emisión |||| Tiene %{smart_count} certificados pendientes de emisión.",
+        "text_2": "Debe comprar un token de Constata |||| . Debe comprar %{smart_count} tokens de Constata ",
+        "text_3": "por un total de €%{smart_count} para su certificación. Si tiene problemas con el pago, contáctenos.",
+        "title": "Hay un pago pendiente."
+      },
+      "pending_tyc": {
+        "button": "Ver políticas de contratación y privacidad",
+        "text": "Hubo cambios en nuestros términos y condiciones y nuestra política de privacidad, no podremos certificar nada hasta que los acepte.",
+        "title": "Debe aceptar nuestras políticas de contratación y privacidad."
+      }
+    },
+    "balance": {
+      "title": "Balance de tokens",
+      "text": "Los tokens de Constata sirven para pagar por la emision de documentos. El precio mínimo de un documento es de 1 token.",
+      "no_tokens": "No tienes tokens todavía, pero podrás comprarlos cuando te hagan falta.",
+      "balance_amount": "Tienes 1 token |||| Tienes %{smart_count} tokens.",
+      "monthly_gift_remainder": "El próximo token que necesites será gratis. |||| Los próximos %{smart_count} tokens que necesites serán gratis."
+    },
+    "actions": {
+      "confirm": "Confirmar",
+      "created": "Elemento creado",
+      "error_select_file": "Debe seleccionar un archivo",
+      "error_select_name": "Debe ingresar un nombre",
+      "file_selected": "seleccionado",
+      "loading": "Cargando...",
+      "payload": "Descargar archivo",
+      "reject": "Rechazar",
+      "select_csv_file": "Seleccionar un archivo .csv",
+      "select_zip_file": "Seleccionar un archivo .zip",
+      "copy_to_clipboard": "Link copiado al portapapeles"
+    },
+    "dashboard": {
+      "email": {
+        "no_email_yet": "Verifique su correo electrónico sin costo, para que los destinatarios de sus emisiones puedan identificarle. Constata no enviará notificaciones por correo electrónico a los destinatarios de sus certificados hasta que no verifique su propio correo.",
+        "not_verified": "No verificado. Revise su casilla de correo.",
+        "save": "Guardar",
+        "title": "Correo electrónico",
+        "verified": "Dirección verificada"
+      },
+      "endorsement": {
+        "existing": {
+          "call_to_action": "Solicitar modificación",
+          "lead": "Sus emisiones mostrarán estos datos junto a la firma",
+          "received": "Recibimos su solicitud de modificación. La procesaremos en breve.",
+          "title": "Identidad verificada"
+        },
+        "loading": "Verificación de identidad",
+        "not_yet": {
+          "call_to_action": "Solicitar verificación",
+          "cost": "La verificación de datos es un servicio para individuos o empresas, tiene un costo adicional y dura 2 años.",
+          "custom_template": "Plantilla a medida",
+          "description": "Constata puede verificar sus datos y mostrarlos en las emisiones brindando seguridad, validez y prestigio.",
+          "lead": "Sus emisiones no indican sus datos como emisor.",
+          "received": "Recibimos su solicitud de verificación. Nos pondremos en contacto.",
+          "title": "Identidad sin verificar",
+          "verification": "Verificación"
+        }
+      },
+      "issue": {
+        "button": "Hacer una emisión",
+        "text": "La BLOCKCHAIN DE BITCOIN garantiza la inmutabilidad y la fecha, CONSTATA verifica su identidad.",
+        "title": "Emita diplomas, certificados de asistencia o invitaciones."
+      },
+      "pending_signatures": {
+        "text": "Revíselas y fírmelas para que podamos completar el proceso de emisión.",
+        "title": "Emisiones no firmadas"
+      },
+      "recent": {
+        "text": "Estas son las últimas emisiones certificadas y notificadas.",
+        "title": "Emisiones recientes"
+      },
+      "signed": {
+        "text": "Estamos trabajando en certificar y notificar estas emisiones",
+        "title": "Emisiones en proceso"
+      },
+      "unseen": {
+        "see": "Ver ",
+        "more": " más"
+      }
+    },
+    "entry": {
+      "name": "Entrada",
+      "notified": "Notificado el",
+      "notify_at_sign": "Se notificará (recuerde firmar)",
+      "preview": "Vista Previa",
+      "states": {
+        "completed": "Entrada completada",
+        "created": "Entrada creada",
+        "failed": "Entrada fallida",
+        "received": "Entrada recibida",
+        "signed": "Entrada firmada"
+      },
+      "with_notify": "Se notificará",
+      "without_notify": "No se notificará"
+    },
+    "errors": {
+      "config_json": "Archivo config.json inválido",
+      "default": "Error: Ha ocurrido un error",
+      "downloadPayload": "Error: No se pudo descargar el documento",
+      "downloadProof": "Error: No se pudo descargar el certificado",
+      "not_an_email": "Error: Revise en su archivo .csv que los emails estén bien formados y no haya espacios en blanco.",
+      "onlyMessage": "Ha ocurrido un error",
+      "password": "Contraseña inválida"
+    },
+    "kyc_request": {
+      "cancel": "Cancelar",
+      "create_button": "Solicitar verificación",
+      "edit_button": "Solicitar modificación",
+      "edit_title": "Solicitar modificación de datos",
+      "evidence_text": {
+        "end": "Es posible que le pidamos adjuntar algo más al revisar su solicitud.",
+        "start": "Adjunte una foto de su documento de identidad u otros ficheros que nos puedan ayudar a verificar sus datos."
+      },
+      "fields": {
+        "birthdate": "Fecha de nacimiento",
+        "country": "País actual",
+        "email": "Correo electrónico",
+        "idNumber": "Documento de identidad",
+        "jobTitle": "Título profesional",
+        "keepPrivate": "No mostrar mi correo en las emisiones.",
+        "lastName": "Apellidos",
+        "legalEntityCountry": "País de su organización",
+        "legalEntityName": "Nombre de su organización",
+        "legalEntityRegistration": "Número de registro de la organización",
+        "legalEntityTaxId": "Identificador fiscal de la organización",
+        "name": "Nombres",
+        "nationality": "País de nacimiento"
+      },
+      "helper_text": {
+        "birthdate": "",
+        "country": "País donde reside, o que expidió su documento de identidad.",
+        "email": "Le escribiremos a este correo para verificar los datos.",
+        "emailWillShow": "Se mostrará en sus emisiones",
+        "emailWontShow": "No aparecerá en sus emisiones",
+        "evidence": "Toque aquí para seleccionar los ficheros",
+        "idNumber": "Debe estar vigente",
+        "jobTitle": "O cargo en la empresa. ej: Profesor en letras, Director General.",
+        "lastName": "",
+        "legalEntityCountry": "",
+        "legalEntityName": "Empresa, ONG o institución estatal.",
+        "legalEntityRegistration": "Número de registro comercial, licencia, etc.",
+        "legalEntityTaxId": "",
+        "name": "",
+        "nationality": ""
+      },
+      "privacy_policy": "Recuerde nuestra política de privacidad.",
+      "submit": "Enviar solicitud",
+      "text": "Complete sus datos y le contactaremos a su correo para verificarlos. Solo necesita completar los campos y documentación respaldatoria para los datos que desea que veriquemos. Una vez verificados se mostrarán junto a la firma en todas sus emisiones.",
+      "title": "Solicitar verificación de identidad"
+    },
+    "login": {
+      "confirm_logout": "¿Confirma que posee una firma distinta?",
+      "confirm_logout_text": "Esta opción solo es útil si usted posee varias firmas, o si este dispositivo es compartido entre varios firmantes. Si continúa, deberá tener disponible su fichero firma.json protegido con contraseña para acceder nuevamente.",
+      "create_signature": "Crear una firma",
+      "invalid_password": "Contraseña errónea",
+      "known_user": {
+        "access": "Acceder",
+        "text": "Escriba la contraseña de su firma digital para acceder.",
+        "title": "¡Hola otra vez!",
+        "use_another_signature": "Utilizar una firma distinta",
+        "using_signature": "Utilizando firma:"
+      },
+      "must_select": "Debe seleccionar un archivo",
+      "unknown_user": {
+        "error_invalid_file": "El fichero de firma no es válido. Debe usar un fichero firma.json generado con las herramientas de Constata.",
+        "select_config_file": "Seleccionar firma.json",
+        "text": "Para usar CONSTATA necesita una firma digital. Si es su primera vez por aquí, no se preocupe, le ayudamos a crearla.",
+        "title": "¡Hola!"
+      },
+      "use_different_signature": "Usar otra firma"
+    },
+    "menu": {
+      "logo": "Logo",
+      "dashboard": "Tablero",
+      "help": "Ayuda",
+      "logout": "Salir",
+      "requests": "Emisiones"
+    },
+    "request": {
+      "create": "Crear emisión",
+      "csv": "Archivo csv",
+      "download_csv": "Descargar csv",
+      "errors": {
+        "CsvErrorUnequalLengths": "csv Error: Diferencia entre la longitud de los encabezados y la longitud de los valores",
+        "CsvErrorUnexpected": "Error inesperado con el archivo csv",
+        "CsvErrorUtf8": "csv Error: codificación utf-8 inválida, puede ser causada por carácteres especiales",
+        "template_error_csv_and_template_are_incompatibles": "Template Error: Diferencia entre los valores utilizados por el template y los valores provistos en el archivo csv",
+        "template_error_unexpected": "Error inesperado con el template"
+      },
+      "invalid_template": "Debe ingresar una plantilla válida",
+      "loading": "Cargando...",
+      "message_confirm": "Confirme su contraseña para firmar esta emisión.",
+      "name": "Emisión",
+      "sign_completed": "Entradas firmadas correctamente",
+      "sign_request": "Firmar entradas",
+      "states": {
+        "completed": "Entradas completadas",
+        "created": "Entradas creadas",
+        "failed": "Entradas fallidas",
+        "received": "Entradas recibidas",
+        "signed": "Entradas firmadas"
+      }
+    },
+    "show": {
+      "details": "Detalles"
+    },
+    "template": {
+      "download_zip": "Descargar zip",
+      "evidence": "ZIP original",
+      "loading": "Cargando...",
+      "name": "Plantilla"
+    },
+    "verify_email": {
+      "contact_us": "Contáctenos",
+      "expired": "El link de verificación ya fue utilizado o expiró.",
+      "go_to_dashboard": "Acceder al tablero",
+      "loading": "Verificando correo electrónico.",
+      "other_error": "Ocurrió un error inesperado, la causa puede ser temporal o relacionada a su dispositivo y conexión.",
+      "success": "Correo electrónico verificado."
+    },
+    "invoice_link": {
+      "expired": {
+        "title": "Expirado",
+        "text": "Ese link ya fue utilizado."
+      },
+      "error": {
+        "title": "Error",
+        "text": "Ocurrió un error inesperado. Asegúrate de que tu conexión a internet funciona correctamente."
+      },
+      "purchase": {
+        "title": "Comprar tokens",
+        "text_1": "Para certificar tus documentos necesitas Tokens Constata.",
+        "text_2": "1 token por cada megabyte de datos, con un mínimo de 1 token por certificado.",
+        "text_3": "Puedes comprar los tokens que necesites a %{smart_count} EUR cada uno.",
+        "button_label": "¿Cuántos quieres?",
+        "button_help": "Necesitas al menos %{smart_count}",
+        "total": "Total: %{smart_count} EUR",
+        "credit_card": "Pagar con tarjeta",
+        "bitcoin": "Pagar con Bitcoin"
+      },
+      "purchasing": {
+        "title": "Comprando..."
+      },
+      "success": {
+        "title": "¡Gracias!",
+        "text": "Recibimos tu pago. Pronto se acreditarán tus Tokens y comenzaremos a procesar cualquier documento pendiente.",
+        "go_to_dashboard": "Ir al Tablero"
+      },
+      "error_in_purchase": {
+        "title": "Oh, lo sentimos...",
+        "text_1": "No pudimos recibir tu pago. ¿Cancelaste el proceso?.",
+        "text_2": "Escríbenos a",
+        "text_3": "para que podamos ayudarte.",
+        "try_again": "Volver a intentar"
+      }
+    },
+    "download_proof_link": {
+      "title": "Descargar o visualizar certificado.",
+      "text": "Le sugerimos que descargue y almacene este certificado antes del %{validUntil}, de esa manera siempre tendrá una copia de seguridad y obtendrá el control total de sus datos.",
+      "text_without_date": "Le sugerimos que descargue y almacene este certificado, de esa manera siempre tendrá una copia de seguridad y obtendrá el control total de sus datos.",
+      "text_2": "Un certificado de Constata es como cualquier otro archivo que puede enviarse por correo electrónico, mensaje instantáneo y ser verificado por el destinatario.",
+      "more_title": "Pronto habrá más contenido",
+      "more_text_1": "Constata está certificando nuevos contenidos que seran agregados a este Certificado de sello de tiempo.",
+      "more_text_2": "El contenido actual incluye hasta %{lastDocDate}.",
+      "more_text_3": "Falta %{smart_count} documento que estará disponible a la brevedad. |||| Faltan %{smart_count} documentos que estarán disponibles a la brevedad.",
+      "button_download": "Descargar",
+      "button_view": "Visualizar aquí",
+      "button_deactivate_public_certificate": "Despublicar",
+      "button_activate_public_certificate": "Publicar",
+      "link_to_public_certificate": "Abrir Link",
+      "copy_to_clipboard": "Copiar Link",
+      "share_on": "Compartir en",
+      "error_download": "Error: no se pudo descargar el archivo. Recargue la página y vuelva a intentarlo",
+      "error_public_certificate_state": "Error: no se pudo cambiar el estado del certificado. Recargue la página y vuelva a intentarlo",
+      "error_deletion": "Error: no se pudo borrar el link. Recargue la página y vuelva a intentarlo",
+      "share": {
+        "title": "Publicar y compartir.",
+        "text": "Puedes compartir un link a este certificado en tus redes sociales. Para que puedas hacerlo, tenemos que dejarlo públicamente accesible en nuestra web. Si cambias de opinión, podrás des-publicarlo luego.",
+        "linkedin": "Compartir en Linkedin",
+        "twitter": "Compartir en Twitter"
+      },
+      "delete": {
+        "title": "Acceso administrativo",
+        "button": "Desactivar acceso administrativo",
+        "text": "Está página administrativa es de uso exclusivo para usted, receptor del certificado. Es puesta a disposición por el emisor del certificado, y permite administrarlo y compartirlo en redes sociales. No comparta el acceso a esta página. Puede deshabilitar este acceso administrativo si lo desea.",
+        "modal_title": "Esta por deshabilitar el acceso administrativo",
+        "modal_content": "Esto también expirará los links que haya compartido en redes sociales. Sugerimos que descargue el certificado antes de hacer esto. Puede contactar a Constata para reestablecer el acceso administrativo pero llevará un tiempo. ¿Desea continuar?"
+      },
+      "error": {
+        "title": "Error",
+        "text": "Ocurrió un error inesperado. Asegúrate de que tu conexión a internet funciona correctamente."
+      },
+      "expired": {
+        "title": "El link de descarga no existe o expiró.",
+        "text_1": "No pudimos encontrar este link de descarga de certificado en nuestros registros.",
+        "text_2": "Puede ser que haya expirado, o que esté mal escrito."
+      },
+      "deleted": {
+        "title": "Este link de descarga ha sido borrado.",
+        "text": "Hemos removido este link de descarga de nuestros registros."
+      }
+    },
+    "safe": {
+      "initial": {
+        "title": "Validar y visualizar certificado.",
+        "text_1": "Elige el certificado que hayas descargado en tu dispositivo y podrás visualizarlo con absolutas garantías de que es válido y veraz.",
+        "text_2": "Es un proceso inmediato y local, el certificado no abandonará tu dispositivo.",
+        "button": "Elige el certificado"
+      },
+      "loading": "Validando...",
+      "invalid": {
+        "title": "Certificado inválido",
+        "text_1": "Este certificado no fue emitido por Constata, o pudo haber sido manipulado maliciosamente. Escríbenos a",
+        "text_2": "para más información."
+      }
+    },
+    "wizard": {
+      "creating": {
+        "error": "Oops, tuvimos un problema creando las vistas previas",
+        "error_text": "Asegúrese de que su conexión a Internet funciona correctamente. De otro modo, es un problema de nuestra parte y le agradeceremos que se ponga en contacto con nosotros.",
+        "text": "Esto puede demorar unos segundos.",
+        "title": "Creando vista previa"
+      },
+      "done": {
+        "begin": "A partir de este punto esta emisión queda en manos de Constata. En minutos vamos a registrar",
+        "begin_need_token": "Luego de su pago registraremos",
+        "buy_tokens": "Comprar tokens",
+        "email": "enviaremos por correo electrónico a los destinatarios",
+        "go_to_dashboard": "Ir al Tablero",
+        "kind_text": {
+          "ATTENDANCE": {
+            "and_we": " y lo ||| y los ",
+            "base": "el certificado de asistencia |||| los %{smart_count} certificados de asistencia "
+          },
+          "DIPLOMA": {
+            "and_we": " y lo ||| y los ",
+            "base": " el diploma |||| los %{smart_count} diplomas "
+          },
+          "INVITATION": {
+            "and_we": " y la||| y las ",
+            "base": " la invitación |||| las %{smart_count} invitaciones "
+          }
+        },
+        "see_in_dashboard": "Puede ver el progreso que hagamos desde el tablero principal.",
+        "title": "Listo",
+        "title_need_token": "Listo. Ahora debe comprar tokens de Constata"
+      },
+      "kind": {
+        "ATTENDANCE": "Certificado de Asistencia",
+        "DIPLOMA": "Diploma",
+        "INVITATION": "Invitación"
+      },
+      "kind_numbered": {
+        "ATTENDANCE": "un certificado de asistencia |||| %{smart_count} certificados de asistencia",
+        "DIPLOMA": "un diploma |||| %{smart_count} diplomas",
+        "INVITATION": "una invitación |||| %{smart_count} invitaciones"
+      },
+      "recipients": {
+        "add_many_button": "Agregar varios vía CSV",
+        "button_continue": "Continuar",
+        "csv_dialog": {
+          "close": "Cerrar",
+          "please_use_example": "Le recomendamos utilizar el CSV de ejemplo como punto de partida",
+          "title": "Ocurrió un error procesando su CSV"
+        },
+        "cannot_send_email_warning": {
+          "title": "Notificación a destinatarios deshabilitada",
+          "text": "Es posible cargar la dirección de correo electrónico de cada destinatario y que Constata les notifique cuando la emisión haya sido certificada, permitiéndoles descargar el documento. Pero para activar esa opción, necesitamos que verifique su propia dirección de correo electrónico",
+          "button": "Verificar mi correo"
+        },
+        "done": {
+          "text": "Tiene un solo destinatario |||| Tiene %{smart_count} destinatarios"
+        },
+        "errors": {
+          "in_row": "En la fila %{index} la columna \"%{column}\" falló porque \"%{err}\"",
+          "invalid_file": "El fichero no parece ser un CSV válido o está vacío. Si utiliza Google sheets o Microsoft excel para editar un CSV, recuerde guardarlo como CSV y NO como .xlsx"
+        },
+        "example_csv": "Descargar CSV de ejemplo.",
+        "form": {
+          "cancel": "Cancelar",
+          "open": "Agregar uno",
+          "submit": "Agregar",
+          "title": "Agregar destinatario"
+        },
+        "no_recipients_yet": "Agregue algunos destinatarios y los verá aquí",
+        "recipients_list_title": "Destinatarios",
+        "schema": {
+          "ATTENDANCE": {
+            "custom_text": {
+              "help": "Opcional. ej: \"CEO de SuperWidgets.\"",
+              "label": "Título, Empresa o afiliación",
+              "sample": "CEO de SuperWidgets (opcional)"
+            },
+            "date": {
+              "help": "Opcional, ej: \"3 a 8 de julio de 2023\"",
+              "label": "Fecha del evento",
+              "sample": "3 a 8 de julio de 2023 (opcional)"
+            },
+            "email": {
+              "help": "Opcional. No se mostrará en el certificado, solo se usará para enviarlo por correo.",
+              "label": "Email",
+              "sample": "juana.perez@example.com (opcional)"
+            },
+            "motive": {
+              "help": "ej: \"XXI Jornada sobre compliance digital\"",
+              "label": "Nombre del evento",
+              "sample": "XXI Jornada sobre compliance digital"
+            },
+            "name": {
+              "help": "ej: Doctora Juana Perez, Sr. Jose Soto.",
+              "label": "Nombre y apellido",
+              "sample": "Doctora Juana Perez"
+            },
+            "place": {
+              "help": "Opcional, \"Palacio de exposiciones de Valencia.\" \"Sesión de ZOOM.\".",
+              "label": "Lugar",
+              "sample": "Palacio de exposiciones de Valencia (opcional)"
+            },
+            "recipient_identification": {
+              "help": "Opcional. Se mostrará en el certificado de asistencia. Puede ser un DNI, o su email.",
+              "label": "Identificación del asistente",
+              "sample": "DNI 33883838 (opcional)"
+            },
+            "shared_text": {
+              "help": "Opcional, ej: \"Los invitamos a compartir sus experencias en LinkedIn.\"",
+              "label": "Texto adicional",
+              "sample": "El hashtag del evento es #ComplianceDigital2023"
+            }
+          },
+          "DIPLOMA": {
+            "custom_text": {
+              "help": "Opcional. ej: \"Analista de sistemas\", \"Experto en redes sociales con promedio 9/10\"",
+              "label": "Recibiendo el título de",
+              "sample": "Doctora en sistemas (opcional)"
+            },
+            "date": {
+              "help": "Opcional, ej: \"Martes 3 de noviembre de 2023\" o \"Diciembre 2023\"",
+              "label": "Fecha de graduación",
+              "sample": "Martes 3 de agosto de 2023 (opcional)"
+            },
+            "email": {
+              "help": "Opcional. No se mostrará en el diploma, solo se usará para enviarlo por correo.",
+              "label": "Email",
+              "sample": "juana.perez@example.com (opcional)"
+            },
+            "motive": {
+              "help": "ej: Diplomatura terciaria en análisis de datos.",
+              "label": "Completó la currícula de",
+              "sample": "Doctorado en sistemas de la información (opcional)"
+            },
+            "name": {
+              "help": "ej: Doctora Juana Perez, Sr. Jose Soto.",
+              "label": "Nombre y apellido",
+              "sample": "Doctora Juana Perez"
+            },
+            "place": {
+              "help": "Opcional, \"Madrid.\" \"Montevideo, Uruguay.\".",
+              "label": "Lugar",
+              "sample": "Madrid (opcional)"
+            },
+            "recipient_identification": {
+              "help": "Opcional. Se mostrará en el diploma. Puede ser un DNI o su email.",
+              "label": "Identificación del destinatario",
+              "sample": "DNI 33883838 (opcional)"
+            },
+            "shared_text": {
+              "help": "Opcional, ej: \"El programa de estudios incluyó ...\"",
+              "label": "Texto final",
+              "sample": "Se realizó una práctica en la empresa CiberWidgets (opcional)"
+            }
+          },
+          "INVITATION": {
+            "custom_text": {
+              "help": "Opcional. ej: \"Ha sido ternado en la categoría Emprendedores.\"",
+              "label": "Texto personalizado",
+              "sample": "Ha sido ternado en la categoría Emprendedores (opcional)"
+            },
+            "date": {
+              "help": "Opcional, ej: \"10 de agosto de 2023\"",
+              "label": "Fecha del evento",
+              "sample": "10 de agosto de 2023 (opcional)"
+            },
+            "email": {
+              "help": "Opcional. No se mostrará en la invitación, solo se usará para enviarla por correo.",
+              "label": "Email",
+              "sample": "jose.soto@example.com (opcional)"
+            },
+            "motive": {
+              "help": "ej: \"Premios de la industria automotriz.\"",
+              "label": "Ocasión, nombre del evento",
+              "sample": "XXII Premios de la industria automotriz."
+            },
+            "name": {
+              "help": "ej: \"Estimado Sr. José Soto +1 \"",
+              "label": "Nombre y apellido",
+              "sample": "José Soto"
+            },
+            "place": {
+              "help": "Opcional, \"Teatro del Cuarteto, Avda. Carlos Gimenez 44\"",
+              "label": "Dirección",
+              "sample": "Teatro del Cuarteto. Carlos Gimenez 44 (opcional)"
+            },
+            "recipient_identification": {
+              "help": "Opcional. \"Socia #12121\", \"DNI A4384572J\".",
+              "label": "Identificación del invitado",
+              "sample": "DNI A4384572J (opcional)"
+            },
+            "shared_text": {
+              "help": "Opcional, ej: \"Esperamos que pueda acompañarnos. Por favor confirmar asistencia.\"",
+              "label": "Texto adicional",
+              "sample": "Se ruega confirmar asistencia (opcional)"
+            }
+          }
+        },
+        "text": "Puede agregar varios destinatarios a la vez cargando un fichero CSV, le dejamos un ejemplo para que descargue y edite.",
+        "title": "Destinatarios"
+      },
+      "review_and_sign": {
+        "discard": {
+          "button_discard": "Descartar",
+          "continue_reviewing": "Seguir revisando",
+          "dialog_text": "Es importante tener confianza absoluta sobre lo que está firmando. Si notó algún error o algo no le convence, lo mejor es comenzar nuevamente. Deberá cargar los datos de sus destinatarios otra vez.",
+          "dialog_title": "Cuidado, esta acción no puede deshacerse",
+          "divider_text": "¿No le convence?",
+          "first_button_text": "Descartar y empezar otra vez"
+        },
+        "enter_password_divider": "Ingrese su contraseña",
+        "password_label": "Contraseña",
+        "review_label": "Revisar",
+        "sign_button": "Firmar",
+        "text": "Está a punto de firmar, certificar y enviar",
+        "title": "Revisar y firmar",
+        "tokens_needed": "Necesitará un token de Constata para realizar esta acción. Podrá comprarlo luego de firmar. |||| Necesitará %{smart_count} tokens de Constata para realizar esta acción. Podrá comprarlos luego de firmar."
+      },
+      "signing": {
+        "title": "Firmando"
+      },
+      "template": {
+        "button_next": "Siguiente",
+        "choose_template_divider": "Elija una de sus plantillas",
+        "choose_template_label": "Plantilla",
+        "custom_template_offer": {
+          "button": "Contáctenos",
+          "subject": "Quiero una plantilla a medida para mi empresa",
+          "text": "Si poner su logo no es suficiente, podemos diseñar una plantilla a medida para usted. Su plantilla a medida también se adaptará a todos los dispositivos, y además permite adjuntar el programa de estudios, fotos de la graduación o cualquier otro tipo de fichero, incluídos PDF, vídeos, audios y ZIP.",
+          "title": "Podemos diseñar su plantilla a medida."
+        },
+        "done": {
+          "change": "Cambiar",
+          "creating_new_one_with_image": "Se creará una plantilla usando su imagen",
+          "creating_new_one_with_text": "Se creará una plantilla usando \"%{text}\" como logo.",
+          "label": "Plantilla",
+          "using_existing": "Se usará su plantilla \"%{name}\""
+        },
+        "error_choose_existing_or_new": "Debe elegir una plantilla existente o proveer un logo para crear una nueva",
+        "error_choose_logo_or_text": "Debe escribir su nombre o subir un logo para su plantilla",
+        "new_logo_image_label": "Suba su logo",
+        "new_logo_text_helper_text": "Si no tiene logo mostraremos este nombre.",
+        "new_logo_text_label": "Emisor",
+        "new_logo_image_help": "Recomendamos un logo en la mayor resolución posible y de no más de 500KB. Los logos más grandes pueden encarecer la emisión",
+        "new_name_helper_text": "ej: 'Diploma de compliance', 'Certificado de asistencia a seminario fintech'",
+        "new_name_label": "Nombre de la plantilla",
+        "new_template_divider": "O cree una nueva plantilla",
+        "sample": "ejemplo",
+        "text": "Los diplomas, certificados de asistencia o invitaciones se generarán en base a una plantilla con su logo, que luego se completará con los datos de cada destinatario.",
+        "title": "¿Que desea emitir?"
+      }
+    }
+  }
+}

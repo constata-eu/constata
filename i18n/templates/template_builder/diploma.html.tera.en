@@ -1,0 +1,25 @@
+{% extends "template_builder/_diploma_base.html.tera" %}
+
+{% block __title %}
+Diploma
+{% endblock %}
+
+{% block __we_certify %}
+We certify that
+{% endblock %}
+
+{% block __completed_studies %}
+completed the curriculum of
+{% endblock %}
+
+{% block __receiving_degree %}
+and graduated as 
+{% endblock %}
+
+{% block __place %}
+in
+{% endblock %}
+
+{% block __date %}
+on
+{% endblock %}

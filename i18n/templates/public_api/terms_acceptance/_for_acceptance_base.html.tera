@@ -1,0 +1,139 @@
+{% extends "public_api/_layout.html.tera" %}
+
+{% block head %}
+<style type="text/css">
+  .footer-dialog .message {
+    display: none;
+  }
+  .modal{
+    display: none;
+  }
+</style>
+
+<script type="text/javascript">
+  async function main(){
+    function showModal(name) {
+      document.querySelectorAll(".modal").forEach(function(e) {
+        e.style.display = "none";
+      });
+
+      if(name) {
+        document.querySelector(`.modal.${name}`).style.display = "flex";
+      }
+    }
+
+    document.querySelectorAll(".btn-reject").forEach(function(e) {
+      e.onclick = function(){ showModal("reject") };
+    });
+
+    document.querySelectorAll(".btn-back").forEach(function(e) {
+      e.onclick = function(){ showModal() };
+    });
+
+    document.querySelector(".btn-accept").onclick = function(){ showModal("confirm") };
+
+    document.querySelector(".btn-confirm").onclick = async function(){
+      showModal("loading");
+
+      var path = window.location.pathname;
+
+      try {
+        const response = await fetch( `${path}/accept`, {
+          method: 'POST',
+          body: JSON.stringify({ token: path.split("/terms_acceptance/")[1] })
+        });
+        await response.json(); // Force an exception if response is not ok.
+        showModal();
+        document.querySelector(".footer-dialog .buttons").style.display = "none";
+        document.querySelector(".footer-dialog .message").style.display = "block";
+      }catch{
+        showModal("error");
+      }
+    }
+  }
+
+  window.onload = function(){ main(); }
+</script>
+
+{% endblock head %}
+
+{% block body %}
+  <div class="modal confirm">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content bg-dark">
+        <div class="modal-body text-center">
+          <p>
+            {% block __confirm_text %}{% endblock __confirm_text %}
+          </p>
+          <a href="#" class="btn-confirm m-1 btn btn-sm btn-success font-weight-bold text-uppercase">
+            {% block __confirm %}{% endblock __confirm %}
+          </a>
+          <a href="#" class="btn-reject m-1 btn btn-sm btn-danger font-weight-bold text-uppercase">
+            {% block __reject %}{% endblock __reject %}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal reject">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content bg-dark">
+        <div class="modal-body text-center">
+          <p>
+            {% block __cannot_use %}{% endblock __cannot_use %}
+          </p>
+          <a href="#" class="btn-back btn btn-sm btn-primary font-weight-bold text-uppercase">
+            {% block __back %}{% endblock __back %}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal loading">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content bg-dark">
+        <div class="modal-body text-center">
+          <p>
+            {% block __loading %}{% endblock __loading %}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal error">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content bg-dark">
+        <div class="modal-body text-center">
+          <p>
+            {% block __an_error_ocurred %}{% endblock __an_error_ocurred %}
+          </p>
+          <a href="#" class="btn-back btn btn-sm btn-primary text-uppercase">
+            {% block __back_from_error %}{% endblock __back_from_error %}
+          </p>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% block __include_terms %}{% endblock __include_terms %}
+
+  <div class="footer-dialog prompt bg-dark text-center p-3 fixed-bottom">
+    <div class="buttons">
+      <button class="btn-accept m-1 btn btn-lg btn-success font-weight-bold text-uppercase">
+        {% block __accept %}{% endblock __accept %}
+      </button>
+      <button class="btn-reject m-1 btn btn-lg btn-danger font-weight-bold text-uppercase">
+        {% block __reject_footer %}{% endblock __reject_footer %}
+      </button>
+    </div>
+    <div class="message font-weight-bold">
+      <p>
+        {% block __terms_were_accepted %}{% endblock __terms_were_accepted %}
+      </p>
+    </div>
+  </div>
+{% endblock body %}

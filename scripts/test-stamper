@@ -1,0 +1,2 @@
+#!/bin/bash
+cd stamper && cargo test --color always -- $2 --test-threads 1 $1 2>&1 | less -R

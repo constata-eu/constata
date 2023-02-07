@@ -1,0 +1,19 @@
+[package]
+name = "i18n"
+version = "0.1.0"
+authors = ["nubis <nubis@constata.eu>"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rocket = { version = "0.5.0-rc.1", features = ["json"] }
+lazy_static = "1.4.0"
+tera = "1"
+grass = "0.11"
+serde = "1.0"
+serde_json = "1.0"
+include_dir = { version="*", features= ["glob"]}
+whatlang = { version = "0.16.1" }
+sqlx = "0.6.0"
+formatx = "0.2.0"

@@ -1,0 +1,2 @@
+#!/bin/bash
+cd telegram_bot && cargo test --color always -- $2 --nocapture --test-threads 1 $1 2>&1 | less -R

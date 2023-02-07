@@ -1,0 +1,2 @@
+#!/bin/bash
+cd public_api && cargo test --bin public_api --color always -- $2 --test-threads 1 $1 2>&1 | less -R

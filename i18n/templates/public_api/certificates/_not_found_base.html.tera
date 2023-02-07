@@ -1,0 +1,14 @@
+{% extends "public_api/_layout.html.tera" %}
+
+{% block body %}
+  <div class="header">
+    <div class="container py-7 py-md-7 px-3 my-2 text-dark container-constata">
+      <h1 class="mb-3">
+        {%- block __we_are_sorry -%}{%- endblock __we_are_sorry -%}
+      </h1>
+      <p>
+        {%- block __we_could_not_find_certificate -%}{%- endblock __we_could_not_find_certificate -%}
+      </p>
+    </div>
+  </div>
+{% endblock body %}

@@ -1,0 +1,21 @@
+{% extends "public_api/certificates/_to_show_base.html.tera" %}
+
+{%- block __default_metadata_title -%}
+Certification
+{%- endblock __default_metadata_title -%}
+
+{%- block __diploma_issued_by -%}
+Diploma issued by 
+{%- endblock __diploma_issued_by -%}
+
+{%- block __attendance_issued_by -%}
+Certificate of attendance issued by 
+{%- endblock __attendance_issued_by -%}
+
+{%- block __invitation_issued_by -%}
+Invitation issued by 
+{%- endblock __invitation_issued_by -%}
+
+{%- block __certification_issued_by -%}
+Certificate issued by 
+{%- endblock __certification_issued_by -%}
