@@ -1,5 +1,7 @@
-/target
-*/target
+target/realese
+target/debug
+target/sqlx
+target/CACHEDIR.TAG
 *.swp
 *.swo
 constata-cli
