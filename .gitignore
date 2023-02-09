@@ -3,6 +3,7 @@ target/debug
 target/sqlx
 target/CACHEDIR.TAG
 target/.rustc_info.json
+constata_lib/target
 *.swp
 *.swo
 constata-cli

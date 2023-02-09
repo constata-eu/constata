@@ -1,0 +1,3 @@
+constata_state,constata_notification_status,constata_admin_access_url,constata_issuance_id,constata_id,alumno,titulo,curso,day,month,year,nota_global,email
+completed,notified,http:..localhost:8000.safe.[a-z+]*,1,1,Lisa Simpson,Abogada Épica,Derecho Épico,22,marzo,2022,10,lisa@simpson.com
+completed,will_not_notify,http:..localhost:8000.safe.[a-z+]*,1,2,Bart Simpson,Profesor de expresión corporal,Expresión Corporal,25,marzo,2022,5,
