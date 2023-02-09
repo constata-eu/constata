@@ -1,2 +1,2 @@
-alumno,titulo,curso,day,month,year,nota_global,email
+name,titulo,curso,day,month,year,nota_global,email
 Lisa Simpson,Abogada Épica,Derecho Épico,22,marzo,2022,10,lisa@simpson.com
