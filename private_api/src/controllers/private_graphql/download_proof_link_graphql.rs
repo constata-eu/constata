@@ -19,7 +19,7 @@ impl DownloadProofLink {
 
     if let Ok(accepted) = document.in_accepted() {
       if accepted.bulletin().await?.is_published() {
-        url = Some(document.create_download_proof_link(7).await?.full_url().await?);
+        url = Some(document.get_or_create_download_proof_link(7).await?.full_url().await?);
       }
     }
 
