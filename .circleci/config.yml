@@ -66,6 +66,9 @@ jobs:
       - checkout
       - browser-tools/install-chrome
       - browser-tools/install-chromedriver
+      - run:
+          name: Creating config
+          command: cp Rocket.toml.example Rocket.toml
 
       - run:
           name: Wait for postgres
@@ -99,6 +102,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout
+      - run:
+          name: Creating config
+          command: cp Rocket.toml.example Rocket.toml
       - run:
           name: Wait for postgres
           command: dockerize -wait tcp://localhost:5432 -timeout 1m
