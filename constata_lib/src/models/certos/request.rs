@@ -22,6 +22,7 @@ use serde_with::{serde_as, DisplayFromStr};
 use bitcoin::{
   util::misc::MessageSignature,
 };
+use std::collections::HashMap;
 
 model!{
   state: Site,
@@ -99,6 +100,43 @@ impl Request {
       b';'
     };
     csv::ReaderBuilder::new().delimiter(separator).from_reader(reader_buffer)
+  }
+
+  pub async fn export_csv(&self) -> Result<String> {
+    use csv::Writer;
+
+    let mut wtr = Writer::from_writer(vec![]);
+    let schema = self.template().await?.parsed_schema()?;
+
+    let mut headers = vec![
+      "constata_state",
+      "constata_notification_status",
+      "constata_admin_access_url",
+      "constata_issuance_id",
+      "constata_id",
+    ];
+    headers.extend(schema.iter().map(|i| i.name.as_str() ));
+
+    wtr.write_record(&headers)?;
+
+    for entry in self.entry_scope().order_by(EntryOrderBy::RowNumber).all().await? {
+      let mut row = vec![
+        entry.state().to_string(),
+        entry.notification_status().await?.to_string(),
+        entry.admin_access_url().await?.unwrap_or("".to_string()),
+        entry.attrs.request_id.to_string(),
+        entry.attrs.id.to_string()
+      ];
+
+      let mut params: HashMap<String,String> = entry.parsed_params()?;
+      for attr in &schema {
+        row.push(params.remove(&attr.name).unwrap_or("".to_string()));
+      }
+
+      wtr.write_record(&row)?;
+    }
+
+    Ok(String::from_utf8(wtr.into_inner()?)?)
   }
 }
 

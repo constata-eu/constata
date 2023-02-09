@@ -20,7 +20,7 @@ impl DocumentWasStampedForCarbonCopies {
     let lang = doc.story().await?.attrs.lang;
     let accepted = doc.clone().in_accepted()?;
     let published = accepted.bulletin().await?.in_published()?;
-    let download_link = doc.create_download_proof_link(30).await?.safe_env_url().await?;
+    let download_link = doc.get_or_create_download_proof_link(30).await?.safe_env_url().await?;
     let org = doc.org().await?;
     let on_behalf_of = org.name_for_on_behalf_of().await?;
 

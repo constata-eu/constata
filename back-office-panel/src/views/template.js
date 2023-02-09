@@ -187,11 +187,15 @@ const TemplateCreate = props => {
   }
 
   const save = async values => {
+    try {
       values.evidence = (await convertBase64(values.evidence?.rawFile)).split('base64,')[1];
       values.schema = unchangedField ? values.schema : schema.length ? schema : undefined;
       let {data} = await dataProvider.create('Template', { data: values });
       notify('resources.actions.created');
       redirect(`/Template/${data.id}/show`);
+    } catch(e) {
+      notify('admin.errors.default', {type: 'warning'});
+    }
   };
 
   return (

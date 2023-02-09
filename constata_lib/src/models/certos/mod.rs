@@ -31,6 +31,9 @@ describe!{
     site.request().create_all_received().await?; // Ahora se crean todos los documentos.
     request.reload().await?;
 
+    let export_received = read_to_string("certos_request_export_received.csv");
+    assert_that!(&request.export_csv().await?, rematch(&export_received));
+
     let created_entries = request.entry_vec().await?.into_iter()
       .map(|a| a.in_created() )
       .collect::<crate::Result<Vec<entry::Created>>>()?;
@@ -78,7 +81,7 @@ describe!{
     request.reload().await?;
     assert!(request.is_signed());
 
-    // Ahora todos los documentos tienen que estar aceptados.
+    // Now all documents should be accepted.
     for e in &request.entry_vec().await? {
       let doc = e.in_signed()?.document().await?;
       assert!(doc.is_accepted());
@@ -105,7 +108,6 @@ describe!{
     let content = proof.render_html(i18n::Lang::Es).expect("Content to be ready now");
     std::fs::write("../target/artifacts/diploma_camara.html", &content)?;
 
-    // Assertion de que los mails enviados tienen el contenido esperado.
     let doc = &request.entry_vec().await?[0].in_signed()?.document().await?.in_accepted()?;
     assert!(doc.bulletin().await?.is_published());
     let callback = doc.as_inner().email_callback_vec().await?.pop().unwrap();
@@ -119,6 +121,9 @@ describe!{
     for e in &request.entry_vec().await? {
       assert!(e.is_completed());
     }
+
+    let expected = read_to_string("certos_request_export_done.csv");
+    assert_that!(&request.export_csv().await?, rematch(&expected));
   }
 
   dbtest!{ accepts_csv_with_semicolon (site, c)

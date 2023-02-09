@@ -4,8 +4,8 @@
       "create": "Crear una Emisión",
       "fields": {
         "createdAt": "Creado el",
-        "download": "Descargar",
-        "download_csv": "CSV original",
+        "download": "Descargar CSV",
+        "export_csv": "Exportar emisión a csv",
         "entries": "Entradas",
         "errors": "Errores",
         "evidence": "",
@@ -23,9 +23,11 @@
         "state": "Estado",
         "stateEq": "Por Estado",
         "states": {
-          "created": "Creadas",
-          "signed": "Firmadas",
-          "completed": "Completadas"
+          "completed": "Entradas completadas",
+          "created": "Entradas creadas",
+          "failed": "Entradas fallidas",
+          "received": "Entradas recibidas",
+          "signed": "Entradas firmadas"
         },
         "templateId": "Plantilla",
         "templateIdEq": "Por plantilla:"
@@ -366,7 +368,8 @@
     "request": {
       "create": "Crear emisión",
       "csv": "Archivo csv",
-      "download_csv": "Descargar csv",
+      "export_csv": "Exportar emisión a csv",
+      "export_filename": "emision_constata_%{id}.csv",
       "errors": {
         "CsvErrorUnequalLengths": "csv Error: Diferencia entre la longitud de los encabezados y la longitud de los valores",
         "CsvErrorUnexpected": "Error inesperado con el archivo csv",

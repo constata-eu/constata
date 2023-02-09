@@ -1,4 +1,4 @@
-use assert_cmd::Command;
+//use assert_cmd::Command;
 
 constata_lib::describe_one! {
   /*

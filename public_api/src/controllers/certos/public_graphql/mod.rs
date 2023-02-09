@@ -60,7 +60,7 @@ pub mod invoice_link_graphql;
 pub mod download_proof_link_graphql;
 pub mod proof_graphql;
 pub use template_graphql::{Template, TemplateFilter};
-pub use request_graphql::{Request, RequestFilter};
+pub use request_graphql::{Request, RequestFilter, IssuanceExport};
 pub use entry_graphql::{Entry, EntryFilter};
 pub use story_graphql::{Story, StoryFilter};
 pub use account_state_graphql::AccountState;
@@ -372,6 +372,13 @@ make_graphql_query!{
   #[graphql(name="Proof")]
   async fn proof(context: &Context, _id: String) -> FieldResult<Proof> {
     Proof::proof(context).await
+  }
+
+  #[graphql(name="IssuanceExport")]
+  async fn issuance_export(context: &Context, id: i32) -> FieldResult<IssuanceExport> {
+    let request = context.org().await?.request_scope().id_eq(&id).one().await?;
+    let csv = request.export_csv().await?;
+    Ok(IssuanceExport{ id, csv })
   }
 }
 

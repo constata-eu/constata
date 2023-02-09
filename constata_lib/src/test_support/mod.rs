@@ -69,7 +69,7 @@ pub fn read(file: &str) -> Vec<u8> {
 }
 
 pub fn read_to_string(file: &str) -> String {
-  std::fs::read_to_string(&format!("src/test_support/resources/{file}")).unwrap()
+  std::fs::read_to_string(&format!("../constata_lib/src/test_support/resources/{file}")).unwrap()
 }
 
 pub async fn assert_bulletin_payload(bulletin: &crate::models::Bulletin, count: usize, expected: Vec<&str>) {

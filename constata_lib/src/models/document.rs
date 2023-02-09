@@ -411,11 +411,24 @@ impl Document {
     (mime.to_string(), ext)
   }
 
-  pub async fn create_download_proof_link(&self, duration_days: i64) -> Result<DownloadProofLink> {
+  async fn create_download_proof_link(&self, duration_days: i64) -> Result<DownloadProofLink> {
     Ok(self.state.download_proof_link()
       .insert(InsertDownloadProofLink::new(&self, duration_days).await?)
       .save().await?
     )
+  }
+
+  pub async fn get_or_create_download_proof_link(&self, duration_days: i64) -> Result<DownloadProofLink> {
+    match self.active_download_proof_link().await? {
+      Some(x) => Ok(x),
+      _ => self.create_download_proof_link(duration_days).await
+    }
+  }
+
+  pub async fn active_download_proof_link(&self) -> sqlx::Result<Option<DownloadProofLink>> {
+    Ok(self.state.download_proof_link()
+      .active_by_document_id(self.id().clone())
+      .optional().await?)
   }
 }
 

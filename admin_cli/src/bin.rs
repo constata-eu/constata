@@ -12,12 +12,14 @@ async fn main() {
     .subcommand(Command::new("create-admin").about("creates an admin user"))
     .subcommand(Command::new("populate-block-times").about("Populates bulletin block times"))
     .subcommand(Command::new("populate-backup-storage").about("Copies all files from current DO storage to AWS backup storage"))
+    .subcommand(Command::new("check-template-schemas").about("Typechecks all stored template schemas"))
     .get_matches();
 
   match matches.subcommand() {
     Some(("create-admin", _)) => create_superadmin().await.unwrap(),
     Some(("populate-block-times", _)) => populate_block_times().await.unwrap(),
     Some(("populate-backup-storage", _)) => populate_backup_storage().await.unwrap(),
+    Some(("check-template-schemas", _)) => check_template_schemas().await.unwrap(),
     _ => ()
   }
 }
@@ -99,5 +101,22 @@ async fn populate_backup_storage() -> Result<()> {
   make_backup_copy!(kyc_request_evidence);
   make_backup_copy!(telegram_bot_update);
 
+  Ok(())
+}
+
+async fn check_template_schemas() -> Result<()> {
+  let password = Password::with_theme(&ColorfulTheme::default())
+    .with_prompt("Keyring password")
+    .interact()
+    .expect("Error in password prompt");
+
+  let site = Site::default_with_keyring(&password).await.expect("Cannot load site");
+
+  for template in site.template().select().all().await? {
+    print!(".");
+    if let Err(e) = template.parsed_schema() {
+      println!("Template {} has invalid schema {:?}", template.id(), e);
+    }
+  }
   Ok(())
 }

@@ -109,7 +109,7 @@ mod back_office_panel {
       d.wait_for_text(".ra-field-pricePerToken > span", r"€ 0.5*").await;
     }
 
-    integration_test_private!{ admin_panel_add_template_custom (c, d)
+    integration_test_private!{ admin_panel_add_custom_template (c, d)
       c.alice().await;
       login(&d, &c).await?;
 
