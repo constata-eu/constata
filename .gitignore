@@ -2,6 +2,7 @@ target/realese
 target/debug
 target/sqlx
 target/CACHEDIR.TAG
+target/.rustc_info.json
 *.swp
 *.swo
 constata-cli
