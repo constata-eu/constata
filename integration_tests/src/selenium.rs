@@ -20,7 +20,10 @@ impl Selenium {
     let mut caps = DesiredCapabilities::chrome();
     caps.add_chrome_option(
       "prefs",
-      serde_json::json![{ "download.default_directory": DOWNLOADS, }]
+      serde_json::json![{
+        "download.default_directory": DOWNLOADS,
+        "download": { "default_directory" : DOWNLOADS }
+      }]
     ).unwrap();
 
     let local_driver_path = format!("chromedrivers/chromedriver_{}", std::env::consts::OS);
