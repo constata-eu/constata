@@ -15,6 +15,13 @@ pub struct Request {
   entries: Vec<Vec<String>>,
 }
 
+#[derive(GraphQLObject)]
+#[graphql(description = "A CSV export of an Issuance")]
+pub struct IssuanceExport {
+  pub id: i32,
+  pub csv: String,
+}
+
 #[derive(Clone, GraphQLInputObject, Debug)]
 pub struct RequestFilter {
   ids: Option<Vec<i32>>,
@@ -23,7 +30,6 @@ pub struct RequestFilter {
   state_eq: Option<String>,
   name_like: Option<String>,
 }
-
 
 #[rocket::async_trait]
 impl Showable<request::Request, RequestFilter> for Request {

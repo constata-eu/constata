@@ -1,8 +1,12 @@
-target/realese
+target/release
+target/artifacts/signature.json
 target/debug
 target/sqlx
 target/CACHEDIR.TAG
 target/.rustc_info.json
+target/artifacts/*
+telegram_bot/target
+constata_lib/target
 *.swp
 *.swo
 constata-cli

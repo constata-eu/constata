@@ -14,7 +14,7 @@ impl EmailBotChatGreeting {
   pub async fn new(site: &Site, document_id: &str) -> Result<Self> {
     let doc = site.document().find(&document_id.to_string()).await?;
     let lang = doc.story().await?.attrs.lang;
-    let download_link = doc.create_download_proof_link(30).await?.safe_env_url().await?;
+    let download_link = doc.get_or_create_download_proof_link(30).await?.safe_env_url().await?;
     Ok(EmailBotChatGreeting{
       download_link,
       lang,

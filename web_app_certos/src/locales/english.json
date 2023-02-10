@@ -185,7 +185,8 @@
 		"request": {
 			"create": "Start issuing",
 			"csv": "CSV file",
-			"download_csv": "Download CSV",
+      "export_csv": "Export issuance to CSV",
+      "export_filename": "constata_issuance_%{id}.csv",
 			"errors": {
 				"CsvErrorUnequalLengths": "CSV Error: Header column count does not match values",
 				"CsvErrorUnexpected": "Unexpected error processing csv file",
@@ -611,9 +612,16 @@
     "Request": {
       "create": "Start issuance",
       "fields": {
+        "states": {
+          "completed": "Completed",
+          "created": "Documents Created",
+          "failed": "Failed",
+          "received": "Received",
+          "signed": "Signed"
+        },
         "createdAt": "Created on",
-        "download": "Download",
-        "download_csv": "Original CSV",
+        "download": "Download CSV",
+        "export_csv": "Export issuance to CSV",
         "entries": "Entries",
         "errors": "Errors",
         "evidence": "",

@@ -92,7 +92,7 @@ impl Entry {
   }
 
   pub async fn params_and_custom_message(&self) -> Result<(HashMap<String, String>, Option<String>)> {
-    let params: HashMap<String, String> = serde_json::from_str(self.params())?;
+    let params = self.parsed_params()?;
     let custom_message = self.request().await?.template().await?.attrs.custom_message
       .map(|msg| i18n::Tera::one_off(&msg, &i18n::Context::from_serialize(&params)?, true) )
       .transpose()?;
@@ -100,6 +100,31 @@ impl Entry {
     Ok((params, custom_message))
   }
 
+  pub fn parsed_params(&self) -> Result<HashMap<String,String>> {
+    Ok(serde_json::from_str(self.params())?)
+  }
+
+  pub async fn payload(&self) -> Result<Vec<u8>> {
+    self.storage_fetch().await
+  }
+
+  pub async fn notification_status(&self) -> Result<&str> {
+    if self.parsed_params()?.get("email").map(|x| x.is_empty()).unwrap_or(true) {
+      return Ok("will_not_notify");
+    }
+
+    if self.email_callback().await?.map(|cb| cb.sent_at().is_some()).unwrap_or(false) {
+      return Ok("notified");
+    }
+
+    Ok("will_notify")
+  }
+
+  pub async fn admin_access_url(&self) -> Result<Option<String>> {
+    let Some(doc) = self.document().await? else { return Ok(None) };
+    let Some(link) = doc.active_download_proof_link().await? else { return Ok(None) };
+    link.safe_env_url().await.map(|v| Some(v))
+  }
 }
 
 /*
@@ -171,12 +196,6 @@ impl Flow {
       Flow::Completed(a) => a.as_inner(),
       Flow::Failed(a) => a.as_inner(),
     }
-  }
-}
-
-impl Entry {
-  pub async fn payload(&self) -> Result<Vec<u8>> {
-    self.storage_fetch().await
   }
 }
 
@@ -378,7 +397,11 @@ impl flow_variant {
 
 impl Signed {
   pub async fn try_complete(self) -> Result<bool> {
-    let is_published = if let Ok(accepted) = self.document().await?.in_accepted() {
+    let doc = self.document().await?;
+
+    doc.get_or_create_download_proof_link(30).await?;
+
+    let is_published = if let Ok(accepted) = doc.in_accepted() {
       accepted.bulletin().await?.is_published()
     } else {
       false

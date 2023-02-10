@@ -21,7 +21,7 @@ macro_rules! describe_one {
   ($($e:tt)*) => {
     #[cfg(test)]
     #[allow(unused_imports)]
-    use constata_lib::{anyhow, test, test_support::*, regtest, dbtest};
+    use constata_lib::{anyhow, test, requires_setting, test_support::*, regtest, dbtest};
 
     constata_lib::tests! {
       $($e)*

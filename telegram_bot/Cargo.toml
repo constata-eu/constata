@@ -24,6 +24,7 @@ constata_lib = { path = "../constata_lib", features = ["test_support"] }
 bitcoin = "*"
 rust-tdlib = "*"
 chrono = "*"
+time-test = { version = "0.2.2" }
 
 [lib]
 name = "telegram_bot"

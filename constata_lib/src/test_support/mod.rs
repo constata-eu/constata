@@ -16,7 +16,7 @@ pub use matchers::*;
 pub use rocket::http::Status;
 pub use test_blockchain::*;
 pub use test_db::*;
-pub use time_test;
+pub use crate::models::site::SiteSettings;
 
 #[macro_export]
 macro_rules! test {
@@ -39,6 +39,17 @@ macro_rules! test {
         println!("Error: {e:?}\n Source: {source}.");
         panic!("Error in test. see backtrace");
       }
+    }
+  }
+}
+
+#[macro_export]
+macro_rules! requires_setting {
+  ($( $i:ident ).+) => {
+    let mut chars: Vec<char> = SiteSettings::default()?.$($i).+.chars().collect();
+    chars.dedup();
+    if chars.len() <= 4 {
+      return Ok(())
     }
   }
 }
@@ -69,7 +80,7 @@ pub fn read(file: &str) -> Vec<u8> {
 }
 
 pub fn read_to_string(file: &str) -> String {
-  std::fs::read_to_string(&format!("src/test_support/resources/{file}")).unwrap()
+  std::fs::read_to_string(&format!("../constata_lib/src/test_support/resources/{file}")).unwrap()
 }
 
 pub async fn assert_bulletin_payload(bulletin: &crate::models::Bulletin, count: usize, expected: Vec<&str>) {

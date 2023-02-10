@@ -32,9 +32,13 @@ model!{
       (SELECT id FROM access_tokens WHERE token = $1 AND NOT expired AND kind='download_proof_link')
       ", token: String
     ),
+    active_by_document_id(
+      "deletion_id IS NULL AND document_id = $1 AND
+        EXISTS (SELECT id FROM access_tokens WHERE id = access_token_id AND NOT expired)
+      ", document_id: String
+    ),
     public_certificate_active(
-      "deletion_id IS NULL AND public_token = $1 AND published_at IS NOT NULL
-      ", token: String
+      "deletion_id IS NULL AND public_token = $1 AND published_at IS NOT NULL", token: String
     ),
   },
   belongs_to {
