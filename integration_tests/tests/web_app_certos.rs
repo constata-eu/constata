@@ -107,7 +107,7 @@ mod workroom {
       for i in 0..2 {
         let name = format!("nombre_{i}");
         d.click("#recipients > button").await;
-        d.fill_in("#alumno", &name).await;
+        d.fill_in("#name", &name).await;
         if i == 0 {
           d.fill_in("#curso", "Desarrollo Web").await;
           d.fill_in("#day", "22").await;
