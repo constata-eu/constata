@@ -44,23 +44,18 @@ describe!{
     let mut zipfile = zip::ZipArchive::new(std::io::Cursor::new(&payload))?;
 
     {
-      let inner_0 = zipfile.by_index(0).unwrap();
-      assert_eq!(inner_0.name(), "3_mensaje.html");
+      let mut inner_0 = zipfile.by_index(0).unwrap();
+      assert_eq!(inner_0.name(), "1_diploma.html");
+      let mut contents_0 = String::new();
+      inner_0.read_to_string(&mut contents_0).unwrap();
+      assert_that!(&contents_0, rematch("Lisa Simpson"));
     }
 
     {
-      let inner_1 = zipfile.by_index(1).unwrap();
-      assert_eq!(inner_1.name(), "2_analítico.html");
+      let inner_2 = zipfile.by_index(1).unwrap();
+      assert_eq!(inner_2.name(), "2_analítico.html");
     }
 
-    {
-      let mut inner_2 = zipfile.by_index(2).unwrap();
-      assert_eq!(inner_2.name(), "1_diploma.html");
-      let mut contents_2 = String::new();
-      inner_2.read_to_string(&mut contents_2).unwrap();
-      assert_that!(&contents_2, rematch("Derecho Épico"));
-      assert_that!(&contents_2, rematch("22</strong> de <strong>marzo"));
-    }
 
     let html_preview = Previewer::create(&payload, true)?.render_html(i18n::Lang::Es)?;
     std::fs::write("../target/artifacts/entry_preview_es_kyc.html", &html_preview)?;
@@ -200,7 +195,7 @@ describe!{
 
     site.request().create_all_received().await?;
     let templates_files = Template::read_name_and_bytes_from_payload(&template.storage_fetch().await?).await?;
-    assert_eq!(templates_files.len(), 4)
+    assert_eq!(templates_files.len(), 3)
   }
 
   async fn set_up_request(alice: &SignerClient, request_path: &str) -> crate::Result<Request> {

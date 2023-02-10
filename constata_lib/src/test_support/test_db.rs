@@ -520,13 +520,9 @@ impl SignerClient {
 
   pub async fn make_template(&self, template_file: Vec<u8>) -> crate::models::certos::Template {
     let schema = serde_json::to_string(&vec![
-      TemplateSchemaField::new("alumno", false, false),
-      TemplateSchemaField::new("titulo", false, false),
-      TemplateSchemaField::new("curso", false, false),
-      TemplateSchemaField::new("day", false, false),
-      TemplateSchemaField::new("month", false, false),
-      TemplateSchemaField::new("year", false, false),
-      TemplateSchemaField::new("nota_global", false, false),
+      TemplateSchemaField::new("name", true, false),
+      TemplateSchemaField::new("course", false, true),
+      TemplateSchemaField::new("date", false, true),
       TemplateSchemaField::new("email", false, false),
     ]).unwrap();
     self.try_make_template(template_file, &schema).await.unwrap()
@@ -543,7 +539,7 @@ impl SignerClient {
         size_in_bytes: template_file.len() as i32,
         schema: schema.to_string(),
         og_title_override: None,
-        custom_message: Some("Hola {{ alumno }} te adjuntamos este novedoso certificado".to_string()),
+        custom_message: Some("Hola {{ name }} te adjuntamos este novedoso certificado".to_string()),
       }).validate_and_save(&template_file).await
   }
   

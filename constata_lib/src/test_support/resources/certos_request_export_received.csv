@@ -1,3 +1,3 @@
-constata_state,constata_notification_status,constata_admin_access_url,constata_issuance_id,constata_id,alumno,titulo,curso,day,month,year,nota_global,email
-created,will_notify,,1,1,Lisa Simpson,Abogada Épica,Derecho Épico,22,marzo,2022,10,lisa@simpson.com
-created,will_not_notify,,1,2,Bart Simpson,Profesor de expresión corporal,Expresión Corporal,25,marzo,2022,5,
+constata_state,constata_notification_status,constata_admin_access_url,constata_issuance_id,constata_id,name,course,date,email
+created,will_notify,,1,1,Lisa Simpson,Derecho Épico,22 marzo 2022,lisa@simpson.com
+created,will_not_notify,,1,2,Bart Simpson,Expresión Corporal,25 marzo 2022,
