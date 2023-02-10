@@ -32,3 +32,4 @@ features = ["tera"]
 constata_lib = { path = "../constata_lib", features = ["test_support"] }
 tokio = { version = "1.2.0", features = ["full"] }
 anyhow = "*"
+time-test = { version = "0.2.2" }
