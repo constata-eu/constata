@@ -433,6 +433,8 @@ constata_lib::describe_one!{
   use serde_json::*;
 
   regtest!{ processes_a_group_chat(site, c, mut chain)
+    requires_setting!(telegram_token);
+
     let bot = TelegramBot::new(site.clone());
     chain.fund_signer_wallet();
 
@@ -520,6 +522,8 @@ constata_lib::describe_one!{
   }
 
   regtest!{ processes_a_private_chat_session(site, c, mut chain)
+    requires_setting!(telegram_token);
+
     let bot = TelegramBot::new(site.clone());
     chain.fund_signer_wallet();
 

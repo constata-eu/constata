@@ -1082,6 +1082,8 @@ describe! {
   }
 
   dbtest!{ can_store_documents_remotely (_site, c)
+    requires_setting!(storage.key);
+
     let mut alice = c.alice().await;
     let bucket = alice.db.site.storage.bucket.clone();
 
@@ -1109,6 +1111,8 @@ describe! {
   }
 
   dbtest!{ can_encrypt_stored_documents (_site, c)
+    requires_setting!(storage.key);
+
     let mut alice = c.alice().await;
     let bucket = alice.db.site.storage.bucket.clone();
 
