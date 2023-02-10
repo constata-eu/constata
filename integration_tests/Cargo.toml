@@ -16,6 +16,7 @@ regex = "*"
 ureq = { version = "*", features = ["json", "charset"] }
 serde_json = "*"
 chrono = { version = "0.4", features = ["serde"] }
+time-test = { version = "0.2.2" }
 
 [dependencies.bitcoin]
 version = "0.26.0"

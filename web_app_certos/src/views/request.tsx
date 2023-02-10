@@ -139,9 +139,13 @@ function RequestShow(props){
     <FilterTextInput source="paramsLike" onChange={handleChange} alwaysOn />,
   ];
 
-  const handlePayload = async (e) => {
+  const handleExport = async (e) => {
     e.preventDefault();
-    await downloadFile(`/request/${requestId}/download_payload`, `request_${requestId}.csv`, notify);
+    const {data} = await dataProvider.getOne('IssuanceExport', { id: requestId });
+    openBlob(
+      new Blob([data.csv], {type: "text/csv" }),
+      translate("certos.request.export_filename", {id: data.id})
+    )
   }
 
   return (
@@ -178,8 +182,8 @@ function RequestShow(props){
               />
               <ParsedDateTextField source="createdAt" />
 
-              <FunctionField label="resources.Request.fields.download_csv"
-                render={() =>  <a href="#/Request" onClick={handlePayload}>
+              <FunctionField label="resources.Request.fields.export_csv"
+                render={() =>  <a id="export_to_csv" href="#/Request" onClick={handleExport}>
                     {translate("resources.Request.fields.download")}
                   </a>
                 }

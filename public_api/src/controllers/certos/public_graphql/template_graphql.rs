@@ -7,7 +7,7 @@ pub struct Template {
   name: String,
   kind: TemplateKind,
   created_at: UtcDateTime,
-  schema: Option<String>,
+  schema: String,
   custom_message: Option<String>,
 }
 

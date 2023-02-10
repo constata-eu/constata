@@ -113,7 +113,7 @@ impl Story {
     if let Ok(document) = maybe_document {
       if let Ok(accepted) = document.in_accepted() {
         if accepted.bulletin().await?.is_published() {
-          return Ok(Some(document.create_download_proof_link(duration_days).await?.safe_env_url().await?))
+          return Ok(Some(document.get_or_create_download_proof_link(duration_days).await?.safe_env_url().await?))
         }
       }
     }

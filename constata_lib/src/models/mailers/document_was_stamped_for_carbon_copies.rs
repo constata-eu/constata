@@ -20,7 +20,7 @@ impl DocumentWasStampedForCarbonCopies {
     let lang = doc.story().await?.attrs.lang;
     let accepted = doc.clone().in_accepted()?;
     let published = accepted.bulletin().await?.in_published()?;
-    let download_link = doc.create_download_proof_link(30).await?.safe_env_url().await?;
+    let download_link = doc.get_or_create_download_proof_link(30).await?.safe_env_url().await?;
     let org = doc.org().await?;
     let on_behalf_of = org.name_for_on_behalf_of().await?;
 
@@ -46,8 +46,8 @@ describe! {
     let alice = c.alice().await.add_funds().await;
     alice.org().await
       .update()
-      .public_name(Some("Cámara de Madrid".to_string()))
-      .logo_url(Some("https://constata-public.ams3.digitaloceanspaces.com/camara_madrid.png".to_string()))
+      .public_name(Some("DAO Education".to_string()))
+      .logo_url(Some("https://constata-public.ams3.digitaloceanspaces.com/logo-daoe.png".to_string()))
       .save().await?;
 
     let doc = alice.signed_document(&vec![1; 1024 * 1024 * 10]).await;
@@ -69,7 +69,7 @@ describe! {
     let content_message = mail.render_html()?;
     std::fs::write("../target/artifacts/content_cc_message.html", &content_message).unwrap();
     assert_that!(&content_message, rematch("IPO built many"));
-    assert_that!(&content_message, rematch("de parte de <b>Cámara de Madrid</b>"));
+    assert_that!(&content_message, rematch("de parte de <b>DAO Education</b>"));
     assert_that!(&content_message, rematch("&lt;b&gt;Because&lt;&#x2F;"));
 
 
@@ -83,8 +83,8 @@ describe! {
     let alice = c.alice().await.add_funds().await;
     alice.org().await
       .update()
-      .public_name(Some("Cámara de Madrid".to_string()))
-      .logo_url(Some("https://constata-public.ams3.digitaloceanspaces.com/camara_madrid.png".to_string()))
+      .public_name(Some("DAO Education".to_string()))
+      .logo_url(Some("https://constata-public.ams3.digitaloceanspaces.com/logo-daoe.png".to_string()))
       .save().await?;
 
     let doc = alice.signed_document(&vec![1; 1024 * 1024 * 10]).await;

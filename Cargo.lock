@@ -5967,6 +5967,7 @@ dependencies = [
  "sqlx",
  "teloxide-core",
  "thiserror",
+ "time-test",
  "tokio 1.21.2",
 ]
 

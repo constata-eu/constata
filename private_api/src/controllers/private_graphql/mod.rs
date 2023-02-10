@@ -31,7 +31,6 @@ use constata_lib::models::{
   TemplateKind,
   certos::{
     template::{self, TemplateOrderBy, SelectTemplate, InsertTemplate},
-    wizard::Wizard,
   },
 };
 use sqlx_models_orm::*;
