@@ -5,7 +5,10 @@ use models::{
 };
 
 #[derive(Clone, GraphQLInputObject, Serialize, Deserialize)]
-#[graphql(description = "An invoice link input")]
+#[graphql(description = "Invoice Link Input Object: {
+  payment_method: can be 'Bitcoin' or 'Stripe',
+  tokens: amount of token to buy,
+}")]
 #[serde(rename_all = "camelCase")]
 pub struct InvoiceLinkInput {
   pub payment_method: String,
@@ -33,7 +36,12 @@ impl InvoiceLinkInput {
 }
 
 #[derive(GraphQLObject)]
-#[graphql(description = "An invoice link")]
+#[graphql(description = "Invoice Link Object: {
+  id: number identifying an invoice link,
+  minimum_suggested: minimum amount of token suggested to the user to buy taking into account missing tokens,
+  price_per_token: price per token the user is going to pay,
+  invoice_url: url of the invoice created with this invoice link if there is any,
+}")]
 pub struct InvoiceLink {
   pub id: i32,
   pub minimum_suggested: i32,

@@ -3,7 +3,10 @@ use serde::{Deserialize, Serialize};
 use models::{email_address, outgoing_email_message_kind::*};
 
 #[derive(Clone, GraphQLInputObject, Serialize, Deserialize)]
-#[graphql(description = "An email address")]
+#[graphql(description = "Email Address Input Object: {
+  email: email to be registered by the person
+  keep_private: boolean pointing out whether the email should be registered as private or could be public,
+}")]
 #[serde(rename_all = "camelCase")]
 pub struct EmailAddressInput {
   pub address: String,
@@ -20,13 +23,21 @@ impl EmailAddressInput {
 }
 
 #[derive(GraphQLObject)]
-#[graphql(description = "An email address")]
+#[graphql(description = "Email Address Verification Object: {
+  id: number identifying the email address that was verified,
+}")]
 pub struct EmailAddressVerification {
   pub id: i32,
 }
 
 #[derive(GraphQLObject)]
-#[graphql(description = "An email address")]
+#[graphql(description = "Email Address Object: {
+  id: number identifying this email address,
+  person_id: id of the person to whom this email address belongs,
+  address: address of the person to whom this email address belongs,
+  verified_at: date the email was verified if it was verified,
+  keep_private: boolean pointing out whether the email is private or public,
+}")]
 pub struct EmailAddress {
   id: i32,
   person_id: i32,

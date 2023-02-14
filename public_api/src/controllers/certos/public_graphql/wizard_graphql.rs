@@ -8,7 +8,15 @@ use models::wizard::*;
 pub struct Preview{ pub id: i32, pub html: String }
 
 #[derive(GraphQLInputObject, Serialize, Deserialize)]
-#[graphql(description = "Request Wizard Input")]
+#[graphql(description = "Wizard Input Object: {
+  csv: the csv file with which the entries will be created ,
+  name: the name of the issuance that will be created,
+  template_id: the id of the template, if any,
+  new_kind: the kind of template to be created if there is no template,
+  new_name: the name of template to be created if there is no template,
+  new_logo_text: the text to be used as the template logo if there is no template,
+  new_logo_image: an image to be used as the template logo, insted of text,
+}")]
 #[serde(rename_all = "camelCase")]
 pub struct WizardInput {
   csv: String,

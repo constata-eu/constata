@@ -2,7 +2,21 @@ use super::*;
 use serde::{Serialize, Deserialize};
 
 #[derive(GraphQLObject)]
-#[graphql(description = "An entry on certos")]
+#[graphql(description = "Entry Object: {
+  id: number identifying an entry,
+  issuance_id: id of the issuance to which this entry belongs,
+  issuance_name: name of the issuance to which this entry belongs,
+  row_number: entry number within the issuance,
+  state: the states can be 'created', 'signed', 'completed' or 'failed',
+  created_at: date in which this entry was created,
+  params: parameters used to create this particular entry,
+  errors: errors that happened in the process of the entry, if any,
+  document_id: id of the document to which this entry belongs,
+  story_id: id of the story to which this entry belongs,
+  has_email_callback: boolean that tells us if an email should be sent for this entry,
+  email_callback_sent_at: date the email was sent, if it already happened,
+  payload: the entry itself,
+}")]
 pub struct Entry {
   id: i32,
   issuance_id: i32,
@@ -102,7 +116,11 @@ impl Showable<entry::Entry, EntryFilter> for Entry {
 }
 
 #[derive(GraphQLInputObject, Serialize, Deserialize)]
-#[graphql(description = "A Entry's signing iterator")]
+#[graphql(description = "Signing Iterator Input Object: {
+  issuance_id: id of the issuance to which this entry belongs,
+  entry_id: number identifying an entry,
+  signature: the signature of the user's Bitcoin wallet that signs this entry,
+}")]
 #[serde(rename_all = "camelCase")]
 pub struct SigningIteratorInput {
   issuance_id: i32,
