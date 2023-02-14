@@ -40,47 +40,33 @@ pub struct EmailEndorsementManifest {
 }
 
 #[derive(GraphQLObject)]
-#[graphql(description = "Kyc Endorsement Manifest Object: {
-  name: name of the person,
-  last_name: last name of the person,
-  id_number: number that identify the person,
-  id_type: type of the person's id. Ej: DNI,
-  birthdate: date of birth,
-  nationality: country of birth,
-  country: country in which the person currently lives,
-  job_title: position that the person occupies within the company,
-  legal_entity_name: name of the company,
-  legal_entity_country: country in which the company has legal residence,
-  legal_entity_registration: company registration number,
-  legal_entity_tax_id: company tax identification,
-  updated_at: date of last update,
-}")]
+#[graphql(description = "KycEndorsementManifest Object")]
 pub struct KycEndorsementManifest {
-  #[graphql(description = "")]
+  #[graphql(description = "name of the person")]
   name: Option<String>,
-  #[graphql(description = "")]
+  #[graphql(description = "last name of the person")]
   last_name: Option<String>,
-  #[graphql(description = "")]
+  #[graphql(description = "number that identify the person")]
   id_number: Option<String>,
-  #[graphql(description = "")]
+  #[graphql(description = "type of the person's id. Ej: DNI")]
   id_type: Option<String>,
-  #[graphql(description = "")]
+  #[graphql(description = "date of birth")]
   birthdate: Option<UtcDateTime>,
-  #[graphql(description = "")]
+  #[graphql(description = "country of birth")]
   nationality: Option<String>,
-  #[graphql(description = "")]
+  #[graphql(description = "country in which the person currently lives")]
   country: Option<String>,
-  #[graphql(description = "")]
+  #[graphql(description = "position that the person occupies within the company")]
   job_title: Option<String>,
-  #[graphql(description = "")]
+  #[graphql(description = "name of the company")]
   legal_entity_name: Option<String>,
-  #[graphql(description = "")]
+  #[graphql(description = "country in which the company has legal residence")]
   legal_entity_country: Option<String>,
-  #[graphql(description = "")]
+  #[graphql(description = "company registration number")]
   legal_entity_registration: Option<String>,
-  #[graphql(description = "")]
+  #[graphql(description = "company tax identification")]
   legal_entity_tax_id: Option<String>,
-  #[graphql(description = "")]
+  #[graphql(description = "date of last update")]
   updated_at: UtcDateTime,
 }
 
