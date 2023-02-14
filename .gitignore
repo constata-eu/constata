@@ -1,4 +1,5 @@
 target/release
+target/.future-incompat-report.json
 target/artifacts/signature.json
 target/debug
 target/sqlx
