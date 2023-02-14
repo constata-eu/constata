@@ -46,7 +46,7 @@ use sqlx_models_orm::*;
 use juniper_rocket::{graphiql_source, GraphQLRequest, GraphQLResponse};
 
 pub mod template_graphql;
-pub mod request_graphql;
+pub mod issuance_graphql;
 pub mod entry_graphql;
 pub mod story_graphql;
 pub mod account_state_graphql;
@@ -60,8 +60,8 @@ pub mod invoice_link_graphql;
 pub mod download_proof_link_graphql;
 pub mod proof_graphql;
 pub use template_graphql::{Template, TemplateFilter};
-pub use request_graphql::{Request, RequestFilter, IssuanceExport};
-pub use entry_graphql::{Entry, EntryFilter};
+pub use issuance_graphql::{Issuance, IssuanceFilter, IssuanceExport};
+pub use entry_graphql::{Entry, EntryFilter, SigningIteratorInput};
 pub use story_graphql::{Story, StoryFilter};
 pub use account_state_graphql::AccountState;
 pub use endorsement_manifest_graphql::*;
@@ -326,7 +326,7 @@ make_graphql_query!{
   "1.0";
   showables {
     [Entry, allEntries, allEntriesMeta, "_allEntriesMeta", EntryFilter, i32],
-    [Request, allRequests, allRequestsMeta, "_allRequestsMeta", RequestFilter, i32],
+    [Issuance, allIssuances, allIssuancesMeta, "_allIssuancesMeta", IssuanceFilter, i32],
     [Template, allTemplates, allTemplatesMeta, "_allTemplatesMeta", TemplateFilter, i32],
     [Story, allStories, allStoriesMeta, "_allStoriesMeta", StoryFilter, i32],
     [Pubkey, allPubkeys, allPubkeysMeta, "_allPubkeysMeta", PubkeyFilter, String],
@@ -390,14 +390,12 @@ impl Mutation {
     input.process(context).await
   }
 
-  pub async fn create_wizard(context: &Context, input: WizardInput) -> FieldResult<Request> {
+  pub async fn create_wizard(context: &Context, input: WizardInput) -> FieldResult<Issuance> {
     input.create_wizard(context).await
   }
 
-  pub async fn signing_iterator(
-    context: &Context, id: i32, entry_id: Option<i32>, signature: Option<String>
-  ) -> FieldResult<Option<Entry>> {
-    Entry::signing_iterator(context, id, entry_id, signature).await
+  pub async fn signing_iterator(context: &Context, input: SigningIteratorInput) -> FieldResult<Option<Entry>> {
+    input.sign(context).await
   }
 
   pub async fn create_kyc_request(context: &Context, input: KycRequestInput) -> FieldResult<KycRequest> {
@@ -429,7 +427,7 @@ impl Mutation {
     }
   }
 
-  pub async fn update_request(context: &Context, id: i32) -> ConstataResult<Request> {
+  pub async fn update_issuance(context: &Context, id: i32) -> ConstataResult<Issuance> {
     let db_request = context.current_person.person
       .request_scope()
       .id_eq(id)
@@ -437,7 +435,7 @@ impl Mutation {
       .in_created()?
       .discard().await?
       .into_inner();
-    Request::db_to_graphql(db_request, false).await
+    Issuance::db_to_graphql(db_request, false).await
   }
 
 }

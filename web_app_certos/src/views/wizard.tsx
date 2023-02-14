@@ -17,7 +17,7 @@ import {v4 as uuid} from 'uuid';
 import { useList, ListContextProvider, SimpleList, required, useTheme, useGetOne } from 'react-admin';
 import csv from 'csvtojson';
 import CardTitle from '../components/card_title';
-import { openPreview } from "./request"
+import { openPreview } from "./issuance"
 import { stringify } from 'csv-stringify/sync';
 import DiplomaPreview from "../assets/example_diploma.png";
 import AttendancePreview from "../assets/example_attendance.png";
@@ -460,20 +460,20 @@ const CreateLoading = () => {
   </Card>);
 }
 
-const Creating = ({setCreatedRequest, ...props}) => {
+const Creating = ({setCreatedIssuance, ...props}) => {
   const dataProvider = useDataProvider();
 
   useEffect(() => {
     let interval;
     async function load(){
-      let value = await dataProvider.getOne('Request', { id: props.wizardState.request.id  });
+      let value = await dataProvider.getOne('Issuance', { id: props.wizardState.issuance.id  });
       switch(value.data.state) {
         case "failed":
-          props.setWizardState((s) => ({...s, ...{request: value.data}}));
+          props.setWizardState((s) => ({...s, ...{issuance: value.data}}));
           clearInterval(interval)
           break;
         case "created":
-          setCreatedRequest(value.data);
+          setCreatedIssuance(value.data);
           clearInterval(interval)
           break;
       }
@@ -481,13 +481,13 @@ const Creating = ({setCreatedRequest, ...props}) => {
     load();
     interval = setInterval(load, 1000);
     return function cleanup() { clearInterval(interval); };
-  }, [dataProvider, props, setCreatedRequest]);
+  }, [dataProvider, props, setCreatedIssuance]);
 
-  let state = props.wizardState.request.state;
+  let state = props.wizardState.issuance.state;
 
   return (<Box my={2}>
     { state === "received" && <CreateLoading/> }
-    { state === "failed" && <CreateFailed errors={props.wizardState.request.errors} /> }
+    { state === "failed" && <CreateFailed errors={props.wizardState.issuance.errors} /> }
   </Box>);
 }
 
@@ -509,7 +509,7 @@ type WizardState = {
   hasTemplates: boolean,
   defaultSchemaValues: Array<Schema>,
   recipients: Array<Map<any, string>>,
-  request?: any,
+  issuance?: any,
   canSendEmail: boolean,
 };
 
@@ -524,7 +524,7 @@ const defaultSchema = [
   { name: 'shared_text', optional: true, common: true, label: false, help: false, sample: false },
 ];
 
-const CreateRequest = ({canSendEmail, setCreatedRequest}) => {
+const CreateIssuance = ({canSendEmail, setCreatedIssuance}) => {
   const translate = useTranslate();
   const dataProvider = useDataProvider();
   const [wizardState, setWizardState] = useSafeSetState<WizardState>( {
@@ -538,7 +538,7 @@ const CreateRequest = ({canSendEmail, setCreatedRequest}) => {
     hasTemplates: false,
     defaultSchemaValues: [],
     recipients: [],
-    request: [],
+    issuance: [],
     canSendEmail: canSendEmail
   });
   const notify = useNotify();
@@ -584,7 +584,7 @@ const CreateRequest = ({canSendEmail, setCreatedRequest}) => {
       csv,
     }}});
 
-    setWizardState((s) => ({...s, ...{request: data}}));
+    setWizardState((s) => ({...s, ...{issuance: data}}));
   }  
 
   const props = {
@@ -612,10 +612,10 @@ const CreateRequest = ({canSendEmail, setCreatedRequest}) => {
   let show = (i: number, current, done) => step && step > i ? done : ( step === i && current );
 
   return (
-    <Box id="create-request-container">
+    <Box id="create-issuance-container">
       { show(0, <Template { ...props } />, <TemplateDone { ...doneProps } />) }
       { show(1, <Recipients { ...props } />, <RecipientsDone { ...doneProps }/>) }
-      { show(2, <Creating setCreatedRequest={setCreatedRequest} { ...props } />, <></>) }
+      { show(2, <Creating setCreatedIssuance={setCreatedIssuance} { ...props } />, <></>) }
     </Box>
   );
 }
@@ -627,7 +627,7 @@ const Preview = (props) => {
   const [discardOpen, setDiscardOpen] = useSafeSetState(false);
   const listContext = useList({
     perPage: 10,
-    data: props.createdRequest.entries.map(o => Object.assign({}, {id: o[0], state: o[1]})),
+    data: props.createdIssuance.entries.map(o => Object.assign({}, {id: o[0], state: o[1]})),
   });
 
   const onSubmit = (values) => {
@@ -651,10 +651,10 @@ const Preview = (props) => {
         <Typography variant="body1">
           { translate("certos.wizard.review_and_sign.text") }
           &nbsp;
-          { translate(`certos.wizard.kind_numbered.${props.createdRequest.templateKind}`, props.createdRequest.entries.length) }.
+          { translate(`certos.wizard.kind_numbered.${props.createdIssuance.templateKind}`, props.createdIssuance.entries.length) }.
         </Typography>
         <Typography variant="body1">
-        { translate("certos.wizard.review_and_sign.tokens_needed", props.createdRequest.tokensNeeded) }
+        { translate("certos.wizard.review_and_sign.tokens_needed", props.createdIssuance.tokensNeeded) }
         </Typography>
       </CardContent>
       <ListContextProvider value={listContext}>
@@ -664,7 +664,7 @@ const Preview = (props) => {
               <Typography variant="button" id={`preview-` + record.id}>
                 { translate("certos.wizard.review_and_sign.review_label")}
                 &nbsp;
-                { translate(`certos.wizard.kind.${props.createdRequest.templateKind}`)}
+                { translate(`certos.wizard.kind.${props.createdIssuance.templateKind}`)}
                 &nbsp;
                 #{record.id}
               </Typography>
@@ -673,7 +673,7 @@ const Preview = (props) => {
           rowStyle={() => ({borderTop: "1px solid", borderColor: theme?.palette?.grey[200]})}
           linkType={false}
         />
-        { props.createdRequest.entries.length > 10 && <Pagination rowsPerPageOptions={[]} /> }
+        { props.createdIssuance.entries.length > 10 && <Pagination rowsPerPageOptions={[]} /> }
       </ListContextProvider>
     </Card>
     <Card sx={{mb:5}}>
@@ -707,16 +707,16 @@ const Preview = (props) => {
 }
 
 const Signing = ({password, ...props}) => {
-  const entryCount = props.createdRequest.entries.length;
+  const entryCount = props.createdIssuance.entries.length;
   const [signedCount, setSignedCount] = useSafeSetState(0);
   const notify = useNotify();
   const dataProvider = useDataProvider();
 
-  const {createdRequest, handleNext} = props;
+  const {createdIssuance, handleNext} = props;
 
   useEffect(() => {
     const handleSign = async () => {
-      let entry_id = null;
+      let entryId = null;
       let signature: string | null = null;
       let counter = 0;
       const conf = getStorage();
@@ -725,7 +725,7 @@ const Signing = ({password, ...props}) => {
       while(true){
         try {
           const next = await dataProvider.create('SigningIterator',
-            {data: {id: createdRequest.id, entry_id, signature}}
+            { data: { input: { issuanceId: createdIssuance.id, entryId, signature } } }
           );
           
           if(next.data.done) {
@@ -736,7 +736,7 @@ const Signing = ({password, ...props}) => {
           setSignedCount(counter);
 
           const signed_payload = getSignedPayload(keyPair, address, Buffer.from(next.data.payload, "base64"));
-          entry_id = next.data.id;
+          entryId = next.data.id;
           signature = signed_payload.signature;
 
         } catch(error) {
@@ -793,7 +793,6 @@ const NoTokensNeeded = ({hasEmails, templateKind, entries}) => {
 
 const TokensNeeded = ({hasEmails, templateKind, entries, pendingInvoiceLinkUrl}) => {
   const translate = useTranslate();
-  const navigate = useNavigate();
   return (<Box id="tokens_needed_container">
     <Card sx={{mb: 5}}>
       <CardTitle text="certos.wizard.done.title_need_token" color="success"/>
@@ -822,8 +821,8 @@ const TokensNeeded = ({hasEmails, templateKind, entries, pendingInvoiceLinkUrl})
 }
 
 const Done = ({...props}) => {
-  const hasEmails = _.some(props.createdRequest.entries, (i) => !_.isEmpty(i[3]));
-  const {templateKind, entries} = props.createdRequest;
+  const hasEmails = _.some(props.createdIssuance.entries, (i) => !_.isEmpty(i[3]));
+  const {templateKind, entries} = props.createdIssuance;
 
   const {data: accountState, refetch: refetchAccount } = useGetOne(
     'AccountState',
@@ -831,8 +830,8 @@ const Done = ({...props}) => {
     { enabled: false }
   );
   useGetOne(
-    'Request',
-    { id: props.createdRequest.id },
+    'Issuance',
+    { id: props.createdIssuance.id },
     { 
       refetchInterval: (d) => d?.state === "signed" ? 1e10 : 1000, // Returning false does not prevent refetch, we use a large number.
       onSuccess: (d) => d?.state === "signed" && refetchAccount()
@@ -849,7 +848,7 @@ const Done = ({...props}) => {
   }</Box>);
 }
 
-const PreviewAndSign = ({createdRequest, handleDiscard}) => {
+const PreviewAndSign = ({createdIssuance, handleDiscard}) => {
   const [step, setStep] = useSafeSetState(0);
   const [password, setPassword] = useSafeSetState(0);
 
@@ -857,7 +856,7 @@ const PreviewAndSign = ({createdRequest, handleDiscard}) => {
     handleNext: async () => {
       setStep((prev) => prev + 1);
     },
-    createdRequest,
+    createdIssuance,
   };
 
   return (
@@ -872,7 +871,7 @@ const PreviewAndSign = ({createdRequest, handleDiscard}) => {
 export default function Wizard() {
   let { id } = useParams();
   const dataProvider = useDataProvider();
-  const [createdRequest, setCreatedRequest] = useSafeSetState(null);
+  const [createdIssuance, setCreatedIssuance] = useSafeSetState(null);
   const [canSendEmail, setCanSendEmail] = useSafeSetState(null);
   const [loading, setLoading] = useSafeSetState(true);
   const notify = useNotify();
@@ -891,9 +890,9 @@ export default function Wizard() {
         return;
       }
 
-      let value = await dataProvider.getOne('Request', { id });
+      let value = await dataProvider.getOne('Issuance', { id });
       if (value.data) {
-        setCreatedRequest(value.data);
+        setCreatedIssuance(value.data);
       } else {
         handleErrors("Not found", notify);
       }
@@ -904,18 +903,18 @@ export default function Wizard() {
   }, []);
   
   const handleDiscard = async () => {
-    await dataProvider.update('Request', { id: createdRequest.id, data: {}, previousData: {} });
-    setCreatedRequest(null);
+    await dataProvider.update('Issuance', { id: createdIssuance.id, data: {}, previousData: {} });
+    setCreatedIssuance(null);
     navigate("/wizard")
   }
 
   return (<Container maxWidth="md">
     { loading && <LinearProgress sx={{mt: 3}}/> }
-    { !loading && createdRequest &&
-      <PreviewAndSign createdRequest={createdRequest} handleDiscard={handleDiscard}/> 
+    { !loading && createdIssuance &&
+      <PreviewAndSign createdIssuance={createdIssuance} handleDiscard={handleDiscard}/> 
     }
-    { !loading && !createdRequest && 
-      <CreateRequest canSendEmail={canSendEmail} setCreatedRequest={setCreatedRequest}/> 
+    { !loading && !createdIssuance && 
+      <CreateIssuance canSendEmail={canSendEmail} setCreatedIssuance={setCreatedIssuance}/> 
     }
   </Container>);
 }

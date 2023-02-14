@@ -21,7 +21,7 @@ pub struct WizardInput {
 }
 
 impl WizardInput {
-  pub async fn create_wizard(self, context: &Context) -> FieldResult<Request> {
+  pub async fn create_wizard(self, context: &Context) -> FieldResult<Issuance> {
     let template = match self.template_id {
       Some(id) => WizardTemplate::Existing{ template_id: id},
       None => {
@@ -45,6 +45,6 @@ impl WizardInput {
       template
     }.process().await?;
 
-    Ok(Request::db_to_graphql(db_request, false).await?)
+    Ok(Issuance::db_to_graphql(db_request, false).await?)
   }
 }
