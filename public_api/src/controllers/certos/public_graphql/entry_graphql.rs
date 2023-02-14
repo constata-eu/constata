@@ -2,34 +2,33 @@ use super::*;
 use serde::{Serialize, Deserialize};
 
 #[derive(GraphQLObject)]
-#[graphql(description = "Entry Object: {
-  id: number identifying an entry,
-  issuance_id: id of the issuance to which this entry belongs,
-  issuance_name: name of the issuance to which this entry belongs,
-  row_number: entry number within the issuance,
-  state: the states can be 'created', 'signed', 'completed' or 'failed',
-  created_at: date in which this entry was created,
-  params: parameters used to create this particular entry,
-  errors: errors that happened in the process of the entry, if any,
-  document_id: id of the document to which this entry belongs,
-  story_id: id of the story to which this entry belongs,
-  has_email_callback: boolean that tells us if an email should be sent for this entry,
-  email_callback_sent_at: date the email was sent, if it already happened,
-  payload: the entry itself,
-}")]
+#[graphql(description = "Entry Object")]
 pub struct Entry {
+  #[graphql(description = "number identifying an entry")]
   id: i32,
+  #[graphql(description = "id of the issuance to which this entry belongs")]
   issuance_id: i32,
+  #[graphql(description = "name of the issuance to which this entry belongs")]
   issuance_name: String,
+  #[graphql(description = "entry number within the issuance")]
   row_number: i32,
+  #[graphql(description = "the states can be 'created', 'signed', 'completed' or 'failed'")]
   state: String,
+  #[graphql(description = "date in which this entry was created")]
   created_at: UtcDateTime,
+  #[graphql(description = "parameters used to create this particular entry")]
   params: String,
+  #[graphql(description = "errors that happened in the process of the entry, if any")]
   errors: Option<String>,
+  #[graphql(description = "id of the document to which this entry belongs")]
   document_id: Option<String>,
+  #[graphql(description = "id of the story to which this entry belongs")]
   story_id: Option<i32>,
+  #[graphql(description = "boolean that tells us if an email should be sent for this entry")]
   has_email_callback: bool,
+  #[graphql(description = "date the email was sent, if it already happened")]
   email_callback_sent_at: Option<UtcDateTime>,
+  #[graphql(description = "the entry itself")]
   payload: Option<String>,
 }
 
@@ -116,15 +115,14 @@ impl Showable<entry::Entry, EntryFilter> for Entry {
 }
 
 #[derive(GraphQLInputObject, Serialize, Deserialize)]
-#[graphql(description = "Signing Iterator Input Object: {
-  issuance_id: id of the issuance to which this entry belongs,
-  entry_id: number identifying an entry,
-  signature: the signature of the user's Bitcoin wallet that signs this entry,
-}")]
+#[graphql(description = "SigningIteratorInput Object")]
 #[serde(rename_all = "camelCase")]
 pub struct SigningIteratorInput {
+  #[graphql(description = "id of the issuance to which this entry belongs")]
   issuance_id: i32,
+  #[graphql(description = "number identifying an entry")]
   entry_id: Option<i32>,
+  #[graphql(description = "the signature of the user's Bitcoin wallet that signs this entry")]
   signature: Option<String>,
 }
 

@@ -2,40 +2,40 @@ use super::*;
 use crate::Decimal;
 
 #[derive(GraphQLObject)]
-#[graphql(description = "Account State Object: {
-  missing: tokens left to certify user's pending documents,
-  token_balance: user's token balance,
-  price_per_token: price per token the user is going to pay,
-  max_monthly_gift: amount of token per mounth gifted to the user,
-  parked_count: amount of document pending by lack of tokens,
-  invoices: all user's pending invoices
-  pending_tyc_url: It's going to return the url to accept terms & conditions if user didn't accept them yet,
-  pending_invoice_link_url: It's going to return the url to an invoice link if user didn't create an invoice with it
-}")]
+#[graphql(description = "AccountState Object")]
 pub struct AccountState {
+  #[graphql(description = "number identifying the organization")]
   id: i32,
+  #[graphql(description = "tokens left to certify user's pending documents")]
   missing: i32,
+  #[graphql(description = "user's token balance")]
   token_balance: i32,
+  #[graphql(description = "price per token the user is going to pay")]
   price_per_token: i32,
+  #[graphql(description = "amount of token per mounth gifted to the user")]
   max_monthly_gift: i32,
+  #[graphql(description = "amount of tokens gifted this month that I have available")]
   monthly_gift_remainder: i32,
+  #[graphql(description = "amount of document pending by lack of tokens")]
   parked_count: i32,
+  #[graphql(description = "all user's pending invoices")]
   invoices: Vec<Invoice>,
+  #[graphql(description = "It's going to return the url to accept terms & conditions if user didn't accept them yet")]
   pending_tyc_url: Option<String>,
+  #[graphql(description = "It's going to return the url to an invoice link if user didn't create an invoice with it")]
   pending_invoice_link_url: Option<String>,
 }
 
 #[derive(GraphQLObject)]
-#[graphql(description = "Invoice Object: {
-  amount: amount of money to pay for the tokens,
-  tokens: amount of token to buy,
-  description: description,
-  url: url where to buy the tokens,
-}")]
+#[graphql(description = "Invoice Object")]
 pub struct Invoice {
+  #[graphql(description = "amount of money to pay for the tokens")]
   amount: i32,
+  #[graphql(description = "amount of token to buy")]
   tokens: i32,
+  #[graphql(description = "description of the invoice")]
   description: String,
+  #[graphql(description = "url where to buy the tokens")]
   url: String,
 }
 

@@ -3,13 +3,12 @@ use serde::{Deserialize, Serialize};
 use models::{email_address, outgoing_email_message_kind::*};
 
 #[derive(Clone, GraphQLInputObject, Serialize, Deserialize)]
-#[graphql(description = "Email Address Input Object: {
-  email: email to be registered by the person
-  keep_private: boolean pointing out whether the email should be registered as private or could be public,
-}")]
+#[graphql(description = "EmailAddressInput Object")]
 #[serde(rename_all = "camelCase")]
 pub struct EmailAddressInput {
+  #[graphql(description = "email to be registered by the person")]
   pub address: String,
+  #[graphql(description = "boolean pointing out whether the email should be registered as private or could be public")]
   pub keep_private: bool,
 }
 
@@ -23,26 +22,24 @@ impl EmailAddressInput {
 }
 
 #[derive(GraphQLObject)]
-#[graphql(description = "Email Address Verification Object: {
-  id: number identifying the email address that was verified,
-}")]
+#[graphql(description = "EmailAddressVerification Object")]
 pub struct EmailAddressVerification {
+  #[graphql(description = "number identifying the email address that was verified")]
   pub id: i32,
 }
 
 #[derive(GraphQLObject)]
-#[graphql(description = "Email Address Object: {
-  id: number identifying this email address,
-  person_id: id of the person to whom this email address belongs,
-  address: address of the person to whom this email address belongs,
-  verified_at: date the email was verified if it was verified,
-  keep_private: boolean pointing out whether the email is private or public,
-}")]
+#[graphql(description = "EmailAddress Object:")]
 pub struct EmailAddress {
+  #[graphql(description = "number identifying this email address")]
   id: i32,
+  #[graphql(description = "id of the person to whom this email address belongs")]
   person_id: i32,
+  #[graphql(description = "address of the person to whom this email address belongs")]
   address: String,
+  #[graphql(description = "date the email was verified if it was verified")]
   verified_at: Option<UtcDateTime>,
+  #[graphql(description = "boolean pointing out whether the email is private or public")]
   keep_private: bool,
 }
 
