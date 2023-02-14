@@ -3,7 +3,27 @@ use serde::{Deserialize, Serialize};
 use models::{kyc_request, outgoing_email_message_kind::*};
 
 #[derive(Clone, GraphQLInputObject, Serialize, Deserialize)]
-#[graphql(description = "A full kyc request")]
+#[graphql(description = "Kyc Request Input Object: {
+  email: email to be registered by the person,
+  keep_private: boolean pointing out whether the email should be registered as private or could be public,
+  person_id: id of the person that requested this kyc,
+  org_id: id of the organization to which this person belongs,
+  created_at: date in which this kyc request was created,
+  state: state of the kyc request, can be 'Pending' or 'Proccesed',
+  name: name of the person,
+  last_name: last name of the person,
+  id_number: number that identify the person,
+  id_type: type of the person's id. Ej: DNI,
+  birthdate: date of birth,
+  nationality: country of birth,
+  country: country in which the person currently lives,
+  job_title: position that the person occupies within the company,
+  legal_entity_name: name of the company,
+  legal_entity_country: country in which the company has legal residence,
+  legal_entity_registration: company registration number,
+  legal_entity_tax_id: company tax identification,
+  evidence: the files that prove your identity,
+}")]
 #[serde(rename_all = "camelCase")]
 pub struct KycRequestInput {
   pub email: String,
@@ -24,7 +44,10 @@ pub struct KycRequestInput {
 }
 
 #[derive(Clone, GraphQLInputObject, Serialize, Deserialize)]
-#[graphql(description = "A full kyc request")]
+#[graphql(description = "Kyc Request Evidence Input Object: {
+  filename: name of the file used as evidence for this kyc request,
+  payload: the file itself,
+}")]
 #[serde(rename_all = "camelCase")]
 pub struct KycRequestEvidenceInput {
   pub filename: String,
@@ -66,7 +89,25 @@ impl KycRequestInput {
 }
 
 #[derive(GraphQLObject)]
-#[graphql(description = "An request on certos")]
+#[graphql(description = "Kyc Request Object: {
+  id: number identifying this kyc request,
+  person_id: id of the person that requested this kyc,
+  org_id: id of the organization to which this person belongs,
+  created_at: date in which this kyc request was created,
+  state: state of the kyc request, can be 'Pending' or 'Proccesed',
+  name: name of the person,
+  last_name: last name of the person,
+  id_number: number that identify the person,
+  id_type: type of the person's id. Ej: DNI,
+  birthdate: date of birth,
+  nationality: country of birth,
+  country: country in which the person currently lives,
+  job_title: position that the person occupies within the company,
+  legal_entity_name: name of the company,
+  legal_entity_country: country in which the company has legal residence,
+  legal_entity_registration: company registration number,
+  legal_entity_tax_id: company tax identification,
+}")]
 pub struct KycRequest {
   id: i32,
   person_id: PersonId,

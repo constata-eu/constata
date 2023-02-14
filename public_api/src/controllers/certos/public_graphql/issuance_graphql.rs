@@ -1,7 +1,18 @@
 use super::*;
 
 #[derive(GraphQLObject)]
-#[graphql(description = "An request on certos")]
+#[graphql(description = "Issuance Object: {
+  id: number identifying the issuance,
+  template_id: id of the template linked to this issuance,
+  template_name: name of the template linked to this issuance,
+  template_kind: the kinds can be 'Diploma', 'Attendance' or 'Invitation',
+  state: the states can be 'received', 'created', 'signed', 'completed' or 'failed',
+  name: the name of the issuance,
+  created_at: date in which this issuance was created,
+  errors: errors that happened in the process of the issuance, if any,
+  tokens_needed: amount of tokens that the user must buy to certify this issuance ,
+  entries: entries that belong to this issuance,
+}")]
 pub struct Issuance {
   id: i32,
   template_id: i32,
@@ -16,7 +27,10 @@ pub struct Issuance {
 }
 
 #[derive(GraphQLObject)]
-#[graphql(description = "A CSV export of an Issuance")]
+#[graphql(description = "Issuance Export Object: {
+  id: number identifying the issuance,
+  csv: a csv export of the issuance
+}")]
 pub struct IssuanceExport {
   pub id: i32,
   pub csv: String,

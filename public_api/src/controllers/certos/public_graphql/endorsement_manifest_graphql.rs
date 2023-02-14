@@ -1,7 +1,15 @@
 use super::*;
 
 #[derive(GraphQLObject)]
-#[graphql(description = "The customer endorsements")]
+#[graphql(description = "Endorsement Manifest Object: {
+  id: is always number 1,
+  text: the final text to be used as the user endorsements, if any,
+  websites: websites registered by the user, if any,
+  kyc: data from the user's kyc endorsement, if any,
+  telegram: data from the user's telegram account, if any,
+  email: email registered by the user, if any,
+  can_send_email: boolean pointing out whether the an email is going to be send to the student when created an issuance,
+}")]
 pub struct EndorsementManifest {
   pub id: i32,
   pub text: Option<String>,
@@ -13,7 +21,11 @@ pub struct EndorsementManifest {
 }
 
 #[derive(GraphQLObject)]
-#[graphql(description = "The customer telegram account endorsement")]
+#[graphql(description = "Telegram Endorsement Manifest Object: {
+  username: username used in the user's telegram account, if any,
+  first_name: first name of the user used in the telegram account,
+  last_name: last name of the user used in the telegram account, if any,
+}")]
 pub struct TelegramEndorsementManifest {
   username: Option<String>,
   first_name: String,
@@ -21,14 +33,31 @@ pub struct TelegramEndorsementManifest {
 }
 
 #[derive(GraphQLObject)]
-#[graphql(description = "The customer telegram account endorsement")]
+#[graphql(description = "Email Endorsement Manifest Object: {
+  address: email registered by the user,
+  keep_private: boolean pointing out whether the email was registered as private or public,
+}")]
 pub struct EmailEndorsementManifest {
   pub address: String,
   pub keep_private: bool,
 }
 
 #[derive(GraphQLObject)]
-#[graphql(description = "The customer identity verification endorsement")]
+#[graphql(description = "Kyc Endorsement Manifest Object: {
+  name: name of the person,
+  last_name: last name of the person,
+  id_number: number that identify the person,
+  id_type: type of the person's id. Ej: DNI,
+  birthdate: date of birth,
+  nationality: country of birth,
+  country: country in which the person currently lives,
+  job_title: position that the person occupies within the company,
+  legal_entity_name: name of the company,
+  legal_entity_country: country in which the company has legal residence,
+  legal_entity_registration: company registration number,
+  legal_entity_tax_id: company tax identification,
+  updated_at: date of last update,
+}")]
 pub struct KycEndorsementManifest {
   name: Option<String>,
   last_name: Option<String>,

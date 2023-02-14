@@ -2,7 +2,16 @@ use super::*;
 use crate::Decimal;
 
 #[derive(GraphQLObject)]
-#[graphql(description = "The customer account state")]
+#[graphql(description = "Account State Object: {
+  missing: tokens left to certify user's pending documents,
+  token_balance: user's token balance,
+  price_per_token: price per token the user is going to pay,
+  max_monthly_gift: amount of token per mounth gifted to the user,
+  parked_count: amount of document pending by lack of tokens,
+  invoices: all user's pending invoices
+  pending_tyc_url: It's going to return the url to accept terms & conditions if user didn't accept them yet,
+  pending_invoice_link_url: It's going to return the url to an invoice link if user didn't create an invoice with it
+}")]
 pub struct AccountState {
   id: i32,
   missing: i32,
@@ -17,7 +26,12 @@ pub struct AccountState {
 }
 
 #[derive(GraphQLObject)]
-#[graphql(description = "An invoice ready to be paid")]
+#[graphql(description = "Invoice Object: {
+  amount: amount of money to pay for the tokens,
+  tokens: amount of token to buy,
+  description: description,
+  url: url where to buy the tokens,
+}")]
 pub struct Invoice {
   amount: i32,
   tokens: i32,
