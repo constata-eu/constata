@@ -11,7 +11,7 @@ import VerifyEmail from './views/verify_email';
 import Dashboard from './views/dashboard';
 import Wizard from './views/wizard';
 import Login from './views/login';
-import { RequestList, RequestShow } from "./views/request";
+import { IssuanceList, IssuanceShow } from "./views/issuance";
 import { TemplateList, TemplateShow } from "./views/template";
 import gql from 'graphql-tag';
 import polyglotI18nProvider from 'ra-i18n-polyglot';
@@ -61,8 +61,8 @@ function App() {
           return {
             parseResponse: parser,
             variables: params.data,
-            query: gql`mutation($id: Int!, $entry_id:Int, $signature: String){
-              data: signingIterator(id: $id, entryId: $entry_id, signature: $signature) {
+            query: gql`mutation($input: SigningIteratorInput!){
+              data: signingIterator(input: $input) {
                 id,
                 payload,
               }
@@ -70,7 +70,7 @@ function App() {
           };
         } else if (resource === 'Wizard') {
           const parser = function(data){
-            return buildQuery(introspection)('GET_ONE', 'Request', params).parseResponse(data);
+            return buildQuery(introspection)('GET_ONE', 'Issuance', params).parseResponse(data);
           }
           return {
             parseResponse: parser,
@@ -145,11 +145,11 @@ function App() {
           <Route path="/request_verification" element={<KycRequest />} />
         </CustomRoutes>
         <Resource
-          name="Request"
-          list={RequestList}
-          show={RequestShow}
+          name="Issuance"
+          list={IssuanceList}
+          show={IssuanceShow}
           icon={DriveFileMove}
-          options={{ label: 'Requests' }}
+          options={{ label: 'Issuances' }}
         />
         <Resource
           name="Template"

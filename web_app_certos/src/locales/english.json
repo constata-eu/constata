@@ -179,10 +179,10 @@
 			"dashboard": "Dashboard",
 			"help": "Help",
 			"logout": "Logout",
-			"requests": "Issuances",
+			"issuances": "Issuances",
       "login": "Login"
 		},
-		"request": {
+		"issuance": {
 			"create": "Start issuing",
 			"csv": "CSV file",
       "export_csv": "Export issuance to CSV",
@@ -602,14 +602,14 @@
         "params": "Parameters",
         "paramsLike": "By parameters:",
         "proof": "Certificate",
-        "requestId": "Issuance",
+        "issuanceId": "Issuance",
         "rowNumber": "Line",
         "state": "State"
       },
       "name": "Entry |||| Entries",
       "value": "VALUE"
     },
-    "Request": {
+    "Issuance": {
       "create": "Start issuance",
       "fields": {
         "states": {
