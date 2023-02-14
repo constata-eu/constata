@@ -6,6 +6,6 @@ RUN apt-get install build-essential libssl-dev pkg-config -y
 RUN mkdir -p /user/constata-rust-builder/src
 WORKDIR /user/constata-rust-builder/src
 
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+RUN curl --proto '=https' --tls1.2 -sSf https://sh.rustup.rs/ | sh -s --default-toolchain=1.67.1 -- -y
 
 ENV PATH="/root/.cargo/bin:${PATH}"
