@@ -2,22 +2,21 @@ use super::*;
 use models::download_proof_link;
 
 #[derive(GraphQLObject)]
-#[graphql(description = "Download Proof Link Object: {
-  id: number identifying a Download Proof Link,
-  valid_until: expiration date if any,
-  pending_doc_count: amount of pending documents for certification in the same story,
-  last_doc_date: date in which was created the last document if are more than one,
-  public_certificate_url: url to see the public certificate,
-  public_certificate_is_active: boolean pointing out if the public certificate is active,
-  share_on_social_networks_call_to_action: text to share on social networks along with the public certificate url,
-}")]
+#[graphql(description = "DownloadProofLink Object")]
 pub struct DownloadProofLink {
+  #[graphql(description = "number identifying a Download Proof Link")]
   pub id: i32,
+  #[graphql(description = "expiration date if any")]
   pub valid_until: Option<UtcDateTime>,
+  #[graphql(description = "amount of pending documents for certification in the same story")]
   pub pending_doc_count: i32,
+  #[graphql(description = "date in which was created the last document if are more than one")]
   pub last_doc_date: Option<UtcDateTime>,
+  #[graphql(description = "url to see the public certificate")]
   pub public_certificate_url: String,
+  #[graphql(description = "boolean pointing out if the public certificate is active")]
   pub public_certificate_is_active: bool,
+  #[graphql(description = "text to share on social networks along with the public certificate url")]
   pub share_on_social_networks_call_to_action: String,
 }
 
@@ -59,10 +58,9 @@ impl DownloadProofLink {
 
 
 #[derive(Clone, GraphQLInputObject, Serialize, Deserialize)]
-#[graphql(description = "Download Proof Link Input Object: {
-  action: the actions to use are 'publish' and 'unpublish', this way we're changing the state of the public certificate
-}")]
+#[graphql(description = "DownloadProofLinkInput Object")]
 pub struct DownloadProofLinkInput {
+  #[graphql(description = "the actions to use are 'publish' and 'unpublish', this way to change the state of the public certificate")]
   pub action: String,
 }
 

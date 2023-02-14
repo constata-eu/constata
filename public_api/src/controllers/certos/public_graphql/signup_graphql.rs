@@ -3,20 +3,18 @@ use crate::controllers::Result as ConstataResult;
 use models::{outgoing_email_message_kind::*};
 
 #[derive(GraphQLInputObject)]
-#[graphql(description = "Signup Input Object: {
-  email: email to be registered by the person, if any
-  keep_private: boolean pointing out whether the email should be registered as private or could be public,
-}")]
+#[graphql(description = "SignupInput Object")]
 pub struct SignupInput {
+  #[graphql(description = "email to be registered by the person, if any")]
   email: Option<String>,
+  #[graphql(description = "boolean pointing out whether the email should be registered as private or could be public")]
   keep_private: bool,
 }
 
 #[derive(GraphQLObject)]
-#[graphql(description = "Signup Object: {
-  id: number identifying the person who signed up
-}")]
+#[graphql(description = "Signup Object")]
 pub struct Signup {
+  #[graphql(description = "number identifying the person who signed up")]
   id: i32,
 }
 

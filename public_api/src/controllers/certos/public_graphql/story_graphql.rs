@@ -1,20 +1,7 @@
 use super::*;
 
 #[derive(GraphQLObject)]
-#[graphql(description = "Story Object: {
-  id: number identifying this story,
-  org_id: id of the organization to which this story belongs,
-  open_until: expiration date to add documents to this story if any,
-  private_markers: markers used in this story by the user,
-  source: source from which the document was received,
-  issuance_id: the issuance id if belongs to an issuance,
-  issuance_name: the issuance name if belongs to an issuance,
-  total_documents_count: amount of documents that this story has,
-  published_documents_count: amount of certified documents that this story has,
-  has_accepted_docs: boolean pointing out if this story has accepted documents waiting to be certified,
-  is_terms_accepted: boolean pointing out if the user accepted the terms & conditions,
-  download_proof_link: download proof link to visualize, download or publish the certificate if at least one document of the story is certified,
-}")]
+#[graphql(description = "Story Object")]
 pub struct Story {
   id: i32,
   org_id: i32,
