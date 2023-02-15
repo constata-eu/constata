@@ -165,7 +165,7 @@ describe!{
     alice.make_kyc_endorsement().await;
     alice.make_pubkey_domain_endorsement().await;
     let document = site.document().select().org_id_eq(alice_id).one().await?;
-    document.create_download_proof_link(30).await?;
+    document.get_or_create_download_proof_link(30).await?;
     site.email_callback().insert(InsertEmailCallback{
       document_id: document.attrs.id.clone(),
       address: email_address.attrs.address.clone(),

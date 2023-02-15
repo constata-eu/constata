@@ -53,7 +53,7 @@ impl Showable<story::Story, StoryFilter> for Story {
   async fn db_to_graphql(d: story::Story, _: bool) -> MyResult<Self> {
     let documents = d.documents().await?;
     let published_documents_count = d.published_documents().await?.len() as i32;
-    let download_proof_link = d.create_download_proof_link(7).await?;
+    let download_proof_link = d.create_download_proof_link(30).await?;
     let has_accepted = d.has_accepted_docs().await?;
     let terms_acceptance = d.org().await?.get_or_create_terms_acceptance().await?;
     let is_terms_accepted = terms_acceptance.attrs.accepted.is_some();

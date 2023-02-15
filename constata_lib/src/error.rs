@@ -89,6 +89,12 @@ impl From<stripe::Error> for Error {
   }
 }
 
+impl<A> From<csv::IntoInnerError<A>> for Error {
+  fn from(err: csv::IntoInnerError<A>) -> Error {
+    Error::Internal(format!("{}", err))
+  }
+}
+
 impl From<failure::Error> for Error {
   fn from(err: failure::Error) -> Error {
     Error::Failure(format!("{}", err))

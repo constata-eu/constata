@@ -1,3 +1,3 @@
-alumno,titulo,curso,day,month,year,nota_global,email
-Lisa Simpson,Abogada Épica,Derecho Épico,22,marzo,2022,10,lisa@simpson.com
-Bart Simpson,Profesor de expresión corporal,Expresión Corporal,25,marzo,2022,5,
+name,course,date,email
+Lisa Simpson,Derecho Épico,22 marzo 2022,lisa@simpson.com
+Bart Simpson,Expresión Corporal,25 marzo 2022,

@@ -49,7 +49,7 @@ impl Wizard {
             org_id: org.attrs.id,
             name: name,
             kind: kind,
-            schema: Some(Wizard::default_template_schema()),
+            schema: serde_json::to_string(&kind.default_schema())?,
             og_title_override: None,
             custom_message: Some(custom_message),
             size_in_bytes: payload.len() as i32,
@@ -101,19 +101,6 @@ impl Wizard {
       zip.finish()?;
     }
     Ok((custom_message, file))
-  }
-
-  pub fn default_template_schema() -> String {
-    serde_json::json!{[
-      { "name": "name", "optional": false, "common": false, "label": false, "help": false, "sample": false },
-      { "name": "email", "optional": true, "common": false, "label": false, "help": false, "sample": false },
-      { "name": "recipient_identification", "optional": true, "common": false, "label": false, "help": false, "sample": false },
-      { "name": "custom_text", "optional": true, "common": false, "label": false, "help": false, "sample": false },
-      { "name": "motive", "optional": false, "common": true, "label": false, "help": false, "sample": false },
-      { "name": "date", "optional": true, "common": true, "label": false, "help": false, "sample": false },
-      { "name": "place", "optional": true, "common": true, "label": false, "help": false, "sample": false },
-      { "name": "shared_text", "optional": true, "common": true, "label": false, "help": false, "sample": false },
-    ]}.to_string()
   }
 }
 

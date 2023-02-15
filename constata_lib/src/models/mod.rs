@@ -56,6 +56,7 @@ pub mod outgoing_email_message_kind;
 pub mod outgoing_email_message;
 pub mod access_token;
 pub mod storable;
+pub mod template_schema;
 
 pub use bulletin::{Bulletin, Draft, Proposed, Published, Submitted};
 pub use story::Story;
@@ -100,6 +101,7 @@ pub use endorsement::Endorsement;
 pub use site::{Db, Site, SiteSettings, Environment};
 pub use certos::*;
 pub use storable::*;
+pub use template_schema::*;
 
 use magic_link::MagicLink;
 
