@@ -15,11 +15,17 @@ impl PublicApiServer {
       vec!["run", "-p", "public_api"]
     };
 
+    let path_to_log = "/tmp/constata_public_api_server.log";
+    Command::new("rm").args(&["-rf", path_to_log]).output()
+      .expect("Could not remove previous log");
+
+    let output_file = std::fs::File::create(path_to_log).unwrap();
+
     let mut child = Command::new("cargo")
       .current_dir(std::fs::canonicalize("..").unwrap())
       .stdin(Stdio::piped())
-      .stderr(Stdio::null())
-      .stdout(Stdio::null())
+      .stdout(Stdio::from(output_file.try_clone().unwrap()))
+      .stderr(Stdio::from(output_file))
       .args(&args)
       .spawn().unwrap();
 

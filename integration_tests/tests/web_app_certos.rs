@@ -29,6 +29,29 @@ mod workroom {
       d.wait_for_text("h2", "In progress").await;
     }
 
+    integration_test!{ issues_diplomas_from_csv_and_completes_them (c, d)
+      let mut chain = TestBlockchain::new().await;
+
+      signup(&d).await;
+      for _ in 0..4 {
+        create_template(&d).await;
+        let csv = format!("{}/tests/resources/default_certos_recipients.csv", env::current_dir().unwrap().display());
+        add_recipients_with_csv(&d, &c.site, &csv).await;
+        sign_wizard(&d).await;
+        d.click("a[href='#/']").await;
+      }
+      d.click("#dashboard-menu-item").await;
+      d.wait_for_text("h2", "In progress").await;
+      chain.fund_signer_wallet();
+      chain.simulate_stamping().await;
+      try_until(40, "bulletin_is_published", || async { c.site.bulletin().find(1).await.unwrap().is_published() }).await;
+      c.site.request().try_complete().await?;
+      d.wait_for_text("h2", "Recent issuances").await;
+      d.click("a[href='#/Request/4/show'").await;
+      d.click("#export_to_csv").await;
+      d.check_downloads_for_file("constata_issuance_4.csv").await;
+    }
+
     integration_test!{ sign_previously_created_request (c, d)
       signup_and_verify(&d, &c.site).await;
       create_wizard(&d, &c.site, 2).await;
@@ -71,7 +94,7 @@ mod workroom {
         org_id: 1,
         name: "Tempalte Custom".to_string(),
         kind: TemplateKind::Diploma,
-        schema: Some(d.template_custom_schema()),
+        schema: d.template_custom_schema(),
         og_title_override: Some("Curso de programación".to_string()),
         custom_message: Some("Mensaje custom".to_string()),
         size_in_bytes: payload.len() as i32,
@@ -84,7 +107,7 @@ mod workroom {
       for i in 0..2 {
         let name = format!("nombre_{i}");
         d.click("#recipients > button").await;
-        d.fill_in("#alumno", &name).await;
+        d.fill_in("#name", &name).await;
         if i == 0 {
           d.fill_in("#curso", "Desarrollo Web").await;
           d.fill_in("#day", "22").await;
@@ -128,26 +151,6 @@ mod workroom {
       d.wait_for("#template-wizard-step").await;
       d.click("#requests-menu-item").await;
       d.wait_for_text("p", "No results found").await;
-    }
-
-    integration_test!{ issues_diplomas_from_csv_and_completes_them (c, d)
-      let mut chain = TestBlockchain::new().await;
-
-      signup(&d).await;
-      for _ in 0..4 {
-        create_template(&d).await;
-        let csv = format!("{}/tests/resources/default_certos_recipients.csv", env::current_dir().unwrap().display());
-        add_recipients_with_csv(&d, &c.site, &csv).await;
-        sign_wizard(&d).await;
-        d.click("a[href='#/']").await;
-      }
-      d.click("#dashboard-menu-item").await;
-      d.wait_for_text("h2", "In progress").await;
-      chain.fund_signer_wallet();
-      chain.simulate_stamping().await;
-      try_until(40, "bulletin_is_published", || async { c.site.bulletin().find(1).await.unwrap().is_published() }).await;
-      c.site.request().try_complete().await?;
-      d.wait_for_text("h2", "Recent issuances").await;
     }
 
     integration_test!{ login_and_logout (c, d)

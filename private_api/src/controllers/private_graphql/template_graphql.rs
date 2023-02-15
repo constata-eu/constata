@@ -9,7 +9,7 @@ pub struct Template {
   org_id: i32,
   created_at: UtcDateTime,
   kind: TemplateKind,
-  schema: Option<String>,
+  schema: String,
   custom_message: Option<String>,
   og_title_override: Option<String>,
 }
@@ -94,7 +94,6 @@ impl Template {
       _ => TemplateKind::Invitation,
     };
     let org = context.site.org().find(&org_id).await?;
-    
 
     let db_template = context.site.template().insert(InsertTemplate{
       app_id: org.get_or_create_certos_app().await?.attrs.id,
@@ -104,7 +103,7 @@ impl Template {
       kind: kind_enum,
       custom_message,
       og_title_override,
-      schema: Some(schema.unwrap_or(Wizard::default_template_schema())),
+      schema: schema.unwrap_or(serde_json::to_string(&kind_enum.default_schema())?),
       size_in_bytes: evidence_bytes.len() as i32,
     }).validate_and_save(&evidence_bytes).await?;
       
@@ -130,7 +129,7 @@ impl Template {
       .update()
       .name(name)
       .kind(kind_enum)
-      .schema(schema.or_else(|| Some(Wizard::default_template_schema())))
+      .schema(schema.unwrap_or(serde_json::to_string(&kind_enum.default_schema())?))
       .custom_message(custom_message)
       .og_title_override(og_title_override)
       .save().await?;

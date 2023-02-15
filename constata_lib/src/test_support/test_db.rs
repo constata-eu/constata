@@ -16,6 +16,7 @@ use crate::{
     kyc_request::*,
     email_bot_chat::{InsertEmailBotChat, InsertEmailBotChatParticipant},
     download_proof_link::InsertDownloadProofLink,
+    TemplateSchemaField,
   },
   Result,
   signed_payload::SignedPayload,
@@ -518,10 +519,16 @@ impl SignerClient {
   }
 
   pub async fn make_template(&self, template_file: Vec<u8>) -> crate::models::certos::Template {
-    self.try_make_template(template_file).await.unwrap()
+    let schema = serde_json::to_string(&vec![
+      TemplateSchemaField::new("name", true, false),
+      TemplateSchemaField::new("course", false, true),
+      TemplateSchemaField::new("date", false, true),
+      TemplateSchemaField::new("email", false, false),
+    ]).unwrap();
+    self.try_make_template(template_file, &schema).await.unwrap()
   }
 
-  pub async fn try_make_template(&self, template_file: Vec<u8>) -> Result<crate::models::certos::Template> {
+  pub async fn try_make_template(&self, template_file: Vec<u8>, schema: &str) -> Result<crate::models::certos::Template> {
     self.db.site.template()
       .insert(InsertTemplate{
         app_id: self.get_certos_id().await,
@@ -530,9 +537,9 @@ impl SignerClient {
         kind: TemplateKind::Diploma,
         name: "Test Template".to_string(),
         size_in_bytes: template_file.len() as i32,
-        schema: None,
+        schema: schema.to_string(),
         og_title_override: None,
-        custom_message: Some("Hola {{ alumno }} te adjuntamos este novedoso certificado".to_string()),
+        custom_message: Some("Hola {{ name }} te adjuntamos este novedoso certificado".to_string()),
       }).validate_and_save(&template_file).await
   }
   

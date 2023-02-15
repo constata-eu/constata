@@ -20,7 +20,10 @@ impl Selenium {
     let mut caps = DesiredCapabilities::chrome();
     caps.add_chrome_option(
       "prefs",
-      serde_json::json![{ "download.default_directory": DOWNLOADS, }]
+      serde_json::json![{
+        "download.default_directory": DOWNLOADS,
+        "download": { "default_directory" : DOWNLOADS }
+      }]
     ).unwrap();
 
     let local_driver_path = format!("chromedrivers/chromedriver_{}", std::env::consts::OS);
@@ -182,7 +185,7 @@ impl Selenium {
 
   pub fn template_custom_schema(&self) -> String {
     serde_json::json!{[
-      { "name": "alumno", "optional": false, "common": false, "label": "Alumno", "help": "ej: Doctor Jane Doe, Mr. John Smith.", "sample": "Luciano" },
+      { "name": "name", "optional": false, "common": false, "label": "Alumno", "help": "ej: Doctor Jane Doe, Mr. John Smith.", "sample": "Luciano" },
       { "name": "curso", "optional": false, "common": true, "label": "Curso", "help": "ej: Systems analist, Social media expert GPA 81/100", "sample": "Desarrollo Web" },
       { "name": "day", "optional": false, "common": true, "label": "Día", "help": "ej: 5", "sample": "5" },
       { "name": "month", "optional": false, "common": true, "label": "Mes", "help": "ej: Enero, Marzo", "sample": "Diciembre" },
