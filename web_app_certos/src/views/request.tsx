@@ -181,6 +181,8 @@ function RequestShow(props){
                 }
               />
               <ParsedDateTextField source="createdAt" />
+              <TextField source="adminVisited"/>
+              <TextField source="publicVisitCount"/>
 
               <FunctionField label="resources.Request.fields.export_csv"
                 render={() =>  <a id="export_to_csv" href="#/Request" onClick={handleExport}>

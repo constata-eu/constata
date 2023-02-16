@@ -39,6 +39,7 @@ impl DownloadProofLink {
 
   pub async fn download_proof_link(context: &Context) -> FieldResult<DownloadProofLink> {
     let download_proof_link = DownloadProofLink::from_context(context).await?;
+    dbg!(&format!("Estoy visitando un download proof link con id {}", download_proof_link.id()));
     DownloadProofLink::from_db(&download_proof_link, &context.lang).await
   }
 

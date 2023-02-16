@@ -9,6 +9,7 @@ pub async fn show(site: &State<Site>, token: String, key: &State<PrivateKey>, l:
     Err(_) => l.html_bare("public_api/certificates/not_found.html.tera")?,
     Ok(download_proof_link) => {
       if show_content {
+        dbg!(&format!("Estoy visitando la página publica de {}", download_proof_link.id()));
         i18n::HtmlWithLocale{ lang: l, content: download_proof_link.html_proof(key, l).await?}
       } else {
         let org = download_proof_link.org().await?;
