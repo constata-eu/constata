@@ -29,6 +29,47 @@ mod workroom {
       d.wait_for_text("h2", "In progress").await;
     }
 
+    integration_test!{ shows_usage_statistics_for_issuances (c, d)
+      let mut chain = TestBlockchain::new().await;
+
+      signup(&d).await;
+      create_template(&d).await;
+      let csv = format!("{}/tests/resources/default_certos_recipients.csv", env::current_dir().unwrap().display());
+      add_recipients_with_csv(&d, &c.site, &csv).await;
+      sign_wizard(&d).await;
+      d.click("a[href='#/']").await;
+
+      d.click("#dashboard-menu-item").await;
+      d.wait_for_text("h2", "In progress").await;
+      chain.fund_signer_wallet();
+      chain.simulate_stamping().await;
+      try_until(40, "bulletin_is_published", || async { c.site.bulletin().find(1).await.unwrap().is_published() }).await;
+      c.site.request().try_complete().await?;
+      d.wait_for_text("h2", "Recent issuances").await;
+      d.click("a[href='#/Request/1/show']").await;
+
+      //d.wait_for_text("span.ra-field-adminVisited > span", "0").await;
+      //d.wait_for_text("span.ra-field-publicVisitCount > span", "0").await;
+
+      let admin_url = c.site.download_proof_link().select().one().await?.safe_env_url().await?;
+      d.goto(&admin_url).await;
+      wait_here();
+
+      //// Visitar el link administrativo.
+      //// Volver al Show page de Request/1/show y que el adminVisited esté en 1, y el public siga en 0.
+      
+      ////  Así puedo entrar otra vez a constata. Esto en vez de copiar y pegar se podría sacar a otra función.
+      d.goto("http://localhost:8000").await;
+      d.wait_until_gone("[role='alert']").await;
+      d.fill_in("#password", "password").await;
+      d.click("button[type='submit']").await;
+      d.wait_for("#constata_dashboard").await;
+
+
+      //// Visitar el link administrativo otra vez, compartir, y visitar la url pública 5 veces.
+      //// Volver al Show page de Request/1/show y que el adminVisited esté en 1, y el public este en 5.
+    }
+
     integration_test!{ issues_diplomas_from_csv_and_completes_them (c, d)
       let mut chain = TestBlockchain::new().await;
 
@@ -47,7 +88,7 @@ mod workroom {
       try_until(40, "bulletin_is_published", || async { c.site.bulletin().find(1).await.unwrap().is_published() }).await;
       c.site.request().try_complete().await?;
       d.wait_for_text("h2", "Recent issuances").await;
-      d.click("a[href='#/Request/4/show'").await;
+      d.click("a[href='#/Request/4/show']").await;
       d.click("#export_to_csv").await;
       d.check_downloads_for_file("constata_issuance_4.csv").await;
     }

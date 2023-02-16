@@ -6,6 +6,8 @@
         "createdAt": "Creado el",
         "download": "Descargar CSV",
         "export_csv": "Exportar emisión a csv",
+        "adminVisited": "Recepciones confirmadas",
+        "publicVisitCount": "Visitas a entradas publicadas",
         "entries": "Entradas",
         "errors": "Errores",
         "evidence": "",
