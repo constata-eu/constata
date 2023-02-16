@@ -5,7 +5,7 @@ use models::{
 };
 
 #[derive(Clone, GraphQLInputObject, Serialize, Deserialize)]
-#[graphql(description = "InvoiceLinkInput Object")]
+#[graphql(description = "This object allows as to create a new invoice")]
 #[serde(rename_all = "camelCase")]
 pub struct InvoiceLinkInput {
   #[graphql(description = "can be 'Bitcoin' or 'Stripe'")]
@@ -35,7 +35,7 @@ impl InvoiceLinkInput {
 }
 
 #[derive(GraphQLObject)]
-#[graphql(description = "InvoiceLink Object")]
+#[graphql(description = "This object shows all information related to an invoice link")]
 pub struct InvoiceLink {
   #[graphql(description = "number identifying an invoice link")]
   pub id: i32,

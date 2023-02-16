@@ -1,7 +1,7 @@
 use super::*;
 
 #[derive(GraphQLObject)]
-#[graphql(description = "Template Object")]
+#[graphql(description = "The template gives us a basis for creating an Issuance")]
 pub struct Template {
   #[graphql(description = "number identifying this template")]
   id: i32,

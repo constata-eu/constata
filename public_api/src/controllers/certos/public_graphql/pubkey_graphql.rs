@@ -1,7 +1,7 @@
 use super::*;
 
 #[derive(GraphQLObject)]
-#[graphql(description = "Pubkey Object")]
+#[graphql(description = "The public key of a person is used to sign http requests and send it trought 'Access-Token' header")]
 pub struct Pubkey {
   #[graphql(description = "number identifying the public key")]
   id: String,

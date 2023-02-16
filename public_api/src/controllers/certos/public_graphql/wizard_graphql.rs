@@ -1,6 +1,6 @@
 use super::*;
 use serde::{Deserialize, Serialize};
-use models::wizard::*;
+use models::wizard::{self, WizardTemplate, ImageOrText};
 
 
 #[derive(GraphQLObject)]
@@ -13,7 +13,7 @@ pub struct Preview{
 }
 
 #[derive(GraphQLInputObject, Serialize, Deserialize)]
-#[graphql(description = "WizardInput Object")]
+#[graphql(description = "This object allows us to create an Issuance from scratch with a new template or using one already created")]
 #[serde(rename_all = "camelCase")]
 pub struct WizardInput {
   #[graphql(description = "csv file with which the entries will be created")]
@@ -31,6 +31,7 @@ pub struct WizardInput {
   #[graphql(description = "an image to be used as the template logo, insted of text")]
   new_logo_image: Option<String>,
 }
+
 
 impl WizardInput {
   pub async fn create_wizard(self, context: &Context) -> FieldResult<Issuance> {
@@ -50,7 +51,7 @@ impl WizardInput {
 
     let person = context.site.person().find(context.person_id()).await?;
 
-    let db_request = Wizard {
+    let db_request = wizard::Wizard {
       person: person,
       csv: self.csv.into_bytes().clone(),
       name: self.name,

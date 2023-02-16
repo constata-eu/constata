@@ -14,7 +14,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getKeyPair, getSignedPayload } from "../components/cypher";
 import _ from 'lodash';
 import {v4 as uuid} from 'uuid';
-import { useList, ListContextProvider, SimpleList, required, useTheme, useGetOne } from 'react-admin';
+import { useList, ListContextProvider, SimpleList, required, useTheme, useGetOne, useGetMany } from 'react-admin';
 import csv from 'csvtojson';
 import CardTitle from '../components/card_title';
 import { openPreview } from "./issuance"
@@ -625,10 +625,12 @@ const Preview = (props) => {
   const translate = useTranslate();
   const dataProvider = useDataProvider();
   const [discardOpen, setDiscardOpen] = useSafeSetState(false);
-  const listContext = useList({
-    perPage: 10,
-    data: props.createdIssuance.entries.map(o => Object.assign({}, {id: o[0], state: o[1]})),
-  });
+  const {data} = useGetMany(
+    'Entry',
+    { ids: props.createdIssuance.entries.map(i => i.id) }
+  );
+  const listContext = useList({ perPage: 10, data });
+
 
   const onSubmit = (values) => {
     props.setPassword(values.password);
@@ -769,6 +771,7 @@ const Signing = ({password, ...props}) => {
 
 const NoTokensNeeded = ({hasEmails, templateKind, entries}) => {
   const translate = useTranslate();
+  
   return (<Card id="no_tokens_needed_container">
     <CardTitle text="certos.wizard.done.title" color="success"/>
     <CardContent>
@@ -777,8 +780,12 @@ const NoTokensNeeded = ({hasEmails, templateKind, entries}) => {
           { translate("certos.wizard.done.begin") }
           &nbsp;
           { translate(`certos.wizard.done.kind_text.${templateKind}.base`, entries.length) }
-          { hasEmails && translate(`certos.wizard.done.kind_text.${templateKind}.and_we`, entries.length) }
-          { hasEmails && translate("certos.wizard.done.email") }
+          { hasEmails && (<>
+            &nbsp;
+            {translate(`certos.wizard.done.kind_text.${templateKind}.and_we`, entries.length)}
+            &nbsp;
+            {translate("certos.wizard.done.email")}
+          </>)}
           . { translate("certos.wizard.done.see_in_dashboard") }
         </Typography>
       </Box>
@@ -793,6 +800,7 @@ const NoTokensNeeded = ({hasEmails, templateKind, entries}) => {
 
 const TokensNeeded = ({hasEmails, templateKind, entries, pendingInvoiceLinkUrl}) => {
   const translate = useTranslate();
+  
   return (<Box id="tokens_needed_container">
     <Card sx={{mb: 5}}>
       <CardTitle text="certos.wizard.done.title_need_token" color="success"/>
@@ -802,8 +810,12 @@ const TokensNeeded = ({hasEmails, templateKind, entries, pendingInvoiceLinkUrl})
             { translate("certos.wizard.done.begin_need_token") }
             &nbsp;
             { translate(`certos.wizard.done.kind_text.${templateKind}.base`, entries.length) }
-            { hasEmails && translate(`certos.wizard.done.kind_text.${templateKind}.and_we`, entries.length) }
-            { hasEmails && translate("certos.wizard.done.email") }
+            { hasEmails && (<>
+              &nbsp;
+              {translate(`certos.wizard.done.kind_text.${templateKind}.and_we`, entries.length)}
+              &nbsp;
+              {translate("certos.wizard.done.email")}
+            </>)}
             . { translate("certos.wizard.done.see_in_dashboard") }
           </Typography>
         </Box>
@@ -821,8 +833,12 @@ const TokensNeeded = ({hasEmails, templateKind, entries, pendingInvoiceLinkUrl})
 }
 
 const Done = ({...props}) => {
-  const hasEmails = _.some(props.createdIssuance.entries, (i) => !_.isEmpty(i[3]));
-  const {templateKind, entries} = props.createdIssuance;
+  const {templateKind} = props.createdIssuance;
+  const {data: entries} = useGetMany(
+    'Entry',
+    { ids: props.createdIssuance.entries.map(i => i.id) }
+  );
+  const hasEmails = _.some(entries, (i) => _.isEmpty(i.has_email_callback));
 
   const {data: accountState, refetch: refetchAccount } = useGetOne(
     'AccountState',

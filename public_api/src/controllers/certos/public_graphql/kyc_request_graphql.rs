@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use models::{kyc_request, outgoing_email_message_kind::*};
 
 #[derive(Clone, GraphQLInputObject, Serialize, Deserialize)]
-#[graphql(description = "KycRequestInput Object")]
+#[graphql(description = "This object allows us to submit a kyc request to be considered by a constata admin")]
 #[serde(rename_all = "camelCase")]
 pub struct KycRequestInput {
   #[graphql(description = "email to be registered by the person")]
@@ -39,7 +39,7 @@ pub struct KycRequestInput {
 }
 
 #[derive(Clone, GraphQLInputObject, Serialize, Deserialize)]
-#[graphql(description = "KycRequestEvidenceInput Object:")]
+#[graphql(description = "This object has a file that proves the user identity")]
 #[serde(rename_all = "camelCase")]
 pub struct KycRequestEvidenceInput {
   #[graphql(description = "name of the file used as evidence for this kyc request")]
@@ -83,7 +83,7 @@ impl KycRequestInput {
 }
 
 #[derive(GraphQLObject)]
-#[graphql(description = "KycRequest Object")]
+#[graphql(description = "This object show us the information of a kyc request")]
 pub struct KycRequest {
   #[graphql(description = "number identifying this kyc request")]
   id: i32,

@@ -2,7 +2,7 @@ use super::*;
 use serde::{Serialize, Deserialize};
 
 #[derive(GraphQLObject)]
-#[graphql(description = "Entry Object")]
+#[graphql(description = "This object shows all the information related to an entry")]
 pub struct Entry {
   #[graphql(description = "number identifying an entry")]
   id: i32,
