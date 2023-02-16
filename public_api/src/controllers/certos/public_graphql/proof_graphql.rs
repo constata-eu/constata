@@ -1,7 +1,7 @@
 use super::*;
 
 #[derive(GraphQLObject)]
-#[graphql(description = "Proof Object")]
+#[graphql(description = "This object retrieves a certificate")]
 pub struct Proof {
   #[graphql(description = "number identifying the proof")]
   pub id: i32,

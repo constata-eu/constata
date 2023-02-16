@@ -1,7 +1,7 @@
 use super::*;
 
 #[derive(GraphQLObject)]
-#[graphql(description = "EndorsementManifest Object")]
+#[graphql(description = "It's a manifest of all endorsement a user has")]
 pub struct EndorsementManifest {
   #[graphql(description = "is always number 1")]
   pub id: i32,
@@ -20,7 +20,7 @@ pub struct EndorsementManifest {
 }
 
 #[derive(GraphQLObject)]
-#[graphql(description = "TelegramEndorsementManifest Object")]
+#[graphql(description = "Retrieve information about user's registered telegram account, if any")]
 pub struct TelegramEndorsementManifest {
   #[graphql(description = "username used in the user's telegram account, if any")]
   username: Option<String>,
@@ -31,7 +31,7 @@ pub struct TelegramEndorsementManifest {
 }
 
 #[derive(GraphQLObject)]
-#[graphql(description = "EmailEndorsementManifest Object")]
+#[graphql(description = "Retrieve information about user's registered email address, if any")]
 pub struct EmailEndorsementManifest {
   #[graphql(description = "email registered by the user")]
   pub address: String,
@@ -40,7 +40,7 @@ pub struct EmailEndorsementManifest {
 }
 
 #[derive(GraphQLObject)]
-#[graphql(description = "KycEndorsementManifest Object")]
+#[graphql(description = "Retrieve information about user's kyc, if any")]
 pub struct KycEndorsementManifest {
   #[graphql(description = "name of the person")]
   name: Option<String>,

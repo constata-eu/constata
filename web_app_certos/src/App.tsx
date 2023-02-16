@@ -84,7 +84,9 @@ function App() {
                 name,
                 createdAt,
                 errors,
-                entries,
+                entries {
+                  id
+                },
               }
             }`
           };

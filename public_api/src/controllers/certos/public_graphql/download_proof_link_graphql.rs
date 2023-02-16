@@ -2,7 +2,7 @@ use super::*;
 use models::download_proof_link;
 
 #[derive(GraphQLObject)]
-#[graphql(description = "DownloadProofLink Object")]
+#[graphql(description = "This object is an adminitrative link that allows the receiver of the certificate to see, download or publish the certificate")]
 pub struct DownloadProofLink {
   #[graphql(description = "number identifying a Download Proof Link")]
   pub id: i32,
@@ -58,9 +58,9 @@ impl DownloadProofLink {
 
 
 #[derive(Clone, GraphQLInputObject, Serialize, Deserialize)]
-#[graphql(description = "DownloadProofLinkInput Object")]
+#[graphql(description = "This object allows to change the state of the public certificate")]
 pub struct DownloadProofLinkInput {
-  #[graphql(description = "the actions to use are 'publish' and 'unpublish', this way to change the state of the public certificate")]
+  #[graphql(description = "the actions to use are 'publish' and 'unpublish'")]
   pub action: String,
 }
 

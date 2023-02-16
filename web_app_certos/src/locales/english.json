@@ -336,15 +336,15 @@
 				"go_to_dashboard": "Go to dashboard",
         "kind_text": {
           "ATTENDANCE": {
-            "and_we": " and we will send it ||| and we will send them ",
+            "and_we": " and we will send it |||| and we will send them ",
             "base": "the certificate of attendance |||| al %{smart_count} certificates of attendance"
           },
           "DIPLOMA": {
-            "and_we": " and we will send it ||| and we will send them ",
+            "and_we": " and we will send it |||| and we will send them ",
             "base": " the diploma |||| all %{smart_count} diplomas "
           },
           "INVITATION": {
-            "and_we": " and we will send it ||| and we will send them ",
+            "and_we": " and we will send it |||| and we will send them ",
             "base": " the invitation |||| all %{smart_count} invitations "
           }
         },

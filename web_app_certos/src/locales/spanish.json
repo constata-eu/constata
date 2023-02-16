@@ -519,11 +519,11 @@
         "go_to_dashboard": "Ir al Tablero",
         "kind_text": {
           "ATTENDANCE": {
-            "and_we": " y lo ||| y los ",
+            "and_we": " y lo |||| y los ",
             "base": "el certificado de asistencia |||| los %{smart_count} certificados de asistencia "
           },
           "DIPLOMA": {
-            "and_we": " y lo ||| y los ",
+            "and_we": " y lo |||| y los ",
             "base": " el diploma |||| los %{smart_count} diplomas "
           },
           "INVITATION": {

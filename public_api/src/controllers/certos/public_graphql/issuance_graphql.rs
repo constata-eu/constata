@@ -1,7 +1,7 @@
 use super::*;
 
 #[derive(GraphQLObject)]
-#[graphql(description = "Issuance Object")]
+#[graphql(description = "An Issuance has many entries, which goes for certification once the user signs the issuance")]
 pub struct Issuance {
   #[graphql(description = "number identifying the issuance")]
   id: i32,
@@ -22,11 +22,11 @@ pub struct Issuance {
   #[graphql(description = "amount of tokens that the user must buy to certify this issuance")]
   tokens_needed: Option<i32>,
   #[graphql(description = "entries that belong to this issuance")]
-  entries: Vec<Vec<String>>,
+  entries: Vec<Entry>,
 }
 
 #[derive(GraphQLObject)]
-#[graphql(description = "IssuanceExport Object")]
+#[graphql(description = "This object allows us to export the issuance information as a csv file")]
 pub struct IssuanceExport {
   #[graphql(description = "number identifying the issuance")]
   pub id: i32,
@@ -77,19 +77,11 @@ impl Showable<request::Request, IssuanceFilter> for Issuance {
   async fn db_to_graphql(d: request::Request, _with_payload: bool) -> MyResult<Self> {
     let template = d.template().await?;
     let db_entries = d.entry_vec().await?;
-    let tokens_needed = if d.is_created() {
-      Some(d.in_created()?.tokens_needed().await?)
-    } else {
-      None
-    };
+    let tokens_needed = if d.is_created() { Some(d.in_created()?.tokens_needed().await?) }
+    else { None };
     let mut entries = vec![];
     for entry in db_entries {
-      entries.push(vec![
-        entry.attrs.id.to_string(),
-        entry.attrs.state,
-        entry.attrs.document_id.unwrap_or_else(|| "".to_string()),
-        entry.attrs.email_callback_id.map(|i| i.to_string()).unwrap_or_else(|| "".to_string())
-      ]);
+      entries.push(Entry::db_to_graphql(entry, false).await?);
     }
     Ok(Issuance {
       id: d.attrs.id,

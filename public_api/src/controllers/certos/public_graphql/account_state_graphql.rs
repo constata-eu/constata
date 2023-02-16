@@ -2,7 +2,7 @@ use super::*;
 use crate::Decimal;
 
 #[derive(GraphQLObject)]
-#[graphql(description = "AccountState Object")]
+#[graphql(description = "This object show the user information")]
 pub struct AccountState {
   #[graphql(description = "number identifying the organization")]
   id: i32,
