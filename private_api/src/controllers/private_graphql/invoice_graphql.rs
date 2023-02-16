@@ -30,8 +30,8 @@ pub struct InvoiceFilter {
   tokens_gt: Option<i32>,
   tokens_lt: Option<i32>,
   amount_eq: Option<i32>,
-  amount_gt: Option<i32>,
-  amount_lt: Option<i32>,
+  amount_gt: Option<f64>,
+  amount_lt: Option<f64>,
   paid_eq: Option<bool>,
   expired_eq: Option<bool>,
 }
@@ -82,12 +82,13 @@ impl Showable<invoice::Invoice, InvoiceFilter> for Invoice {
   }
 
   async fn db_to_graphql(d: invoice::Invoice ) -> MyResult<Self> {
+    use rust_decimal::prelude::ToPrimitive;
     Ok(Invoice {
       id: d.attrs.id,
       org_id: d.attrs.org_id,
       created_at: d.attrs.created_at,
-      amount:  d.attrs.amount.to_i32().unwrap_or(0),
-      tokens: d.attrs.tokens.to_i32().unwrap_or(0),
+      amount: d.attrs.amount.to_f32().unwrap_or(0),
+      tokens: d.attrs.tokens.to_f32().unwrap_or(0),
       payment_source: Some(d.attrs.payment_source),
       description: Some(d.attrs.description),
       external_id: Some(d.attrs.external_id),
