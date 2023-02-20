@@ -91,7 +91,7 @@ describe! {
       alice.signed_payload(b"hello world"),
       alice.signed_payload(b"goodbye world"),
     ];
-    let att = site.attestation().create(&alice.person().await, &payloads, None, None, None).await?;
+    let att = site.attestation().create(&alice.person().await, &payloads, None, None, None, vec![]).await?;
     assert_eq!(att.org_id(), alice.org().await.id());
   }
 }
