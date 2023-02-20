@@ -10,9 +10,9 @@ impl PublicApiServer {
       .output().expect("Could not kill previous server");
 
     let args = if std::env::var("CI").is_ok() {
-      vec!["run", "--release", "-p", "public_api"]
+      vec!["run", "--release", "-p", "public_api", "--bin", "public_api"]
     } else {
-      vec!["run", "-p", "public_api"]
+      vec!["run", "-p", "public_api", "--bin", "public_api"]
     };
 
     let path_to_log = "/tmp/constata_public_api_server.log";
