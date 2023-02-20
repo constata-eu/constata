@@ -47,7 +47,7 @@ impl AttestationHub {
     open_until: Option<UtcDateTime>,
     markers: Option<String>,
     maybe_lang: Option<i18n::Lang>,
-    email_admin_link_to: Vec<String>,
+    email_admin_access_url_to: Vec<String>,
   ) -> Result<Attestation> {
     let lang = maybe_lang.unwrap_or(person.attrs.lang);
     let story = self.state.story().create(
@@ -56,9 +56,13 @@ impl AttestationHub {
       markers.clone().unwrap_or_else(|| String::new()),
       lang
     ).await?;
+    let mut documents = vec![];
     for payload in signed_payloads {
-      let document = self.state.document().create_from_signed_payload(&story, payload, None).await?;
-      for address in &email_admin_link_to { 
+      documents.push(self.state.document().create_from_signed_payload(&story, payload, None).await?);
+    }
+
+    if let Some(document) = documents.get(0) {
+      for address in &email_admin_access_url_to { 
         if person.can_send_email().await? {
           self.state.email_callback().insert(InsertEmailCallback{
             address: address.clone(),
