@@ -91,9 +91,9 @@ describe! {
       false,
       "1-c2f8020ce6272494011fd9a73ebffa0785619b31a7d2fc2787cbbf347bbb4d1d",
       "unnamed_attachment.txt",
-      "e032a124fecb5811110dbcf774d7ea37ffde85a441ababe96cc1ddda70e8f1a3",
+      "1390c7f9bb6fae0306feaecbbdf8683ff870fe882b25aeb100ddc043a65c9d13",
       "text/plain",
-      77
+      79
     );
 
     assert_document_part!(
@@ -102,9 +102,9 @@ describe! {
       false,
       "1-c2f8020ce6272494011fd9a73ebffa0785619b31a7d2fc2787cbbf347bbb4d1d",
       "unnamed_attachment.txt",
-      "33d9f7698cff20de5c9db8b96162821caf234c10d12d25073dbeda1322b64c98",
+      "efa55663c0049c923c063758b08d08f321236661fe4e963d11b4270bbc937979",
       "text/html",
-      146
+      148
     );
 
     assert_eq!(document.attachments_count().await?, 4);
@@ -141,9 +141,9 @@ describe! {
       false,
       "1-052e12431cb9ee2b64c42ff7ce775c4f4dbe166361b08935ee3c0359cf7da920",
       "PEDRITO LLC - Constata / Verificación avanzada de identidad '",
-      "f3d31d61951c06c6783db447c291359579f1b3158fce45b384f66749333c784d",
+      "46e415c9fed7fffebc6d868a1bb0585814ddcfaa7663ce3119ee277fce36a640",
       "text/plain",
-      112
+      114
     );
 
     assert_eq!(document.attachments_count().await?, 2);
