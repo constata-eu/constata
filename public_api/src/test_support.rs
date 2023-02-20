@@ -23,7 +23,6 @@ pub struct ApiError {
 macro_rules! apitest {
   ($i:ident($site:ident, $c:ident, $($client:ident)+) $($e:tt)* ) => {
     test!{ $i
-      use crate::test_support::*;
       let $c = TestDb::new().await?;
       let $site = $c.site.clone();
       let $($client)+ = crate::test_support::PublicApiClient::new($c.alice().await).await;
@@ -36,7 +35,6 @@ macro_rules! apitest {
 macro_rules! fulltest {
   ($i:ident($site:ident, $c:ident, $($client:ident)+, $($chain:ident)+) $($e:tt)* ) => {
     test!{ $i
-      use crate::test_support::*;
       let $c = TestDb::new().await?;
       let $site = $c.site.clone();
       let $($client)+ = crate::test_support::PublicApiClient::new($c.alice().await).await;
