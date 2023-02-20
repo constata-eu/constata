@@ -287,6 +287,7 @@ pub struct ListMetadata {
   count: i32
 }
 
+#[derive(Debug)]
 pub struct Query;
 
 macro_rules! make_graphql_query {
@@ -459,7 +460,6 @@ impl Mutation {
       .into_inner();
     Request::db_to_graphql(db_request, false).await
   }
-
 }
 
 // A root schema consists of a query and a mutation.

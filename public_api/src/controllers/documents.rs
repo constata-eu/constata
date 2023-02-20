@@ -3,7 +3,6 @@ use constata_lib::models::{
   blockchain::PrivateKey,
 };
 
-
 /* This endpoint is deprecated */
 #[post("/", data = "<form>")]
 pub async fn create(form: Json<SignedStoryForm>, site: &State<Site>, l: i18n::MaybeLang) -> JsonResult<DocumentBundle> {
@@ -81,8 +80,6 @@ async fn person_document(site: &Site, person_id: &PersonId, doc_id: String) -> R
 }
 
 constata_lib::describe_one! {
-  use crate::test_support::PublicApiClient;
-
   #[derive(Debug, PartialEq, Clone, serde::Deserialize)]
   pub struct ApiDocument { id: String }
   impl PartialEq<Document> for ApiDocument {
