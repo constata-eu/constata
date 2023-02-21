@@ -34,6 +34,7 @@ use constata_lib::{
     Previewer,
     kyc_request::{KycRequestOrderBy, SelectKycRequest},
     email_address::{EmailAddressOrderBy, SelectEmailAddress},
+    attestation::{self, AttestationOrderBy, SelectAttestation},
     certos::{
       entry::{self, EntryOrderBy, SelectEntry},
       request::{self, RequestOrderBy, SelectRequest},
@@ -59,6 +60,7 @@ pub mod email_address_graphql;
 pub mod invoice_link_graphql;
 pub mod download_proof_link_graphql;
 pub mod proof_graphql;
+pub mod attestation_graphql;
 pub use template_graphql::{Template, TemplateFilter};
 pub use request_graphql::{Request, RequestFilter, IssuanceExport};
 pub use entry_graphql::{Entry, EntryFilter};
@@ -73,6 +75,7 @@ pub use email_address_graphql::{EmailAddress, EmailAddressInput, EmailAddressFil
 pub use invoice_link_graphql::{InvoiceLink, InvoiceLinkInput};
 pub use download_proof_link_graphql::{DownloadProofLink, DownloadProofLinkInput};
 pub use proof_graphql::Proof;
+pub use attestation_graphql::*;
 
 #[rocket::get("/graphiql")]
 pub fn graphiql() -> rocket::response::content::RawHtml<String> {
@@ -187,13 +190,12 @@ impl Context {
     Ok(self.current_person.person.org().await?)
   }
 
-  pub async fn person(&self) -> Person {
+  pub fn person(&self) -> Person {
     self.current_person.person.clone()
   }
 }
 
 impl juniper::Context for Context {}
-
 
 const DEFAULT_PER_PAGE: i32 = 20;
 const DEFAULT_PAGE: i32 = 0;
@@ -285,6 +287,7 @@ pub struct ListMetadata {
   count: i32
 }
 
+#[derive(Debug)]
 pub struct Query;
 
 macro_rules! make_graphql_query {
@@ -332,6 +335,7 @@ make_graphql_query!{
     [Pubkey, allPubkeys, allPubkeysMeta, "_allPubkeysMeta", PubkeyFilter, String],
     [KycRequest, allKycRequests, allKycRequestsMeta, "_allKycRequestsMeta", KycRequestFilter, i32],
     [EmailAddress, allEmailAddresses, allEmailAddressesMeta, "_allEmailAddressesMeta", EmailAddressFilter, i32],
+    [Attestation, allAttestations, allAttestationsMeta, "_allAttestationsMeta", AttestationFilter, i32],
   }
 
   #[graphql(name="Preview")]
@@ -380,6 +384,19 @@ make_graphql_query!{
     let csv = request.export_csv().await?;
     Ok(IssuanceExport{ id, csv })
   }
+
+  #[graphql(name="AttestationHtmlExport")]
+  async fn attestation_html_export(context: &Context, id: i32) -> FieldResult<AttestationHtmlExport> {
+    let attestation = context.org().await?.attestation_scope().id_eq(&id).one().await?;
+    let verifiable_html = attestation.story().await?
+      .proof(context.site.settings.network, &context.key).await?
+      .render_html(context.lang)?;
+    Ok(AttestationHtmlExport{
+      id,
+      attestation: Attestation::db_to_graphql(attestation, false).await?,
+      verifiable_html
+    })
+  }
 }
 
 pub struct Mutation;
@@ -392,6 +409,10 @@ impl Mutation {
 
   pub async fn create_wizard(context: &Context, input: WizardInput) -> FieldResult<Request> {
     input.create_wizard(context).await
+  }
+
+  pub async fn create_attestation(context: &Context, input: AttestationInput) -> FieldResult<Attestation> {
+    input.create_attestation(context).await
   }
 
   pub async fn signing_iterator(
@@ -439,7 +460,6 @@ impl Mutation {
       .into_inner();
     Request::db_to_graphql(db_request, false).await
   }
-
 }
 
 // A root schema consists of a query and a mutation.
