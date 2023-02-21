@@ -16,7 +16,6 @@ use std::collections::{HashMap, HashSet};
 use serde_with::serde_as;
 
 // Story HTML proofs become temporarily unavailable while new documents are being stamped.
-
 #[derive(Debug, PartialEq, Clone, Serialize)]
 pub struct StoryBundle {
   pub id: i32,

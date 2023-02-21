@@ -7,7 +7,7 @@ pub struct Invoice {
   id: i32,
   org_id: i32,
   created_at: UtcDateTime,
-  amount:  i32,
+  amount:  f64,
   tokens: i32,
   payment_source: Option<PaymentSource>,
   description: Option<String>,
@@ -29,9 +29,9 @@ pub struct InvoiceFilter {
   tokens_eq: Option<i32>,
   tokens_gt: Option<i32>,
   tokens_lt: Option<i32>,
-  amount_eq: Option<i32>,
-  amount_gt: Option<i32>,
-  amount_lt: Option<i32>,
+  amount_eq: Option<f64>,
+  amount_gt: Option<f64>,
+  amount_lt: Option<f64>,
   paid_eq: Option<bool>,
   expired_eq: Option<bool>,
 }
@@ -74,19 +74,20 @@ impl Showable<invoice::Invoice, InvoiceFilter> for Invoice {
       tokens_eq: into_decimal(f.tokens_eq),
       tokens_gt: into_decimal(f.tokens_gt),
       tokens_lt: into_decimal(f.tokens_lt),
-      amount_eq: into_decimal(f.amount_eq),
-      amount_gt: into_decimal(f.amount_gt),
-      amount_lt: into_decimal(f.amount_lt),
+      amount_eq: f.amount_eq.and_then(|x| Decimal::from_f64_retain(x) ),
+      amount_gt: f.amount_gt.and_then(|x| Decimal::from_f64_retain(x) ),
+      amount_lt: f.amount_lt.and_then(|x| Decimal::from_f64_retain(x) ),
       ..Default::default()
     }
   }
 
   async fn db_to_graphql(d: invoice::Invoice ) -> MyResult<Self> {
+    use rust_decimal::prelude::ToPrimitive;
     Ok(Invoice {
       id: d.attrs.id,
       org_id: d.attrs.org_id,
       created_at: d.attrs.created_at,
-      amount:  d.attrs.amount.to_i32().unwrap_or(0),
+      amount: d.attrs.amount.to_f64().unwrap_or(0.0),
       tokens: d.attrs.tokens.to_i32().unwrap_or(0),
       payment_source: Some(d.attrs.payment_source),
       description: Some(d.attrs.description),

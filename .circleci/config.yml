@@ -44,7 +44,7 @@ jobs:
 
       - run:
           name: Building public api server
-          command: cargo build --release -p public_api
+          command: cargo build --release -p public_api --bin public_api
 
       - run:
           name: Run tests

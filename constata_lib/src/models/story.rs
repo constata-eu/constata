@@ -2,7 +2,6 @@ use crate::{
   models::{
     model,
     hasher::hexdigest,
-    PersonId,
     Org,
     OrgDeletion,
     UtcDateTime,
@@ -26,7 +25,7 @@ model!{
     #[sqlx_model_hints(int4, default)]
     id: i32,
     #[sqlx_model_hints(int4)]
-    org_id: PersonId,
+    org_id: i32,
     #[sqlx_model_hints(timestamptz)]
     open_until: Option<UtcDateTime>,
     #[sqlx_model_hints(text)]
