@@ -45,9 +45,9 @@ mod back_office_panel {
       d.fill_in("#evidenceZip", &evidence).await;
       d.click("button[type='submit']").await;
       d.wait_until_gone("[role='alert']").await;
+      d.wait_for_text(".ra-field-legalEntityLinkedinId > span", r"84033677*").await;
       d.click("a[href='#/KycEndorsement/1'][aria-label='Edit']").await;
       d.wait_for_text("#id", r"1*").await;
-      d.wait_for_text(".ra-field-legalEntityLinkedinId > span", r"84033677*").await;
 
       let evidence = format!("{}/static/certos_template_edit.zip", env::current_dir()?.display());
       d.delete_letters_and_send_new_keys("#name", 5, "Bruno").await;
