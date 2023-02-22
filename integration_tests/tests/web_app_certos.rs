@@ -397,6 +397,7 @@ mod workroom {
 
       d.goto(&format!("http://localhost:8000/#/safe/{token}")).await;
       d.click("#safe-button-change-public-certificate-state").await;
+      wait_here();
       
       check_social_media(&d, "#share-on-linkedin", "www.linkedin.com").await;
       check_social_media(&d, "#share-on-twitter", "twitter.com").await;

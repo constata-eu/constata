@@ -3,6 +3,8 @@ import { Button } from '@mui/material';
 import { useTranslate } from 'react-admin';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import TwitterIcon from '@mui/icons-material/Twitter';
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+
 
 
 const ShareToSocialMedia = ({url, icon, id, text}) => {
@@ -20,7 +22,7 @@ const ShareToSocialMedia = ({url, icon, id, text}) => {
   </Button>
 }
 
-const ShareToLinkedin = ({entryTitle, linkedinId, expeditionDate, url}) => {
+const ShareCertificateInLinkedin = ({entryTitle, linkedinId, expeditionDate, url}) => {
   let origin = "https://www.linkedin.com/profile/add?startTask=CERTIFICATION_NAME";
   if (entryTitle) {
     origin = origin + "&name=" + entryTitle.replaceAll(" ", "%20");
@@ -33,13 +35,18 @@ const ShareToLinkedin = ({entryTitle, linkedinId, expeditionDate, url}) => {
     origin = origin + "&organizationId=" + linkedinId;
   }
   const href = origin + "&certUrl=" + url;
-  return <ShareToSocialMedia url={href} icon={<LinkedInIcon />} id="share-on-linkedin" text={"certos.download_proof_link.share.linkedin"}/>
+  return <ShareToSocialMedia url={href} icon={<ReceiptLongIcon />} id="share-certificate-in-linkedin" text={"certos.download_proof_link.share.add_certificate_to_linkedin"}/>
 }
+
+const ShareToLinkedin = ({url, text}) => {
+  const href = "https://www.linkedin.com/feed/?shareActive=true&text=" + text + "%20" + url;
+  return <ShareToSocialMedia url={href} icon={<LinkedInIcon />} id="share-on-linkedin" text={"certos.download_proof_link.share.linkedin"} />
+};
 
 const ShareToTwitter = ({url, text}) => {
   const href = "https://twitter.com/intent/tweet?url=" + url + "&text=" + text;
   return <ShareToSocialMedia url={href} icon={<TwitterIcon />} id="share-on-twitter" text={"certos.download_proof_link.share.twitter"}/>
 }
   
-export {ShareToLinkedin, ShareToTwitter};
+export {ShareToLinkedin, ShareToTwitter, ShareCertificateInLinkedin};
   

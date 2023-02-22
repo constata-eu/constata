@@ -286,7 +286,8 @@
         "title": "Publish and share.",
         "text": "You can share a link to this certificate on your social networks. In order to do that, we have to keep it publicly available on our website. If you change your mind, you can unpublish it later.",
         "linkedin": "Share on Linkedin",
-        "twitter": "Share on Twitter"
+        "twitter": "Share on Twitter",
+        "add_certificate_to_linkedin": "Add Certificate to Linkedin"
       },
       "delete": {
         "title": "Admin Access",
