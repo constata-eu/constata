@@ -172,7 +172,7 @@ impl Showable<attestation::Attestation, AttestationFilter> for Attestation {
     };
 
     let admin_access_url = story.create_download_proof_link(30).await?;
-    let last_doc_date = story.pending_docs().await?.last().map(|d| d.attrs.created_at.clone());
+    let last_doc_date = story.documents().await?.last().map(|d| d.attrs.created_at.clone());
 
     Ok(Attestation {
       id: d.attrs.id,
