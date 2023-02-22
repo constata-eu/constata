@@ -219,19 +219,7 @@ impl EntryHub {
         let name = raw_name.split('/').last().unwrap_or(raw_name);
         let (final_name, final_bytes) = if let Some(tera_name) = Template::is_tera(name) {
           let expanded = i18n::Tera::one_off(std::str::from_utf8(bytes)?, &context, true)?.into_bytes();
-          if tera_name.ends_with(".pdf.html") {
-            (
-              tera_name.strip_suffix(".html").expect("already matched suffix").to_owned(),
-              EntryHub::render_to_pdf(&expanded)?
-            ) 
-          } else if tera_name.ends_with(".png.html") {
-            (
-              tera_name.strip_suffix(".html").expect("already matched suffix").to_owned(),
-              EntryHub::render_to_png(&expanded)?
-            ) 
-          } else {
-            (tera_name.to_owned(), expanded)
-          }
+          (tera_name.to_owned(), expanded)
         } else {
           (name.to_owned(), bytes.to_owned())
         };
@@ -261,76 +249,6 @@ impl EntryHub {
     entry.storage_put(&destination_buffer).await?;
 
     entry.in_created()
-  }
-
-  fn render_to_pdf(bytes: &[u8]) -> Result<Vec<u8>> {
-    use tempfile::Builder;
-    use headless_chrome::{Browser, LaunchOptionsBuilder, protocol::page::PrintToPdfOptions};
-    use std::io::Write;
-
-    let mut file = Builder::new()
-        .prefix("render_pdf_")
-        .suffix(".html")
-        .rand_bytes(5)
-        .tempfile()?;
-
-    file.write_all(bytes)?;
-    let path = file.into_temp_path();
-    let browser = Browser::new(LaunchOptionsBuilder::default().sandbox(false).build().unwrap())?;
-
-    let tab = browser.wait_for_initial_tab()?;
-
-    tab.navigate_to(&format!("file://{}", path.to_string_lossy()))?;
-    tab.wait_for_element("body")?;
-    path.close()?;
-    let options = PrintToPdfOptions {
-      landscape: None,
-      display_header_footer: Some(false),
-      print_background: Some(true),
-      scale: None,
-      // Paper size is hardcoded to A4. We may make this configurable in the future.
-      paper_width: Some(8.3),
-      paper_height: Some(11.7),
-      margin_top: Some(0.0),
-      margin_bottom: Some(0.0),
-      margin_left: Some(0.0),
-      margin_right: Some(0.0),
-      page_ranges: None,
-      ignore_invalid_page_ranges: None,
-      header_template: None,
-      footer_template: None,
-      prefer_css_page_size: Some(true),
-    };
-    Ok(tab.print_to_pdf(Some(options))?)
-  }
-
-  fn render_to_png(bytes: &[u8]) -> Result<Vec<u8>> {
-    use tempfile::Builder;
-    use headless_chrome::{Browser, LaunchOptionsBuilder, protocol::page::ScreenshotFormat};
-    use headless_chrome::protocol::browser::Bounds;
-    use std::io::Write;
-
-    let mut file = Builder::new()
-        .prefix("render_image_")
-        .suffix(".html")
-        .rand_bytes(5)
-        .tempfile()?;
-
-    file.write_all(bytes)?;
-    let path = file.into_temp_path();
-    let bounds = Bounds::Normal{
-      left: None,
-      top: None,
-      width: Some(960),
-      height: Some(1345),
-    };
-    let browser = Browser::new(LaunchOptionsBuilder::default().sandbox(false).window_size(Some((960, 1345))).build().unwrap())?;
-    let tab = browser.wait_for_initial_tab()?;
-    tab.set_bounds(bounds)?;
-    tab.navigate_to(&format!("file://{}", path.to_string_lossy()))?;
-    tab.wait_for_element("body")?;
-    path.close()?;
-    Ok(tab.capture_screenshot(ScreenshotFormat::PNG, None, true)?)
   }
 }
 

@@ -352,6 +352,12 @@ impl SignerClient {
       .expect("Email address to be saved")
   }
 
+  pub async fn verify_email(&self, address: &str) -> crate::models::email_address::EmailAddress {
+    self.db.site.email_address()
+      .create(self.person().await, address, b"an email we received by them".to_vec(), true, false).await
+      .expect("Email address to be saved")
+  }
+
   pub async fn make_telegram(&self) -> crate::models::telegram::TelegramUser {
     self.db.site.telegram_user().create_with_new_person(
       "id_telegram".to_string(), "Satoshi".to_string(), None, None, i18n::Lang::Es
