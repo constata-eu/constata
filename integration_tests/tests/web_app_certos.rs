@@ -391,7 +391,6 @@ mod workroom {
       let mut chain = TestBlockchain::new().await;
       let alice = c.alice().await;
       let org = alice.org().await;
-      alice.make_kyc_endorsement().await;
 
       let download_proof_link = set_up_download_proof_link(&alice, &mut chain).await?;
       let token = download_proof_link.token().await?;
