@@ -17,6 +17,7 @@ pub struct KycEndorsementInput {
   pub legal_entity_country: Option<String>,
   pub legal_entity_registration: Option<String>,
   pub legal_entity_tax_id: Option<String>,
+  pub legal_entity_linkedin_id: Option<String>,
   pub evidence: Vec<KycEndorsementEvidenceInput>,
 }
 
@@ -47,6 +48,7 @@ impl KycEndorsementInput {
       .legal_entity_country(self.legal_entity_country)
       .legal_entity_registration(self.legal_entity_registration)
       .legal_entity_tax_id(self.legal_entity_tax_id)
+      .legal_entity_linkedin_id(self.legal_entity_linkedin_id)
       .updated_at(Utc::now())
       .save().await?;
 
@@ -83,6 +85,7 @@ pub struct KycEndorsement {
   legal_entity_country: Option<String>,
   legal_entity_registration: Option<String>,
   legal_entity_tax_id: Option<String>,
+  legal_entity_linkedin_id: Option<String>,
 }
 
 #[derive(Clone, GraphQLInputObject, Debug)]
@@ -151,6 +154,7 @@ impl Showable<kyc_endorsement::KycEndorsement, KycEndorsementFilter> for KycEndo
       legal_entity_country: d.attrs.legal_entity_country,
       legal_entity_registration: d.attrs.legal_entity_registration,
       legal_entity_tax_id: d.attrs.legal_entity_tax_id,
+      legal_entity_linkedin_id: d.attrs.legal_entity_linkedin_id,
     })
   }
 }

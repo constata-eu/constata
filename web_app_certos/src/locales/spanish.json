@@ -312,6 +312,7 @@
         "legalEntityName": "Nombre de su organización",
         "legalEntityRegistration": "Número de registro de la organización",
         "legalEntityTaxId": "Identificador fiscal de la organización",
+        "legalEntityLinkedinId": "Identificador de la organización en Linkedin",
         "name": "Nombres",
         "nationality": "País de nacimiento"
       },
@@ -329,6 +330,7 @@
         "legalEntityName": "Empresa, ONG o institución estatal.",
         "legalEntityRegistration": "Número de registro comercial, licencia, etc.",
         "legalEntityTaxId": "",
+        "legalEntityLinkedinId": "",
         "name": "",
         "nationality": ""
       },

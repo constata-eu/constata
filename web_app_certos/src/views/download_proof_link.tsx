@@ -169,8 +169,10 @@ const Share = ({downloadProofLink, handleChangePublicCertificateState}) => {
       {downloadProofLink.publicCertificateIsActive ?
         <Box>
           <ShareToLinkedin
+            entryTitle={downloadProofLink.entryTitle}
+            linkedinId={downloadProofLink.legalEntityLinkedinId}
+            expeditionDate={downloadProofLink.documentFundedAt}
             url={downloadProofLink.publicCertificateUrl}
-            text={downloadProofLink.shareOnSocialNetworksCallToAction}
           />
           <ShareToTwitter
             url={downloadProofLink.publicCertificateUrl}

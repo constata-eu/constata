@@ -402,6 +402,7 @@ impl SignerClient {
       legal_entity_country: Some("Chilena".to_string()),
       legal_entity_registration: Some("1234-Z".to_string()),
       legal_entity_tax_id: Some("T-789-ID".to_string()),
+      legal_entity_linkedin_id: Some("84033677".to_string()),
     }).save().await.unwrap()
   }
   
@@ -429,6 +430,7 @@ impl SignerClient {
       legal_entity_country: Some("El Salvador".to_string()),
       legal_entity_registration: Some("2342423".to_string()),
       legal_entity_tax_id: Some("1247565".to_string()),
+      legal_entity_linkedin_id: Some("84033677".to_string()),
     }
   }
 
@@ -466,6 +468,7 @@ impl SignerClient {
       legal_entity_country: boolean_1,
       legal_entity_registration: boolean_1,
       legal_entity_tax_id: boolean_1,
+      legal_entity_linkedin_id: boolean_1,
       evidence,
     }
   }

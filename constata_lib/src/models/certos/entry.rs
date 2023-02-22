@@ -121,9 +121,13 @@ impl Entry {
   }
 
   pub async fn admin_access_url(&self) -> Result<Option<String>> {
-    let Some(doc) = self.document().await? else { return Ok(None) };
-    let Some(link) = doc.active_download_proof_link().await? else { return Ok(None) };
-    link.safe_env_url().await.map(|v| Some(v))
+    if let Some(doc) = self.document().await? {
+      if let Some(link) = doc.active_download_proof_link().await? {
+        return link.safe_env_url().await.map(|v| Some(v));
+      }
+     }
+
+    Ok(None)
   }
 }
 

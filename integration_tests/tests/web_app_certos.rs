@@ -135,7 +135,6 @@ mod workroom {
       let token = alice.make_download_proof_link_from_doc(&doc, 30).await.token().await?;
       d.goto(&format!("http://localhost:8000/#/safe/{token}")).await;
       d.click("#safe-button-change-public-certificate-state").await;
-
       let title = "Curso de programación";
       let description = "Diploma issued by apps.script.testing@constata.eu via Constata.eu";
       let image = "https://constata.eu/assets/images/logo.png";
@@ -392,6 +391,7 @@ mod workroom {
       let mut chain = TestBlockchain::new().await;
       let alice = c.alice().await;
       let org = alice.org().await;
+      alice.make_kyc_endorsement().await;
 
       let download_proof_link = set_up_download_proof_link(&alice, &mut chain).await?;
       let token = download_proof_link.token().await?;
@@ -630,6 +630,7 @@ mod workroom {
       d.fill_in("#legalEntityCountry", "Argentina").await;
       autoselect_first_option(&d).await;
       d.fill_in("#legalEntityTaxId", "T-859-ID").await;
+      d.fill_in("#legalEntityLinkedinId", "84033677").await;
 
       let evidence = format!("{}/static/id_example.jpg", env::current_dir().expect("to get current directory").display());
       d.fill_in("#evidence", &evidence).await;
@@ -641,6 +642,7 @@ mod workroom {
       assert_eq!(kyc_request.attrs.id_number, Some("A14645Z".to_string()));
       assert_eq!(kyc_request.attrs.country, Some("ARG".to_string()));
       assert_eq!(kyc_request.attrs.job_title, Some("CEO".to_string()));
+      assert_eq!(kyc_request.attrs.legal_entity_linkedin_id, Some("84033677".to_string()));
 
       kyc_request.in_pending().expect("to get pending kyc request").process_update(
         KycRequestProcessForm {
@@ -656,6 +658,7 @@ mod workroom {
           legal_entity_country: process,
           legal_entity_registration: process,
           legal_entity_tax_id: process,
+          legal_entity_linkedin_id: process,
           evidence: vec![process],
         }
       ).await.expect("to process kyc request");

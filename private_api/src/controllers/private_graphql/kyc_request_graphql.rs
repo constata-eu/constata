@@ -21,6 +21,7 @@ pub struct KycRequest {
   legal_entity_country: Option<String>,
   legal_entity_registration: Option<String>,
   legal_entity_tax_id: Option<String>,
+  legal_entity_linkedin_id: Option<String>,
 }
 
 #[derive(Clone, GraphQLInputObject, Debug)]
@@ -86,6 +87,7 @@ impl Showable<kyc_request::KycRequest, KycRequestFilter> for KycRequest {
       legal_entity_country: d.attrs.legal_entity_country,
       legal_entity_registration: d.attrs.legal_entity_registration,
       legal_entity_tax_id: d.attrs.legal_entity_tax_id,
+      legal_entity_linkedin_id: d.attrs.legal_entity_linkedin_id,
     })
   }
 }
