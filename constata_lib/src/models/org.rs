@@ -17,6 +17,7 @@ use super::{
   create_email_credentials_token::*,
   kyc_request::*,
   parked_reminder::*,
+  attestation::*,
 };
 use chrono::Datelike;
 use i18n::Lang;
@@ -61,6 +62,7 @@ model!{
     Request(org_id),
     Template(org_id),
     Entry(org_id),
+    Attestation(org_id),
   },
   belongs_to {
     OrgDeletion(deletion_id),

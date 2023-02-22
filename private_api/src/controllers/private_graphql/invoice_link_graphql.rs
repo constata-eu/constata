@@ -1,6 +1,5 @@
 use super::*;
 
-
 #[derive(GraphQLObject)]
 #[graphql(description = "An invoice link")]
 pub struct InvoiceLink {
