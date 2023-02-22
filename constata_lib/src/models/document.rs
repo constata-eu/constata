@@ -608,9 +608,9 @@ describe! {
       false,
       "1-997d5e04f7f36975ac27224139d23bac36e9da9f23a6d7c9ea9cd1bdb2dca2b5",
       "hello.txt",
-      "68d57d1b67763091fc245c6f2743e7e2f5dcc0d8ca06e340ea4b306b081691c7",
+      "ca968e07a1aa7bf2e9e56f7c3414972dc5be236e7e90322be7a3c5f3ffb7b290",
       "text/plain",
-      59
+      61
     );
 
     assert_document_part!(
@@ -1042,9 +1042,9 @@ describe! {
       false,
       "1-f266beb04cb0d438ee2810d0996133c782ea8fd8a3c4203a7c63c5986ac634ee",
       "json_for_testing.json",
-      "7df8a8ee3b4dae553265a6b1767aab6dae884cf9eb81998b26234a43eca481ba",
+      "c7d67faf3cddaa0071b1af21dfadacc71765236bd2426eb8c12436abd5509594",
       "application/json",
-      865
+      867
     );
 
     assert_document_part!(
@@ -1053,9 +1053,9 @@ describe! {
       false,
       "1-f266beb04cb0d438ee2810d0996133c782ea8fd8a3c4203a7c63c5986ac634ee",
       "docx_for_testing.docx",
-      "ee171c0307d44ec43ba2830438d294f978277d18fe18511b80ae78bf8753d96c",
+      "b5c00fb6472add2ea43c05ebcecaa5031ddad23cf82059adad16f2ecf7c41f6a",
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      24
+      26
     );
 
     assert_document_part!(
@@ -1064,9 +1064,9 @@ describe! {
       false,
       "1-f266beb04cb0d438ee2810d0996133c782ea8fd8a3c4203a7c63c5986ac634ee",
       "xlsx_for_testing.xlsx",
-      "570de79a1f8a39f27097ebd9ed32af1aad67535d843c7203e55c89e009cf5759",
+      "cbfc199c926d485df84824affb865a49212f74c383996e861daff3b32803b175",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      24
+      26
     );
 
     assert_document_part!(
@@ -1075,9 +1075,9 @@ describe! {
       false,
       "1-f266beb04cb0d438ee2810d0996133c782ea8fd8a3c4203a7c63c5986ac634ee",
       "pptx_for_testing.pptx",
-      "1314afdfdcf87b9402b13c15e7562410ea5168993c62c1331ca79ae555c314fe",
+      "5b82ae0a78d1693d9be9cff8c5897b7f13fa5b06a0bc976168de3448ee576057",
       "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-      24
+      26
     );
   }
 
