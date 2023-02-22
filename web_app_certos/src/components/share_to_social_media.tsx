@@ -4,6 +4,7 @@ import { useTranslate } from 'react-admin';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import TwitterIcon from '@mui/icons-material/Twitter';
 
+
 const ShareToSocialMedia = ({url, icon, id, text}) => {
   const translate = useTranslate();
   let href = url.replaceAll("+", "%2b");
@@ -19,8 +20,19 @@ const ShareToSocialMedia = ({url, icon, id, text}) => {
   </Button>
 }
 
-const ShareToLinkedin = ({url, text}) => {
-  const href = "https://www.linkedin.com/feed/?shareActive=true&text=" + text + "%20" + url;
+const ShareToLinkedin = ({entryTitle, linkedinId, expeditionDate, url}) => {
+  let origin = "https://www.linkedin.com/profile/add?startTask=CERTIFICATION_NAME";
+  if (entryTitle) {
+    origin = origin + "&name=" + entryTitle.replaceAll(" ", "%20");
+  }
+  if (expeditionDate) {
+    const date = new Date(expeditionDate);
+    origin = origin + "&issueYear=" + date.getFullYear() + "&issueMonth=" + (date.getMonth() + 1);
+  }
+  if (linkedinId) {
+    origin = origin + "&organizationId=" + linkedinId;
+  }
+  const href = origin + "&certUrl=" + url;
   return <ShareToSocialMedia url={href} icon={<LinkedInIcon />} id="share-on-linkedin" text={"certos.download_proof_link.share.linkedin"}/>
 }
 
