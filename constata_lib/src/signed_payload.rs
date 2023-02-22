@@ -1,4 +1,4 @@
-use crate::{models::hasher::hexdigest, Base64Standard, Result};
+use crate::{models::hasher::hexdigest, Base64Standard, Result as MyResult};
 use serde::{Deserialize, Serialize};
 pub use rocket::{ http::Status, request::{FromRequest, Outcome, Request}};
 
@@ -52,7 +52,7 @@ impl SignedPayload {
     }
   }
 
-  pub fn signed_ok(&self) -> Result<bool> {
+  pub fn signed_ok(&self) -> MyResult<bool> {
     Ok(self.signature.is_signed_by_address(
       &secp256k1::Secp256k1::new(),
       &self.signer,
@@ -60,7 +60,7 @@ impl SignedPayload {
     )?)
   }
 
-  pub fn pubkey(&self) -> Result<bitcoin::PublicKey> {
+  pub fn pubkey(&self) -> MyResult<bitcoin::PublicKey> {
     Ok(self.signature.recover_pubkey(
       &secp256k1::Secp256k1::new(),
       SignedPayload::signed_msg_hash(&self.payload),

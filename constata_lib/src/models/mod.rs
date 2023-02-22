@@ -57,6 +57,7 @@ pub mod outgoing_email_message;
 pub mod access_token;
 pub mod storable;
 pub mod template_schema;
+pub mod attestation;
 
 pub use bulletin::{Bulletin, Draft, Proposed, Published, Submitted};
 pub use story::Story;
