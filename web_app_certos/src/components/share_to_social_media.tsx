@@ -3,7 +3,7 @@ import { Button } from '@mui/material';
 import { useTranslate } from 'react-admin';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import TwitterIcon from '@mui/icons-material/Twitter';
-import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import ArticleIcon from '@mui/icons-material/Article';
 
 
 
@@ -35,7 +35,7 @@ const ShareCertificateInLinkedin = ({entryTitle, linkedinId, expeditionDate, url
     origin = origin + "&organizationId=" + linkedinId;
   }
   const href = origin + "&certUrl=" + url;
-  return <ShareToSocialMedia url={href} icon={<ReceiptLongIcon />} id="share-certificate-in-linkedin" text={"certos.download_proof_link.share.add_certificate_to_linkedin"}/>
+  return <ShareToSocialMedia url={href} icon={<ArticleIcon />} id="share-certificate-in-linkedin" text={"certos.download_proof_link.share.add_certificate_to_linkedin"}/>
 }
 
 const ShareToLinkedin = ({url, text}) => {
