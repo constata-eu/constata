@@ -88,11 +88,11 @@ impl CurrentPerson {
       (meta.method == req.method().as_str()).then(|| ())?;
 
       if let Some(ref query_hash) = meta.query_hash {
-        (*query_hash == hasher::hexdigest(req.uri().query()?.raw().as_bytes())).then(|| ())?;
+        (hex::decode(query_hash).ok()? == hasher::digest(req.uri().query()?.raw().as_bytes())).then(|| ())?;
       }
 
       if let Some(ref body_hash) = meta.body_hash {
-        (*body_hash == hasher::hexdigest(body?)).then(|| ())?;
+        (hex::decode(body_hash).ok()? == hasher::digest(body?)).then(|| ())?;
       }
 
       let maybe_pubkey = site.pubkey().select()
