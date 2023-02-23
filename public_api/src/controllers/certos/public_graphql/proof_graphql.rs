@@ -1,9 +1,11 @@
 use super::*;
 
 #[derive(GraphQLObject)]
-#[graphql(description = "A Proof")]
+#[graphql(description = "This object retrieves a certificate")]
 pub struct Proof {
+  #[graphql(description = "number identifying the proof")]
   pub id: i32,
+  #[graphql(description = "certificate in html format")]
   pub html: String,
 }
 

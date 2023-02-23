@@ -1,13 +1,19 @@
 use super::*;
 
 #[derive(GraphQLObject)]
-#[graphql(description = "An template on certos")]
+#[graphql(description = "The template gives us a basis for creating an Issuance")]
 pub struct Template {
+  #[graphql(description = "number identifying this template")]
   id: i32,
+  #[graphql(description = "name of this template")]
   name: String,
+  #[graphql(description = "kinds can be 'Diploma', 'Attendance' or 'Invitation'")]
   kind: TemplateKind,
+  #[graphql(description = "date in which this template was created")]
   created_at: UtcDateTime,
+  #[graphql(description = "schema used to build the entry")]
   schema: String,
+  #[graphql(description = "a custom message the user can add to the email to be sent to the student once the entry is certified")]
   custom_message: Option<String>,
 }
 

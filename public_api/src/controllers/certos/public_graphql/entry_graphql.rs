@@ -1,20 +1,34 @@
 use super::*;
+use serde::{Serialize, Deserialize};
 
 #[derive(GraphQLObject)]
-#[graphql(description = "An entry on certos")]
+#[graphql(description = "This object shows all the information related to an entry")]
 pub struct Entry {
+  #[graphql(description = "number identifying an entry")]
   id: i32,
-  request_id: i32,
-  request_name: String,
+  #[graphql(description = "id of the issuance to which this entry belongs")]
+  issuance_id: i32,
+  #[graphql(description = "name of the issuance to which this entry belongs")]
+  issuance_name: String,
+  #[graphql(description = "entry number within the issuance")]
   row_number: i32,
+  #[graphql(description = "the states can be 'created', 'signed', 'completed' or 'failed'")]
   state: String,
+  #[graphql(description = "date in which this entry was created")]
   created_at: UtcDateTime,
+  #[graphql(description = "parameters used to create this particular entry")]
   params: String,
+  #[graphql(description = "errors that happened in the process of the entry, if any")]
   errors: Option<String>,
+  #[graphql(description = "id of the document to which this entry belongs")]
   document_id: Option<String>,
+  #[graphql(description = "id of the story to which this entry belongs")]
   story_id: Option<i32>,
+  #[graphql(description = "boolean that tells us if an email should be sent for this entry")]
   has_email_callback: bool,
+  #[graphql(description = "date the email was sent, if it already happened")]
   email_callback_sent_at: Option<UtcDateTime>,
+  #[graphql(description = "the entry itself")]
   payload: Option<String>,
 }
 
@@ -22,7 +36,7 @@ pub struct Entry {
 pub struct EntryFilter {
   ids: Option<Vec<i32>>,
   id_eq: Option<i32>,
-  request_id_eq: Option<i32>,
+  issuance_id_eq: Option<i32>,
   state_eq: Option<String>,
   document_id_eq: Option<String>,
   params_like: Option<String>,
@@ -35,7 +49,7 @@ impl Showable<entry::Entry, EntryFilter> for Entry {
     match field {
       "id" => Some(EntryOrderBy::Id),
       "documentId" => Some(EntryOrderBy::DocumentId),
-      "requestId" => Some(EntryOrderBy::RequestId),
+      "issuanceId" => Some(EntryOrderBy::RequestId),
       "state" => Some(EntryOrderBy::State),
       "rowNumber" => Some(EntryOrderBy::RowNumber),
       "createdAt" => Some(EntryOrderBy::CreatedAt),
@@ -49,7 +63,7 @@ impl Showable<entry::Entry, EntryFilter> for Entry {
       org_id_eq: Some(org_id),
       id_eq: f.id_eq,
       document_id_eq: f.document_id_eq,
-      request_id_eq: f.request_id_eq,
+      request_id_eq: f.issuance_id_eq,
       state_eq: f.state_eq,
       params_ilike: into_like_search(f.params_like),
       deletion_id_is_set: Some(false),
@@ -84,8 +98,8 @@ impl Showable<entry::Entry, EntryFilter> for Entry {
 
     Ok(Entry {
       id: d.attrs.id,
-      request_id: d.attrs.request_id,
-      request_name: d.request().await?.attrs.name,
+      issuance_id: d.attrs.request_id,
+      issuance_name: d.request().await?.attrs.name,
       row_number: d.attrs.row_number,
       state: d.attrs.state,
       created_at: d.attrs.created_at,
@@ -100,18 +114,29 @@ impl Showable<entry::Entry, EntryFilter> for Entry {
   }
 }
 
-impl Entry {
-  pub async fn signing_iterator(
-    context: &Context, id: i32, entry_id: Option<i32>, signature: Option<String>
-  ) -> FieldResult<Option<Entry>> {
-    let db_data = match (entry_id, signature) {
+#[derive(GraphQLInputObject, Serialize, Deserialize)]
+#[graphql(description = "SigningIteratorInput Object")]
+#[serde(rename_all = "camelCase")]
+pub struct SigningIteratorInput {
+  #[graphql(description = "id of the issuance to which this entry belongs")]
+  issuance_id: i32,
+  #[graphql(description = "number identifying an entry")]
+  entry_id: Option<i32>,
+  #[graphql(description = "the signature of the user's Bitcoin wallet that signs this entry")]
+  signature: Option<String>,
+}
+
+
+impl SigningIteratorInput {
+  pub async fn sign(self, context: &Context) -> FieldResult<Option<Entry>> {
+    let db_data = match (self.entry_id, self.signature) {
       (Some(i), Some(s)) => Some(request::EntrySignature::from_base64(i, &s)?),
       _ => None,
     };
     
     let db_entry = context.site.request()
       .select()
-      .id_eq(&id)
+      .id_eq(&self.issuance_id)
       .org_id_eq(context.org_id())
       .one()
       .await?

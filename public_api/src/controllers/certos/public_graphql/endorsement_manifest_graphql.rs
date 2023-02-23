@@ -1,47 +1,72 @@
 use super::*;
 
 #[derive(GraphQLObject)]
-#[graphql(description = "The customer endorsements")]
+#[graphql(description = "It's a manifest of all endorsement a user has")]
 pub struct EndorsementManifest {
+  #[graphql(description = "is always number 1")]
   pub id: i32,
+  #[graphql(description = "the final text to be used as the user endorsements, if any")]
   pub text: Option<String>,
+  #[graphql(description = "websites registered by the user, if any")]
   pub websites: Vec<String>,
+  #[graphql(description = "data from the user's kyc endorsement, if any")]
   pub kyc: Option<KycEndorsementManifest>,
+  #[graphql(description = "data from the user's telegram account, if any")]
   pub telegram: Option<TelegramEndorsementManifest>,
+  #[graphql(description = "email registered by the user, if any")]
   pub email: Option<EmailEndorsementManifest>,
+  #[graphql(description = "boolean pointing out whether the an email is going to be send to the student when created an issuance")]
   pub can_send_email: bool,
 }
 
 #[derive(GraphQLObject)]
-#[graphql(description = "The customer telegram account endorsement")]
+#[graphql(description = "Retrieve information about user's registered telegram account, if any")]
 pub struct TelegramEndorsementManifest {
+  #[graphql(description = "username used in the user's telegram account, if any")]
   username: Option<String>,
+  #[graphql(description = "first name of the user used in the telegram account")]
   first_name: String,
+  #[graphql(description = "last name of the user used in the telegram account, if any")]
   last_name: Option<String>,
 }
 
 #[derive(GraphQLObject)]
-#[graphql(description = "The customer telegram account endorsement")]
+#[graphql(description = "Retrieve information about user's registered email address, if any")]
 pub struct EmailEndorsementManifest {
+  #[graphql(description = "email registered by the user")]
   pub address: String,
+  #[graphql(description = "boolean pointing out whether the email was registered as private or public")]
   pub keep_private: bool,
 }
 
 #[derive(GraphQLObject)]
-#[graphql(description = "The customer identity verification endorsement")]
+#[graphql(description = "Retrieve information about user's kyc, if any")]
 pub struct KycEndorsementManifest {
+  #[graphql(description = "name of the person")]
   name: Option<String>,
+  #[graphql(description = "last name of the person")]
   last_name: Option<String>,
+  #[graphql(description = "number that identify the person")]
   id_number: Option<String>,
+  #[graphql(description = "type of the person's id. Ej: DNI")]
   id_type: Option<String>,
+  #[graphql(description = "date of birth")]
   birthdate: Option<UtcDateTime>,
+  #[graphql(description = "country of birth")]
   nationality: Option<String>,
+  #[graphql(description = "country in which the person currently lives")]
   country: Option<String>,
+  #[graphql(description = "position that the person occupies within the company")]
   job_title: Option<String>,
+  #[graphql(description = "name of the company")]
   legal_entity_name: Option<String>,
+  #[graphql(description = "country in which the company has legal residence")]
   legal_entity_country: Option<String>,
+  #[graphql(description = "company registration number")]
   legal_entity_registration: Option<String>,
+  #[graphql(description = "company tax identification")]
   legal_entity_tax_id: Option<String>,
+  #[graphql(description = "date of last update")]
   updated_at: UtcDateTime,
 }
 

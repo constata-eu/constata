@@ -40,8 +40,8 @@ const ResponsiveAppBar = ({loggedIn}) => {
         >
           { translate("certos.menu.dashboard") }
         </Button>
-        <Button size="large" sx={{ fontSize: 40, mb: 2, textTransform: "uppercase"}} color="inverted" onClick={ () => navigate("/Request") } id="requests-mobile-menu-item">
-          { translate("certos.menu.requests") }
+        <Button size="large" sx={{ fontSize: 40, mb: 2, textTransform: "uppercase"}} color="inverted" onClick={ () => navigate("/Issuance") } id="issuances-mobile-menu-item">
+          { translate("certos.menu.issuances") }
         </Button>
         <Button size="large"sx={{ fontSize: 40, mb: 2, textTransform: "uppercase"}} color="inverted" href="mailto:hola@constata.eu" target="_blank" id="help-mobile-menu-item">
           { translate("certos.menu.help") }
@@ -57,8 +57,8 @@ const ResponsiveAppBar = ({loggedIn}) => {
     <Button sx={{ ml: 1, textTransform: "uppercase" }} variant="contained" color="highlight" onClick={ () => navigate("/") } startIcon={<DashboardIcon/>} id="dashboard-menu-item">
       { translate("certos.menu.dashboard") }
     </Button>
-    <Button sx={{ ml: 1, textTransform: "uppercase" }} color="highlight" onClick={ () => navigate("/Request") } id="requests-menu-item">
-      { translate("certos.menu.requests") }
+    <Button sx={{ ml: 1, textTransform: "uppercase" }} color="highlight" onClick={ () => navigate("/Issuance") } id="issuances-menu-item">
+      { translate("certos.menu.issuances") }
     </Button>
     <Button sx={{ ml: 1, textTransform: "uppercase" }} color="highlight" href="mailto:hola@constata.eu" target="_blank" id="help-menu-item">
       { translate("certos.menu.help") }
