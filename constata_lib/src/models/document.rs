@@ -30,7 +30,6 @@ use serde_with::serde_as;
 use duplicate::duplicate_item;
 use chrono::{Utc, Duration};
 
-
 model!{
   state: Site,
   table: documents,
