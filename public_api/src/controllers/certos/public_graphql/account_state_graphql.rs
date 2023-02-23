@@ -2,43 +2,45 @@ use super::*;
 use crate::Decimal;
 
 #[derive(GraphQLObject)]
-#[graphql(description = "This object show the user information")]
+#[graphql(description = "This is your organization's account information and stats.")]
 pub struct AccountState {
-  #[graphql(description = "number identifying the organization")]
+  #[graphql(description = "Unique ID of your organization assigned by us.")]
   id: i32,
-  #[graphql(description = "tokens left to certify user's pending documents")]
+  #[graphql(description = "Tokens your organization needs to buy in order to certify all parked documents created through Issuances, Attestations or any other means.")]
   missing: i32,
-  #[graphql(description = "user's token balance")]
+  #[graphql(description = "You have this many tokens in your balance.")]
   token_balance: i32,
-  #[graphql(description = "price per token the user is going to pay")]
+  #[graphql(description = "The special price you'll pay for each token when you buy them.")]
   price_per_token: i32,
-  #[graphql(description = "amount of token per mounth gifted to the user")]
+  #[graphql(description = 
+    "Constata will give you a monthly bonus of this many tokens, as a gift. \
+    When you submit an Issuance, Attestation or perform any other token consuming action, \
+    we'll credit these tokens as a gift instead of consuming your token balance.")]
   max_monthly_gift: i32,
-  #[graphql(description = "amount of tokens gifted this month that I have available")]
+  #[graphql(description = "This number lowers every time Constata gives you a token from your max_monthly_gift")]
   monthly_gift_remainder: i32,
-  #[graphql(description = "amount of document pending by lack of tokens")]
+  #[graphql(description = "You have this many documents parked, that is, they won't be certified, until you take the requested action which may be buying the tokens needed to certify them, or accept changes to our terms and conditions.")]
   parked_count: i32,
-  #[graphql(description = "all user's pending invoices")]
+  #[graphql(description = "These are all the invoices you created for purchasing tokens and are still waiting for payment.")]
   invoices: Vec<Invoice>,
-  #[graphql(description = "It's going to return the url to accept terms & conditions if user didn't accept them yet")]
+  #[graphql(description = "When this url is available, you should visit it on your browser to review and accept our terms and conditions. You can send it to whoever is in charge of accepting the terms in your organization.")]
   pending_tyc_url: Option<String>,
-  #[graphql(description = "It's going to return the url to an invoice link if user didn't create an invoice with it")]
+  #[graphql(description = "Whenever you are missing tokens, you can visit this url in your browser and it will present you with payment options to buy the tokens you need. No login required, so you can send it to anyone in your organization in charge of payments.")]
   pending_invoice_link_url: Option<String>,
 }
 
 #[derive(GraphQLObject)]
-#[graphql(description = "Invoice Object")]
+#[graphql(description = "An invoice generated when you chose a payment method and amount of tokens to buy, that has not been paid yet.")]
 pub struct Invoice {
-  #[graphql(description = "amount of money to pay for the tokens")]
+  #[graphql(description = "Amount to pay, in EUR")]
   amount: i32,
-  #[graphql(description = "amount of token to buy")]
+  #[graphql(description = "Tokens that you'll receive.")]
   tokens: i32,
-  #[graphql(description = "description of the invoice")]
+  #[graphql(description = "Extra data about this invoice, if any.")]
   description: String,
-  #[graphql(description = "url where to buy the tokens")]
+  #[graphql(description = "Visit this url to continue your payment.")]
   url: String,
 }
-
 
 impl AccountState {
   pub fn from_db(d: account_state::AccountState) -> FieldResult<Self> {

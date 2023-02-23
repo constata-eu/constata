@@ -2,33 +2,33 @@ use super::*;
 use serde::{Serialize, Deserialize};
 
 #[derive(GraphQLObject)]
-#[graphql(description = "This object shows all the information related to an entry")]
+#[graphql(description = "An Entry represents a single certified Diploma, Proof of Attendance, or Badge, that is part of a larger Issuance. Each entry is certified separately, and has its own state. If you make several Issuances in parallel, you may run out of tokens, and some Entries will be certified while others will remain pending until you purchase the tokens.")]
 pub struct Entry {
-  #[graphql(description = "number identifying an entry")]
+  #[graphql(description = "Unique identifier for this Entry, across all Issuances.")]
   id: i32,
-  #[graphql(description = "id of the issuance to which this entry belongs")]
+  #[graphql(description = "Id of the Issuance this entry belongs to.")]
   issuance_id: i32,
-  #[graphql(description = "name of the issuance to which this entry belongs")]
+  #[graphql(description = "Name of the issuance this entry belongs to, for convenience.")]
   issuance_name: String,
-  #[graphql(description = "entry number within the issuance")]
+  #[graphql(description = "This entries position within the larger Issuance. When the issuance is created from a CSV, this will be the row number.")]
   row_number: i32,
-  #[graphql(description = "the states can be 'created', 'signed', 'completed' or 'failed'")]
+  #[graphql(description = "The state of this entry. Can be 'received': We got this row's data and will attempt to create a document such as a diploma, proof of attendance, or badge with the given details; 'created': The document was created correctly, and you should sign it; 'signed': You have signed this document, it is up to constata to certify it now; 'completed': The document has been timestamped and certified by Constata, and emailed to the recipient if required. 'failed': A problem ocurred that prevented further processing of this Entry, this could happen between 'received' and 'created' if the provided data is malformed. A failure in one single Entry will abort the whole Issuance, and nothing will be certified.")]
   state: String,
-  #[graphql(description = "date in which this entry was created")]
+  #[graphql(description = "Date in which this entry was created")]
   created_at: UtcDateTime,
-  #[graphql(description = "parameters used to create this particular entry")]
+  #[graphql(description = "Parameters used to create this particular entry. If the issuance was created from a CSV, these will be the row's data.")]
   params: String,
-  #[graphql(description = "errors that happened in the process of the entry, if any")]
+  #[graphql(description = "Errors found when moving this entry from 'received' to 'created', if any.")]
   errors: Option<String>,
-  #[graphql(description = "id of the document to which this entry belongs")]
+  #[graphql(description = "ID of the document that this entry belongs to.")]
   document_id: Option<String>,
-  #[graphql(description = "id of the story to which this entry belongs")]
+  #[graphql(description = "ID of the story that this entry belongs to.")]
   story_id: Option<i32>,
-  #[graphql(description = "boolean that tells us if an email should be sent for this entry")]
+  #[graphql(description = "Boolean that determines whether an email should be sent for this entry.")]
   has_email_callback: bool,
-  #[graphql(description = "date the email was sent, if it already happened")]
+  #[graphql(description = "Date when the email was sent, if it has already been sent.")]
   email_callback_sent_at: Option<UtcDateTime>,
-  #[graphql(description = "the entry itself")]
+  #[graphql(description = "The data payload for this entry.")]
   payload: Option<String>,
 }
 
@@ -118,14 +118,13 @@ impl Showable<entry::Entry, EntryFilter> for Entry {
 #[graphql(description = "SigningIteratorInput Object")]
 #[serde(rename_all = "camelCase")]
 pub struct SigningIteratorInput {
-  #[graphql(description = "id of the issuance to which this entry belongs")]
+  #[graphql(description = "ID of the issuance to which this entry belongs.")]
   issuance_id: i32,
-  #[graphql(description = "number identifying an entry")]
+  #[graphql(description = "Number that identifies this entry.")]
   entry_id: Option<i32>,
-  #[graphql(description = "the signature of the user's Bitcoin wallet that signs this entry")]
+  #[graphql(description = "Signature applied to the referenced entry.")]
   signature: Option<String>,
 }
-
 
 impl SigningIteratorInput {
   pub async fn sign(self, context: &Context) -> FieldResult<Option<Entry>> {
@@ -134,7 +133,7 @@ impl SigningIteratorInput {
       _ => None,
     };
     
-    let db_entry = context.site.request()
+    let Some(next_entry) = context.site.request()
       .select()
       .id_eq(&self.issuance_id)
       .org_id_eq(context.org_id())
@@ -142,13 +141,9 @@ impl SigningIteratorInput {
       .await?
       .in_created()?
       .signing_iterator(db_data)
-      .await?;
+      .await?
+      else { return Ok(None) };
       
-    let next_entry = match db_entry {
-      Some(e) => Some(Entry::db_to_graphql(e, true).await?),
-      None => None,
-    };
-      
-    Ok(next_entry)
+    Ok(Some(Entry::db_to_graphql(next_entry, true).await?))
   }
 }

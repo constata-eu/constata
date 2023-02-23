@@ -1,22 +1,21 @@
 use super::*;
 
 #[derive(GraphQLObject)]
-#[graphql(description = "The template gives us a basis for creating an Issuance")]
+#[graphql(description = "A template that serves as a foundation for creating each Issuance Entry.")]
 pub struct Template {
-  #[graphql(description = "number identifying this template")]
+  #[graphql(description = "An identifier for this template")]
   id: i32,
-  #[graphql(description = "name of this template")]
+  #[graphql(description = "The name of this template")]
   name: String,
-  #[graphql(description = "kinds can be 'Diploma', 'Attendance' or 'Invitation'")]
+  #[graphql(description = "The type of issuance that can be created from this template. Possible values are 'Diploma', 'Attendance', or 'Badge'.")]
   kind: TemplateKind,
-  #[graphql(description = "date in which this template was created")]
+  #[graphql(description = "The date when this template was created")]
   created_at: UtcDateTime,
-  #[graphql(description = "schema used to build the entry")]
+  #[graphql(description = "The schema used to build the issuance entry")]
   schema: String,
-  #[graphql(description = "a custom message the user can add to the email to be sent to the student once the entry is certified")]
+  #[graphql(description = "A personalized message that the user can add to the email sent to the student when the entry is certified")]
   custom_message: Option<String>,
 }
-
 
 #[derive(Clone, GraphQLInputObject, Debug)]
 pub struct TemplateFilter {
@@ -24,7 +23,6 @@ pub struct TemplateFilter {
   id_eq: Option<i32>,
   name_like: Option<String>,
 }
-
 
 #[rocket::async_trait]
 impl Showable<template::Template, TemplateFilter> for Template {

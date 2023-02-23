@@ -1,9 +1,9 @@
 use super::*;
 
 #[derive(GraphQLObject)]
-#[graphql(description = "It's a manifest of all endorsement a user has")]
+#[graphql(description = "A Person may have many endorsements from Constata, such as their identity, owning an email account, or being the manager of a website. This manifest gathers all those endorsements. You can only query your own manifest for now.")]
 pub struct EndorsementManifest {
-  #[graphql(description = "is always number 1")]
+  #[graphql(description = "You'll always get number 1.")]
   pub id: i32,
   #[graphql(description = "the final text to be used as the user endorsements, if any")]
   pub text: Option<String>,
@@ -20,53 +20,49 @@ pub struct EndorsementManifest {
 }
 
 #[derive(GraphQLObject)]
-#[graphql(description = "Retrieve information about user's registered telegram account, if any")]
+#[graphql(description = "Your telegram account as verified by Constata's telegram robot.")]
 pub struct TelegramEndorsementManifest {
-  #[graphql(description = "username used in the user's telegram account, if any")]
   username: Option<String>,
-  #[graphql(description = "first name of the user used in the telegram account")]
   first_name: String,
-  #[graphql(description = "last name of the user used in the telegram account, if any")]
   last_name: Option<String>,
 }
 
 #[derive(GraphQLObject)]
-#[graphql(description = "Retrieve information about user's registered email address, if any")]
+#[graphql(description = "Your email account, as verified by Constata's email robot.")]
 pub struct EmailEndorsementManifest {
-  #[graphql(description = "email registered by the user")]
   pub address: String,
-  #[graphql(description = "boolean pointing out whether the email was registered as private or public")]
+  #[graphql(description = "Whether you told us to use this email as part of your public endorsements or not.")]
   pub keep_private: bool,
 }
 
 #[derive(GraphQLObject)]
-#[graphql(description = "Retrieve information about user's kyc, if any")]
+#[graphql(description = "The personal and company details you sent Constata for verification and to include in all your signed certificates. Keep in mind all fields are optional, this data is protected by data protection laws such as GDPR. https://api.constata.eu/terms_acceptance/show/#privacy_policies ")]
 pub struct KycEndorsementManifest {
-  #[graphql(description = "name of the person")]
+  #[graphql(description = "Your first names")]
   name: Option<String>,
-  #[graphql(description = "last name of the person")]
+  #[graphql(description = "Your last names")]
   last_name: Option<String>,
-  #[graphql(description = "number that identify the person")]
+  #[graphql(description = "Government or otherwise officially issued ID number")]
   id_number: Option<String>,
-  #[graphql(description = "type of the person's id. Ej: DNI")]
+  #[graphql(description = "Type of the officially issued id. Ej: DNI")]
   id_type: Option<String>,
-  #[graphql(description = "date of birth")]
+  #[graphql(description = "Date of birth")]
   birthdate: Option<UtcDateTime>,
-  #[graphql(description = "country of birth")]
+  #[graphql(description = "Country of birth")]
   nationality: Option<String>,
-  #[graphql(description = "country in which the person currently lives")]
+  #[graphql(description = "Country you currently live in.")]
   country: Option<String>,
-  #[graphql(description = "position that the person occupies within the company")]
+  #[graphql(description = "Your role, title or position in your company, if any.")]
   job_title: Option<String>,
-  #[graphql(description = "name of the company")]
+  #[graphql(description = "Name of the company")]
   legal_entity_name: Option<String>,
-  #[graphql(description = "country in which the company has legal residence")]
+  #[graphql(description = "Country where the company is based on, or where it has its HQ.")]
   legal_entity_country: Option<String>,
-  #[graphql(description = "company registration number")]
+  #[graphql(description = "Company registration number in the required public registries, if any.")]
   legal_entity_registration: Option<String>,
-  #[graphql(description = "company tax identification")]
+  #[graphql(description = "Company tax identification number")]
   legal_entity_tax_id: Option<String>,
-  #[graphql(description = "date of last update")]
+  #[graphql(description = "Date of last update to this data.")]
   updated_at: UtcDateTime,
 }
 
