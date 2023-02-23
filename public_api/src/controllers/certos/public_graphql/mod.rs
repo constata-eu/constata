@@ -28,7 +28,6 @@ use constata_lib::{
     Org,
     PersonId,
     person::{self, Person},
-    story::{self, StoryOrderBy, SelectStory},
     pubkey::{self, PubkeyOrderBy, SelectPubkey},
     account_state,
     Previewer,
@@ -49,7 +48,6 @@ use juniper_rocket::{graphiql_source, GraphQLRequest, GraphQLResponse};
 pub mod template_graphql;
 pub mod issuance_graphql;
 pub mod entry_graphql;
-pub mod story_graphql;
 pub mod account_state_graphql;
 pub mod endorsement_manifest_graphql;
 pub mod wizard_graphql;
@@ -64,7 +62,6 @@ pub mod attestation_graphql;
 pub use template_graphql::{Template, TemplateFilter};
 pub use issuance_graphql::{Issuance, IssuanceFilter, IssuanceExport};
 pub use entry_graphql::{Entry, EntryFilter, SigningIteratorInput};
-pub use story_graphql::{Story, StoryFilter};
 pub use account_state_graphql::AccountState;
 pub use endorsement_manifest_graphql::*;
 pub use wizard_graphql::{WizardInput, Preview};

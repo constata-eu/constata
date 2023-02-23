@@ -1,13 +1,11 @@
 use super::*;
 
 #[derive(GraphQLObject)]
-#[graphql(description = "The public key of a person is used to sign http requests and send it trought 'Access-Token' header")]
+#[graphql(description = "The public key of a Person is used to sign certificates created through Issuances and Attestations. It's also used to authenticate to this API.")]
 pub struct Pubkey {
-  #[graphql(description = "number identifying the public key")]
+  #[graphql(description = "Unique ID of the pubkey, corresponds to a mainnet bitcoin address.")]
   id: String,
-  #[graphql(description = "id of the person to whom this public key corresponds")]
   person_id: i32,
-  #[graphql(description = "id of the organization to whom this person belongs")]
   org_id: i32,
 }
 

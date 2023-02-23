@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use models::{email_address, outgoing_email_message_kind::*};
 
 #[derive(Clone, GraphQLInputObject, Serialize, Deserialize)]
-#[graphql(description = "This object allows the user to register a new email address or change it's visibility")]
+#[graphql(description = "Input data object to register a new email address or change the visibility of a current one. ")]
 #[serde(rename_all = "camelCase")]
 pub struct EmailAddressInput {
   #[graphql(description = "email to be registered by the person")]
@@ -22,24 +22,24 @@ impl EmailAddressInput {
 }
 
 #[derive(GraphQLObject)]
-#[graphql(description = "This object retrieves the id of the verified email address ")]
+#[graphql(description = "This resource is used by Constata's frontend when you attempt to verify your email address following a link we send to your email.")]
 pub struct EmailAddressVerification {
-  #[graphql(description = "number identifying the email address that was verified")]
+  #[graphql(description = "Unique id of the email address that was verified")]
   pub id: i32,
 }
 
 #[derive(GraphQLObject)]
-#[graphql(description = "This object show the email address information")]
+#[graphql(description = "This object show an email address information")]
 pub struct EmailAddress {
   #[graphql(description = "number identifying this email address")]
   id: i32,
-  #[graphql(description = "id of the person to whom this email address belongs")]
+  #[graphql(description = "Id of the Person ownining this address")]
   person_id: i32,
-  #[graphql(description = "address of the person to whom this email address belongs")]
+  #[graphql(description = "The actual email address.")]
   address: String,
-  #[graphql(description = "date the email was verified if it was verified")]
+  #[graphql(description = "Date when the email was verified, if verified.")]
   verified_at: Option<UtcDateTime>,
-  #[graphql(description = "boolean pointing out whether the email is private or public")]
+  #[graphql(description = "Whether constata should also make this address part of the person's public signature information")]
   keep_private: bool,
 }
 

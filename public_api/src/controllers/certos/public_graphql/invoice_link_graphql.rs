@@ -5,13 +5,13 @@ use models::{
 };
 
 #[derive(Clone, GraphQLInputObject, Serialize, Deserialize)]
-#[graphql(description = "This object allows as to create a new invoice")]
+#[graphql(description = "This object is used by our frontend when a customer receives a link to create an invoice to purchase tokens.")]
 #[serde(rename_all = "camelCase")]
 pub struct InvoiceLinkInput {
-  #[graphql(description = "can be 'Bitcoin' or 'Stripe'")]
-  pub payment_method: String,
-  #[graphql(description = "amount of token to buy")]
-  pub tokens: i32,
+    #[graphql(description = "The payment method to use for this invoice ('Bitcoin' or 'Stripe').")]
+    pub payment_method: String,
+    #[graphql(description = "The number of tokens to purchase with this invoice.")]
+    pub tokens: i32,
 }
 
 impl InvoiceLinkInput {
@@ -35,15 +35,15 @@ impl InvoiceLinkInput {
 }
 
 #[derive(GraphQLObject)]
-#[graphql(description = "This object shows all information related to an invoice link")]
+#[graphql(description = "This object represents the link received by a user when requested to choose a payment method to buy tokens.")]
 pub struct InvoiceLink {
-  #[graphql(description = "number identifying an invoice link")]
+  #[graphql(description = "Number identifying an invoice link.")]
   pub id: i32,
-  #[graphql(description = "minimum amount of token suggested to the user to buy taking into account missing tokens")]
+  #[graphql(description = "Minimum suggested amount of tokens for the user to buy, taking into account missing tokens.")]
   pub minimum_suggested: i32,
-  #[graphql(description = "price per token the user is going to pay")]
+  #[graphql(description = "Price per token that the user is going to pay.")]
   pub price_per_token: i32,
-  #[graphql(description = "url of the invoice created with this invoice link if there is any")]
+  #[graphql(description = "URL of the invoice created with this invoice link, if any.")]
   pub invoice_url: Option<String>,
 }
 

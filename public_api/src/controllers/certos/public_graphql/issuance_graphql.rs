@@ -1,36 +1,36 @@
 use super::*;
 
 #[derive(GraphQLObject)]
-#[graphql(description = "An Issuance has many entries, which goes for certification once the user signs the issuance")]
+#[graphql(description = "Represents a batch generation and certification of diplomas, proofs of attendance, and badges from a template. Can be done through our Wizard from a CSV file, or incrementally using this API.")]
 pub struct Issuance {
-  #[graphql(description = "number identifying the issuance")]
-  id: i32,
-  #[graphql(description = "id of the template linked to this issuance")]
-  template_id: i32,
-  #[graphql(description = "name of the template linked to this issuance")]
-  template_name: String,
-  #[graphql(description = "the kinds can be 'Diploma', 'Attendance' or 'Invitation")]
-  template_kind: TemplateKind,
-  #[graphql(description = "the states can be 'received', 'created', 'signed', 'completed' or 'failed'")]
-  state: String,
-  #[graphql(description = "the name of the issuance")]
-  name: String,
-  #[graphql(description = "date in which this issuance was created")]
-  created_at: UtcDateTime,
-  #[graphql(description = "errors that happened in the process of the issuance, if any")]
-  errors: Option<String>,
-  #[graphql(description = "amount of tokens that the user must buy to certify this issuance")]
-  tokens_needed: Option<i32>,
-  #[graphql(description = "entries that belong to this issuance")]
-  entries: Vec<Entry>,
+    #[graphql(description = "Unique identifier for the issuance.")]
+    id: i32,
+    #[graphql(description = "Identifier of the template linked to this issuance.")]
+    template_id: i32,
+    #[graphql(description = "Name of the template linked to this issuance.")]
+    template_name: String,
+    #[graphql(description = "The kind of template, which can be 'Diploma', 'Attendance', or 'Invitation'.")]
+    template_kind: TemplateKind,
+    #[graphql(description = "The state of the issuance, which can be 'received': The recipients data has been received, and we're in the process of generating each recipients document; 'created': Individual entries have been generated from the selected template, using each recipient's data. At this point you can still add more recipients which will rewind the state to 'received'; 'signed': You have signed the entries, no further entries can be added. Documents will be certified and notified within 2 hours; 'completed': All entries have been certified and notified; 'failed': An error ocurred in the creation process, and the whole issuance has been aborted. Look at the errors field for more details.")]
+    state: String,
+    #[graphql(description = "The name of the issuance.")]
+    name: String,
+    #[graphql(description = "The date on which this issuance was created.")]
+    created_at: UtcDateTime,
+    #[graphql(description = "Errors that happened in the process of the issuance, if any. When an error occurs, the whole issuance is halted and no documents are certified.")]
+    errors: Option<String>,
+    #[graphql(description = "Amount of tokens that the user must buy to certify this issuance.")]
+    tokens_needed: Option<i32>,
+    #[graphql(description = "Entries that belong to this issuance.")]
+    entries: Vec<Entry>,
 }
 
 #[derive(GraphQLObject)]
-#[graphql(description = "This object allows us to export the issuance information as a csv file")]
+#[graphql(description = "An issuance exported as a CSV file. All rows preserve the order of the original CSV file, or the order in which the entries were added through the API. New columns are added with details about each entry.")]
 pub struct IssuanceExport {
-  #[graphql(description = "number identifying the issuance")]
+  #[graphql(description = "Unique identifier of the issuance.")]
   pub id: i32,
-  #[graphql(description = "a csv export of the issuance")]
+  #[graphql(description = "The CSV plain text of the issuance.")]
   pub csv: String,
 }
 

@@ -2,36 +2,34 @@ use super::*;
 use serde::{Deserialize, Serialize};
 use models::wizard::{self, WizardTemplate, ImageOrText};
 
-
 #[derive(GraphQLObject)]
-#[graphql(description = "An html preview of an entry's contents")]
+#[graphql(description = "Represents an HTML preview of the contents of an entry.")]
 pub struct Preview{
-  #[graphql(description = "number identifying the entry")]
+  #[graphql(description = "The numerical identifier of the entry.")]
   pub id: i32,
-  #[graphql(description = "entry in html format")]
+  #[graphql(description = "The HTML formatted contents of the entry.")]
   pub html: String
 }
 
 #[derive(GraphQLInputObject, Serialize, Deserialize)]
-#[graphql(description = "This object allows us to create an Issuance from scratch with a new template or using one already created")]
+#[graphql(description = "Input object used to create an Issuance from scratch, either with a new template or an existing one.")]
 #[serde(rename_all = "camelCase")]
 pub struct WizardInput {
-  #[graphql(description = "csv file with which the entries will be created")]
+  #[graphql(description = "The CSV file to be used for creating the entries.")]
   csv: String,
-  #[graphql(description = "name of the issuance that will be created")]
+  #[graphql(description = "The name of the Issuance to be created.")]
   name: String,
-  #[graphql(description = "id of the template, if any")]
+  #[graphql(description = "The ID of an existing template to use, if any.")]
   template_id: Option<i32>,
-  #[graphql(description = "kind of template to be created if there is no template")]
+  #[graphql(description = "The kind of template to be created if no template is used.")]
   new_kind: Option<models::TemplateKind>,
-  #[graphql(description = "name of template to be created if there is no template")]
+  #[graphql(description = "The name of the new template to be created, if no template is used.")]
   new_name: Option<String>,
-  #[graphql(description = "text to be used as the template logo if there is no template")]
+  #[graphql(description = "The text to be used as the logo for the new template, if no template is used.")]
   new_logo_text: Option<String>,
-  #[graphql(description = "an image to be used as the template logo, insted of text")]
+  #[graphql(description = "The image to be used as the logo for the new template, if no template is used.")]
   new_logo_image: Option<String>,
 }
-
 
 impl WizardInput {
   pub async fn create_wizard(self, context: &Context) -> FieldResult<Issuance> {
