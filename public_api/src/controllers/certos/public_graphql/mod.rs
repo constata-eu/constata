@@ -92,17 +92,11 @@ pub async fn in_transaction(
 ) -> GraphQLResponse {
   let err = ||{ GraphQLResponse::error(field_error("unexpected_error_in_graphql","")) };
 
-  let tx= match site.person().transactional().await {
-    Ok(s) => s,
-    _ => return err(),
-  };
+  let Ok(tx) = site.person().transactional().await else { return err() };
 
   let site = tx.select().state;
 
-  let person = match site.person().find(non_tx_current_person.person.id()).await {
-    Ok(p) => p,
-    _ => return err(),
-  };
+  let Ok(person) = site.person().find(non_tx_current_person.person.id()).await else { return err() };
 
   let current_person = CurrentPerson{ person, ..non_tx_current_person };
 
