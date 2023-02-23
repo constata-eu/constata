@@ -62,11 +62,19 @@
         "evidence": "",
         "id": "ID",
         "name": "Nombre",
+        "archived": "¿Está archivado?",
         "nameLike": "Por nombre:",
         "payload": "Archivo"
       },
       "name": "Plantilla |||| Plantillas",
-      "admin_title": "Plantillas"
+      "admin_title": "Plantillas",
+      "archive": "Archivar",
+      "unarchive": "Desarchivar",
+      "archiveTitle": "¿Está seguro que quiere ARCHIVAR este template?",
+      "archiveContent": "Luego de archivarlo no podrá seleccionarlo al crear nuevas emisiones.",
+      "unarchiveTitle": "¿Está seguro que quiere DESARCHIVAR este template?",
+      "unarchiveContent": "Al desarchivarlo podrá volver a utilizarlo para crear emisiones.",
+      "errorUpdating": "Error al modificar el Template"
     },
     "SignUp": {
       "ConfirmPassStep": {
