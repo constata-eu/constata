@@ -9,6 +9,7 @@ pub struct Template {
   created_at: UtcDateTime,
   schema: String,
   custom_message: Option<String>,
+  archived: bool,
 }
 
 
@@ -17,6 +18,7 @@ pub struct TemplateFilter {
   ids: Option<Vec<i32>>,
   id_eq: Option<i32>,
   name_like: Option<String>,
+  archived_eq: Option<bool>,
 }
 
 
@@ -27,6 +29,7 @@ impl Showable<template::Template, TemplateFilter> for Template {
       "id" => Some(TemplateOrderBy::Id),
       "name" => Some(TemplateOrderBy::Name),
       "createdAt" => Some(TemplateOrderBy::CreatedAt),
+      "archived" => Some(TemplateOrderBy::Archived),
       _ => None,
     }
   }
@@ -37,6 +40,7 @@ impl Showable<template::Template, TemplateFilter> for Template {
       org_id_eq: Some(org_id),
       id_eq: f.id_eq,
       name_ilike: into_like_search(f.name_like),
+      archived_eq: f.archived_eq,
       deletion_id_is_set: Some(false),
       ..Default::default()
     }
@@ -54,6 +58,28 @@ impl Showable<template::Template, TemplateFilter> for Template {
       created_at: d.attrs.created_at,
       schema: d.attrs.schema,
       custom_message: d.attrs.custom_message,
+      archived: d.attrs.archived,
     })
+  }
+}
+
+#[derive(Clone, GraphQLInputObject, Serialize, Deserialize)]
+#[graphql(description = "A template input")]
+pub struct TemplateInput {
+  pub id: i32,
+  pub action: String,
+}
+
+
+impl TemplateInput {
+  pub async fn update_template(&self, context: &Context) -> FieldResult<Template> {
+    let mut template = context.site.template().find(&self.id).await?;
+    if self.action == "archive" {
+      template = template.update().archived(true).save().await?;
+    } else {
+      template = template.update().archived(false).save().await?;
+    }
+
+    Ok(Template::db_to_graphql(template, false).await?)
   }
 }

@@ -1,17 +1,22 @@
 import { List, SimpleList, Datagrid, TextField, ShowButton, FunctionField, ShowBase,
   SimpleShowLayout, useNotify, useTranslate, RichTextField,
-  useGetRecordId, WithRecord
+  useGetRecordId, WithRecord, BooleanField, useDataProvider, useGetOne
 } from 'react-admin';
 import {
   ListActionsWithoutCreate, PaginationDefault, downloadFile,
 } from '../components/utils';
-import { Box, Container, Card, Link, useMediaQuery } from '@mui/material';
+import { useSafeSetState } from 'ra-core';
+import { Box, Container, Card, Link, useMediaQuery, Button } from '@mui/material';
 import CardTitle from '../components/card_title';
 import ParsedDateTextField from "../components/parsed_date_textfield";
 import FilterTextInput from "../components/filter_textinput";
+import ArchiveTemplateAction from '../components/archive_template_action';
+
 
 function TemplateList(props) {
   const translate = useTranslate();
+  const notify = useNotify();
+  const dataProvider = useDataProvider();
   const isSmall = useMediaQuery((theme: any) => theme.breakpoints.down('sm'));
 
   const templateFilters = [
@@ -42,8 +47,16 @@ function TemplateList(props) {
               <Datagrid bulkActionButtons={false}>
                 <TextField source='id' />
                 <TextField source="name" />
+                <BooleanField source="archived" />
                 <ParsedDateTextField source="createdAt" />
                 <ShowButton />
+                <FunctionField render={record => {
+                  return <ArchiveTemplateAction
+                    templateId={record.id}
+                    templateArchived={record.archived}
+                    variant="primary"
+                  />
+                }}/>
               </Datagrid>
             }
         </List>
@@ -80,6 +93,7 @@ function TemplateShow(props){
               <FunctionField source="name"
                 render={record => { return `${record.id} - ${record.name}`; }}
               />
+              <BooleanField source="archived" />
               <ParsedDateTextField source="createdAt" />
               <RichTextField source='customMessage' />
               <FunctionField label="certos.template.evidence"
@@ -89,6 +103,14 @@ function TemplateShow(props){
                     </a>
                   }}
                 />
+              <FunctionField render={record => {
+                return <ArchiveTemplateAction
+                  templateId={record.id}
+                  templateArchived={record.archived}
+                  variant="outlined"
+                />
+              }}/>
+          
             </SimpleShowLayout>
           </Box>
         </Card>
