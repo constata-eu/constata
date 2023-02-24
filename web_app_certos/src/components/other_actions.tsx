@@ -8,6 +8,7 @@ const OtherActions = () => {
         <Box sx={{my: 2, mx: 3}}>
             <Button
                 href="#/Template"
+                id="templates"
             >
                 See all templates
             </Button>

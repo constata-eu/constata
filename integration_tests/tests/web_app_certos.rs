@@ -466,6 +466,47 @@ mod workroom {
       check_public_certificate(&d, &title, &format!("Invitation {raw_description}"), &image).await;
     }
 
+
+    integration_test!{ archive_and_unarchive_template (c, d)
+      signup_and_verify(&d, &c.site).await;
+      create_wizard(&d, &c.site, 2).await;
+      sign_wizard(&d).await;
+
+      d.click("a[href='#/']").await;
+      d.click("#templates").await;
+      archive_template(&d).await;
+      unarchive_template(&d).await;
+
+      d.click("#templates").await;
+      d.click("a[href='#/Template/1/show']").await;
+      archive_template(&d).await;
+      d.click("a[href='#/Template/1/show']").await;
+      unarchive_template(&d).await;
+    }
+
+    pub async fn archive_template(d: &Selenium) {
+      d.click("#archive-button").await;
+      d.wait_for_text(".MuiDialog-container h2", r"Are you sure you want to ARCHIVE this template?*").await;
+      d.click(".ra-confirm").await;
+      d.wait_for("#unarchive-button").await;
+      d.click("#dashboard-menu-item").await;
+      d.click("a[href='#/wizard']").await;
+      d.not_exists("#templateId").await;
+      d.click("#dashboard-menu-item").await;
+      d.click("#templates").await;
+    }
+
+    async fn unarchive_template(d: &Selenium) {
+      d.click("#unarchive-button").await;
+      d.wait_for_text(".MuiDialog-container h2", r"Are you sure you want to UNARCHIVE this template?*").await;
+      d.click(".ra-confirm").await;
+      d.wait_for("#archive-button").await;
+      d.click("#dashboard-menu-item").await;
+      d.click("a[href='#/wizard']").await;
+      d.wait_for("#templateId").await;
+      d.click("#dashboard-menu-item").await;
+    }
+
     pub async fn set_up_download_proof_link(alice: &SignerClient, chain: &mut TestBlockchain) -> Result<DownloadProofLink> {
       let story = alice.clone().add_funds().await.story_with_signed_doc(&read("document.zip"), None, "").await;
       let doc = &story.documents().await?[0];
