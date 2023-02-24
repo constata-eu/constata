@@ -1,12 +1,11 @@
 import { List, SimpleList, Datagrid, TextField, ShowButton, FunctionField, ShowBase,
   SimpleShowLayout, useNotify, useTranslate, RichTextField,
-  useGetRecordId, WithRecord, BooleanField, useDataProvider, useGetOne
+  useGetRecordId, WithRecord, BooleanField, useRefresh
 } from 'react-admin';
 import {
   ListActionsWithoutCreate, PaginationDefault, downloadFile,
 } from '../components/utils';
-import { useSafeSetState } from 'ra-core';
-import { Box, Container, Card, Link, useMediaQuery, Button } from '@mui/material';
+import { Box, Container, Card, Link, useMediaQuery } from '@mui/material';
 import CardTitle from '../components/card_title';
 import ParsedDateTextField from "../components/parsed_date_textfield";
 import FilterTextInput from "../components/filter_textinput";
@@ -15,9 +14,9 @@ import ArchiveTemplateAction from '../components/archive_template_action';
 
 function TemplateList(props) {
   const translate = useTranslate();
-  const notify = useNotify();
-  const dataProvider = useDataProvider();
+  const refresh = useRefresh();
   const isSmall = useMediaQuery((theme: any) => theme.breakpoints.down('sm'));
+
 
   const templateFilters = [
     <FilterTextInput source="nameLike" alwaysOn />,
@@ -37,7 +36,7 @@ function TemplateList(props) {
           perPage={20}
           pagination={<PaginationDefault />}
           actions={<ListActionsWithoutCreate />}
-          >
+        >
             { isSmall ?
               <SimpleList 
                 primaryText={record => `${record.id} - ${record.name}` }
@@ -54,7 +53,8 @@ function TemplateList(props) {
                   return <ArchiveTemplateAction
                     templateId={record.id}
                     templateArchived={record.archived}
-                    variant="primary"
+                    variant={"text"}
+                    refresh={refresh}
                   />
                 }}/>
               </Datagrid>
@@ -70,6 +70,7 @@ function TemplateShow(props){
   const templateId = useGetRecordId();
   const notify = useNotify();
   const translate = useTranslate();
+  const refresh = useRefresh();
 
   const handlePayload = async e => {
     e.preventDefault();
@@ -108,9 +109,9 @@ function TemplateShow(props){
                   templateId={record.id}
                   templateArchived={record.archived}
                   variant="outlined"
+                  refresh={refresh}
                 />
               }}/>
-          
             </SimpleShowLayout>
           </Box>
         </Card>

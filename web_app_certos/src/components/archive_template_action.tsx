@@ -5,7 +5,7 @@ import ArchiveIcon from '@mui/icons-material/Archive';
 import UnarchiveIcon from '@mui/icons-material/Unarchive';
 
 
-const ArchiveTemplateAction = ({templateId, templateArchived, variant}) => {
+const ArchiveTemplateAction = ({templateId, templateArchived, variant, refresh}) => {
   const dataProvider = useDataProvider();
   const translate = useTranslate();
   const notify = useNotify();
@@ -14,18 +14,19 @@ const ArchiveTemplateAction = ({templateId, templateArchived, variant}) => {
 
   const handleArchive = async (action: string) => {
     try {
-      const {data} = await dataProvider.update('Template', {
+      await dataProvider.update('Template', {
         id: templateId, data: {input: {id: templateId, action}}, previousData: {} 
       });
     } catch (e) {
       notify("resources.Template.errorUpdating", { type: 'error' });
     }
     setConfirmArchiveOpen(false);
+    refresh();
   }
 
   return <>
     <Button
-      id=""
+      id={templateArchived ? "unarchive-button" : "archive-button"}
       startIcon={templateArchived ? < UnarchiveIcon /> : <ArchiveIcon />}
       variant={variant}
       onClick={() => setConfirmArchiveOpen(true) }
