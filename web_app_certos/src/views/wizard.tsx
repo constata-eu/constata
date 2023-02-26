@@ -1,5 +1,4 @@
 import { useEffect, useRef} from 'react';
-import jschardet from 'jschardet';
 import {
     Alert, AlertTitle, LinearProgress, Typography, Box, Button, Divider, Card, CardContent,
     CardActions, IconButton, Dialog, DialogActions, DialogContent,
