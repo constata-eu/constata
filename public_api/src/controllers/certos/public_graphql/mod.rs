@@ -1,6 +1,5 @@
 use super::*;
 use crate::controllers::{
-  DocumentSource,
   Result as MyResult,
   Error,
   Result as ConstataResult,
@@ -322,7 +321,6 @@ make_graphql_query!{
     [Entry, allEntries, allEntriesMeta, "_allEntriesMeta", EntryFilter, i32],
     [Issuance, allIssuances, allIssuancesMeta, "_allIssuancesMeta", IssuanceFilter, i32],
     [Template, allTemplates, allTemplatesMeta, "_allTemplatesMeta", TemplateFilter, i32],
-    [Story, allStories, allStoriesMeta, "_allStoriesMeta", StoryFilter, i32],
     [Pubkey, allPubkeys, allPubkeysMeta, "_allPubkeysMeta", PubkeyFilter, String],
     [KycRequest, allKycRequests, allKycRequestsMeta, "_allKycRequestsMeta", KycRequestFilter, i32],
     [EmailAddress, allEmailAddresses, allEmailAddressesMeta, "_allEmailAddressesMeta", EmailAddressFilter, i32],

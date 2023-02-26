@@ -11,9 +11,9 @@ pub struct KycRequestInput {
   #[graphql(description = "boolean pointing out whether the email should be registered as private or could be public")]
   pub keep_private: bool,
   #[graphql(description = "Your first names")]
-  name: Option<String>,
+  name: String,
   #[graphql(description = "Your last names")]
-  last_name: Option<String>,
+  last_name: String,
   #[graphql(description = "Government or otherwise officially issued ID number")]
   id_number: Option<String>,
   #[graphql(description = "Type of the officially issued id. Ej: DNI")]

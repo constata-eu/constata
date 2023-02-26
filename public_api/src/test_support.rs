@@ -44,6 +44,21 @@ macro_rules! fulltest {
   };
 }
 
+/*
+#[cfg(test)]
+macro_rules! make_api_clients {
+  ($($types:queries)*) => {
+    test!{ $i
+      let $c = TestDb::new().await?;
+      let $site = $c.site.clone();
+      let $($client)+ = crate::test_support::PublicApiClient::new($c.alice().await).await;
+      let $($chain)+ = TestBlockchain::new().await;
+      $($e)*
+    }
+  };
+}
+*/
+
 pub struct PublicApiClient {
   pub client: Client,
   pub c: TestDb,
