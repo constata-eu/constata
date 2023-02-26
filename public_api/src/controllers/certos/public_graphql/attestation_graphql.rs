@@ -206,6 +206,19 @@ constata_lib::describe_one! {
     use chrono::prelude::*;
     use graphql_client::GraphQLQuery;
 
+    mod testing {
+      static foo: i32 = 33;
+      type DateTime = chrono::DateTime<chrono::Utc>;
+      #[derive(graphql_client::GraphQLQuery)]
+      #[graphql(
+          schema_path = "public_api_schema.graphql",
+          query_path = "public_api_queries.graphql",
+          response_derives = "Debug,Serialize,Deserialize",
+          normalization = "Normalization::Rust",
+      )]
+      pub struct CreateAttestation;
+    }
+
     #[derive(graphql_client::GraphQLQuery)]
     #[graphql(
         schema_path = "public_api_schema.graphql",

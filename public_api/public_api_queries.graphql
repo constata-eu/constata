@@ -15,7 +15,22 @@ mutation createWizard($input: WizardInput!) {
     createdAt
     errors
     tokensNeeded
-    entries
+    entries {
+      id
+      issuanceId
+      issuanceName
+      rowNumber
+      state
+      createdAt
+      params
+      errors
+      documentId
+      storyId
+      hasEmailCallback
+      emailCallbackSentAt
+      payload
+      __typename
+    }
     __typename
   }
 }
@@ -44,11 +59,11 @@ mutation createAttestation($input: AttestationInput!) {
     __typename
   }
 }
-mutation signingIterator($id: Int!, $entryId: Int, $signature: String) {
-  signingIterator(id: $id, entryId: $entryId, signature: $signature) {
+mutation signingIterator($input: SigningIteratorInput!) {
+  signingIterator(input: $input) {
     id
-    requestId
-    requestName
+    issuanceId
+    issuanceName
     rowNumber
     state
     createdAt
@@ -133,8 +148,8 @@ mutation createEmailAddressVerification {
     __typename
   }
 }
-mutation updateRequest($id: Int!) {
-  updateRequest(id: $id) {
+mutation updateIssuance($id: Int!) {
+  updateIssuance(id: $id) {
     id
     templateId
     templateName
@@ -144,15 +159,30 @@ mutation updateRequest($id: Int!) {
     createdAt
     errors
     tokensNeeded
-    entries
+    entries {
+      id
+      issuanceId
+      issuanceName
+      rowNumber
+      state
+      createdAt
+      params
+      errors
+      documentId
+      storyId
+      hasEmailCallback
+      emailCallbackSentAt
+      payload
+      __typename
+    }
     __typename
   }
 }
 query Entry($id: Int!) {
   Entry(id: $id) {
     id
-    requestId
-    requestName
+    issuanceId
+    issuanceName
     rowNumber
     state
     createdAt
@@ -169,8 +199,8 @@ query Entry($id: Int!) {
 query allEntries($page: Int, $perPage: Int, $sortField: String, $sortOrder: String, $filter: EntryFilter) {
   allEntries(page: $page, perPage: $perPage, sortField: $sortField, sortOrder: $sortOrder, filter: $filter) {
     id
-    requestId
-    requestName
+    issuanceId
+    issuanceName
     rowNumber
     state
     createdAt
@@ -190,8 +220,8 @@ query _allEntriesMeta($page: Int, $perPage: Int, $sortField: String, $sortOrder:
     __typename
   }
 }
-query Request($id: Int!) {
-  Request(id: $id) {
+query Issuance($id: Int!) {
+  Issuance(id: $id) {
     id
     templateId
     templateName
@@ -201,12 +231,27 @@ query Request($id: Int!) {
     createdAt
     errors
     tokensNeeded
-    entries
+    entries {
+      id
+      issuanceId
+      issuanceName
+      rowNumber
+      state
+      createdAt
+      params
+      errors
+      documentId
+      storyId
+      hasEmailCallback
+      emailCallbackSentAt
+      payload
+      __typename
+    }
     __typename
   }
 }
-query allRequests($page: Int, $perPage: Int, $sortField: String, $sortOrder: String, $filter: RequestFilter) {
-  allRequests(page: $page, perPage: $perPage, sortField: $sortField, sortOrder: $sortOrder, filter: $filter) {
+query allIssuances($page: Int, $perPage: Int, $sortField: String, $sortOrder: String, $filter: IssuanceFilter) {
+  allIssuances(page: $page, perPage: $perPage, sortField: $sortField, sortOrder: $sortOrder, filter: $filter) {
     id
     templateId
     templateName
@@ -216,12 +261,27 @@ query allRequests($page: Int, $perPage: Int, $sortField: String, $sortOrder: Str
     createdAt
     errors
     tokensNeeded
-    entries
+    entries {
+      id
+      issuanceId
+      issuanceName
+      rowNumber
+      state
+      createdAt
+      params
+      errors
+      documentId
+      storyId
+      hasEmailCallback
+      emailCallbackSentAt
+      payload
+      __typename
+    }
     __typename
   }
 }
-query _allRequestsMeta($page: Int, $perPage: Int, $sortField: String, $sortOrder: String, $filter: RequestFilter) {
-  _allRequestsMeta(page: $page, perPage: $perPage, sortField: $sortField, sortOrder: $sortOrder, filter: $filter) {
+query _allIssuancesMeta($page: Int, $perPage: Int, $sortField: String, $sortOrder: String, $filter: IssuanceFilter) {
+  _allIssuancesMeta(page: $page, perPage: $perPage, sortField: $sortField, sortOrder: $sortOrder, filter: $filter) {
     count
     __typename
   }
@@ -250,46 +310,6 @@ query allTemplates($page: Int, $perPage: Int, $sortField: String, $sortOrder: St
 }
 query _allTemplatesMeta($page: Int, $perPage: Int, $sortField: String, $sortOrder: String, $filter: TemplateFilter) {
   _allTemplatesMeta(page: $page, perPage: $perPage, sortField: $sortField, sortOrder: $sortOrder, filter: $filter) {
-    count
-    __typename
-  }
-}
-query Story($id: Int!) {
-  Story(id: $id) {
-    id
-    orgId
-    openUntil
-    privateMarkers
-    source
-    requestId
-    requestName
-    totalDocumentsCount
-    publishedDocumentsCount
-    hasAccepted
-    isTermsAccepted
-    downloadProofLink
-    __typename
-  }
-}
-query allStories($page: Int, $perPage: Int, $sortField: String, $sortOrder: String, $filter: StoryFilter) {
-  allStories(page: $page, perPage: $perPage, sortField: $sortField, sortOrder: $sortOrder, filter: $filter) {
-    id
-    orgId
-    openUntil
-    privateMarkers
-    source
-    requestId
-    requestName
-    totalDocumentsCount
-    publishedDocumentsCount
-    hasAccepted
-    isTermsAccepted
-    downloadProofLink
-    __typename
-  }
-}
-query _allStoriesMeta($page: Int, $perPage: Int, $sortField: String, $sortOrder: String, $filter: StoryFilter) {
-  _allStoriesMeta(page: $page, perPage: $perPage, sortField: $sortField, sortOrder: $sortOrder, filter: $filter) {
     count
     __typename
   }
@@ -464,6 +484,13 @@ query AccountState($id: Int!) {
     maxMonthlyGift
     monthlyGiftRemainder
     parkedCount
+    invoices {
+      amount
+      tokens
+      description
+      url
+      __typename
+    }
     pendingTycUrl
     pendingInvoiceLinkUrl
     __typename
@@ -474,6 +501,33 @@ query EndorsementManifest($id: Int!) {
     id
     text
     websites
+    kyc {
+      name
+      lastName
+      idNumber
+      idType
+      birthdate
+      nationality
+      country
+      jobTitle
+      legalEntityName
+      legalEntityCountry
+      legalEntityRegistration
+      legalEntityTaxId
+      updatedAt
+      __typename
+    }
+    telegram {
+      username
+      firstName
+      lastName
+      __typename
+    }
+    email {
+      address
+      keepPrivate
+      __typename
+    }
     canSendEmail
     __typename
   }
