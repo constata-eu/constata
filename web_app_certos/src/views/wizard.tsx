@@ -311,7 +311,14 @@ const Recipients = (props) => {
   };
 
   const handleFileUpload = async (event) => {
-    const text = await event.target.files[0].text();
+    const buffer = await event.target.files[0].arrayBuffer();
+    let text;
+    try {
+      text = new TextDecoder("utf-8", { fatal: true }).decode(buffer);
+    } catch(e) {
+      text = new TextDecoder("latin1").decode(buffer);
+    }
+
     const rows = await csv({delimiter: [",", ";"]}).fromString(text);
     let errors = [];
 
