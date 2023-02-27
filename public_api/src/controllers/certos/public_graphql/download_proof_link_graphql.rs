@@ -29,14 +29,7 @@ impl DownloadProofLink {
   pub async fn from_db(db_download_proof_link: &download_proof_link::DownloadProofLink, l: &i18n::Lang) -> FieldResult<DownloadProofLink> {
     let document = db_download_proof_link.document().await?;
     let pending_docs = document.story().await?.pending_docs().await?;
-    let legal_entity_linkedin_id = match document.org().await?.admin().await?.kyc_endorsement_scope().optional().await? {
-      Some(kyc) => kyc.attrs.legal_entity_linkedin_id,
-      None => None,
-    };
-    let entry_title = match document.entry_scope().optional().await? {
-      Some(entry) => entry.title().await?,
-      None => None,
-    };
+    let entry_title = if let Some(entry) = document.entry_scope().optional().await? { entry.title().await? } else { None };
 
     Ok(DownloadProofLink{
       id: db_download_proof_link.attrs.id,
@@ -48,7 +41,7 @@ impl DownloadProofLink {
       share_on_social_networks_call_to_action: db_download_proof_link.share_on_social_networks_call_to_action(l).await?,
       document_funded_at: document.attrs.funded_at,
       entry_title,
-      legal_entity_linkedin_id,
+      legal_entity_linkedin_id: document.org().await?.admin().await?.kyc_endorsement_scope().optional().await?.and_then(|x| x.attrs.legal_entity_linkedin_id),
     })
   }
 

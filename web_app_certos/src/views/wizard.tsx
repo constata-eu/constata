@@ -793,7 +793,6 @@ const NoTokensNeeded = ({hasEmails, templateKind, entries}) => {
 
 const TokensNeeded = ({hasEmails, templateKind, entries, pendingInvoiceLinkUrl}) => {
   const translate = useTranslate();
-  const navigate = useNavigate();
   return (<Box id="tokens_needed_container">
     <Card sx={{mb: 5}}>
       <CardTitle text="certos.wizard.done.title_need_token" color="success"/>
