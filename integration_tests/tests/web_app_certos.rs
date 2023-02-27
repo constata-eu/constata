@@ -293,17 +293,18 @@ mod workroom {
       signup_and_verify(&d, &c.site).await;
       let files = vec![
         ("default_certos_recipients.csv", r"Arte con plastilina*"),
-        ("default_certos_recipients_special.csv", r"Arte con plastilina,*"),
+        ("default_certos_recipients_special.csv", r"Arte con plastiliña,*"),
+        ("certos_recipients_windows.csv", r"Arte con plastiliña,*"),
         ("certos_recipients_semicolon.csv", r"Arte con plastilina*"),
-        ("certos_recipients_semicolon_special.csv", r"Arte con plastilina;*")
+        ("certos_recipients_semicolon_special.csv", r"Arte con plastiliña;*")
       ];
-      for (file, motive) in files {
+      for (i, (file, motive)) in files.iter().enumerate() {
         create_template(&d).await;
         let csv = format!("{}/tests/resources/{}", env::current_dir().unwrap().display(), &file);
         add_recipients_with_csv(&d, &c.site, &csv).await;
         sign_wizard(&d).await;
         d.click("a[href='#/']").await;
-        d.click("#request-section-signed a[href='#/Request/1/show']").await;
+        d.click(&format!("#request-section-signed a[href='#/Request/{}/show']", i + 1)).await;
         d.wait_for_text("#review-entries-big > tbody > tr:nth-child(1) .column-params pre > span:nth-child(2)", r"3 de marzo de 1999*").await;
         d.wait_for_text("#review-entries-big > tbody > tr:nth-child(1) .column-params pre > span:nth-child(4)", motive).await;
         d.click("#dashboard-menu-item").await;
@@ -517,7 +518,6 @@ mod workroom {
     }
     async fn add_recipients_with_csv(d: &Selenium, site: &Site, csv: &str) {
       d.fill_in("input[type='file']", &csv).await;
-      d.wait_for_text("p", "Stan Marsh").await;
       d.click("#continue").await;
       d.wait_for("span[role='progressbar']").await;
 
