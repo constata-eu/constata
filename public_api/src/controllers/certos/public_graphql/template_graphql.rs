@@ -73,12 +73,9 @@ pub struct TemplateInput {
 
 impl TemplateInput {
   pub async fn update_template(&self, context: &Context) -> FieldResult<Template> {
-    let mut template = context.site.template().find(&self.id).await?;
-    if self.action == "archive" {
-      template = template.update().archived(true).save().await?;
-    } else {
-      template = template.update().archived(false).save().await?;
-    }
+    let template = context.site.template()
+      .select().id_eq(&self.id).org_id_eq(context.org_id()).one().await?
+      .update().archived(self.action == "archive").save().await?;
 
     Ok(Template::db_to_graphql(template, false).await?)
   }
