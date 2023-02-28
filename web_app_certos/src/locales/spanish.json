@@ -312,6 +312,7 @@
         "legalEntityName": "Nombre de su organización",
         "legalEntityRegistration": "Número de registro de la organización",
         "legalEntityTaxId": "Identificador fiscal de la organización",
+        "legalEntityLinkedinId": "Identificador de la organización en Linkedin",
         "name": "Nombres",
         "nationality": "País de nacimiento"
       },
@@ -329,6 +330,7 @@
         "legalEntityName": "Empresa, ONG o institución estatal.",
         "legalEntityRegistration": "Número de registro comercial, licencia, etc.",
         "legalEntityTaxId": "",
+        "legalEntityLinkedinId": "",
         "name": "",
         "nationality": ""
       },
@@ -467,7 +469,8 @@
         "title": "Publicar y compartir.",
         "text": "Puedes compartir un link a este certificado en tus redes sociales. Para que puedas hacerlo, tenemos que dejarlo públicamente accesible en nuestra web. Si cambias de opinión, podrás des-publicarlo luego.",
         "linkedin": "Compartir en Linkedin",
-        "twitter": "Compartir en Twitter"
+        "twitter": "Compartir en Twitter",
+        "add_certificate_to_linkedin": "Agregar Certificado a Linkedin"
       },
       "delete": {
         "title": "Acceso administrativo",
