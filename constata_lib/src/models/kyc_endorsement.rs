@@ -43,6 +43,8 @@ model!{
     legal_entity_registration: Option<String>,
     #[sqlx_model_hints(varchar)]
     legal_entity_tax_id: Option<String>,
+    #[sqlx_model_hints(varchar)]
+    legal_entity_linkedin_id: Option<String>,
     #[sqlx_model_hints(int4, default)]
     deletion_id: Option<i32>,
   },
