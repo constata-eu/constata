@@ -11,7 +11,7 @@ import IframeCertificate from '../components/iframe';
 import Loading from './loading'
 import ConstataSkeleton from '../components/skeleton';
 import { parseDate } from '../components/utils';
-import { ShareToLinkedin, ShareToTwitter } from '../components/share_to_social_media';
+import { ShareToLinkedin, ShareToTwitter, ShareCertificateInLinkedin } from '../components/share_to_social_media';
 import LinkIcon from '@mui/icons-material/Link';
 import LaunchIcon from '@mui/icons-material/Launch';
 import { StopCircle } from '@mui/icons-material';
@@ -168,6 +168,12 @@ const Share = ({downloadProofLink, handleChangePublicCertificateState}) => {
     <CardContent >
       {downloadProofLink.publicCertificateIsActive ?
         <Box>
+          <ShareCertificateInLinkedin 
+            entryTitle={downloadProofLink.entryTitle}
+            linkedinId={downloadProofLink.legalEntityLinkedinId}
+            expeditionDate={downloadProofLink.documentFundedAt}
+            url={downloadProofLink.publicCertificateUrl}
+           />
           <ShareToLinkedin
             url={downloadProofLink.publicCertificateUrl}
             text={downloadProofLink.shareOnSocialNetworksCallToAction}

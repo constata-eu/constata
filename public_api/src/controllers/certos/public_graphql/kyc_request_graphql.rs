@@ -20,6 +20,7 @@ pub struct KycRequestInput {
   pub legal_entity_country: Option<String>,
   pub legal_entity_registration: Option<String>,
   pub legal_entity_tax_id: Option<String>,
+  pub legal_entity_linkedin_id: Option<String>,
   pub evidence: Vec<KycRequestEvidenceInput>,
 }
 
@@ -53,6 +54,7 @@ impl KycRequestInput {
       legal_entity_country: self.legal_entity_country,
       legal_entity_registration: self.legal_entity_registration,
       legal_entity_tax_id: self.legal_entity_tax_id,
+      legal_entity_linkedin_id: self.legal_entity_linkedin_id,
     }).validate_and_save().await?;
 
     for e in &self.evidence {
