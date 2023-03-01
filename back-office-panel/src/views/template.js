@@ -2,7 +2,7 @@ import React from "react";
 import { List, Datagrid, TextField, ShowButton, Show, SimpleShowLayout, ReferenceField,
          FileField, Create, useRedirect, useNotify, useDataProvider, SimpleForm, TextInput,
          Edit, EditButton, required, FileInput, useTranslate, BooleanInput, useSafeSetState,
-         Form, FunctionField } from 'react-admin';
+         Form, FunctionField, BooleanField } from 'react-admin';
 import { DialogTitle, DialogContent, DialogActions, Dialog, Box, Button } from '@mui/material';
 import { PostPagination, defaultSort, convertBase64 } from "../components/utils";
 import {TopToolbarDefault} from "../components/top_toolbars";
@@ -47,6 +47,7 @@ const TemplateGrid = <Datagrid bulkActionButtons={false}>
   </ReferenceField>
   <TextField source='name'/>
   <TextField source='kind'/>
+  <BooleanField source='archived'/>
   <ShowButton />
   <EditButton />
 </Datagrid>
@@ -70,6 +71,7 @@ function TemplateShow() {
         />
         <TextField source='customMessage'/>
         <TextField source='ogTitleOverride' />
+        <BooleanField source='archived'/>
       </SimpleShowLayout>
     </Show>
   );
@@ -265,6 +267,7 @@ const TemplateEdit = () => {
           <TextInput source='name' autoComplete="off" validate={required()} />
           <TextInput source='customMessage' autoComplete="off" validate={required()} />
           <TextInput source='ogTitleOverride' autoComplete="off" />
+          <BooleanInput source='archived' />
         </Box>
         <TextInput source='schema' multiline fullWidth validate={validateJson}
           onChange={(e) => {

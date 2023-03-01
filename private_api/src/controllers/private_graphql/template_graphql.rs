@@ -12,6 +12,7 @@ pub struct Template {
   schema: String,
   custom_message: Option<String>,
   og_title_override: Option<String>,
+  archived: bool,
 }
 
 
@@ -36,6 +37,7 @@ impl Showable<template::Template, TemplateFilter> for Template {
       "name" => Some(TemplateOrderBy::Name),
       "kind" => Some(TemplateOrderBy::Kind),
       "createdAt" => Some(TemplateOrderBy::CreatedAt),
+      "archived" => Some(TemplateOrderBy::Archived),
       _ => None,
     }
   }
@@ -72,6 +74,7 @@ impl Showable<template::Template, TemplateFilter> for Template {
       created_at: d.attrs.created_at,
       custom_message: d.attrs.custom_message,
       og_title_override: d.attrs.og_title_override,
+      archived: d.attrs.archived,
     })
   }
 }
@@ -118,6 +121,7 @@ impl Template {
     schema: Option<String>,
     custom_message: Option<String>,
     og_title_override: Option<String>,
+    archived: bool,
   ) -> FieldResult<Template> {
 
     let kind_enum = match kind.as_ref() {
@@ -132,6 +136,7 @@ impl Template {
       .schema(schema.unwrap_or(serde_json::to_string(&kind_enum.default_schema())?))
       .custom_message(custom_message)
       .og_title_override(og_title_override)
+      .archived(archived)
       .save().await?;
       
     Ok(Template::db_to_graphql(db_template).await?)

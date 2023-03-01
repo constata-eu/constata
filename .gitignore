@@ -8,8 +8,8 @@ target/.rustc_info.json
 target/artifacts/*
 telegram_bot/target
 constata_lib/target
-private_api/target
 public_api/target
+private_api/target
 integration_tests/target
 *.swp
 *.swo
