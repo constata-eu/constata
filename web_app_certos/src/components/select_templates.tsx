@@ -20,7 +20,7 @@ const SelectTemplates = ({source, validate, alwaysOn}: SelectTemplatesInterface)
       let {data} = await dataProvider.getList('Template', {
         pagination: { page: 1, perPage: 200 },
         sort: {field: 'id', order: 'ASC'},
-        filter: {},
+        filter: { archivedEq: false },
       });
       let list = data.map(template => {return { id: template.id, name: `${template.id} - ${template.name}` }});
       setChoices(list);

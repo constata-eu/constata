@@ -557,7 +557,7 @@ const CreateRequest = ({canSendEmail, setCreatedRequest}) => {
         let {total} = await dataProvider.getList('Template', {
           pagination: { page: 1, perPage: 1 },
           sort: null,
-          filter: {},
+          filter: { archivedEq: false },
         });
         setWizardState((s) => ({...s, ...{hasTemplates: total > 0}}));
       } catch(e) {
