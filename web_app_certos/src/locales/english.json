@@ -128,6 +128,7 @@
 				"legalEntityName": "Legal entity's name",
 				"legalEntityRegistration": "Legal entity's registration number",
 				"legalEntityTaxId": "Legal entity's tax id",
+				"legalEntityLinkedinId": "Legal entity's Linkedin id",
 				"name": "Names",
 				"nationality": "Nationality"
 			},
@@ -145,6 +146,7 @@
 				"legalEntityName": "Company, NGO, or government organization.",
 				"legalEntityRegistration": "Business registry number, license, etc.",
 				"legalEntityTaxId": "",
+				"legalEntityLinkedinId": "",
 				"name": "",
 				"nationality": ""
 			},
@@ -284,7 +286,8 @@
         "title": "Publish and share.",
         "text": "You can share a link to this certificate on your social networks. In order to do that, we have to keep it publicly available on our website. If you change your mind, you can unpublish it later.",
         "linkedin": "Share on Linkedin",
-        "twitter": "Share on Twitter"
+        "twitter": "Share on Twitter",
+        "add_certificate_to_linkedin": "Add Certificate to Linkedin"
       },
       "delete": {
         "title": "Admin Access",
@@ -751,12 +754,20 @@
 				"customMessage": "custom message",
 				"evidence": "",
 				"id": "ID",
-				"name": "name",
+				"name": "Name",
+        "archived": "Is archived?",
 				"nameLike": "By name:",
 				"payload": "File"
 			},
 			"name": "Template |||| Templates",
-      "admin_title": "Templates"
+      "admin_title": "Templates",
+      "archive": "Archive",
+      "unarchive": "Unarchive",
+      "archiveTitle": "Are you sure you want to ARCHIVE this template?",
+      "archiveContent": "After you archive this template you wont be able to select it when creating an issuance",
+      "unarchiveTitle": "Are you sure you want to UNARCHIVE this template?",
+      "unarchiveContent": "After disarchive this template you will be able to use it when creating an issuance",
+      "errorUpdating": "Error modifying Template"
 		}
 	}
 }

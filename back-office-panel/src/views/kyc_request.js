@@ -133,6 +133,7 @@ function KycRequestShow(){
         <TextField source='legalEntityCountry' />
         <TextField source='legalEntityRegistration' />
         <TextField source='legalEntityTaxId' />
+        <TextField source='legalEntityLinkedinId' />
         <Button
           onClick={downloadKycRequestEvidence}
           label='resources.KycRequest.fields.downloadEvidence'>
@@ -270,6 +271,7 @@ const KycRequestEdit = () => {
           <KycBooleanInput source="legalEntityCountry" />
           <KycBooleanInput source="legalEntityRegistration" />
           <KycBooleanInput source="legalEntityTaxId" />
+          <KycBooleanInput source="legalEntityLinkedinId" />
 
 
           <Divider variant="middle" />
