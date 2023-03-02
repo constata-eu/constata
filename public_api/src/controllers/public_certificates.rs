@@ -8,10 +8,15 @@ pub async fn show(site: &State<Site>, token: String, key: &State<PrivateKey>, l:
   let response = match site.download_proof_link().public_certificate_active(token).one().await {
     Err(_) => l.html_bare("public_api/certificates/not_found.html.tera")?,
     Ok(download_proof_link) => {
+      
       if show_content {
         dbg!(&format!("Estoy visitando la página publica de {}", download_proof_link.id()));
         i18n::HtmlWithLocale{ lang: l, content: download_proof_link.html_proof(key, l).await?}
       } else {
+        let current_public_visit_count = download_proof_link.clone().attrs.public_visit_count;
+      dbg!(&current_public_visit_count);
+      dbg!(&current_public_visit_count + 1);
+      download_proof_link.clone().update().public_visit_count(current_public_visit_count + 1).save().await?;
         let org = download_proof_link.org().await?;
         let context = json!({
           "title": download_proof_link.title().await?,
@@ -24,6 +29,7 @@ pub async fn show(site: &State<Site>, token: String, key: &State<PrivateKey>, l:
       }
     }
   };
- 
   Ok(response)
 }
+
+

@@ -13,6 +13,8 @@ pub struct Entry {
   errors: Option<String>,
   document_id: Option<String>,
   story_id: Option<i32>,
+  admin_visited: Option<bool>,
+  public_visit_count: Option<i32>,
   has_email_callback: bool,
   email_callback_sent_at: Option<UtcDateTime>,
   payload: Option<String>,
@@ -82,6 +84,14 @@ impl Showable<entry::Entry, EntryFilter> for Entry {
       _ => None,
     };
 
+    let (admin_visited, public_visit_count ) = match d.clone().document().await? {
+      None => (None, None), 
+      Some(document) => { 
+        let link = document.download_proof_link_vec().await?[0].clone();
+        (Some(link.attrs.admin_visited), Some(link.attrs.public_visit_count))
+      } 
+    }; 
+
     Ok(Entry {
       id: d.attrs.id,
       request_id: d.attrs.request_id,
@@ -95,6 +105,8 @@ impl Showable<entry::Entry, EntryFilter> for Entry {
       has_email_callback,
       email_callback_sent_at,
       story_id,
+      admin_visited,
+      public_visit_count,
       payload,
     })
   }

@@ -13,8 +13,6 @@ pub struct Request {
   errors: Option<String>,
   tokens_needed: Option<i32>,
   entries: Vec<Vec<String>>,
-  admin_visited: i32,
-  public_visit_count: i32,
 }
 
 #[derive(GraphQLObject)]
@@ -81,9 +79,6 @@ impl Showable<request::Request, RequestFilter> for Request {
         entry.attrs.email_callback_id.map(|i| i.to_string()).unwrap_or_else(|| "".to_string())
       ]);
     }
-    //TODO: Calcularlos desde el objeto de la base de datos d
-    let admin_visited = 111;
-    let public_visit_count = 222;
 
     Ok(Request {
       id: d.attrs.id,
@@ -96,8 +91,6 @@ impl Showable<request::Request, RequestFilter> for Request {
       created_at: d.attrs.created_at,
       tokens_needed,
       entries,
-      admin_visited,
-      public_visit_count,
     })
   }
 }

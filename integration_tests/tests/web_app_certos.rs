@@ -47,7 +47,7 @@ mod workroom {
       c.site.request().try_complete().await?;
       d.wait_for_text("h2", "Recent issuances").await;
       d.click("a[href='#/Request/1/show']").await;
-
+      wait_here();
       //d.wait_for_text("span.ra-field-adminVisited > span", "0").await;
       //d.wait_for_text("span.ra-field-publicVisitCount > span", "0").await;
 
@@ -439,7 +439,7 @@ mod workroom {
 
       d.goto(&format!("http://localhost:8000/#/safe/{token}")).await;
       d.click("#safe-button-change-public-certificate-state").await;
-      
+      wait_here();
       check_social_media(&d, "#share-on-linkedin", "www.linkedin.com").await;
       check_social_media(&d, "#share-on-twitter", "twitter.com").await;
       d.click("#copy-certificate-to-clipboard").await;
