@@ -181,9 +181,6 @@ function RequestShow(props){
                 }
               />
               <ParsedDateTextField source="createdAt" />
-              <TextField source="adminVisited"/>
-              <TextField source="publicVisitCount"/>
-
               <FunctionField label="resources.Request.fields.export_csv"
                 render={() =>  <a id="export_to_csv" href="#/Request" onClick={handleExport}>
                     {translate("resources.Request.fields.download")}
@@ -253,6 +250,8 @@ function RequestShow(props){
                     }}
                   />
                   <FunctionField source="params" render={ record => formatJsonInline(record.params)} />
+                  <TextField source="adminVisited"/>
+                  <TextField source="publicVisitCount"/>
                   <FunctionField 
                     render={record => <EntryActions data={record} {...props} /> }
                   />

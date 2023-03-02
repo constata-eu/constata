@@ -23,6 +23,10 @@ model!{
     public_token: String,
     #[sqlx_model_hints(timestamptz, default)]
     published_at: Option<UtcDateTime>,
+    #[sqlx_model_hints(boolean, default)]
+    admin_visited: bool,
+    #[sqlx_model_hints(int4, default)]
+    public_visit_count: i32,
     #[sqlx_model_hints(int4, default)]
     deletion_id: Option<i32>,
   },

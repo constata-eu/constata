@@ -24,6 +24,9 @@ impl DownloadProofLink {
   }
 
   pub async fn from_db(db_download_proof_link: &download_proof_link::DownloadProofLink, l: &i18n::Lang) -> FieldResult<DownloadProofLink> {
+    if !db_download_proof_link.attrs.admin_visited { 
+      db_download_proof_link.clone().update().admin_visited(true).save().await?;
+    } 
     let pending_docs = db_download_proof_link.document().await?.story().await?.pending_docs().await?;
     
     Ok(DownloadProofLink{
@@ -34,6 +37,7 @@ impl DownloadProofLink {
       public_certificate_url: db_download_proof_link.public_certificate_url(),
       public_certificate_is_active: db_download_proof_link.published_at().is_some(),
       share_on_social_networks_call_to_action: db_download_proof_link.share_on_social_networks_call_to_action(l).await?,
+      
     })
   }
 
