@@ -6,6 +6,7 @@ import Balance from '../components/balance_section';
 import RequestsSection from '../components/requests_section';
 import EndorsementsSection from '../components/endorsements_section';
 import EmailAddress from '../components/email_address_section';
+import OtherActions from '../components/other_actions';
 import { Head1 } from '../theme';
 
 export default function Dashboard() {
@@ -38,5 +39,6 @@ export default function Dashboard() {
     <EmailAddress/>
     <RequestsSection/>
     <Balance />
+    <OtherActions />
   </Container>)
 };

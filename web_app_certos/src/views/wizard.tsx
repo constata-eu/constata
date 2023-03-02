@@ -311,7 +311,14 @@ const Recipients = (props) => {
   };
 
   const handleFileUpload = async (event) => {
-    const text = await event.target.files[0].text();
+    const buffer = await event.target.files[0].arrayBuffer();
+    let text;
+    try {
+      text = new TextDecoder("utf-8", { fatal: true }).decode(buffer);
+    } catch(e) {
+      text = new TextDecoder("latin1").decode(buffer);
+    }
+
     const rows = await csv({delimiter: [",", ";"]}).fromString(text);
     let errors = [];
 
@@ -550,7 +557,7 @@ const CreateRequest = ({canSendEmail, setCreatedRequest}) => {
         let {total} = await dataProvider.getList('Template', {
           pagination: { page: 1, perPage: 1 },
           sort: null,
-          filter: {},
+          filter: { archivedEq: false },
         });
         setWizardState((s) => ({...s, ...{hasTemplates: total > 0}}));
       } catch(e) {
@@ -793,7 +800,6 @@ const NoTokensNeeded = ({hasEmails, templateKind, entries}) => {
 
 const TokensNeeded = ({hasEmails, templateKind, entries, pendingInvoiceLinkUrl}) => {
   const translate = useTranslate();
-  const navigate = useNavigate();
   return (<Box id="tokens_needed_container">
     <Card sx={{mb: 5}}>
       <CardTitle text="certos.wizard.done.title_need_token" color="success"/>

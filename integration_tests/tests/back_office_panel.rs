@@ -41,9 +41,11 @@ mod back_office_panel {
       d.click("li[data-value='Argentina']").await;
       d.fill_in("#legalEntityRegistration", "1344-Z").await;
       d.fill_in("#legalEntityTaxId", "T-859-ID").await;
+      d.fill_in("#legalEntityLinkedinId", "84033677").await;
       d.fill_in("#evidenceZip", &evidence).await;
       d.click("button[type='submit']").await;
       d.wait_until_gone("[role='alert']").await;
+      d.wait_for_text(".ra-field-legalEntityLinkedinId > span", r"84033677*").await;
       d.click("a[href='#/KycEndorsement/1'][aria-label='Edit']").await;
       d.wait_for_text("#id", r"1*").await;
 
@@ -127,11 +129,18 @@ mod back_office_panel {
       d.click("button[type='submit']").await;
       d.wait_until_gone("[role='alert']").await;
       d.wait_for_text(".ra-field-id > span", r"1*").await;
+      d.wait_for(".ra-field-archived > span > svg[aria-label='No']").await;
+      
 
       let template = c.site.template().find(&1).await?;
       assert_eq!(template.attrs.name, "Template Custom".to_string());
       assert_eq!(template.attrs.custom_message, Some("Mensaje Custom".to_string()));
       assert_eq!(template.attrs.og_title_override, Some("Curso de Programación".to_string()));
+
+      d.click("a[aria-label='Edit']").await;
+      d.click(".ra-input-archived").await;
+      d.click("button[type='submit']").await;
+      d.wait_for(".ra-field-archived > span > svg[aria-label='Yes']").await;
     }
 
     integration_test_private!{ make_kyc_request_without_evidence (c, d)

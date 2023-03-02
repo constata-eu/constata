@@ -56,7 +56,6 @@ duplicate = "*"
 juniper = { git = "https://github.com/constata-eu/juniper.git", features = ["chrono"]}
 google-authenticator = "0.3.0"
 csv = "1.1"
-headless_chrome = "*"
 failure = "*"
 async-recursion = "*"
 rust-s3 = "*"
