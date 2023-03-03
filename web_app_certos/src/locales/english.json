@@ -81,6 +81,10 @@
       "unseen": {
         "see": "See ",
         "more": " more"
+      },
+      "other_actions" : {
+        "title": "Other actions",
+        "content": "See all Templates"
       }
 		},
 		"entry": {
