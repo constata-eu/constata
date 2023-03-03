@@ -273,6 +273,10 @@
       "unseen": {
         "see": "Ver ",
         "more": " más"
+      },
+      "other_actions" : {
+        "title": "Otras acciones",
+        "content": "Ver todas las Plantillas"
       }
     },
     "entry": {
