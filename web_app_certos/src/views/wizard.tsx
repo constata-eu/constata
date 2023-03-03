@@ -98,7 +98,7 @@ const Template = ({handleNext, wizardState, setWizardState}) => {
         </Box>
         { wizardState.hasTemplates && <Box>
           <Divider sx={{mb: 2}}>{ translate("certos.wizard.template.choose_template_divider") }</Divider>
-          <ReferenceInput sx={{mb: 0, pb: 0}} source="templateId" reference="Template" >
+          <ReferenceInput sx={{mb: 0, pb: 0}} source="templateId" reference="Template" filter={{archivedEq: false}} >
             <AutocompleteInput
               onChange={onSelectTemplate}
               label="certos.wizard.template.choose_template_label"
@@ -192,7 +192,7 @@ const Template = ({handleNext, wizardState, setWizardState}) => {
 const TemplateDone = ({wizardState, step, setStep}) => {
   const translate = useTranslate();
 
-  let text;
+  let text: String;
   if(wizardState.templateName) {
     text = translate("certos.wizard.template.done.using_existing", {name: wizardState.templateName});
   } else if (wizardState.newLogoImage) {
