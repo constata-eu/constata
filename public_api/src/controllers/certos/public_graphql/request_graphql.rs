@@ -13,6 +13,9 @@ pub struct Request {
   errors: Option<String>,
   tokens_needed: Option<i32>,
   entries: Vec<Vec<String>>,
+  entries_count: i32,
+  admin_visited_count: i32,
+  public_visit_count: i32, 
 }
 
 #[derive(GraphQLObject)]
@@ -71,13 +74,25 @@ impl Showable<request::Request, RequestFilter> for Request {
       None
     };
     let mut entries = vec![];
-    for entry in db_entries {
+    for entry in db_entries.clone() {
       entries.push(vec![
         entry.attrs.id.to_string(),
         entry.attrs.state,
         entry.attrs.document_id.unwrap_or_else(|| "".to_string()),
         entry.attrs.email_callback_id.map(|i| i.to_string()).unwrap_or_else(|| "".to_string())
       ]);
+    }
+
+    let mut admin_visited_count = 0;
+    let mut public_visit_count = 0;
+
+    for entry in db_entries {
+      if let Some(document) = entry.document().await? {
+        document.download_proof_link_scope().optional().await?.map(|l| {
+          if l.attrs.admin_visited { admin_visited_count += 1 };
+          public_visit_count += l.attrs.public_visit_count; 
+        });
+      } 
     }
 
     Ok(Request {
@@ -90,7 +105,10 @@ impl Showable<request::Request, RequestFilter> for Request {
       errors: d.attrs.errors,
       created_at: d.attrs.created_at,
       tokens_needed,
+      entries_count: entries.len() as i32,
       entries,
+      admin_visited_count,
+      public_visit_count,
     })
   }
 }

@@ -625,7 +625,7 @@
         "createdAt": "Created on",
         "download": "Download CSV",
         "export_csv": "Export issuance to CSV",
-        "adminVisited": "Confirmed receptions",
+        "adminVisitedCount": "Confirmed receptions",
         "publicVisitCount": "Visits to published entries",
         "entries": "Entries",
         "errors": "Errors",

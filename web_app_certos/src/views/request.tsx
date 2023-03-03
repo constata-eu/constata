@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { List, Datagrid, TextField, ShowButton, useDataProvider, useTranslate, FunctionField,
          SimpleShowLayout, ShowBase, useNotify, Button, ReferenceManyField, Pagination,
-         FilterForm, SimpleList, WithRecord, useGetRecordId } from 'react-admin'
+         FilterForm, SimpleList, WithRecord, useGetRecordId, BooleanField } from 'react-admin'
 import { Typography, Container, Box, Card, Link, useMediaQuery } from '@mui/material';
 import CardTitle from '../components/card_title';
 import { PaginationDefault, formatJsonInline,
@@ -64,6 +64,8 @@ function RequestList(props) {
                 }
               />
               <ParsedDateTextField source="createdAt" />
+              <FunctionField source="adminVisitCount" render={record => `${record.adminVisitedCount}/${record.entriesCount}`} />  
+              <TextField source="publicVisitCount"/>
               <FunctionField
                 render={record => {
                   if (record.state === "created") {
@@ -181,6 +183,8 @@ function RequestShow(props){
                 }
               />
               <ParsedDateTextField source="createdAt" />
+              <FunctionField source="adminVisitCount" render={record => `${record.adminVisitedCount}/${record.entriesCount}`} />  
+              <TextField source="publicVisitCount"/>
               <FunctionField label="resources.Request.fields.export_csv"
                 render={() =>  <a id="export_to_csv" href="#/Request" onClick={handleExport}>
                     {translate("resources.Request.fields.download")}
@@ -249,9 +253,9 @@ function RequestShow(props){
                       else return `${translate("certos.entry.notified")} ${parseDate(record.emailCallbackSentAt)}.`;
                     }}
                   />
-                  <FunctionField source="params" render={ record => formatJsonInline(record.params)} />
-                  <TextField source="adminVisited"/>
+                  <BooleanField source="adminVisited" />
                   <TextField source="publicVisitCount"/>
+                  <FunctionField source="params" render={ record => formatJsonInline(record.params)} />
                   <FunctionField 
                     render={record => <EntryActions data={record} {...props} /> }
                   />
