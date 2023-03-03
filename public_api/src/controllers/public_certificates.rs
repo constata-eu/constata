@@ -13,10 +13,7 @@ pub async fn show(site: &State<Site>, token: String, key: &State<PrivateKey>, l:
         dbg!(&format!("Estoy visitando la página publica de {}", download_proof_link.id()));
         i18n::HtmlWithLocale{ lang: l, content: download_proof_link.html_proof(key, l).await?}
       } else {
-        let current_public_visit_count = download_proof_link.clone().attrs.public_visit_count;
-      dbg!(&current_public_visit_count);
-      dbg!(&current_public_visit_count + 1);
-      download_proof_link.clone().update().public_visit_count(current_public_visit_count + 1).save().await?;
+        download_proof_link.update_public_visit_count().await?;
         let org = download_proof_link.org().await?;
         let context = json!({
           "title": download_proof_link.title().await?,

@@ -13,8 +13,8 @@ pub struct Entry {
   errors: Option<String>,
   document_id: Option<String>,
   story_id: Option<i32>,
-  admin_visited: Option<bool>,
-  public_visit_count: Option<i32>,
+  admin_visited: bool,
+  public_visit_count: i32,
   has_email_callback: bool,
   email_callback_sent_at: Option<UtcDateTime>,
   payload: Option<String>,
@@ -84,13 +84,14 @@ impl Showable<entry::Entry, EntryFilter> for Entry {
       _ => None,
     };
 
-    let (admin_visited, public_visit_count ) = match d.clone().document().await? {
-      None => (None, None), 
-      Some(document) => { 
-        let link = document.download_proof_link_vec().await?[0].clone();
-        (Some(link.attrs.admin_visited), Some(link.attrs.public_visit_count))
-      } 
-    }; 
+    let mut admin_visited = false;
+    let mut public_visit_count = 0;
+    if let Some(document) = d.clone().document().await? {
+      document.download_proof_link_scope().optional().await?.map(|l| {
+        if l.attrs.admin_visited { admin_visited = true };
+        public_visit_count = l.attrs.public_visit_count; 
+      });
+    }
 
     Ok(Entry {
       id: d.attrs.id,

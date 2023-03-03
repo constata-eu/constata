@@ -466,24 +466,6 @@ mod workroom {
       check_public_certificate(&d, &title, &format!("Invitation {raw_description}"), &image).await;
     }
 
-    integration_test!{ shows_usage_statistics_for_issuances (c, d)
-      let mut chain = TestBlockchain::new().await;
-      let alice = c.alice().await;
-      signup_and_verify(&d, &c.site).await;
-      create_wizard(&d, &c.site, 5).await;
-      sign_wizard(&d).await;
-      chain.fund_signer_wallet();
-      chain.simulate_stamping().await;
-      for i in 1..5 {
-        let entry = c.site.entry().find(&i).await?;
-        let doc = entry.document().await?.expect("entry's document");
-        let token = alice.make_download_proof_link_from_doc(&doc, 30).await.token().await?;
-      }
-      
-      wait_here();
-    }
-
-
     integration_test!{ archive_and_unarchive_template (c, d)
       signup_and_verify(&d, &c.site).await;
       create_wizard(&d, &c.site, 2).await;
@@ -500,6 +482,63 @@ mod workroom {
       d.click("a[href='#/Template/1/show']").await;
       unarchive_template(&d).await;
     }
+
+    integration_test!{ shows_usage_statistics_for_issuances (c, d)
+      let mut chain = TestBlockchain::new().await;
+      let alice = c.alice().await;
+      signup_and_verify(&d, &c.site).await;
+      create_wizard(&d, &c.site, 5).await;
+      sign_wizard(&d).await;
+      chain.fund_signer_wallet();
+      chain.simulate_stamping().await;
+      for i in 1..5 {
+        let entry = c.site.entry().find(&i).await?;
+        let doc = entry.document().await?.expect("entry's document");
+        alice.make_download_proof_link_from_doc(&doc, 30).await.token().await?;
+      }
+      
+      d.click("a[href='#/']").await;
+      check_statistic(&d, 0, 0, 5, "No", 0).await;
+      open_download_proof_link_and_public_certificate(&d, &c.site, 1, 1).await;
+      check_statistic(&d, 1, 1, 5, "Yes", 1).await;
+    }
+
+    pub async fn open_download_proof_link_and_public_certificate(
+      d: &Selenium,
+      site: &Site,
+      id: i32,
+      times_to_open: i32
+    ) {
+      let token = site.download_proof_link().find(&id).await.expect("to find download proof link").token().await.expect("to have a token");
+      d.goto(&format!("http://localhost:8000/#/safe/{token}")).await;
+      d.click("#safe-button-change-public-certificate-state").await;
+      for _ in 0..times_to_open {
+        d.click("#go-to-public-certificate").await;
+        d.get_handles_and_go_to_window_one().await;
+        d.close_window_and_go_to_handle_zero().await;
+      }
+      d.goto(&format!("http://localhost:8000/#")).await;
+    }
+
+
+    pub async fn check_statistic(
+      d: &Selenium,
+      admin_visited_count: i32,
+      public_visit_count: i32,
+      child: i32,
+      admin_visited: &str,
+      public_visit: i32,
+    ) {
+      d.click("#requests-menu-item").await;
+      d.wait_for_text(".column-adminVisitCount > span", &format!(r"{admin_visited_count}/5*")).await;
+      d.wait_for_text(".column-publicVisitCount > span", &format!(r"{public_visit_count}*")).await;
+      d.click("a[href='#/Request/1/show']").await;
+      d.wait_for_text(".ra-field-adminVisitCount > span", &format!(r"{admin_visited_count}/5*")).await;
+      d.wait_for_text(".ra-field-publicVisitCount > span", &format!(r"{public_visit_count}*")).await;
+      d.wait_for(&format!("#review-entries-big tbody > tr:nth-child({child}) .column-adminVisited > span > svg[aria-label='{admin_visited}']")).await;
+      d.wait_for_text(&format!("#review-entries-big tbody > tr:nth-child({child}) .column-publicVisitCount > span"), &format!(r"{public_visit}*")).await;
+    }
+
 
     pub async fn archive_template(d: &Selenium) {
       d.click("#archive-button").await;
