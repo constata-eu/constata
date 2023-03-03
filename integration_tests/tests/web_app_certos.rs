@@ -16,7 +16,7 @@ mod workroom {
 
     integration_test!{ full_flow_from_signup_until_stamped (c, d)
       signup_and_verify(&d, &c.site).await;
-      create_wizard(&d, &c.site, 2).await;
+      create_wizard(&d, &c.site, 2, "testing-template").await;
       d.click("#preview-1").await;
 
       let handles = d.get_handles_and_go_to_window_one().await;
@@ -34,7 +34,7 @@ mod workroom {
 
       signup(&d).await;
       for _ in 0..4 {
-        create_template(&d).await;
+        create_template(&d, "testing-template").await;
         let csv = format!("{}/tests/resources/default_certos_recipients.csv", env::current_dir().unwrap().display());
         add_recipients_with_csv(&d, &c.site, &csv).await;
         sign_wizard(&d).await;
@@ -54,7 +54,7 @@ mod workroom {
 
     integration_test!{ sign_previously_created_request (c, d)
       signup_and_verify(&d, &c.site).await;
-      create_wizard(&d, &c.site, 2).await;
+      create_wizard(&d, &c.site, 2, "testing-template").await;
       reload(&d).await;
       d.click("a[href='#/wizard/1']").await;
       sign_wizard(&d).await;
@@ -62,7 +62,7 @@ mod workroom {
 
     integration_test!{ use_previous_template_to_create_requests (c, d)
       signup_and_verify(&d, &c.site).await;
-      create_wizard(&d, &c.site, 2).await;
+      create_wizard(&d, &c.site, 2, "testing-template").await;
       sign_wizard(&d).await;
       d.click("a[href='#/']").await;
       d.click("a[href='#/wizard']").await;
@@ -71,7 +71,7 @@ mod workroom {
 
       for i in 0..2 {
         let email = format!("probando{i}@constata.eu");
-        add_recipient(&d, "Luciano Carreño", &email, "82736123").await;
+        add_recipient(&d, "Luciano Carreño", &email, "82736123", i).await;
       }
 
       d.click("#continue").await;
@@ -143,7 +143,7 @@ mod workroom {
 
     integration_test!{ discards_request (c, d)
       signup_and_verify(&d, &c.site).await;
-      create_wizard(&d, &c.site, 2).await;
+      create_wizard(&d, &c.site, 2, "testing-template").await;
       d.wait_for("#requests-menu-item").await;
       d.click("#discard-button").await;
       d.click("#confirm-discard-button").await;
@@ -172,7 +172,7 @@ mod workroom {
 
     integration_test!{ notifies_no_emails_will_be_sent_for_unverified_customers (_c, d)
       signup(&d).await;
-      create_template(&d).await;
+      create_template(&d, "testing-template").await;
       d.wait_for_text(".MuiAlert-message div", "Recipient notifications disabled").await;
     }
 
@@ -253,7 +253,7 @@ mod workroom {
       d.goto(&format!("http://localhost:8000/#/invoice/{}", token)).await;
       check_i_am_in_buy_tokens_page(&d, false).await;
       signup_and_verify(&d, &c.site).await;
-      create_wizard(&d, &c.site, 12).await;
+      create_wizard(&d, &c.site, 12, "testing-template").await;
       sign_wizard(&d).await;
       d.click("#wizard-buy-tokens").await;
       check_i_am_in_buy_tokens_page(&d, true).await;
@@ -280,7 +280,7 @@ mod workroom {
 
     integration_test!{ see_account_state_section_when_out_of_tokens (c, d)
       signup_and_verify(&d, &c.site).await;
-      create_wizard(&d, &c.site, 12).await;
+      create_wizard(&d, &c.site, 12, "testing-template").await;
       sign_wizard(&d).await;
       d.click("#dashboard-menu-item").await;
       d.wait_for_text(".MuiAlert-message > div", r"There's a pending payment.*").await;
@@ -299,7 +299,7 @@ mod workroom {
         ("certos_recipients_semicolon_special.csv", r"Arte con plastiliña;*")
       ];
       for (i, (file, motive)) in files.iter().enumerate() {
-        create_template(&d).await;
+        create_template(&d, "testing-template").await;
         let csv = format!("{}/tests/resources/{}", env::current_dir().unwrap().display(), &file);
         add_recipients_with_csv(&d, &c.site, &csv).await;
         sign_wizard(&d).await;
@@ -313,7 +313,7 @@ mod workroom {
 
     integration_test!{ cannot_access_after_org_deletion (c, d)
       signup_and_verify(&d, &c.site).await;
-      create_wizard(&d, &c.site, 2).await;
+      create_wizard(&d, &c.site, 2, "testing-template").await;
       c.alice().await.make_org_deletion_for(1, b"person deletion").await;
 
       // There's no marker that the  person has been deleted.
@@ -438,7 +438,7 @@ mod workroom {
       let alice = c.alice().await;
 
       signup_and_verify(&d, &c.site).await;
-      create_wizard(&d, &c.site, 5).await;
+      create_wizard(&d, &c.site, 2, "testing-template").await;
       sign_wizard(&d).await;
       chain.fund_signer_wallet();
       chain.simulate_stamping().await;
@@ -468,19 +468,40 @@ mod workroom {
 
     integration_test!{ archive_and_unarchive_template (c, d)
       signup_and_verify(&d, &c.site).await;
-      create_wizard(&d, &c.site, 2).await;
+      create_wizard(&d, &c.site, 2, "template-show").await;
       sign_wizard(&d).await;
 
       d.click("a[href='#/']").await;
       d.click("#templates").await;
-      archive_template(&d).await;
-      unarchive_template(&d).await;
+
+      archive_template_one_and_verify_was_archived(&d).await;
+      unarchive_template_one_and_verify_was_unarchived(&d).await;
 
       d.click("#templates").await;
       d.click("a[href='#/Template/1/show']").await;
-      archive_template(&d).await;
+      archive_template_one_and_verify_was_archived(&d).await;
       d.click("a[href='#/Template/1/show']").await;
-      unarchive_template(&d).await;
+      unarchive_template_one_and_verify_was_unarchived(&d).await;
+
+      create_wizard(&d, &c.site, 2, "template-not-to-show").await;
+      sign_wizard(&d).await;
+      d.click("a[href='#/']").await;
+      d.click("#templates").await;
+      let selector = format!(".datagrid-body > tr:nth-child(2) #archive-button");
+      d.click(&selector).await;
+      confirm_archive_template(&d).await;
+      
+      d.click("#templateId").await;
+      d.driver
+        .action_chain()
+        .key_down(thirtyfour::Key::Down)
+        .key_up(thirtyfour::Key::Down)
+        .key_down(thirtyfour::Key::Enter)
+        .key_up(thirtyfour::Key::Enter)
+        .perform().await.expect("to autoselect sucessfully");
+
+      d.wait_for("#create-request-container").await;
+      d.wait_for_text("#create-request-container > div > div > div > p", r"template-show*").await;
     }
 
     integration_test!{ shows_usage_statistics_for_issuances (c, d)
@@ -548,19 +569,23 @@ mod workroom {
     }
 
 
-    pub async fn archive_template(d: &Selenium) {
-      d.click("#archive-button").await;
+    async fn confirm_archive_template(d: &Selenium) {
       d.wait_for_text(".MuiDialog-container h2", r"Are you sure you want to ARCHIVE this template?*").await;
       d.click(".ra-confirm").await;
       d.wait_for("#unarchive-button").await;
       d.click("#dashboard-menu-item").await;
       d.click("a[href='#/wizard']").await;
+    }
+
+    async fn archive_template_one_and_verify_was_archived(d: &Selenium) {
+      d.click("#archive-button").await;
+      confirm_archive_template(d).await;
       d.not_exists("#templateId").await;
       d.click("#dashboard-menu-item").await;
       d.click("#templates").await;
     }
 
-    async fn unarchive_template(d: &Selenium) {
+    async fn unarchive_template_one_and_verify_was_unarchived(d: &Selenium) {
       d.click("#unarchive-button").await;
       d.wait_for_text(".MuiDialog-container h2", r"Are you sure you want to UNARCHIVE this template?*").await;
       d.click(".ra-confirm").await;
@@ -571,7 +596,7 @@ mod workroom {
       d.click("#dashboard-menu-item").await;
     }
 
-    pub async fn set_up_download_proof_link(alice: &SignerClient, chain: &mut TestBlockchain) -> Result<DownloadProofLink> {
+    async fn set_up_download_proof_link(alice: &SignerClient, chain: &mut TestBlockchain) -> Result<DownloadProofLink> {
       let story = alice.clone().add_funds().await.story_with_signed_doc(&read("document.zip"), None, "").await;
       let doc = &story.documents().await?[0];
       chain.fund_signer_wallet();
@@ -673,29 +698,31 @@ mod workroom {
       path
     }
 
-    async fn add_recipient(d: &Selenium, name: &str, email: &str, id: &str) {
+    async fn add_recipient(d: &Selenium, name: &str, email: &str, id: &str, n: i32) {
       d.click("#recipients > button").await;
       d.fill_in("#name", name).await;
       d.fill_in("#email", email).await;
       d.fill_in("#recipient_identification", id).await;
       d.fill_in("#custom_text", "Prueba").await;
-      d.fill_in("#motive", "Web developer Course").await;
+      if n == 0 {
+        d.fill_in("#motive", "Web developer Course").await;
+      }
       d.click("button[type='submit']").await;
     }
 
-    async fn create_template(d: &Selenium) {
+    async fn create_template(d: &Selenium, template_name: &str) {
       d.click("a[href='#/wizard']").await;
-      d.fill_in("#newName", "testing-template").await;
+      d.fill_in("#newName", template_name).await;
       d.fill_in("#newLogoText", "Constata.eu").await;
       d.click("button[type='submit']").await;
     }
 
-    async fn create_wizard(d: &Selenium, site: &Site, recipient_count: i32) {
-      create_template(&d).await;
+    async fn create_wizard(d: &Selenium, site: &Site, recipient_count: i32, template_name: &str) {
+      create_template(&d, template_name).await;
 
       for i in 0..recipient_count {
         let email = format!("probando{i}@constata.eu");
-        add_recipient(&d, "Luciano Carreño", &email, "82736123").await;
+        add_recipient(&d, "Luciano Carreño", &email, "82736123", i).await;
       }
 
       d.click("#continue").await;
