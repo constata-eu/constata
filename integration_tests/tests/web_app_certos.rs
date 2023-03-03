@@ -491,7 +491,7 @@ mod workroom {
       sign_wizard(&d).await;
       chain.fund_signer_wallet();
       chain.simulate_stamping().await;
-      for i in 1..5 {
+      for i in 1..6 {
         let entry = c.site.entry().find(&i).await?;
         let doc = entry.document().await?.expect("entry's document");
         alice.make_download_proof_link_from_doc(&doc, 30).await.token().await?;
@@ -501,6 +501,14 @@ mod workroom {
       check_statistic(&d, 0, 0, 5, "No", 0).await;
       open_download_proof_link_and_public_certificate(&d, &c.site, 1, 1).await;
       check_statistic(&d, 1, 1, 5, "Yes", 1).await;
+      open_download_proof_link_and_public_certificate(&d, &c.site, 2, 2).await;
+      check_statistic(&d, 2, 3, 4, "Yes", 2).await;
+      open_download_proof_link_and_public_certificate(&d, &c.site, 3, 2).await;
+      check_statistic(&d, 3, 5, 3, "Yes", 2).await;
+      open_download_proof_link_and_public_certificate(&d, &c.site, 4, 4).await;
+      open_download_proof_link_and_public_certificate(&d, &c.site, 5, 1).await;
+      check_statistic(&d, 5, 10, 2, "Yes", 4).await;
+      check_statistic(&d, 5, 10, 1, "Yes", 1).await;
     }
 
     pub async fn open_download_proof_link_and_public_certificate(
