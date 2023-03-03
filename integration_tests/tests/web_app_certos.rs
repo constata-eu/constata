@@ -507,7 +507,7 @@ mod workroom {
       let mut chain = TestBlockchain::new().await;
       let alice = c.alice().await;
       signup_and_verify(&d, &c.site).await;
-      create_wizard(&d, &c.site, 5).await;
+      create_wizard(&d, &c.site, 5, "testing-template").await;
       sign_wizard(&d).await;
       chain.fund_signer_wallet();
       chain.simulate_stamping().await;
