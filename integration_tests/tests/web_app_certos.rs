@@ -505,16 +505,14 @@ mod workroom {
 
     integration_test!{ shows_usage_statistics_for_issuances (c, d)
       let mut chain = TestBlockchain::new().await;
-      let alice = c.alice().await;
       signup_and_verify(&d, &c.site).await;
       create_wizard(&d, &c.site, 5, "testing-template").await;
       sign_wizard(&d).await;
       chain.fund_signer_wallet();
       chain.simulate_stamping().await;
-      for i in 1..6 {
-        let entry = c.site.entry().find(&i).await?;
-        let doc = entry.document().await?.expect("entry's document");
-        alice.make_download_proof_link_from_doc(&doc, 30).await.token().await?;
+
+      for entry in c.site.request().find(&1).await?.entry_vec().await? {
+        entry.in_signed()?.try_complete().await?;
       }
       
       d.click("a[href='#/']").await;
@@ -526,6 +524,7 @@ mod workroom {
       open_download_proof_link_and_public_certificate(&d, &c.site, 3, 2).await;
       check_statistic(&d, 3, 5, 3, "Yes", 2).await;
       open_download_proof_link_and_public_certificate(&d, &c.site, 4, 4).await;
+      d.goto(&format!("http://localhost:8000/#")).await;
       open_download_proof_link_and_public_certificate(&d, &c.site, 5, 1).await;
       check_statistic(&d, 5, 10, 2, "Yes", 4).await;
       check_statistic(&d, 5, 10, 1, "Yes", 1).await;
@@ -545,7 +544,6 @@ mod workroom {
         d.get_handles_and_go_to_window_one().await;
         d.close_window_and_go_to_handle_zero().await;
       }
-      d.goto(&format!("http://localhost:8000/#")).await;
     }
 
 
@@ -557,9 +555,12 @@ mod workroom {
       admin_visited: &str,
       public_visit: i32,
     ) {
+      d.goto(&format!("http://localhost:8000/#")).await;
       d.click("#requests-menu-item").await;
       d.wait_for_text(".column-adminVisitCount > span", &format!(r"{admin_visited_count}/5*")).await;
       d.wait_for_text(".column-publicVisitCount > span", &format!(r"{public_visit_count}*")).await;
+      d.goto(&format!("http://localhost:8000/#")).await;
+      d.click("#requests-menu-item").await;
       d.click("a[href='#/Request/1/show']").await;
       d.wait_for_text(".ra-field-adminVisitCount > span", &format!(r"{admin_visited_count}/5*")).await;
       d.wait_for_text(".ra-field-publicVisitCount > span", &format!(r"{public_visit_count}*")).await;

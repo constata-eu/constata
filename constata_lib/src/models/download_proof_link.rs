@@ -101,6 +101,10 @@ impl DownloadProofLink {
     self.clone().update().published_at(None).save().await
   }
 
+  pub async fn set_visited(&self) -> sqlx::Result<DownloadProofLink> {
+    self.clone().update().admin_visited(true).save().await
+  }
+
   pub async fn update_public_visit_count(&self) -> sqlx::Result<DownloadProofLink> {
     self.clone().update().public_visit_count(*self.public_visit_count() + 1).save().await
   }

@@ -10,7 +10,6 @@ pub async fn show(site: &State<Site>, token: String, key: &State<PrivateKey>, l:
     Ok(download_proof_link) => {
       
       if show_content {
-        dbg!(&format!("Estoy visitando la página publica de {}", download_proof_link.id()));
         i18n::HtmlWithLocale{ lang: l, content: download_proof_link.html_proof(key, l).await?}
       } else {
         download_proof_link.update_public_visit_count().await?;

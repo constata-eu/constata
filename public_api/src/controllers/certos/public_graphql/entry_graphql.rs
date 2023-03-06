@@ -87,10 +87,10 @@ impl Showable<entry::Entry, EntryFilter> for Entry {
     let mut admin_visited = false;
     let mut public_visit_count = 0;
     if let Some(document) = d.clone().document().await? {
-      document.download_proof_link_scope().optional().await?.map(|l| {
+      if let Some(l) = document.download_proof_link_scope().optional().await? {
         if l.attrs.admin_visited { admin_visited = true };
-        public_visit_count = l.attrs.public_visit_count; 
-      });
+        public_visit_count = l.attrs.public_visit_count;
+      }
     }
 
     Ok(Entry {
