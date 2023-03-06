@@ -18,6 +18,9 @@ pub struct DownloadProofLink {
   pub public_certificate_is_active: bool,
   #[graphql(description = "The text to display in the front-end for the 'share on social media' call to action.")]
   pub share_on_social_networks_call_to_action: String,
+  pub document_funded_at: Option<UtcDateTime>,
+  pub entry_title: Option<String>,
+  pub legal_entity_linkedin_id: Option<String>,
 }
 
 impl DownloadProofLink {
@@ -31,8 +34,10 @@ impl DownloadProofLink {
   }
 
   pub async fn from_db(db_download_proof_link: &download_proof_link::DownloadProofLink, l: &i18n::Lang) -> FieldResult<DownloadProofLink> {
-    let pending_docs = db_download_proof_link.document().await?.story().await?.pending_docs().await?;
-    
+    let document = db_download_proof_link.document().await?;
+    let pending_docs = document.story().await?.pending_docs().await?;
+    let entry_title = if let Some(entry) = document.entry_scope().optional().await? { entry.title().await? } else { None };
+
     Ok(DownloadProofLink{
       id: db_download_proof_link.attrs.id,
       valid_until: db_download_proof_link.valid_until().await?,
@@ -41,6 +46,9 @@ impl DownloadProofLink {
       public_certificate_url: db_download_proof_link.public_certificate_url(),
       public_certificate_is_active: db_download_proof_link.published_at().is_some(),
       share_on_social_networks_call_to_action: db_download_proof_link.share_on_social_networks_call_to_action(l).await?,
+      document_funded_at: document.attrs.funded_at,
+      entry_title,
+      legal_entity_linkedin_id: document.org().await?.admin().await?.kyc_endorsement_scope().optional().await?.and_then(|x| x.attrs.legal_entity_linkedin_id),
     })
   }
 

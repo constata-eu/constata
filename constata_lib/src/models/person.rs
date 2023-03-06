@@ -148,6 +148,7 @@ impl Person {
       legal_entity_country: None,
       legal_entity_registration: None,
       legal_entity_tax_id: None,
+      legal_entity_linkedin_id: None,
     }).save().await;
     tx.commit().await?;
 

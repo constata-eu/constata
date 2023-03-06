@@ -58,9 +58,10 @@ pub mod invoice_link_graphql;
 pub mod download_proof_link_graphql;
 pub mod proof_graphql;
 pub mod attestation_graphql;
-pub use template_graphql::{Template, TemplateFilter};
+pub use template_graphql::{Template, TemplateFilter, TemplateInput};
 pub use issuance_graphql::{Issuance, IssuanceFilter, IssuanceExport};
 pub use entry_graphql::{Entry, EntryFilter, SigningIteratorInput};
+pub use story_graphql::{Story, StoryFilter};
 pub use account_state_graphql::AccountState;
 pub use endorsement_manifest_graphql::*;
 pub use wizard_graphql::{WizardInput, Preview};
@@ -446,6 +447,10 @@ impl Mutation {
       .discard().await?
       .into_inner();
     Issuance::db_to_graphql(db_request, false).await
+  }
+
+  pub async fn update_template(context: &Context, input: TemplateInput) -> FieldResult<Template> {
+    input.update_template(context).await
   }
 }
 

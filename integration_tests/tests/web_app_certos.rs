@@ -16,7 +16,7 @@ mod workroom {
 
     integration_test!{ full_flow_from_signup_until_stamped (c, d)
       signup_and_verify(&d, &c.site).await;
-      create_wizard(&d, &c.site, 2).await;
+      create_wizard(&d, &c.site, 2, "testing-template").await;
       d.click("#preview-1").await;
 
       let handles = d.get_handles_and_go_to_window_one().await;
@@ -34,7 +34,7 @@ mod workroom {
 
       signup(&d).await;
       for _ in 0..4 {
-        create_template(&d).await;
+        create_template(&d, "testing-template").await;
         let csv = format!("{}/tests/resources/default_certos_recipients.csv", env::current_dir().unwrap().display());
         add_recipients_with_csv(&d, &c.site, &csv).await;
         sign_wizard(&d).await;
@@ -54,7 +54,7 @@ mod workroom {
 
     integration_test!{ sign_previously_created_issuance (c, d)
       signup_and_verify(&d, &c.site).await;
-      create_wizard(&d, &c.site, 2).await;
+      create_wizard(&d, &c.site, 2, "testing-template").await;
       reload(&d).await;
       d.click("a[href='#/wizard/1']").await;
       sign_wizard(&d).await;
@@ -62,7 +62,7 @@ mod workroom {
 
     integration_test!{ use_previous_template_to_create_issuances (c, d)
       signup_and_verify(&d, &c.site).await;
-      create_wizard(&d, &c.site, 2).await;
+      create_wizard(&d, &c.site, 2, "testing-template").await;
       sign_wizard(&d).await;
       d.click("a[href='#/']").await;
       d.click("a[href='#/wizard']").await;
@@ -71,7 +71,7 @@ mod workroom {
 
       for i in 0..2 {
         let email = format!("probando{i}@constata.eu");
-        add_recipient(&d, "Luciano Carreño", &email, "82736123").await;
+        add_recipient(&d, "Luciano Carreño", &email, "82736123", i).await;
       }
 
       d.click("#continue").await;
@@ -135,7 +135,6 @@ mod workroom {
       let token = alice.make_download_proof_link_from_doc(&doc, 30).await.token().await?;
       d.goto(&format!("http://localhost:8000/#/safe/{token}")).await;
       d.click("#safe-button-change-public-certificate-state").await;
-
       let title = "Curso de programación";
       let description = "Diploma issued by apps.script.testing@constata.eu via Constata.eu";
       let image = "https://constata.eu/assets/images/logo.png";
@@ -144,7 +143,7 @@ mod workroom {
 
     integration_test!{ discards_issuance (c, d)
       signup_and_verify(&d, &c.site).await;
-      create_wizard(&d, &c.site, 2).await;
+      create_wizard(&d, &c.site, 2, "testing-template").await;
       d.wait_for("#issuances-menu-item").await;
       d.click("#discard-button").await;
       d.click("#confirm-discard-button").await;
@@ -173,7 +172,7 @@ mod workroom {
 
     integration_test!{ notifies_no_emails_will_be_sent_for_unverified_customers (_c, d)
       signup(&d).await;
-      create_template(&d).await;
+      create_template(&d, "testing-template").await;
       d.wait_for_text(".MuiAlert-message div", "Recipient notifications disabled").await;
     }
 
@@ -254,7 +253,7 @@ mod workroom {
       d.goto(&format!("http://localhost:8000/#/invoice/{}", token)).await;
       check_i_am_in_buy_tokens_page(&d, false).await;
       signup_and_verify(&d, &c.site).await;
-      create_wizard(&d, &c.site, 12).await;
+      create_wizard(&d, &c.site, 12, "testing-template").await;
       sign_wizard(&d).await;
       d.click("#wizard-buy-tokens").await;
       check_i_am_in_buy_tokens_page(&d, true).await;
@@ -281,7 +280,7 @@ mod workroom {
 
     integration_test!{ see_account_state_section_when_out_of_tokens (c, d)
       signup_and_verify(&d, &c.site).await;
-      create_wizard(&d, &c.site, 12).await;
+      create_wizard(&d, &c.site, 12, "testing-template").await;
       sign_wizard(&d).await;
       d.click("#dashboard-menu-item").await;
       d.wait_for_text(".MuiAlert-message > div", r"There's a pending payment.*").await;
@@ -294,17 +293,18 @@ mod workroom {
       signup_and_verify(&d, &c.site).await;
       let files = vec![
         ("default_certos_recipients.csv", r"Arte con plastilina*"),
-        ("default_certos_recipients_special.csv", r"Arte con plastilina,*"),
+        ("default_certos_recipients_special.csv", r"Arte con plastiliña,*"),
+        ("certos_recipients_windows.csv", r"Arte con plastiliña,*"),
         ("certos_recipients_semicolon.csv", r"Arte con plastilina*"),
-        ("certos_recipients_semicolon_special.csv", r"Arte con plastilina;*")
+        ("certos_recipients_semicolon_special.csv", r"Arte con plastiliña;*")
       ];
-      for (file, motive) in files {
-        create_template(&d).await;
+      for (i, (file, motive)) in files.iter().enumerate() {
+        create_template(&d, "testing-template").await;
         let csv = format!("{}/tests/resources/{}", env::current_dir().unwrap().display(), &file);
         add_recipients_with_csv(&d, &c.site, &csv).await;
         sign_wizard(&d).await;
         d.click("a[href='#/']").await;
-        d.click("#issuance-section-signed a[href='#/Issuance/1/show']").await;
+        d.click(&format!("#issuance-section-signed a[href='#/Issuance/{}/show']", i + 1)).await;
         d.wait_for_text("#review-entries-big > tbody > tr:nth-child(1) .column-params pre > span:nth-child(2)", r"3 de marzo de 1999*").await;
         d.wait_for_text("#review-entries-big > tbody > tr:nth-child(1) .column-params pre > span:nth-child(4)", motive).await;
         d.click("#dashboard-menu-item").await;
@@ -313,7 +313,7 @@ mod workroom {
 
     integration_test!{ cannot_access_after_org_deletion (c, d)
       signup_and_verify(&d, &c.site).await;
-      create_wizard(&d, &c.site, 2).await;
+      create_wizard(&d, &c.site, 2, "testing-template").await;
       c.alice().await.make_org_deletion_for(1, b"person deletion").await;
 
       // There's no marker that the  person has been deleted.
@@ -438,7 +438,7 @@ mod workroom {
       let alice = c.alice().await;
 
       signup_and_verify(&d, &c.site).await;
-      create_wizard(&d, &c.site, 2).await;
+      create_wizard(&d, &c.site, 2, "testing-template").await;
       sign_wizard(&d).await;
       chain.fund_signer_wallet();
       chain.simulate_stamping().await;
@@ -466,7 +466,73 @@ mod workroom {
       check_public_certificate(&d, &title, &format!("Invitation {raw_description}"), &image).await;
     }
 
-    pub async fn set_up_download_proof_link(alice: &SignerClient, chain: &mut TestBlockchain) -> Result<DownloadProofLink> {
+
+    integration_test!{ archive_and_unarchive_template (c, d)
+      signup_and_verify(&d, &c.site).await;
+      create_wizard(&d, &c.site, 2, "template-show").await;
+      sign_wizard(&d).await;
+
+      d.click("a[href='#/']").await;
+      d.click("#templates").await;
+
+      archive_template_one_and_verify_was_archived(&d).await;
+      unarchive_template_one_and_verify_was_unarchived(&d).await;
+
+      d.click("#templates").await;
+      d.click("a[href='#/Template/1/show']").await;
+      archive_template_one_and_verify_was_archived(&d).await;
+      d.click("a[href='#/Template/1/show']").await;
+      unarchive_template_one_and_verify_was_unarchived(&d).await;
+
+      create_wizard(&d, &c.site, 2, "template-not-to-show").await;
+      sign_wizard(&d).await;
+      d.click("a[href='#/']").await;
+      d.click("#templates").await;
+      let selector = format!(".datagrid-body > tr:nth-child(2) #archive-button");
+      d.click(&selector).await;
+      confirm_archive_template(&d).await;
+      
+      d.click("#templateId").await;
+      d.driver
+        .action_chain()
+        .key_down(thirtyfour::Key::Down)
+        .key_up(thirtyfour::Key::Down)
+        .key_down(thirtyfour::Key::Enter)
+        .key_up(thirtyfour::Key::Enter)
+        .perform().await.expect("to autoselect sucessfully");
+
+      d.wait_for("#create-request-container").await;
+      d.wait_for_text("#create-request-container > div > div > div > p", r"template-show*").await;
+    }
+
+    async fn confirm_archive_template(d: &Selenium) {
+      d.wait_for_text(".MuiDialog-container h2", r"Are you sure you want to ARCHIVE this template?*").await;
+      d.click(".ra-confirm").await;
+      d.wait_for("#unarchive-button").await;
+      d.click("#dashboard-menu-item").await;
+      d.click("a[href='#/wizard']").await;
+    }
+
+    async fn archive_template_one_and_verify_was_archived(d: &Selenium) {
+      d.click("#archive-button").await;
+      confirm_archive_template(d).await;
+      d.not_exists("#templateId").await;
+      d.click("#dashboard-menu-item").await;
+      d.click("#templates").await;
+    }
+
+    async fn unarchive_template_one_and_verify_was_unarchived(d: &Selenium) {
+      d.click("#unarchive-button").await;
+      d.wait_for_text(".MuiDialog-container h2", r"Are you sure you want to UNARCHIVE this template?*").await;
+      d.click(".ra-confirm").await;
+      d.wait_for("#archive-button").await;
+      d.click("#dashboard-menu-item").await;
+      d.click("a[href='#/wizard']").await;
+      d.wait_for("#templateId").await;
+      d.click("#dashboard-menu-item").await;
+    }
+
+    async fn set_up_download_proof_link(alice: &SignerClient, chain: &mut TestBlockchain) -> Result<DownloadProofLink> {
       let story = alice.clone().add_funds().await.story_with_signed_doc(&read("document.zip"), None, "").await;
       let doc = &story.documents().await?[0];
       chain.fund_signer_wallet();
@@ -518,7 +584,6 @@ mod workroom {
     }
     async fn add_recipients_with_csv(d: &Selenium, site: &Site, csv: &str) {
       d.fill_in("input[type='file']", &csv).await;
-      d.wait_for_text("p", "Stan Marsh").await;
       d.click("#continue").await;
       d.wait_for("span[role='progressbar']").await;
 
@@ -569,29 +634,31 @@ mod workroom {
       path
     }
 
-    async fn add_recipient(d: &Selenium, name: &str, email: &str, id: &str) {
+    async fn add_recipient(d: &Selenium, name: &str, email: &str, id: &str, n: i32) {
       d.click("#recipients > button").await;
       d.fill_in("#name", name).await;
       d.fill_in("#email", email).await;
       d.fill_in("#recipient_identification", id).await;
       d.fill_in("#custom_text", "Prueba").await;
-      d.fill_in("#motive", "Web developer Course").await;
+      if n == 0 {
+        d.fill_in("#motive", "Web developer Course").await;
+      }
       d.click("button[type='submit']").await;
     }
 
-    async fn create_template(d: &Selenium) {
+    async fn create_template(d: &Selenium, template_name: &str) {
       d.click("a[href='#/wizard']").await;
-      d.fill_in("#newName", "testing-template").await;
+      d.fill_in("#newName", template_name).await;
       d.fill_in("#newLogoText", "Constata.eu").await;
       d.click("button[type='submit']").await;
     }
 
-    async fn create_wizard(d: &Selenium, site: &Site, recipient_count: i32) {
-      create_template(&d).await;
+    async fn create_wizard(d: &Selenium, site: &Site, recipient_count: i32, template_name: &str) {
+      create_template(&d, template_name).await;
 
       for i in 0..recipient_count {
         let email = format!("probando{i}@constata.eu");
-        add_recipient(&d, "Luciano Carreño", &email, "82736123").await;
+        add_recipient(&d, "Luciano Carreño", &email, "82736123", i).await;
       }
 
       d.click("#continue").await;
@@ -630,6 +697,7 @@ mod workroom {
       d.fill_in("#legalEntityCountry", "Argentina").await;
       autoselect_first_option(&d).await;
       d.fill_in("#legalEntityTaxId", "T-859-ID").await;
+      d.fill_in("#legalEntityLinkedinId", "84033677").await;
 
       let evidence = format!("{}/static/id_example.jpg", env::current_dir().expect("to get current directory").display());
       d.fill_in("#evidence", &evidence).await;
@@ -641,6 +709,7 @@ mod workroom {
       assert_eq!(kyc_request.attrs.id_number, Some("A14645Z".to_string()));
       assert_eq!(kyc_request.attrs.country, Some("ARG".to_string()));
       assert_eq!(kyc_request.attrs.job_title, Some("CEO".to_string()));
+      assert_eq!(kyc_request.attrs.legal_entity_linkedin_id, Some("84033677".to_string()));
 
       kyc_request.in_pending().expect("to get pending kyc request").process_update(
         KycRequestProcessForm {
@@ -656,6 +725,7 @@ mod workroom {
           legal_entity_country: process,
           legal_entity_registration: process,
           legal_entity_tax_id: process,
+          legal_entity_linkedin_id: process,
           evidence: vec![process],
         }
       ).await.expect("to process kyc request");
