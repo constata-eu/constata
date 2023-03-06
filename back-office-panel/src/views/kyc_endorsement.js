@@ -92,6 +92,7 @@ function KycEndorsementShow(){
         <TextField source='legalEntityCountry' />
         <TextField source='legalEntityRegistration' />
         <TextField source='legalEntityTaxId' />
+        <TextField source='legalEntityLinkedinId' />
       
       </SimpleShowLayout>
     </Show>
@@ -145,6 +146,7 @@ const KycEndorsementCreate = () => {
           <SelectInput source='legalEntityCountry' choices={countries} optionValue="name" />
           <TextInput source='legalEntityRegistration' />
           <TextInput source='legalEntityTaxId' />
+          <TextInput source='legalEntityLinkedinId' />
           <FileInput source="evidenceZip" accept=".zip,.rar,.7zip" maxSize={52000000}
             placeholder="Drag the file or click here to select it (.zip)"
           >
@@ -192,6 +194,7 @@ const KycEndorsementEdit = () => {
         <SelectInput source='legalEntityCountry' choices={countries} optionValue="name" />
         <TextInput source='legalEntityRegistration' />
         <TextInput source='legalEntityTaxId' />
+        <TextInput source='legalEntityLinkedinId' />
         <FileInput source="evidenceZip" accept=".zip,.rar,.7zip" maxSize={52000000}
           placeholder="Drag the file or click here to select it (.zip)"
         >

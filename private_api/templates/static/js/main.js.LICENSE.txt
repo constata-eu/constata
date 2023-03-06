@@ -6,7 +6,7 @@ object-assign
 
 /*!
 
-JSZip v3.10.1 - A JavaScript class for generating and reading zip files
+JSZip v3.10.0 - A JavaScript class for generating and reading zip files
 <http://stuartk.com/jszip>
 
 (c) 2009-2016 Stuart Knightley <stuart [at] stuartk.com>
@@ -44,17 +44,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
  */
 
 /**
- * @license React
- * react-is.production.min.js
- *
- * Copyright (c) Facebook, Inc. and its affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
-/**
- * @remix-run/router v1.0.3
+ * React Router DOM v6.3.0
  *
  * Copyright (c) Remix Software Inc.
  *
@@ -65,7 +55,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
  */
 
 /**
- * React Router DOM v6.4.3
+ * React Router v6.3.0
  *
  * Copyright (c) Remix Software Inc.
  *
@@ -75,18 +65,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
  * @license MIT
  */
 
-/**
- * React Router v6.4.3
- *
- * Copyright (c) Remix Software Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE.md file in the root directory of this source tree.
- *
- * @license MIT
- */
-
-/** @license MUI v5.10.16
+/** @license MUI v5.7.0
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.

@@ -11,29 +11,31 @@ pub struct KycRequestInput {
   #[graphql(description = "boolean pointing out whether the email should be registered as private or could be public")]
   pub keep_private: bool,
   #[graphql(description = "Your first names")]
-  name: String,
+  pub name: String,
   #[graphql(description = "Your last names")]
-  last_name: String,
+  pub last_name: String,
   #[graphql(description = "Government or otherwise officially issued ID number")]
-  id_number: Option<String>,
+  pub id_number: Option<String>,
   #[graphql(description = "Type of the officially issued id. Ej: DNI")]
-  id_type: Option<String>,
+  pub id_type: Option<String>,
   #[graphql(description = "Date of birth")]
-  birthdate: Option<UtcDateTime>,
+  pub birthdate: Option<UtcDateTime>,
   #[graphql(description = "Country of birth")]
-  nationality: Option<String>,
+  pub nationality: Option<String>,
   #[graphql(description = "Country you currently live in.")]
-  country: Option<String>,
+  pub country: Option<String>,
   #[graphql(description = "Your role, title or position in your company, if any.")]
-  job_title: Option<String>,
+  pub job_title: Option<String>,
   #[graphql(description = "Name of the company")]
-  legal_entity_name: Option<String>,
+  pub legal_entity_name: Option<String>,
   #[graphql(description = "Country where the company is based on, or where it has its HQ.")]
-  legal_entity_country: Option<String>,
+  pub legal_entity_country: Option<String>,
   #[graphql(description = "Company registration number in the required public registries, if any.")]
-  legal_entity_registration: Option<String>,
+  pub legal_entity_registration: Option<String>,
   #[graphql(description = "Company tax identification number")]
-  legal_entity_tax_id: Option<String>,
+  pub legal_entity_tax_id: Option<String>,
+  #[graphql(description = "Your company LinkedIn page, if any.")]
+  pub legal_entity_linkedin_id: Option<String>,
   #[graphql(description = "The files attached as proof for the details provided.")]
   pub evidence: Vec<KycRequestEvidenceInput>,
 }
@@ -71,6 +73,7 @@ impl KycRequestInput {
       legal_entity_country: self.legal_entity_country,
       legal_entity_registration: self.legal_entity_registration,
       legal_entity_tax_id: self.legal_entity_tax_id,
+      legal_entity_linkedin_id: self.legal_entity_linkedin_id,
     }).validate_and_save().await?;
 
     for e in &self.evidence {

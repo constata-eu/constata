@@ -353,9 +353,9 @@ impl Mutation {
   }
 
   pub async fn update_template(
-    context: &Context, id: i32, name: String, kind: String, schema: Option<String>, custom_message: Option<String>, og_title_override: Option<String>
+    context: &Context, id: i32, name: String, kind: String, schema: Option<String>, custom_message: Option<String>, og_title_override: Option<String>, archived: bool
   ) -> FieldResult<Template> {
-    Template::update_template(context, id, name, kind, schema, custom_message, og_title_override).await
+    Template::update_template(context, id, name, kind, schema, custom_message, og_title_override, archived).await
   }
   
   async fn create_invoice_link(context: &Context, org_id: i32) -> FieldResult<InvoiceLink> {

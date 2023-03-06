@@ -47,6 +47,8 @@ model!{
     legal_entity_registration: Option<String>,
     #[sqlx_model_hints(varchar)]
     legal_entity_tax_id: Option<String>,
+    #[sqlx_model_hints(varchar)]
+    legal_entity_linkedin_id: Option<String>,
   },
   belongs_to{
     Person(person_id),
@@ -162,6 +164,7 @@ pub struct KycRequestProcessForm {
   pub legal_entity_country: bool,
   pub legal_entity_registration: bool,
   pub legal_entity_tax_id: bool,
+  pub legal_entity_linkedin_id: bool,
   pub evidence: Vec<bool>,
 }
 
@@ -170,7 +173,7 @@ impl KycRequestProcessForm {
     let has_something = self.name || self.last_name || self.id_number ||self.id_type ||
       self.birthdate || self.nationality || self.country || self.job_title ||
       self.legal_entity_name || self.legal_entity_country || self.legal_entity_registration ||
-      self.legal_entity_tax_id || self.evidence.iter().any(|&i| i);
+      self.legal_entity_tax_id || self.legal_entity_linkedin_id || self.evidence.iter().any(|&i| i);
 
     return !has_something;
   }
@@ -194,7 +197,8 @@ impl Pending {
 
     update_fields_from_kyc_endorsement![
       name, last_name, id_number, id_type, birthdate, nationality, country, job_title,
-      legal_entity_name, legal_entity_country, legal_entity_registration, legal_entity_tax_id
+      legal_entity_name, legal_entity_country, legal_entity_registration, legal_entity_tax_id,
+      legal_entity_linkedin_id
     ];
 
     let kyc_endorsement = update_kyc.save().await?;

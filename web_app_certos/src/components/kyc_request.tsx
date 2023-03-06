@@ -77,6 +77,7 @@ export default function KycRequest() {
         "legalEntityCountry",
         "legalEntityRegistration",
         "legalEntityTaxId",
+        "legalEntityLinkedinId",
       );
 
       const email = manifest.data.email;
@@ -186,6 +187,9 @@ export default function KycRequest() {
               </Grid>
               <Grid item xs={12} md={6}>
                 <KycTextField source="legalEntityTaxId" />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <KycTextField source="legalEntityLinkedinId" />
               </Grid>
               <Grid item xs={12}>
                 <Box>

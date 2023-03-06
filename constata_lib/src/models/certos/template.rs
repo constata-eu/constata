@@ -31,6 +31,8 @@ model!{
     custom_message: Option<String>,
     #[sqlx_model_hints(varchar)]
     og_title_override: Option<String>,
+    #[sqlx_model_hints(boolean, default)]
+    archived: bool,
     #[sqlx_model_hints(timestamptz, default)]
     created_at: UtcDateTime,
     size_in_bytes: i32,

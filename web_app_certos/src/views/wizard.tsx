@@ -98,7 +98,7 @@ const Template = ({handleNext, wizardState, setWizardState}) => {
         </Box>
         { wizardState.hasTemplates && <Box>
           <Divider sx={{mb: 2}}>{ translate("certos.wizard.template.choose_template_divider") }</Divider>
-          <ReferenceInput sx={{mb: 0, pb: 0}} source="templateId" reference="Template" >
+          <ReferenceInput sx={{mb: 0, pb: 0}} source="templateId" reference="Template" filter={{archivedEq: false}} >
             <AutocompleteInput
               onChange={onSelectTemplate}
               label="certos.wizard.template.choose_template_label"
@@ -192,7 +192,7 @@ const Template = ({handleNext, wizardState, setWizardState}) => {
 const TemplateDone = ({wizardState, step, setStep}) => {
   const translate = useTranslate();
 
-  let text;
+  let text: String;
   if(wizardState.templateName) {
     text = translate("certos.wizard.template.done.using_existing", {name: wizardState.templateName});
   } else if (wizardState.newLogoImage) {
@@ -311,7 +311,14 @@ const Recipients = (props) => {
   };
 
   const handleFileUpload = async (event) => {
-    const text = await event.target.files[0].text();
+    const buffer = await event.target.files[0].arrayBuffer();
+    let text;
+    try {
+      text = new TextDecoder("utf-8", { fatal: true }).decode(buffer);
+    } catch(e) {
+      text = new TextDecoder("latin1").decode(buffer);
+    }
+
     const rows = await csv({delimiter: [",", ";"]}).fromString(text);
     let errors = [];
 
@@ -550,7 +557,7 @@ const CreateIssuance = ({canSendEmail, setCreatedIssuance}) => {
         let {total} = await dataProvider.getList('Template', {
           pagination: { page: 1, perPage: 1 },
           sort: null,
-          filter: {},
+          filter: { archivedEq: false },
         });
         setWizardState((s) => ({...s, ...{hasTemplates: total > 0}}));
       } catch(e) {
@@ -800,7 +807,6 @@ const NoTokensNeeded = ({hasEmails, templateKind, entries}) => {
 
 const TokensNeeded = ({hasEmails, templateKind, entries, pendingInvoiceLinkUrl}) => {
   const translate = useTranslate();
-  
   return (<Box id="tokens_needed_container">
     <Card sx={{mb: 5}}>
       <CardTitle text="certos.wizard.done.title_need_token" color="success"/>
