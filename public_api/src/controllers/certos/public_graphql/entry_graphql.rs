@@ -76,13 +76,11 @@ impl Showable<entry::Entry, EntryFilter> for Entry {
     };
 
     let document = d.document().await?;
-      
-    let mut story_id: Option<i32> = None;
+    let story_id = if let Some(d) = document.as_ref() { Some(d.story().await?.attrs.id) } else { None };
+
     let mut admin_visited: bool = false;
     let mut public_visit_count: i32 = 0;
-
     if let Some(doc) = document { 
-      story_id = Some(*doc.story_id());
       if let Some(l) = doc.download_proof_link_scope().optional().await? {
         admin_visited = l.attrs.admin_visited;
         public_visit_count = l.attrs.public_visit_count;
