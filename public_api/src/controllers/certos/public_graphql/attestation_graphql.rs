@@ -200,74 +200,21 @@ impl Showable<attestation::Attestation, AttestationFilter> for Attestation {
 }
 
 constata_lib::describe_one! {
-  type DateTime = chrono::DateTime<chrono::Utc>;
-
   fulltest!{ can_create_an_attestation (_site, c, client, mut chain)
     use chrono::prelude::*;
-    use graphql_client::GraphQLQuery;
 
-    mod testing {
-      static foo: i32 = 33;
-      type DateTime = chrono::DateTime<chrono::Utc>;
-      #[derive(graphql_client::GraphQLQuery)]
-      #[graphql(
-          schema_path = "public_api_schema.graphql",
-          query_path = "public_api_queries.graphql",
-          response_derives = "Debug,Serialize,Deserialize",
-          normalization = "Normalization::Rust",
-      )]
-      pub struct CreateAttestation;
-    }
-
-    #[derive(graphql_client::GraphQLQuery)]
-    #[graphql(
-        schema_path = "public_api_schema.graphql",
-        query_path = "public_api_queries.graphql",
-        response_derives = "Debug,Serialize,Deserialize",
-    )]
-    #[allow(non_camel_case_types)]
-    pub struct createAttestation;
-
-    impl From<constata_lib::signed_payload::SignedPayload> for create_attestation::SignedPayload {
-      fn from(s: constata_lib::signed_payload::SignedPayload) -> Self {
-        create_attestation::SignedPayload{
-          payload: base64::encode(s.payload),
-          signer: s.signer.to_string(),
-          signature: s.signature.to_string(),
-        }
-      }
-    }
-
-    #[derive(graphql_client::GraphQLQuery)]
-    #[graphql(
-        schema_path = "public_api_schema.graphql",
-        query_path = "public_api_queries.graphql",
-        response_derives = "Debug,Serialize,Deserialize",
-    )]
-    #[allow(non_camel_case_types)]
-    pub struct Attestation;
-
-    #[derive(graphql_client::GraphQLQuery)]
-    #[graphql(
-        schema_path = "public_api_schema.graphql",
-        query_path = "public_api_queries.graphql",
-        response_derives = "Debug,Serialize,Deserialize",
-    )]
-    pub struct AttestationHtmlExport;
-
-    #[derive(graphql_client::GraphQLQuery)]
-    #[graphql(
-        schema_path = "public_api_schema.graphql",
-        query_path = "public_api_queries.graphql",
-        response_derives = "Debug,Serialize,Deserialize",
-    )]
-    #[allow(non_camel_case_types)]
-    pub struct allAttestations;
+    use gql::{
+      *,
+      create_attestation as create,
+      attestation as show,
+      all_attestations as all,
+      attestation_html_export as export,
+    };
 
     client.signer.verify_email("test@example.com").await;
 
-    let vars = create_attestation::Variables{
-      input: create_attestation::AttestationInput {
+    let vars = create::Variables{
+      input: create::AttestationInput {
         documents: vec![
           client.signer.signed_payload(b"hello world").into(),
           client.signer.signed_payload(b"goodbye world").into(),
@@ -278,13 +225,12 @@ constata_lib::describe_one! {
       }
     };
 
-    let create_response: graphql_client::Response<create_attestation::ResponseData> = 
-      client.post("/graphql/", serde_json::to_string(&createAttestation::build_query(vars))? ).await;
+    let created = client.gql::<create::ResponseData, _>(&CreateAttestation::build_query(vars)).await;
 
-    assert_that!(&create_response, structure!{
+    assert_that!(&created, structure!{
       graphql_client::Response {
-        data: structure!{ Some [structure!{ create_attestation::ResponseData {
-          create_attestation: structure! { create_attestation::CreateAttestationCreateAttestation {
+        data: structure!{ Some [structure!{ create::ResponseData {
+          create_attestation: structure! { create::CreateAttestationCreateAttestation {
             id: eq(1),
             org_id: eq(1),
             markers: rematch("foo bar baz"),
@@ -307,13 +253,12 @@ constata_lib::describe_one! {
       }
     });
 
-    let show_processing_response: graphql_client::Response<attestation::ResponseData> = 
-      client.post("/graphql/", serde_json::to_string(&Attestation::build_query(attestation::Variables{ id: 1 }))? ).await;
+    let shown = client.gql::<show::ResponseData, _>(&Attestation::build_query(show::Variables{ id: 1 })).await;
 
-    assert_that!(&show_processing_response, structure!{
+    assert_that!(&shown, structure!{
       graphql_client::Response {
-        data: structure!{ Some [structure!{ attestation::ResponseData {
-          attestation: structure! { attestation::AttestationAttestation {
+        data: structure!{ Some [structure!{ show::ResponseData {
+          attestation: structure! { show::AttestationAttestation {
             id: eq(1),
             org_id: eq(1),
             state: rematch("processing"),
@@ -330,13 +275,13 @@ constata_lib::describe_one! {
     chain.fund_signer_wallet();
     chain.simulate_stamping().await;
 
-    let show_done_response: graphql_client::Response<attestation::ResponseData> = 
-      client.post("/graphql/", serde_json::to_string(&Attestation::build_query(attestation::Variables{ id: 1 }))? ).await;
+    let show_done_response: graphql_client::Response<show::ResponseData> = 
+      client.post("/graphql/", serde_json::to_string(&Attestation::build_query(show::Variables{ id: 1 }))? ).await;
 
     assert_that!(&show_done_response, structure!{
       graphql_client::Response {
-        data: structure!{ Some [structure!{ attestation::ResponseData {
-          attestation: structure! { attestation::AttestationAttestation {
+        data: structure!{ Some [structure!{ show::ResponseData {
+          attestation: structure! { show::AttestationAttestation {
             id: eq(1),
             org_id: eq(1),
             state: rematch("done"),
@@ -350,54 +295,54 @@ constata_lib::describe_one! {
       }
     });
 
-    let search = all_attestations::Variables{
+    let search = all::Variables{
       page: Some(0),
       sort_field: Some("createdAt".to_string()),
       per_page: None,
       sort_order: None,
-      filter: Some(all_attestations::AttestationFilter{
+      filter: Some(all::AttestationFilter{
         markers_like: Some("foo".to_string()),
         id_eq: None,
         ids: None,
         person_id_eq: None,
       }),
     };
-    let attestation_list_response: graphql_client::Response<all_attestations::ResponseData> = 
-      client.post("/graphql/", serde_json::to_string(&allAttestations::build_query(search))? ).await;
+    let attestation_list_response: graphql_client::Response<all::ResponseData> = 
+      client.post("/graphql/", serde_json::to_string(&AllAttestations::build_query(search))? ).await;
 
     assert_that!(&attestation_list_response.data.unwrap().all_attestations[0], structure!{
-      all_attestations::AllAttestationsAllAttestations {
+      all::AllAttestationsAllAttestations {
         id: eq(1),
       }
     });
 
-    let empty_search = all_attestations::Variables{
+    let empty_search = all::Variables{
       page: None,
       sort_field: None,
       per_page: None,
       sort_order: None,
-      filter: Some(all_attestations::AttestationFilter{
+      filter: Some(all::AttestationFilter{
         markers_like: Some("bogus".to_string()),
         id_eq: None,
         ids: None,
         person_id_eq: None,
       }),
     };
-    let empty_attestation_list_response: graphql_client::Response<all_attestations::ResponseData> = 
-      client.post("/graphql/", serde_json::to_string(&allAttestations::build_query(empty_search))? ).await;
+    let empty_attestation_list_response: graphql_client::Response<all::ResponseData> = 
+      client.post("/graphql/", serde_json::to_string(&AllAttestations::build_query(empty_search))? ).await;
 
     assert!(&empty_attestation_list_response.data.unwrap().all_attestations.is_empty());
 
-    let attestation_export_response: graphql_client::Response<attestation_html_export::ResponseData> =
-      client.post("/graphql/", serde_json::to_string(&AttestationHtmlExport::build_query(attestation_html_export::Variables{ id: 1 }))? ).await;
+    let attestation_export_response: graphql_client::Response<export::ResponseData> =
+      client.post("/graphql/", serde_json::to_string(&AttestationHtmlExport::build_query(export::Variables{ id: 1 }))? ).await;
 
     assert_that!(&attestation_export_response, structure!{
       graphql_client::Response {
-        data: structure!{ Some [structure!{ attestation_html_export::ResponseData {
-          attestation_html_export: structure! { attestation_html_export::AttestationHtmlExportAttestationHtmlExport {
+        data: structure!{ Some [structure!{ export::ResponseData {
+          attestation_html_export: structure! { export::AttestationHtmlExportAttestationHtmlExport {
             id: eq(1),
             verifiable_html: rematch("html"),
-            attestation: structure!{ attestation_html_export::AttestationHtmlExportAttestationHtmlExportAttestation {
+            attestation: structure!{ export::AttestationHtmlExportAttestationHtmlExportAttestation {
               id: eq(1),
               org_id: eq(1),
               state: rematch("done"),

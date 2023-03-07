@@ -23,6 +23,11 @@ pub struct ApiError {
 macro_rules! apitest {
   ($i:ident($site:ident, $c:ident, $($client:ident)+) $($e:tt)* ) => {
     test!{ $i
+      #[allow(unused_imports)]
+      use crate::test_support::gql;
+      #[allow(unused_imports)]
+      use graphql_client::GraphQLQuery;
+
       let $c = TestDb::new().await?;
       let $site = $c.site.clone();
       let $($client)+ = crate::test_support::PublicApiClient::new($c.alice().await).await;
@@ -35,20 +40,11 @@ macro_rules! apitest {
 macro_rules! fulltest {
   ($i:ident($site:ident, $c:ident, $($client:ident)+, $($chain:ident)+) $($e:tt)* ) => {
     test!{ $i
-      let $c = TestDb::new().await?;
-      let $site = $c.site.clone();
-      let $($client)+ = crate::test_support::PublicApiClient::new($c.alice().await).await;
-      let $($chain)+ = TestBlockchain::new().await;
-      $($e)*
-    }
-  };
-}
+      #[allow(unused_imports)]
+      use crate::test_support::gql;
+      #[allow(unused_imports)]
+      use graphql_client::GraphQLQuery;
 
-/*
-#[cfg(test)]
-macro_rules! make_api_clients {
-  ($($types:queries)*) => {
-    test!{ $i
       let $c = TestDb::new().await?;
       let $site = $c.site.clone();
       let $($client)+ = crate::test_support::PublicApiClient::new($c.alice().await).await;
@@ -57,7 +53,6 @@ macro_rules! make_api_clients {
     }
   };
 }
-*/
 
 pub struct PublicApiClient {
   pub client: Client,
@@ -145,6 +140,11 @@ impl PublicApiClient {
     serde_json::from_str(&string).unwrap_or_else(|_| panic!("Could not parse response {}", string))
   }
 
+  pub async fn gql<'a, T, Q>(&'a self, query: Q) -> graphql_client::Response<T>
+  where Q: Serialize, T: DeserializeOwned {
+    self.post("/graphql/", serde_json::to_string(&query).expect("gql query was not JSON")).await
+  }
+
   pub async fn get<T: DeserializeOwned>(&self, path: &str) -> T {
     let response = self.get_string(path).await;
     serde_json::from_str(&response).expect(&format!("Could not parse response {}", response))
@@ -216,5 +216,37 @@ impl PublicApiClient {
     let err: ApiError = serde_json::from_str(&response.into_string().await.unwrap()).unwrap();
     assert_that!(&err.error, rematch(msg));
   }
-  
 }
+
+#[cfg(test)]
+macro_rules! make_graphql_queries {
+  ($($type:ident),*) => {
+    $(
+      #[derive(graphql_client::GraphQLQuery)]
+      #[graphql(
+          schema_path = "public_api_schema.graphql",
+          query_path = "public_api_queries.graphql",
+          response_derives = "Debug,Serialize,Deserialize",
+          normalization = "Normalization::Rust",
+      )]
+      pub struct $type;
+    )*
+  };
+}
+
+pub mod gql {
+  type DateTime = chrono::DateTime<chrono::Utc>;
+
+  make_graphql_queries![CreateAttestation, Attestation, AttestationHtmlExport, AllAttestations];
+
+  impl From<constata_lib::signed_payload::SignedPayload> for create_attestation::SignedPayload {
+    fn from(s: constata_lib::signed_payload::SignedPayload) -> Self {
+      create_attestation::SignedPayload{
+        payload: base64::encode(s.payload),
+        signer: s.signer.to_string(),
+        signature: s.signature.to_string(),
+      }
+    }
+  }
+}
+
