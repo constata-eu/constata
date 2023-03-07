@@ -75,24 +75,21 @@ impl Showable<entry::Entry, EntryFilter> for Entry {
       None
     };
 
-    let document = match d.attrs.document_id.as_ref() {
-      Some(x) => Some(d.state.document().find(x).await?),
-      _ => None,
-    };
-    let story_id = match document {
-      Some(x) => Some(d.state.story().find(x.attrs.story_id).await?.attrs.id),
-      _ => None,
-    };
-
+    let document = d.document().await?;
+      
     let mut admin_visited = false;
     let mut public_visit_count = 0;
-    if let Some(document) = d.clone().document().await? {
-      if let Some(l) = document.download_proof_link_scope().optional().await? {
-        if l.attrs.admin_visited { admin_visited = true };
+
+    let story_id = if let Some(doc) = document { 
+      if let Some(l) = doc.download_proof_link_scope().optional().await? {
+        admin_visited = l.attrs.admin_visited;
         public_visit_count = l.attrs.public_visit_count;
       }
-    }
-
+      Some(*doc.story_id()) 
+    } else {
+      None 
+    };
+   
     Ok(Entry {
       id: d.attrs.id,
       request_id: d.attrs.request_id,
