@@ -26,7 +26,7 @@ impl DownloadProofLink {
     }
   }
 
-  pub async fn from_db(db_download_proof_link: &download_proof_link::DownloadProofLink, l: &i18n::Lang) -> FieldResult<DownloadProofLink> {
+  pub async fn from_db(db_download_proof_link: &download_proof_link::DownloadProofLink, l: &i18n::Lang) -> FieldResult<DownloadProofLink> { 
     let document = db_download_proof_link.document().await?;
     let pending_docs = document.story().await?.pending_docs().await?;
     let entry_title = if let Some(entry) = document.entry_scope().optional().await? { entry.title().await? } else { None };
@@ -47,6 +47,9 @@ impl DownloadProofLink {
 
   pub async fn download_proof_link(context: &Context) -> FieldResult<DownloadProofLink> {
     let download_proof_link = DownloadProofLink::from_context(context).await?;
+    if !download_proof_link.attrs.admin_visited { 
+      download_proof_link.set_visited().await?;
+    }
     DownloadProofLink::from_db(&download_proof_link, &context.lang).await
   }
 
