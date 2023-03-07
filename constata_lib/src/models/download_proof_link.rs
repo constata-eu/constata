@@ -23,6 +23,10 @@ model!{
     public_token: String,
     #[sqlx_model_hints(timestamptz, default)]
     published_at: Option<UtcDateTime>,
+    #[sqlx_model_hints(boolean, default)]
+    admin_visited: bool,
+    #[sqlx_model_hints(int4, default)]
+    public_visit_count: i32,
     #[sqlx_model_hints(int4, default)]
     deletion_id: Option<i32>,
   },
@@ -95,6 +99,14 @@ impl DownloadProofLink {
 
   pub async fn unpublish(&self) -> sqlx::Result<DownloadProofLink> {
     self.clone().update().published_at(None).save().await
+  }
+
+  pub async fn set_visited(&self) -> sqlx::Result<DownloadProofLink> {
+    self.clone().update().admin_visited(true).save().await
+  }
+
+  pub async fn update_public_visit_count(&self) -> sqlx::Result<DownloadProofLink> {
+    self.clone().update().public_visit_count(*self.public_visit_count() + 1).save().await
   }
 
   pub async fn image_url(&self) -> Result<String> {

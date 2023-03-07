@@ -13,6 +13,8 @@ pub struct Entry {
   errors: Option<String>,
   document_id: Option<String>,
   story_id: Option<i32>,
+  admin_visited: bool,
+  public_visit_count: i32,
   has_email_callback: bool,
   email_callback_sent_at: Option<UtcDateTime>,
   payload: Option<String>,
@@ -73,15 +75,18 @@ impl Showable<entry::Entry, EntryFilter> for Entry {
       None
     };
 
-    let document = match d.attrs.document_id.as_ref() {
-      Some(x) => Some(d.state.document().find(x).await?),
-      _ => None,
-    };
-    let story_id = match document {
-      Some(x) => Some(d.state.story().find(x.attrs.story_id).await?.attrs.id),
-      _ => None,
-    };
+    let document = d.document().await?;
+    let story_id = if let Some(d) = document.as_ref() { Some(d.story().await?.attrs.id) } else { None };
 
+    let mut admin_visited: bool = false;
+    let mut public_visit_count: i32 = 0;
+    if let Some(doc) = document { 
+      if let Some(l) = doc.download_proof_link_scope().optional().await? {
+        admin_visited = l.attrs.admin_visited;
+        public_visit_count = l.attrs.public_visit_count;
+      }
+    }
+   
     Ok(Entry {
       id: d.attrs.id,
       request_id: d.attrs.request_id,
@@ -95,6 +100,8 @@ impl Showable<entry::Entry, EntryFilter> for Entry {
       has_email_callback,
       email_callback_sent_at,
       story_id,
+      admin_visited,
+      public_visit_count,
       payload,
     })
   }

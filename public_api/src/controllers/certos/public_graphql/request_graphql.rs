@@ -13,6 +13,9 @@ pub struct Request {
   errors: Option<String>,
   tokens_needed: Option<i32>,
   entries: Vec<Vec<String>>,
+  entries_count: i32,
+  admin_visited_count: i32,
+  public_visit_count: i32, 
 }
 
 #[derive(GraphQLObject)]
@@ -70,6 +73,16 @@ impl Showable<request::Request, RequestFilter> for Request {
     } else {
       None
     };
+
+    let mut admin_visited_count = 0;
+    let mut public_visit_count = 0;
+    for entry in db_entries.iter() {
+      let Some(document) = entry.document().await? else { continue; };
+      let Some(l) = document.download_proof_link_scope().optional().await? else { continue; };
+      if l.attrs.admin_visited { admin_visited_count += 1 };
+      public_visit_count += l.attrs.public_visit_count;
+    }
+
     let mut entries = vec![];
     for entry in db_entries {
       entries.push(vec![
@@ -79,6 +92,8 @@ impl Showable<request::Request, RequestFilter> for Request {
         entry.attrs.email_callback_id.map(|i| i.to_string()).unwrap_or_else(|| "".to_string())
       ]);
     }
+
+
     Ok(Request {
       id: d.attrs.id,
       template_id: d.attrs.template_id,
@@ -89,7 +104,10 @@ impl Showable<request::Request, RequestFilter> for Request {
       errors: d.attrs.errors,
       created_at: d.attrs.created_at,
       tokens_needed,
+      entries_count: entries.len() as i32,
       entries,
+      admin_visited_count,
+      public_visit_count,
     })
   }
 }
