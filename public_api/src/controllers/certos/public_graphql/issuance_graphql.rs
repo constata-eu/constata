@@ -97,3 +97,17 @@ impl Showable<request::Request, IssuanceFilter> for Issuance {
     })
   }
 }
+
+
+/*
+El workflow del usuario via graphql es:
+- Envía un issuance, con entries inline opcionalmente, espera a que esté created.
+- Le puede agregar mas entries, eso pasa el issuance de "created" otra vez a "received".
+- Si está en created o received puede seguir agregando entries.
+- Si fue creado via CSV igual se le puede agregar entries.
+- Puede tirar errores de validación del entry que estoy intentando agregar.
+- Como el entry se crea asincrónicamente, y pasa el issuance de "created" a "received", es posible que el Issuance quede en failed culpa de un entry y tenga que cargar todo otra vez.
+  - Esto va a estar muy mitigado por la validación.
+  - En cualquier caso, un Issuance fallido no se puede firmar.
+
+ */

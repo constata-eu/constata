@@ -61,7 +61,6 @@ pub mod attestation_graphql;
 pub use template_graphql::{Template, TemplateFilter, TemplateInput};
 pub use issuance_graphql::{Issuance, IssuanceFilter, IssuanceExport};
 pub use entry_graphql::{Entry, EntryFilter, SigningIteratorInput};
-pub use story_graphql::{Story, StoryFilter};
 pub use account_state_graphql::AccountState;
 pub use endorsement_manifest_graphql::*;
 pub use wizard_graphql::{WizardInput, Preview};
