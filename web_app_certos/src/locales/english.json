@@ -611,7 +611,9 @@
         "proof": "Certificate",
         "requestId": "Issuance",
         "rowNumber": "Line",
-        "state": "State"
+        "state": "State",
+        "adminVisited": "Confirmed reception",
+        "publicVisitCount": "Visits to published entry"
       },
       "name": "Entry |||| Entries",
       "value": "VALUE"
@@ -629,7 +631,7 @@
         "createdAt": "Created on",
         "download": "Download CSV",
         "export_csv": "Export issuance to CSV",
-        "adminVisitedCount": "Confirmed receptions",
+        "adminVisitCount": "Confirmed receptions",
         "publicVisitCount": "Visits to published entries",
         "entries": "Entries",
         "errors": "Errors",

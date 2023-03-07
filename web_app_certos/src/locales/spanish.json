@@ -6,7 +6,7 @@
         "createdAt": "Creado el",
         "download": "Descargar CSV",
         "export_csv": "Exportar emisión a csv",
-        "adminVisitedCount": "Recepciones confirmadas",
+        "adminVisitCount": "Recepciones confirmadas",
         "publicVisitCount": "Visitas a entradas publicadas",
         "entries": "Entradas",
         "errors": "Errores",
@@ -51,7 +51,9 @@
         "proof": "Certificado",
         "requestId": "Emisión",
         "rowNumber": "Línea",
-        "state": "Estado"
+        "state": "Estado",
+        "adminVisited": "Recepción confirmada",
+        "publicVisitCount": "Visitas a la entrada"
       },
       "name": "Entrada |||| Entradas",
       "value": "VALOR"
