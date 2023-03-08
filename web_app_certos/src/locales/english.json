@@ -613,7 +613,7 @@
         "rowNumber": "Line",
         "state": "State",
         "adminVisited": "Confirmed reception",
-        "publicVisitCount": "Visits to published entry"
+        "publicVisitCount": "Public visits"
       },
       "name": "Entry |||| Entries",
       "value": "VALUE"
@@ -632,7 +632,7 @@
         "download": "Download CSV",
         "export_csv": "Export issuance to CSV",
         "adminVisitCount": "Confirmed receptions",
-        "publicVisitCount": "Visits to published entries",
+        "publicVisitCount": "Public visits",
         "entries": "Entries",
         "errors": "Errors",
         "evidence": "",

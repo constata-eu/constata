@@ -120,8 +120,12 @@ export const parseDate = (date) => {
 
 export function formatJsonInline(params){
   return <pre>
-    { Object.entries(orderJsonObject(JSON.parse(params))).map(([key, value]) =>
-    <span key={key}><><b>{key}</b>: {value} <br/></></span>
+    { Object.entries(orderJsonObject(JSON.parse(params))).map(([key, value] : [string, string]) =>
+    <span key={key} className="params">
+        <span><b>{key}</b>: </span>
+        <span>{value}</span>
+        <br/>
+    </span>
     ) }
   </pre>
 }
