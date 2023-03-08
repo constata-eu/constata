@@ -514,7 +514,6 @@ mod workroom {
       for entry in c.site.request().find(&1).await?.entry_vec().await? {
         entry.in_signed()?.try_complete().await?;
       }
-      wait_here();
       
       d.click("a[href='#/']").await;
       check_statistic(&d, 0, 0, 5, "No", 0).await;
