@@ -138,6 +138,7 @@ impl DownloadProofLink {
         match entry.template_kind().await? {
           TemplateKind::Diploma => i18n::t!(l, public_certificate_share_text_diploma),
           TemplateKind::Attendance => i18n::t!(l, public_certificate_share_text_attendance),
+          TemplateKind:: Badge => i18n::t!(l, public_certificate_share_text_badge),
           TemplateKind:: Invitation => i18n::t!(l, public_certificate_share_text_invitation),
         }
       },

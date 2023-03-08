@@ -47,6 +47,7 @@ impl Showable<template::Template, TemplateFilter> for Template {
       match p.as_str() {
         "DIPLOMA" => Some(TemplateKind::Diploma),
         "ATTENDANCE" => Some(TemplateKind::Attendance),
+        "BADGE" => Some(TemplateKind::Badge),
         "INVITATION" => Some(TemplateKind::Invitation),
         _ => None,
       }
@@ -94,7 +95,7 @@ impl Template {
     let kind_enum = match kind.as_ref() {
       "DIPLOMA" => TemplateKind::Diploma,
       "ATTENDANCE" => TemplateKind::Attendance,
-      _ => TemplateKind::Invitation,
+      _ => TemplateKind::Badge,
     };
     let org = context.site.org().find(&org_id).await?;
 
@@ -127,7 +128,7 @@ impl Template {
     let kind_enum = match kind.as_ref() {
       "DIPLOMA" => TemplateKind::Diploma,
       "ATTENDANCE" => TemplateKind::Attendance,
-      _ => TemplateKind::Invitation,
+      _ => TemplateKind::Badge,
     };
     let db_template = context.site.template().find(&id).await?
       .update()
