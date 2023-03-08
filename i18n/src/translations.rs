@@ -3,6 +3,7 @@ pub struct TranslatedStrings {
   pub mailer_document_received_subject: &'static str,
   pub template_message_for_diploma: &'static str,
   pub template_message_for_attendance: &'static str,
+  pub template_message_for_badge: &'static str,
   pub template_message_for_invitation: &'static str,
   pub mailer_email_callback_subject: &'static str,
   pub mailer_parked_document_reminder_because_tyc_are_not_accepted_subject: &'static str,
@@ -15,6 +16,7 @@ pub struct TranslatedStrings {
   pub telegram_bot_do_not_add_me_to_groups_directly: &'static str,
   pub public_certificate_share_text_diploma: &'static str,
   pub public_certificate_share_text_attendance: &'static str,
+  pub public_certificate_share_text_badge: &'static str,
   pub public_certificate_share_text_invitation: &'static str,
   pub public_certificate_share_text_default: &'static str,
 }
@@ -24,6 +26,7 @@ pub const ENGLISH_STRINGS: TranslatedStrings = TranslatedStrings {
   mailer_document_received_subject: "I got your document",
   template_message_for_diploma: "Hello {{ name }}, this is your diploma for {{ motive }}.",
   template_message_for_attendance: "Hello {{ name }}, this is your certificate of attendance to {{ motive }}.",
+  template_message_for_badge: "Hello {{ name }}, this is badge for {{ motive }}.",
   template_message_for_invitation: "Hello {{ name }}, this is an invitation for you to attend {{ motive }}.",
   mailer_email_callback_subject: "A certified document from {0}",
   mailer_parked_document_reminder_because_tyc_are_not_accepted_subject: "You have pending certifications, you need to accept our Terms and Conditions.",
@@ -36,6 +39,7 @@ pub const ENGLISH_STRINGS: TranslatedStrings = TranslatedStrings {
   telegram_bot_do_not_add_me_to_groups_directly: "I'm sorry, I need to reach te person who added me, and I can't.\n             Admin, please talk to me in private first, then remove and add me to this group again.",
   public_certificate_share_text_diploma: "This diploma is certified by the Bitcoin blockchain!",
   public_certificate_share_text_attendance: "This certificate of attendance is sealed by the Bitcoin blockchain!",
+  public_certificate_share_text_badge: "This badge is certified by the Bitcoin blockchain!",
   public_certificate_share_text_invitation: "This invitation is certified by the Bitcoin blockchain!",
   public_certificate_share_text_default: "This document is certified by the Bitcoin blockchain!",
 };
@@ -46,6 +50,7 @@ pub const SPANISH_STRINGS: TranslatedStrings = TranslatedStrings {
   mailer_document_received_subject: "Recibí tu documento",
   template_message_for_diploma: "Hola {{ name }}, este es tu diploma de {{ motive }}.",
   template_message_for_attendance: "Hola {{ name }}, este es tu certificado de asistencia a {{ motive }}.",
+  template_message_for_badge: "Hola {{ name }}, esta es una insignia por {{ motive }}.",
   template_message_for_invitation: "Hola {{ name }}, esta es una invitación para el evento llamado {{ motive }}.",
   mailer_email_callback_subject: "Un documento certificado de parte de {0}",
   mailer_parked_document_reminder_because_tyc_are_not_accepted_subject: "Tienes certificaciones pendientes, necesitas aceptar nuestros términos y condiciones.",
@@ -58,6 +63,7 @@ pub const SPANISH_STRINGS: TranslatedStrings = TranslatedStrings {
   telegram_bot_do_not_add_me_to_groups_directly: "Lo siento, necesito contactar a la persona que me agregó al grupo, y no puedo. Admin: Por favor háblame en privado primero, luego quitame del grupo y agrégame otra vez.",
   public_certificate_share_text_diploma: "¡Este diploma está certificado en la blockchain de Bitcoin!",
   public_certificate_share_text_attendance: "¡Este certificado de asistencia está sellado en la blockchain de Bitcoin!",
+  public_certificate_share_text_badge: "¡Esta insignia está certificada en la blockchain de Bitcoin!",
   public_certificate_share_text_invitation: "¡Esta invitación está certificada en la blockchain de Bitcoin!",
   public_certificate_share_text_default: "¡Este documento está certificado en la blockchain de Bitcoin!",
 };
