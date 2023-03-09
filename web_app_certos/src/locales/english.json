@@ -64,7 +64,7 @@
 			"issue": {
 				"button": "Issue certificates",
 				"text": "BITCOIN'S BLOCKCHAIN guarantees immutability and date, CONSTATA verifies your identity.",
-				"title": "Issue diplomas, certificates of attendance, and invitations"
+				"title": "Issue diplomas, certificates of attendance, and badges"
 			},
 			"pending_signatures": {
 				"text": "Review and sign them so that we can complete the issuance process",
@@ -350,9 +350,9 @@
             "and_we": " and we will send it ||| and we will send them ",
             "base": " the diploma |||| all %{smart_count} diplomas "
           },
-          "INVITATION": {
+          "BADGE": {
             "and_we": " and we will send it ||| and we will send them ",
-            "base": " the invitation |||| all %{smart_count} invitations "
+            "base": " the badge |||| all %{smart_count} badges "
           }
         },
         "see_in_dashboard": "You can follow the process in the dashboard.",
@@ -362,12 +362,12 @@
       "kind": {
         "ATTENDANCE": "Certificate of attendance",
         "DIPLOMA": "Diploma",
-        "INVITATION": "Invitation"
+        "BADGE": "Badge"
       },
       "kind_numbered": {
         "ATTENDANCE": "a certificate of attendance |||| %{smart_count} certificates of attendance",
         "DIPLOMA": "a diploma |||| %{smart_count} diplomas",
-        "INVITATION": "an invitation |||| %{smart_count} invitations "
+        "BADGE": "an badge |||| %{smart_count} badges "
       },
       "recipients": {
         "add_many_button": "Add many via CSV",
@@ -483,26 +483,26 @@
               "sample": "Student did a 3 month internship at CyberWidgets (optional)"
             }
           },
-          "INVITATION": {
+          "BADGE": {
             "custom_text": {
-              "help": "Optional. ex: \"Has been nominated in the Entrepreneurs category\"",
+              "help": "Optional. ex: \"Has awarded first place at CTF.\"",
               "label": "Custom text",
-              "sample": "Has been nominated in the Entrepreneurs category (optional)"
+              "sample": "Has awarded first place at CTF (optional)"
             },
             "date": {
               "help": "Optional, ej: \"august 10, 2023\"",
-              "label": "Date of the event",
+              "label": "Date of the badge",
               "sample": "august 10, 2023 (optional)"
             },
             "email": {
-              "help": "Optional. Will not be shown in the invitation, will only be used to notify the recipient.",
+              "help": "Optional. Will not be shown in the badge, will only be used to notify the recipient.",
               "label": "Email",
               "sample": "jane.doe@example.com (optional)"
             },
             "motive": {
-              "help": "ex: \"Auto Industry Awards.\"",
-              "label": "Ocassion, name of the event",
-              "sample": "XXII Auto Industry Awards."
+              "help": "ex: \"CTF First Place.\"",
+              "label": "Goal achieved",
+              "sample": "First place at Web3 CTF."
             },
             "name": {
               "help": "ej: \"Mr. John Smith +1\"",
@@ -510,9 +510,9 @@
               "sample": "John Smith"
             },
             "place": {
-              "help": "Optional, \"Auto Convention Center, Charles Gimli st #1112\"",
+              "help": "Optional, \"Place or event where the badge was earned.\"",
               "label": "Address",
-              "sample": "Auto convention center, Charles Gimli st #1112 (optional)"
+              "sample": "DeFi-Security-Summit-Stanford. (optional)"
             },
             "recipient_identification": {
               "help": "Optional. \"Member #12121\", \"jane.doe@example.com\".",
@@ -520,9 +520,9 @@
               "sample": "Member #12121 (optional)"
             },
             "shared_text": {
-              "help": "Optional, ex: \"We look forward to seeing you at the event, please confirm attendance.\"",
+              "help": "Optional, ex: \"Congratulations on winning first place!\"",
               "label": "Extra Text",
-              "sample": "Please confirm attendance (optional)"
+              "sample": "Congratulations on winning first place! (optional)"
             }
           }
         },
@@ -576,7 +576,7 @@
         "new_name_label": "Template name",
         "new_template_divider": "Or create a new template",
         "sample": "example",
-        "text": "The diplomas, certificates of attendance, or invitations will be generated from a template that has your logo and then fills out all fields with each recipients details.",
+        "text": "The diplomas, certificates of attendance, or badges will be generated from a template that has your logo and then fills out all fields with each recipients details.",
         "title": "What are you issuing?"
       }
     }
@@ -709,7 +709,7 @@
         "bitcoin_backed": "Your certificates will be backed by Bitcoin's blockchain and Constata.",
         "done": "Terms and conditions accepted.",
         "giveaway": "We give you your first 10 tokens each month.",
-        "issue_documents": "You will be able to issue diplomas, certificates of attendance and invitations.",
+        "issue_documents": "You will be able to issue diplomas, certificates of attendance and badges.",
         "link": "Read service terms and conditions.",
         "mustAcceptTyc": "You must accept our terms and conditions.",
         "review": "Review",
