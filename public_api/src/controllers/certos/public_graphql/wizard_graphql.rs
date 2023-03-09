@@ -19,15 +19,15 @@ pub struct WizardInput {
   csv: String,
   #[graphql(description = "The name of the Issuance to be created.")]
   name: String,
-  #[graphql(description = "The ID of an existing template to use, if any.")]
+  #[graphql(description = "The ID of an existing template to use, if any. See the Templates resource.")]
   template_id: Option<i32>,
-  #[graphql(description = "The kind of template to be created if no template is used.")]
+  #[graphql(description = "The kind of template to be created if no template_id is given.")]
   new_kind: Option<models::TemplateKind>,
-  #[graphql(description = "The name of the new template to be created, if no template is used.")]
+  #[graphql(description = "The name of the new template to be created, if no template_id is given.")]
   new_name: Option<String>,
-  #[graphql(description = "The text to be used as the logo for the new template, if no template is used.")]
+  #[graphql(description = "The text to be used as the logo for the new template, if no template_id is given.")]
   new_logo_text: Option<String>,
-  #[graphql(description = "The image to be used as the logo for the new template, if no template is used.")]
+  #[graphql(description = "The base64 encoded image to be used as the logo for the new template, if no template_id is given. If you leave it empty your new_logo_text will be displayed.")]
   new_logo_image: Option<String>,
 }
 

@@ -1,5 +1,6 @@
 use crate::{
   models::{
+    storable::*,
     Person,
     Request,
     certos::*,
@@ -7,6 +8,8 @@ use crate::{
   Result as CrateResult,
   Error
 };
+use csv;
+use std::collections::HashMap;
 
 pub enum ImageOrText {
   Image(Vec<u8>),
@@ -22,30 +25,23 @@ pub enum WizardTemplate {
   }
 }
 
-pub struct Wizard {
-  pub person: Person,
-  pub template: WizardTemplate,
-  pub name: String,
-  pub csv: Vec<u8>,
-}
-
-impl Wizard {
-  pub async fn process(self) -> CrateResult<Request> {
-    let org = self.person.org().await?;
-    let lang = self.person.attrs.lang;
+impl WizardTemplate {
+  pub async fn get_template_id(self, person: &Person) -> CrateResult<i32> {
+    let lang = person.attrs.lang;
+    let org = person.org().await?;
     let app = org.get_or_create_certos_app().await?;
 
-    let template_id = match self.template {
+    let id = match self {
       WizardTemplate::Existing{ template_id } => {
         org.template_scope().id_eq(template_id).one().await?.attrs.id
       },
       WizardTemplate::New { logo, kind, name } => {
-        let (custom_message, payload) = Wizard::make_template_zip(lang, logo, kind).await?;
+        let (custom_message, payload) = WizardTemplate::make_template_zip(lang, logo, kind).await?;
 
-        self.person.state.template()
+        person.state.template()
           .insert(InsertTemplate{
             app_id: app.attrs.id,
-            person_id: self.person.attrs.id,
+            person_id: person.attrs.id,
             org_id: org.attrs.id,
             name: name,
             kind: kind,
@@ -57,16 +53,7 @@ impl Wizard {
       }
     };
 
-    self.person.state.request()
-      .insert(InsertRequest{
-        app_id: org.get_or_create_certos_app().await?.attrs.id,
-        person_id: self.person.attrs.id,
-        org_id: org.attrs.id,
-        template_id,
-        state: "received".to_string(),
-        name: self.name,
-        size_in_bytes: self.csv.len() as i32,
-      }).validate_and_save(&self.csv).await
+    Ok(id)
   }
 
   pub async fn make_template_zip(lang: i18n::Lang, logo: ImageOrText, kind: TemplateKind) -> CrateResult<(String, Vec<u8>)> {
@@ -104,145 +91,116 @@ impl Wizard {
   }
 }
 
+pub struct Wizard {
+  pub person: Person,
+  pub template: WizardTemplate,
+  pub name: String,
+  pub csv: Vec<u8>,
+}
 
-describe!{
-  use std::io::Read;
+impl Wizard {
+  pub async fn process(self) -> CrateResult<Request> {
+    let org = self.person.org().await?;
+    let app = org.get_or_create_certos_app().await?;
 
-  dbtest!{ submits_wizard_with_new_template(site, c)
-    let a = c.alice().await;
-    let person = a.person().await;
+    let template_id = self.template.get_template_id(&self.person).await?;
 
-    let w = Wizard{
-      person,
-      name: "Some diploma 2023".to_string(),
-      template: WizardTemplate::New {
-        name: "A diploma template".to_string(),
-        logo: ImageOrText::Image(read("wizard/logo.png")),
-        kind: TemplateKind::Invitation,
-      },
-      csv: read("wizard/default.csv"),
+    let sanitized = if let Err(std::str::Utf8Error{..}) = std::str::from_utf8(&self.csv) {
+      Some(self.csv.iter().map(|b| *b as char).collect::<String>().into_bytes())
+    } else {
+      None
     };
 
-    let request = w.process().await?;
-    site.request().create_all_received().await?;
+    let reader_buffer: &[u8] = &sanitized.as_deref().unwrap_or(&self.csv);
 
-    assert_eq!(
-      &request.entry_vec().await?[0].params_and_custom_message().await?.1.unwrap(),
-      "Hola Stan Marsh, esta es una invitación para el evento llamado Arte con plastilina."
-    );
+    let mut rows = Wizard::read_csv_from_payload(reader_buffer).await;
 
-    assert_eq!(request.entry_scope().count().await?, 2);
-    std::fs::write("../target/artifacts/entry.zip", &request.entry_scope().one().await?.payload().await?)?;
+    for header in rows.headers()? {
+      if !header.chars().all(|c| c.is_ascii_alphanumeric() || c == '_') {
+        return Err(Error::validation("payload", "non_ascii_character"));
+      }
+    }
+    
+    let mut params: Vec<HashMap<String,String>> = vec![];
 
+    for result in rows.deserialize() {
+      match result {
+        Err(error) => {
+          let err = match error.kind() {
+            csv::ErrorKind::UnequalLengths{..} => "unequal_lengths",
+            csv::ErrorKind::Utf8 {..} => "utf8",
+            _ => "unexpected",
+          };
+          return Err(Error::validation("payload", err));
+        },
+        Ok(p) => params.push(p)
+      }
+    }
 
-    let mut zipfile = zip::ZipArchive::new(std::io::Cursor::new(request.template().await?.payload().await?))?;
-    let mut inner = zipfile.by_index(0)?;
-    assert_eq!(inner.name(), "invitation.html.tera");
-    let mut contents = String::new();
-    inner.read_to_string(&mut contents)?;
-    assert_that!(&contents, rematch(r#"\{\{ name \}\}"#));
-    assert_that!(&contents, rematch("data:image/png;base64,iVBORw0KG"));
+    let request = self.person.state.request()
+      .insert(InsertRequest{
+        app_id: app.attrs.id,
+        person_id: self.person.attrs.id,
+        org_id: org.attrs.id,
+        template_id,
+        state: "received".to_string(),
+        name: self.name,
+        size_in_bytes: self.csv.len() as i32,
+      }).save().await?;
 
-    std::fs::write("../target/artifacts/template_from_submits_wizard_with_new_template.html", &contents)?;
+    request.storage_put(&reader_buffer).await?;
+
+    let received = request.in_received()?;
+    received.append_entries(&params).await?;
+
+    Ok(request)
   }
 
-  test!{ creates_translated_templates
-    assert_eq!(
-      &Wizard::make_template_zip(i18n::Lang::Es, ImageOrText::Text("test".to_string()), TemplateKind::Diploma).await?.0,
-      "Hola {{ name }}, este es tu diploma de {{ motive }}."
-    );
-
-    assert_eq!(
-      &Wizard::make_template_zip(i18n::Lang::En, ImageOrText::Text("test".to_string()), TemplateKind::Invitation).await?.0,
-      "Hello {{ name }}, this is an invitation for you to attend {{ motive }}."
-    );
+  pub async fn read_csv_from_payload(reader_buffer: &[u8]) -> csv::Reader<&[u8]> {
+    let separator = if String::from_utf8_lossy(reader_buffer).contains(",") {
+      b','
+    } else {
+      b';'
+    };
+    csv::ReaderBuilder::new().delimiter(separator).from_reader(reader_buffer)
   }
+}
 
-  dbtest!{ submits_wizard_using_issuer_name(site, c)
-    let a = c.alice().await;
-    let person = a.person().await;
+pub struct JsonIssuanceBuilder {
+  pub person: Person,
+  pub template: WizardTemplate,
+  pub name: String,
+  pub entries: Vec<HashMap<String,String>>,
+}
 
-    let w = Wizard{
-      person,
-      name: "Some diploma 2023".to_string(),
-      template: WizardTemplate::New {
-        name: "A diploma template".to_string(),
-        logo: ImageOrText::Text("City Wok".to_string()),
-        kind: TemplateKind::Attendance,
-      },
-      csv: read("wizard/default.csv"),
-    };
+impl JsonIssuanceBuilder {
+  pub async fn process(self) -> CrateResult<request::Received> {
+    let org = self.person.org().await?;
+    let app = org.get_or_create_certos_app().await?;
 
-    let request = w.process().await?;
-    site.request().create_all_received().await?;
-    assert_eq!(request.entry_scope().count().await?, 2);
-    std::fs::write("../target/artifacts/zip_from_submits_wizard_using_issuer_name_entry.zip", &request.entry_scope().one().await?.payload().await?)?;
+    let template_id = self.template.get_template_id(&self.person).await?;
 
-    let mut zipfile = zip::ZipArchive::new(std::io::Cursor::new(request.template().await?.payload().await?))?;
-    let mut inner = zipfile.by_index(0)?;
-    assert_eq!(inner.name(), "attendance.html.tera");
-    let mut contents = String::new();
-    inner.read_to_string(&mut contents)?;
-    assert_that!(&contents, rematch(r#"\{\{ name \}\}"#));
-    assert_that!(&contents, rematch("City Wok"));
+    for e in &self.entries {
+      for k in e.keys() {
+        if !k.chars().all(|c| c.is_ascii_alphanumeric() || c == '_') {
+          return Err(Error::validation("payload", "non_ascii_character"));
+        }
+      }
+    }
+    
+    let received = self.person.state.request()
+      .insert(InsertRequest{
+        app_id: app.attrs.id,
+        person_id: self.person.attrs.id,
+        org_id: org.attrs.id,
+        template_id,
+        state: "received".to_string(),
+        name: self.name,
+        size_in_bytes: 0,
+      }).save().await?.in_received()?;
 
-    std::fs::write("../target/artifacts/template_from_submits_wizard_using_issuer_name.html", &contents)?;
-  }
+    received.append_entries(&self.entries).await?;
 
-  dbtest!{ submits_wizard_using_unrecognized_image(_site, c)
-    let a = c.alice().await;
-    let person = a.person().await;
-
-    let w = Wizard{
-      person,
-      name: "Some diploma 2023".to_string(),
-      template: WizardTemplate::New {
-        name: "A diploma template".to_string(),
-        logo: ImageOrText::Image(read("wizard/default.csv")),
-        kind: TemplateKind::Invitation,
-      },
-      csv: read("wizard/default.csv"),
-    };
-
-    assert_that!(
-      &w.process().await.unwrap_err(),
-      structure![Error::Validation { field: rematch("logo_image"), message: rematch("not_a_valid_image_file") }]
-    );
-  }
-
-  dbtest!{ submits_wizard_with_existing_template(site, c)
-    let a = c.alice().await;
-    let template = a.make_template(
-      read("certos_template.zip"),
-    ).await;
-    let person = a.person().await;
-
-    let w = Wizard{
-      person,
-      name: "Some diploma 2023".to_string(),
-      template: WizardTemplate::Existing {
-        template_id: template.attrs.id,
-      },
-      csv: read("certos_request.csv"),
-    };
-
-    let request = w.process().await?;
-    site.request().create_all_received().await?;
-    assert_eq!(request.entry_scope().count().await?, 2);
-
-    let bob = c.bob().await.person().await;
-    let failing_wizard = Wizard{
-      person: bob,
-      name: "Bob's trying to use alice's template".to_string(),
-      template: WizardTemplate::Existing {
-        template_id: template.attrs.id,
-      },
-      csv: read("certos_request.csv"),
-    };
-
-    assert_that!(
-      &failing_wizard.process().await.unwrap_err(),
-      structure![Error::DatabaseError [is_variant!(sqlx::Error::RowNotFound)] ]
-   );
+    Ok(received)
   }
 }

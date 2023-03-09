@@ -1,5 +1,54 @@
 use super::*;
 
+#[derive(GraphQLInputObject, Serialize, Deserialize)]
+#[graphql(description = "A CreateIssuanceInput configures a new Issuance, with at least one recipient, where more new entries may be added later. Once all desired entries have been added, the issuance may be signed and will be certified and optionally distributed by Constata. If you want to create an Issuance all at once from a single CSV file we suggest you use the Wizard endpoint.")]
+#[serde(rename_all = "camelCase")]
+pub struct CreateIssuanceInput {
+  #[graphql(description = "An array of JSON objects corresponding to each recipient for whom you want to create a diploma, certificate of attendance or badge")]
+  entries: Vec<serde_json::Json>,
+  #[graphql(description = "The name of the Issuance to be created.")]
+  name: String,
+  #[graphql(description = "The ID of an existing template to use, if any. See the Templates resource.")]
+  template_id: Option<i32>,
+  #[graphql(description = "The kind of template to be created if no template_id is given.")]
+  new_kind: Option<models::TemplateKind>,
+  #[graphql(description = "The name of the new template to be created, if no template_id is given.")]
+  new_name: Option<String>,
+  #[graphql(description = "The text to be used as the logo for the new template, if no template_id is given.")]
+  new_logo_text: Option<String>,
+  #[graphql(description = "The base64 encoded image to be used as the logo for the new template, if no template_id is given. If you leave it empty your new_logo_text will be displayed.")]
+  new_logo_image: Option<String>,
+}
+
+impl CreateIssuanceInput {
+  pub async fn create_issuance(self, context: &Context) -> FieldResult<Issuance> {
+    let template = match self.template_id {
+      Some(id) => WizardTemplate::Existing{ template_id: id},
+      None => {
+        WizardTemplate::New {
+          kind: self.new_kind.ok_or_else(|| Error::validation("newKind", "cannot_be_empty"))?,
+          name: self.new_name.ok_or_else(|| Error::validation("newName", "cannot_be_empty"))?,
+          logo: match self.new_logo_image {
+            Some(i) => ImageOrText::Image(base64::decode(i)?),
+            _ => ImageOrText::Text(self.new_logo_text.ok_or_else(|| Error::validation("newLogoText", "cannot_be_empty"))?),
+          }
+        }
+      }
+    };
+
+    let person = context.site.person().find(context.person_id()).await?;
+
+    let db_request = wizard::Wizard {
+      person: person,
+      csv: self.csv.into_bytes().clone(),
+      name: self.name,
+      template
+    }.process().await?;
+
+    Ok(Issuance::db_to_graphql(db_request, false).await?)
+  }
+}
+
 #[derive(GraphQLObject)]
 #[graphql(description = "Represents a batch generation and certification of diplomas, proofs of attendance, and badges from a template. Can be done through our Wizard from a CSV file, or incrementally using this API.")]
 pub struct Issuance {
@@ -111,3 +160,142 @@ El workflow del usuario via graphql es:
   - En cualquier caso, un Issuance fallido no se puede firmar.
 
  */
+constata_lib::describe_one! {
+  fulltest!{ can_create_an_issuance (_site, c, client, mut chain)
+    client.signer.verify_email("test@example.com").await;
+
+    /*
+    use gql::{
+      *,
+      create_issuance as create,
+      update_issuance as update,
+      issuance as show,
+      all_issuances as all,
+    };
+
+
+    let vars = create::Variables{
+      input: create::AttestationInput {
+        documents: vec![
+          client.signer.signed_payload(b"hello world").into(),
+          client.signer.signed_payload(b"goodbye world").into(),
+        ],
+        open_until: Some(chrono::Utc.with_ymd_and_hms(2050, 1, 1, 1, 1, 1).unwrap()),
+        markers: Some("foo bar baz".to_string()),
+        email_admin_access_url_to: vec!["foo@example.com".to_string(), "bar@example.com".to_string()]
+      }
+    };
+
+    let created: create::ResponseData = client.gql(&CreateAttestation::build_query(vars)).await;
+
+    assert_that!(&created, structure!{ create::ResponseData {
+      create_attestation: structure! { create::CreateAttestationCreateAttestation {
+        id: eq(1),
+        org_id: eq(1),
+        markers: rematch("foo bar baz"),
+        state: rematch("processing"),
+        open_until: maybe_some(eq(chrono::Utc.with_ymd_and_hms(2050, 1, 1, 1, 1, 1).unwrap())),
+        parking_reason: eq(None),
+        done_documents: eq(0),
+        parked_documents: eq(0),
+        processing_documents: eq(2),
+        total_documents: eq(2),
+        tokens_cost: eq(2.0),
+        tokens_paid: eq(2.0),
+        tokens_owed: eq(0.0),
+        buy_tokens_url: eq(None),
+        accept_tyc_url: eq(None),
+        email_admin_access_url_to: contains_in_any_order(vec!["foo@example.com".to_string(), "bar@example.com".to_string()]),
+        admin_access_url: eq(None),
+      }}
+    }});
+
+    let processing: show::ResponseData = client.gql(&Attestation::build_query(show::Variables{ id: 1 })).await;
+
+    assert_that!(&processing, structure!{ show::ResponseData {
+      attestation: structure! { show::AttestationAttestation {
+        id: eq(1),
+        org_id: eq(1),
+        state: rematch("processing"),
+        done_documents: eq(0),
+        parked_documents: eq(0),
+        processing_documents: eq(2),
+        total_documents: eq(2),
+        admin_access_url: eq(None),
+      }}
+    }});
+
+    chain.fund_signer_wallet();
+    chain.simulate_stamping().await;
+
+    let done: show::ResponseData = client.gql(&Attestation::build_query(show::Variables{ id: 1 })).await;
+
+    assert_that!(&done, structure!{ show::ResponseData {
+      attestation: structure! { show::AttestationAttestation {
+        id: eq(1),
+        org_id: eq(1),
+        state: rematch("done"),
+        done_documents: eq(2),
+        parked_documents: eq(0),
+        processing_documents: eq(0),
+        total_documents: eq(2),
+        admin_access_url: maybe_some(rematch("http://localhost:8000/safe/.*")),
+      }}
+    }});
+
+    let search = all::Variables{
+      page: Some(0),
+      sort_field: Some("createdAt".to_string()),
+      per_page: None,
+      sort_order: None,
+      filter: Some(all::AttestationFilter{
+        markers_like: Some("foo".to_string()),
+        id_eq: None,
+        ids: None,
+        person_id_eq: None,
+      }),
+    };
+    let attestations: all::ResponseData = client.gql(&AllAttestations::build_query(search)).await;
+
+    assert_that!(&attestations.all_attestations[0], structure!{
+      all::AllAttestationsAllAttestations {
+        id: eq(1),
+      }
+    });
+
+    let empty_search = all::Variables{
+      page: None,
+      sort_field: None,
+      per_page: None,
+      sort_order: None,
+      filter: Some(all::AttestationFilter{
+        markers_like: Some("bogus".to_string()),
+        id_eq: None,
+        ids: None,
+        person_id_eq: None,
+      }),
+    };
+    let empty_list: all::ResponseData = client.gql(&AllAttestations::build_query(empty_search)).await;
+
+    assert!(empty_list.all_attestations.is_empty());
+
+    let exported: export::ResponseData = client.gql(&AttestationHtmlExport::build_query(export::Variables{ id: 1 })).await;
+
+    assert_that!(&exported, structure!{ export::ResponseData {
+      attestation_html_export: structure! { export::AttestationHtmlExportAttestationHtmlExport {
+        id: eq(1),
+        verifiable_html: rematch("html"),
+        attestation: structure!{ export::AttestationHtmlExportAttestationHtmlExportAttestation {
+          id: eq(1),
+          org_id: eq(1),
+          state: rematch("done"),
+          done_documents: eq(2),
+          parked_documents: eq(0),
+          processing_documents: eq(0),
+        }}
+      }}
+    }});
+    */
+  }
+}
+

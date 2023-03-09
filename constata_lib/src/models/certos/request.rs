@@ -3,7 +3,7 @@ use crate::{
     model,
     Site,
     UtcDateTime,
-    entry::*,
+    entry::{self, Entry, EntryOrderBy, SelectEntryHub, InsertEntry},
     template::*,
     person::*,
     OrgDeletion,
@@ -93,13 +93,17 @@ impl Request {
     }
   }
 
-  pub async fn read_csv_from_payload(reader_buffer: &[u8]) -> csv::Reader<&[u8]> {
-    let separator = if String::from_utf8_lossy(reader_buffer).contains(",") {
-      b','
-    } else {
-      b';'
-    };
-    csv::ReaderBuilder::new().delimiter(separator).from_reader(reader_buffer)
+  pub async fn set_all_failed(self, reason: &str) -> Result<Failed> {
+    let updated = self.update()
+      .state("failed".to_string())
+      .errors(Some(reason.to_string()))
+      .save().await?;
+
+    for e in updated.entry_vec().await? {
+      e.update().state("failed".to_string()).save().await?;
+    }
+    
+    updated.in_failed()
   }
 
   pub async fn export_csv(&self) -> Result<String> {
@@ -219,17 +223,40 @@ impl Flow {
       Flow::Failed(a) => a.as_inner(),
     }
   }
+
+  pub async fn for_adding_entries(&self) -> Result<Option<Received>> {
+    Ok(match self.to_owned() {
+      Flow::Received(a) => Some(a),
+      Flow::Created(a) => Some(a.back_to_received().await?),
+      _ => None
+    })
+  }
 }
 
 impl Received {
+  pub async fn append_entries(&self, rows: &[HashMap<String,String>]) -> Result<Vec<entry::Received>> {
+    let inner = self.as_inner();
+    let base_index = inner.entry_scope().count().await? as i32;
+    let mut received = vec![];
+    for (i, p) in rows.iter().enumerate() {
+      received.push(inner.state.entry().insert(InsertEntry{
+        app_id: *inner.app_id(),
+        person_id: *inner.person_id(),
+        org_id: *inner.org_id(),
+        request_id: *inner.id(),
+        row_number: 1 + base_index + i as i32,
+        state: "received".to_string(),
+        params: serde_json::to_string(&p)?
+      }).save().await?.in_received()?);
+    }
+    Ok(received)
+  }
+
   pub async fn create(&self) -> Result<Created> {
     match self.create_helper().await {
       Ok(created) => Ok(created),
       Err(e) => {
-        self.to_owned().into_inner().update()
-          .state("failed".to_string())
-          .errors(Some(e.to_string()))
-          .save().await?;
+        self.to_owned().into_inner().set_all_failed("creation_failed").await?;
         Err(e)
       }
     }
@@ -237,15 +264,11 @@ impl Received {
 
   pub async fn create_helper(&self) -> Result<Created> {
     let inner = self.as_inner();
-
     let template_payload = inner.template().await?.payload().await?;
     let template_files = Template::read_name_and_bytes_from_payload(&template_payload).await?;
 
-    let reader_buffer = inner.storage_fetch().await?;
-    let mut rows = Request::read_csv_from_payload(&reader_buffer).await;
-
-    for (i, row) in rows.deserialize().enumerate() {
-      inner.state.entry().create(inner, i as i32, &template_files, row?).await?;
+    for entry in inner.entry_scope().state_eq("received".to_string()).all().await? {
+      entry.in_received()?.create(&template_files).await?;
     }
 
     inner.to_owned().update().state("created".to_string()).save().await?.in_created()
@@ -270,13 +293,17 @@ impl EntrySignature {
 }
 
 impl Created {
+  pub async fn back_to_received(self) -> Result<Received> {
+    self.into_inner().update().state("received".to_string()).save().await?.in_received()
+  }
+
   pub async fn tokens_needed(&self) -> Result<i32> {
     let one_mb = Decimal::from(n_mb_bytes!(1));
     let mut tokens = 0;
     
     for entry in self.0.entry_vec().await? {
       if entry.is_created() {
-        tokens += (Decimal::from(entry.attrs.size_in_bytes) / one_mb).ceil().to_i32().unwrap_or(0);
+        tokens += (Decimal::from(entry.attrs.size_in_bytes.unwrap_or(0)) / one_mb).ceil().to_i32().unwrap_or(0);
       }
     }
 
@@ -309,10 +336,7 @@ impl Created {
   }
 
   pub async fn discard(&self) -> Result<Failed> {
-    self.clone().into_inner().update()
-      .state("failed".to_string())
-      .errors(Some("user_discarded".to_string()))
-      .save().await?.in_failed()
+    self.to_owned().into_inner().set_all_failed("user_discarded").await
   }
 }
 
@@ -340,40 +364,5 @@ impl Signed {
 impl Failed {
   pub fn errors(&self) -> &str {
     self.as_inner().attrs.errors.as_deref().unwrap_or("")
-  }
-}
-
-impl InsertRequestHub {
-  pub async fn validate_and_save(self, payload: &[u8]) -> Result<Request> {
-    let sanitized = if let Err(std::str::Utf8Error{..}) = std::str::from_utf8(&payload) {
-      Some(payload.iter().map(|b| *b as char).collect::<String>().into_bytes())
-    } else {
-      None
-    };
-
-    let reader_buffer: &[u8] = &sanitized.as_deref().unwrap_or(payload);
-
-    let mut rows = Request::read_csv_from_payload(reader_buffer).await;
-
-    for header in rows.headers()? {
-      if !header.chars().all(|c| c.is_ascii_alphanumeric() || c == '_') {
-        return Err(Error::validation("payload", "non_ascii_character"));
-      }
-    }
-    
-    for result in rows.records() {
-      if let Err(error) = result {
-        let err = match error.kind() {
-          csv::ErrorKind::UnequalLengths{..} => "unequal_lengths",
-          csv::ErrorKind::Utf8 {..} => "utf8",
-          _ => "unexpected",
-        };
-        return Err(Error::validation("payload", err));
-      }
-    }
-
-    let request = self.save().await?;
-    request.storage_put(&reader_buffer).await?;
-    Ok(request)
   }
 }
