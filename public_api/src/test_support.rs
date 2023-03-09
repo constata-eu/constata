@@ -140,9 +140,11 @@ impl PublicApiClient {
     serde_json::from_str(&string).unwrap_or_else(|_| panic!("Could not parse response {}", string))
   }
 
-  pub async fn gql<'a, T, Q>(&'a self, query: Q) -> graphql_client::Response<T>
-  where Q: Serialize, T: DeserializeOwned {
-    self.post("/graphql/", serde_json::to_string(&query).expect("gql query was not JSON")).await
+  pub async fn gql<'a, T, Q>(&'a self, query: Q) -> T
+    where Q: Serialize, T: DeserializeOwned
+  {
+    self.post::<graphql_client::Response<T>, _>("/graphql/", serde_json::to_string(&query).expect("gql query was not JSON")).await
+      .data.expect("Response data to be there")
   }
 
   pub async fn get<T: DeserializeOwned>(&self, path: &str) -> T {
