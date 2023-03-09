@@ -216,6 +216,7 @@ module.exports = {
           kinds: {
             diploma: 'Diploma',
             assistance: 'Assistance',
+            badge: "Badge",
             invitation: 'Invitation',
           }
         },
