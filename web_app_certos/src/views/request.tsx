@@ -113,6 +113,7 @@ function RequestShow(props){
     return <div>
       { data.storyId && data.state === "completed" ?
         <Button
+          sx={{display: "block"}}
           onClick={() => onEntryClick(data)}
           label="resources.Entry.fields.downloadProof"
         >
@@ -149,6 +150,7 @@ function RequestShow(props){
       translate("certos.request.export_filename", {id: data.id})
     )
   }
+
 
   return (
     <ShowBase {...props} actions={false}>
@@ -255,8 +257,8 @@ function RequestShow(props){
                   />
                   <BooleanField source="adminVisited" />
                   <TextField source="publicVisitCount"/>
-                  <FunctionField source="params" render={ record => formatJsonInline(record.params)} />
-                  <FunctionField 
+                  <FunctionField source="params" render={ record => formatJsonInline(record.params)} sortable={false} />
+                  <FunctionField
                     render={record => <EntryActions data={record} {...props} /> }
                   />
                 </Datagrid>
