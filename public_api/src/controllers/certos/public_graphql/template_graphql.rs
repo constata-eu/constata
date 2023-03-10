@@ -34,15 +34,23 @@ impl Showable<template::Template, TemplateFilter> for Template {
     }
   }
 
-  fn filter_to_select(org_id: i32, f: TemplateFilter) -> SelectTemplate {
-    SelectTemplate {
-      id_in: f.ids,
-      org_id_eq: Some(org_id),
-      id_eq: f.id_eq,
-      name_ilike: into_like_search(f.name_like),
-      archived_eq: f.archived_eq,
-      deletion_id_is_set: Some(false),
-      ..Default::default()
+  fn filter_to_select(org_id: i32, filter: Option<TemplateFilter>) -> SelectTemplate {
+    if let Some(f) = filter {
+      SelectTemplate {
+        id_in: f.ids,
+        org_id_eq: Some(org_id),
+        id_eq: f.id_eq,
+        name_ilike: into_like_search(f.name_like),
+        archived_eq: f.archived_eq,
+        deletion_id_is_set: Some(false),
+        ..Default::default()
+      }
+    } else {
+      SelectTemplate {
+        org_id_eq: Some(org_id),
+        deletion_id_is_set: Some(false),
+        ..Default::default()
+      }
     }
   }
 

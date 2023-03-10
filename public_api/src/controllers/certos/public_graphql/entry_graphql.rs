@@ -45,17 +45,25 @@ impl Showable<entry::Entry, EntryFilter> for Entry {
     }
   }
 
-  fn filter_to_select(org_id: i32, f: EntryFilter) -> SelectEntry {
-    SelectEntry {
-      id_in: f.ids,
-      org_id_eq: Some(org_id),
-      id_eq: f.id_eq,
-      document_id_eq: f.document_id_eq,
-      request_id_eq: f.request_id_eq,
-      state_eq: f.state_eq,
-      params_ilike: into_like_search(f.params_like),
-      deletion_id_is_set: Some(false),
-      ..Default::default()
+  fn filter_to_select(org_id: i32, filter: Option<EntryFilter>) -> SelectEntry {
+    if let Some(f) = filter {
+      SelectEntry {
+        id_in: f.ids,
+        org_id_eq: Some(org_id),
+        id_eq: f.id_eq,
+        document_id_eq: f.document_id_eq,
+        request_id_eq: f.request_id_eq,
+        state_eq: f.state_eq,
+        params_ilike: into_like_search(f.params_like),
+        deletion_id_is_set: Some(false),
+        ..Default::default()
+      }
+    } else {
+      SelectEntry {
+        org_id_eq: Some(org_id),
+        deletion_id_is_set: Some(false),
+        ..Default::default()
+      }
     }
   }
 

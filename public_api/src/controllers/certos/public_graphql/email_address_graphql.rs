@@ -53,14 +53,21 @@ impl Showable<email_address::EmailAddress, EmailAddressFilter> for EmailAddress 
     }
   }
 
-  fn filter_to_select(org_id: i32, f: EmailAddressFilter) -> SelectEmailAddress {
-    SelectEmailAddress {
-      org_id_eq: Some(org_id),
-      id_in: f.ids,
-      id_eq: f.id_eq,
-      person_id_eq: f.person_id_eq,
-      address_eq: f.address_eq,
-      ..Default::default()
+  fn filter_to_select(org_id: i32, filter: Option<EmailAddressFilter>) -> SelectEmailAddress {
+    if let Some(f) = filter {
+      SelectEmailAddress {
+        org_id_eq: Some(org_id),
+        id_in: f.ids,
+        id_eq: f.id_eq,
+        person_id_eq: f.person_id_eq,
+        address_eq: f.address_eq,
+        ..Default::default()
+      }
+    } else {
+      SelectEmailAddress {
+        org_id_eq: Some(org_id),
+        ..Default::default()
+      }
     }
   }
 
