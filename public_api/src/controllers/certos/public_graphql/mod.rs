@@ -49,7 +49,6 @@ pub mod issuance_graphql;
 pub mod entry_graphql;
 pub mod account_state_graphql;
 pub mod endorsement_manifest_graphql;
-pub mod wizard_graphql;
 pub mod signup_graphql;
 pub mod pubkey_graphql;
 pub mod kyc_request_graphql;
@@ -59,11 +58,10 @@ pub mod download_proof_link_graphql;
 pub mod proof_graphql;
 pub mod attestation_graphql;
 pub use template_graphql::{Template, TemplateFilter, TemplateInput};
-pub use issuance_graphql::{Issuance, IssuanceFilter, IssuanceExport};
-pub use entry_graphql::{Entry, EntryFilter, SigningIteratorInput};
+pub use issuance_graphql::{Issuance, IssuanceFilter, IssuanceExport, CreateIssuanceFromJsonInput, CreateIssuanceFromCsvInput, AppendEntriesToIssuanceInput};
+pub use entry_graphql::{Entry, EntryFilter, SigningIteratorInput, Preview};
 pub use account_state_graphql::AccountState;
 pub use endorsement_manifest_graphql::*;
-pub use wizard_graphql::{WizardInput, Preview};
 pub use signup_graphql::{SignupInput, Signup};
 pub use pubkey_graphql::{Pubkey, PubkeyFilter};
 pub use kyc_request_graphql::{KycRequest, KycRequestInput, KycRequestFilter};
@@ -396,8 +394,16 @@ impl Mutation {
     input.process(context).await
   }
 
-  pub async fn create_wizard(context: &Context, input: WizardInput) -> FieldResult<Issuance> {
-    input.create_wizard(context).await
+  pub async fn create_issuance_from_csv(context: &Context, input: CreateIssuanceFromCsvInput) -> FieldResult<Issuance> {
+    input.process(context).await
+  }
+
+  pub async fn create_issuance_from_json(context: &Context, input: CreateIssuanceFromJsonInput) -> FieldResult<Issuance> {
+    input.process(context).await
+  }
+
+  pub async fn append_entries_to_issuance(context: &Context, input: AppendEntriesToIssuanceInput) -> FieldResult<Issuance> {
+    input.process(context).await
   }
 
   pub async fn create_attestation(context: &Context, input: AttestationInput) -> FieldResult<Attestation> {
