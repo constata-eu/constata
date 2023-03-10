@@ -14,8 +14,8 @@ pub struct Entry {
   row_number: i32,
   #[graphql(description = "The state of this entry. Can be 'received': We got this row's data and will attempt to create a document such as a diploma, proof of attendance, or badge with the given details; 'created': The document was created correctly, and you should sign it; 'signed': You have signed this document, it is up to constata to certify it now; 'completed': The document has been timestamped and certified by Constata, and emailed to the recipient if required. 'failed': A problem ocurred that prevented further processing of this Entry, this could happen between 'received' and 'created' if the provided data is malformed. A failure in one single Entry will abort the whole Issuance, and nothing will be certified.")]
   state: String,
-  #[graphql(description = "Date in which this entry was created")]
-  created_at: UtcDateTime,
+  #[graphql(description = "Date in which this entry was received by Constata")]
+  received_at: UtcDateTime,
   #[graphql(description = "Parameters used to create this particular entry. If the issuance was created from a CSV, these will be the row's data.")]
   params: String,
   #[graphql(description = "Errors found when moving this entry from 'received' to 'created', if any.")]
@@ -24,12 +24,18 @@ pub struct Entry {
   document_id: Option<String>,
   #[graphql(description = "ID of the story that this entry belongs to.")]
   story_id: Option<i32>,
+  #[graphql(description = "Boolean whether this entries admin link has been visited.")]
+  admin_visited: bool,
+  #[graphql(description = "When published, this is the visit count for the public page.")]
+  public_visit_count: i32,
   #[graphql(description = "Boolean that determines whether an email should be sent for this entry.")]
   has_email_callback: bool,
   #[graphql(description = "Date when the email was sent, if it has already been sent.")]
   email_callback_sent_at: Option<UtcDateTime>,
   #[graphql(description = "The data payload for this entry.")]
   payload: Option<String>,
+  #[graphql(description = "The administrative access url for the direct recipient of this entry. They can use it to download, view or share the document.")]
+  admin_access_url: Option<String>,
 }
 
 #[derive(Clone, GraphQLInputObject, Debug)]
@@ -52,7 +58,7 @@ impl Showable<entry::Entry, EntryFilter> for Entry {
       "issuanceId" => Some(EntryOrderBy::RequestId),
       "state" => Some(EntryOrderBy::State),
       "rowNumber" => Some(EntryOrderBy::RowNumber),
-      "createdAt" => Some(EntryOrderBy::CreatedAt),
+      "receivedAt" => Some(EntryOrderBy::ReceivedAt),
       _ => None,
     }
   }
@@ -87,14 +93,18 @@ impl Showable<entry::Entry, EntryFilter> for Entry {
       None
     };
 
-    let document = match d.attrs.document_id.as_ref() {
-      Some(x) => Some(d.state.document().find(x).await?),
-      _ => None,
-    };
-    let story_id = match document {
-      Some(x) => Some(d.state.story().find(x.attrs.story_id).await?.attrs.id),
-      _ => None,
-    };
+    let document = d.document().await?;
+    let story_id = if let Some(d) = document.as_ref() { Some(d.story().await?.attrs.id) } else { None };
+
+    let mut admin_visited: bool = false;
+    let mut public_visit_count: i32 = 0;
+    if let Some(doc) = document { 
+      if let Some(l) = doc.download_proof_link_scope().optional().await? {
+        admin_visited = l.attrs.admin_visited;
+        public_visit_count = l.attrs.public_visit_count;
+      }
+    }
+    let admin_access_url = d.admin_access_url().await?;
 
     Ok(Entry {
       id: d.attrs.id,
@@ -102,14 +112,17 @@ impl Showable<entry::Entry, EntryFilter> for Entry {
       issuance_name: d.request().await?.attrs.name,
       row_number: d.attrs.row_number,
       state: d.attrs.state,
-      created_at: d.attrs.created_at,
+      received_at: d.attrs.received_at,
       params: d.attrs.params,
       errors: d.attrs.errors,
       document_id: d.attrs.document_id,
       has_email_callback,
       email_callback_sent_at,
       story_id,
+      admin_visited,
+      public_visit_count,
       payload,
+      admin_access_url
     })
   }
 }
@@ -147,3 +160,13 @@ impl SigningIteratorInput {
     Ok(Some(Entry::db_to_graphql(next_entry, true).await?))
   }
 }
+
+#[derive(GraphQLObject)]
+#[graphql(description = "Represents an HTML preview of the contents of an entry.")]
+pub struct Preview{
+  #[graphql(description = "The numerical identifier of the entry.")]
+  pub id: i32,
+  #[graphql(description = "The HTML formatted contents of the entry.")]
+  pub html: String
+}
+

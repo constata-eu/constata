@@ -147,6 +147,26 @@ export default createTheme(
         },
       }
     },
+    MuiTableBody: {
+      styleOverrides: {
+        root: {
+          "& .column-createdAt": {
+            minWidth: 130,
+          },
+          "& .params": {
+            display: "flex",
+            flexWrap: "wrap",
+          },
+          "& .column-params": {
+            minWidth: "300px",
+            maxWidth: "400px",
+          },
+          "& .column-rowNumber": {
+            maxWidth: "100px",
+          }
+        }
+      }
+    },
     MuiAppBar: {
       styleOverrides: {
         root: {

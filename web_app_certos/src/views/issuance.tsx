@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { List, Datagrid, TextField, ShowButton, useDataProvider, useTranslate, FunctionField,
          SimpleShowLayout, ShowBase, useNotify, Button, ReferenceManyField, Pagination,
-         FilterForm, SimpleList, WithRecord, useGetRecordId } from 'react-admin'
+         FilterForm, SimpleList, WithRecord, useGetRecordId, BooleanField } from 'react-admin'
 import { Typography, Container, Box, Card, Link, useMediaQuery } from '@mui/material';
 import CardTitle from '../components/card_title';
 import { PaginationDefault, formatJsonInline,
@@ -64,6 +64,8 @@ function IssuanceList(props) {
                 }
               />
               <ParsedDateTextField source="createdAt" />
+              <FunctionField source="adminVisitCount" render={record => `${record.adminVisitedCount}/${record.entriesCount}`} />  
+              <TextField source="publicVisitCount"/>
               <FunctionField
                 render={record => {
                   if (record.state === "created") {
@@ -111,6 +113,7 @@ function IssuanceShow(props){
     return <div>
       { data.storyId && data.state === "completed" ?
         <Button
+          sx={{display: "block"}}
           onClick={() => onEntryClick(data)}
           label="resources.Entry.fields.downloadProof"
         >
@@ -148,6 +151,7 @@ function IssuanceShow(props){
     )
   }
 
+
   return (
     <ShowBase {...props} actions={false}>
       <Container maxWidth="md" sx={{mb:3}}>
@@ -181,13 +185,13 @@ function IssuanceShow(props){
                 }
               />
               <ParsedDateTextField source="createdAt" />
-
-              <FunctionField label="resources.Issuance.fields.export_csv"
-                render={() =>  <a id="export_to_csv" href="#/Issuance" onClick={handleExport}>
-                    {translate("resources.Issuance.fields.download")}
-                  </a>
-                }
-              />
+              <FunctionField source="adminVisitCount" render={record => `${record.adminVisitedCount}/${record.entriesCount}`} />  
+              <TextField source="publicVisitCount"/>
+              <FunctionField label="resources.Issuance.fields.export_csv" render={() => 
+                <a id="export_to_csv" href="#/Issuance" onClick={handleExport}>
+                  {translate("resources.Issuance.fields.download")}
+                </a>
+              }/>
 
               <WithRecord render={ record => 
                 record.errors && <TranslatedTextField source="errors" translation="certos.issuance.errors" />
@@ -250,8 +254,10 @@ function IssuanceShow(props){
                       else return `${translate("certos.entry.notified")} ${parseDate(record.emailCallbackSentAt)}.`;
                     }}
                   />
-                  <FunctionField source="params" render={ record => formatJsonInline(record.params)} />
-                  <FunctionField 
+                  <BooleanField source="adminVisited" />
+                  <TextField source="publicVisitCount"/>
+                  <FunctionField source="params" render={ record => formatJsonInline(record.params)} sortable={false} />
+                  <FunctionField
                     render={record => <EntryActions data={record} {...props} /> }
                   />
                 </Datagrid>

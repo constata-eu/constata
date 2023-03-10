@@ -6,6 +6,8 @@
         "createdAt": "Creado el",
         "download": "Descargar CSV",
         "export_csv": "Exportar emisión a csv",
+        "adminVisitCount": "Recepciones confirmadas",
+        "publicVisitCount": "Visitas públicas",
         "entries": "Entradas",
         "errors": "Errores",
         "evidence": "",
@@ -49,7 +51,9 @@
         "proof": "Certificado",
         "issuanceId": "Emisión",
         "rowNumber": "Línea",
-        "state": "Estado"
+        "state": "Estado",
+        "adminVisited": "Recepción confirmada",
+        "publicVisitCount": "Visitas públicas"
       },
       "name": "Entrada |||| Entradas",
       "value": "VALOR"
@@ -768,7 +772,7 @@
         "new_template_divider": "O cree una nueva plantilla",
         "sample": "ejemplo",
         "text": "Los diplomas, certificados de asistencia o invitaciones se generarán en base a una plantilla con su logo, que luego se completará con los datos de cada destinatario.",
-        "title": "¿Que desea emitir?"
+        "title": "¿Qué desea emitir?"
       }
     }
   }

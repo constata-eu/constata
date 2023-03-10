@@ -28,7 +28,7 @@ mod workroom {
       d.click("#dashboard-menu-item").await;
       d.wait_for_text("h2", "In progress").await;
     }
-
+ 
     integration_test!{ issues_diplomas_from_csv_and_completes_them (c, d)
       let mut chain = TestBlockchain::new().await;
 
@@ -47,7 +47,7 @@ mod workroom {
       try_until(40, "bulletin_is_published", || async { c.site.bulletin().find(1).await.unwrap().is_published() }).await;
       c.site.request().try_complete().await?;
       d.wait_for_text("h2", "Recent issuances").await;
-      d.click("a[href='#/Issuance/4/show'").await;
+      d.click("a[href='#/Issuance/4/show']").await;
       d.click("#export_to_csv").await;
       d.check_downloads_for_file("constata_issuance_4.csv").await;
     }
@@ -398,7 +398,6 @@ mod workroom {
 
       d.goto(&format!("http://localhost:8000/#/safe/{token}")).await;
       d.click("#safe-button-change-public-certificate-state").await;
-      
       check_social_media(&d, "#share-on-linkedin", "www.linkedin.com").await;
       check_social_media(&d, "#share-on-twitter", "twitter.com").await;
       d.click("#copy-certificate-to-clipboard").await;
@@ -466,7 +465,6 @@ mod workroom {
       check_public_certificate(&d, &title, &format!("Invitation {raw_description}"), &image).await;
     }
 
-
     integration_test!{ archive_and_unarchive_template (c, d)
       signup_and_verify(&d, &c.site).await;
       create_wizard(&d, &c.site, 2, "template-show").await;
@@ -504,6 +502,72 @@ mod workroom {
       d.wait_for("#create-request-container").await;
       d.wait_for_text("#create-request-container > div > div > div > p", r"template-show*").await;
     }
+
+    integration_test!{ shows_usage_statistics_for_issuances (c, d)
+      let mut chain = TestBlockchain::new().await;
+      signup_and_verify(&d, &c.site).await;
+      create_wizard(&d, &c.site, 5, "testing-template").await;
+      sign_wizard(&d).await;
+      chain.fund_signer_wallet();
+      chain.simulate_stamping().await;
+
+      for entry in c.site.request().find(&1).await?.entry_vec().await? {
+        entry.in_signed()?.try_complete().await?;
+      }
+      
+      d.click("a[href='#/']").await;
+      check_statistic(&d, 0, 0, 5, "No", 0).await;
+      open_download_proof_link_and_public_certificate(&d, &c.site, 1, 1).await;
+      check_statistic(&d, 1, 1, 5, "Yes", 1).await;
+      open_download_proof_link_and_public_certificate(&d, &c.site, 2, 2).await;
+      check_statistic(&d, 2, 3, 4, "Yes", 2).await;
+      open_download_proof_link_and_public_certificate(&d, &c.site, 3, 2).await;
+      check_statistic(&d, 3, 5, 3, "Yes", 2).await;
+      open_download_proof_link_and_public_certificate(&d, &c.site, 4, 4).await;
+      d.goto(&format!("http://localhost:8000/#")).await;
+      open_download_proof_link_and_public_certificate(&d, &c.site, 5, 1).await;
+      check_statistic(&d, 5, 10, 2, "Yes", 4).await;
+      check_statistic(&d, 5, 10, 1, "Yes", 1).await;
+    }
+
+    pub async fn open_download_proof_link_and_public_certificate(
+      d: &Selenium,
+      site: &Site,
+      id: i32,
+      times_to_open: i32
+    ) {
+      let token = site.download_proof_link().find(&id).await.expect("to find download proof link").token().await.expect("to have a token");
+      d.goto(&format!("http://localhost:8000/#/safe/{token}")).await;
+      d.click("#safe-button-change-public-certificate-state").await;
+      for _ in 0..times_to_open {
+        d.click("#go-to-public-certificate").await;
+        d.get_handles_and_go_to_window_one().await;
+        d.close_window_and_go_to_handle_zero().await;
+      }
+    }
+
+
+    pub async fn check_statistic(
+      d: &Selenium,
+      admin_visited_count: i32,
+      public_visit_count: i32,
+      child: i32,
+      admin_visited: &str,
+      public_visit: i32,
+    ) {
+      d.goto(&format!("http://localhost:8000/#")).await;
+      d.click("#requests-menu-item").await;
+      d.wait_for_text(".column-adminVisitCount > span", &format!(r"{admin_visited_count}/5*")).await;
+      d.wait_for_text(".column-publicVisitCount > span", &format!(r"{public_visit_count}*")).await;
+      d.goto(&format!("http://localhost:8000/#")).await;
+      d.click("#requests-menu-item").await;
+      d.click("a[href='#/Request/1/show']").await;
+      d.wait_for_text(".ra-field-adminVisitCount > span", &format!(r"{admin_visited_count}/5*")).await;
+      d.wait_for_text(".ra-field-publicVisitCount > span", &format!(r"{public_visit_count}*")).await;
+      d.wait_for(&format!("#review-entries-big tbody > tr:nth-child({child}) .column-adminVisited > span > svg[aria-label='{admin_visited}']")).await;
+      d.wait_for_text(&format!("#review-entries-big tbody > tr:nth-child({child}) .column-publicVisitCount > span"), &format!(r"{public_visit}*")).await;
+    }
+
 
     async fn confirm_archive_template(d: &Selenium) {
       d.wait_for_text(".MuiDialog-container h2", r"Are you sure you want to ARCHIVE this template?*").await;

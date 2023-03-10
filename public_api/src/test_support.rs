@@ -239,7 +239,15 @@ macro_rules! make_graphql_queries {
 pub mod gql {
   type DateTime = chrono::DateTime<chrono::Utc>;
 
-  make_graphql_queries![CreateAttestation, Attestation, AttestationHtmlExport, AllAttestations];
+  make_graphql_queries![
+    CreateAttestation,
+    Attestation,
+    AttestationHtmlExport,
+    AllAttestations,
+    CreateIssuanceFromCsv,
+    CreateIssuanceFromJson,
+    AppendEntriesToIssuance,
+  ];
 
   impl From<constata_lib::signed_payload::SignedPayload> for create_attestation::SignedPayload {
     fn from(s: constata_lib::signed_payload::SignedPayload) -> Self {
