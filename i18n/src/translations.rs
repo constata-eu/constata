@@ -26,7 +26,7 @@ pub const ENGLISH_STRINGS: TranslatedStrings = TranslatedStrings {
   mailer_document_received_subject: "I got your document",
   template_message_for_diploma: "Hello {{ name }}, this is your diploma for {{ motive }}.",
   template_message_for_attendance: "Hello {{ name }}, this is your certificate of attendance to {{ motive }}.",
-  template_message_for_badge: "Hello {{ name }}, this is badge for {{ motive }}.",
+  template_message_for_badge: "Hello {{ name }}, this is a badge for {{ motive }}.",
   template_message_for_invitation: "Hello {{ name }}, this is an invitation for you to attend {{ motive }}.",
   mailer_email_callback_subject: "A certified document from {0}",
   mailer_parked_document_reminder_because_tyc_are_not_accepted_subject: "You have pending certifications, you need to accept our Terms and Conditions.",

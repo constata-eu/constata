@@ -13,6 +13,10 @@ Diploma emitido por
 Certificado de asistencia emitido por
 {%- endblock __assistance_issued_by -%}
 
+{%- block __badge_issued_by -%}
+Insignia emitida por
+{%- endblock __badge_issued_by -%}
+
 {%- block __invitation_issued_by -%}
 Invitación emitida por
 {%- endblock __invitation_issued_by -%}

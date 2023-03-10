@@ -86,7 +86,7 @@ const Template = ({handleNext, wizardState, setWizardState}) => {
   const imagePreview = {
     "DIPLOMA": DiplomaPreview,
     "ATTENDANCE": AttendancePreview,
-    "INVITATION": InvitationPreview,
+    "BADGE": InvitationPreview,
   }[wizardState.kind];
 
   return (<Form onSubmit={submit} validate={validate} noValidate id="template-wizard-step">
@@ -123,8 +123,8 @@ const Template = ({handleNext, wizardState, setWizardState}) => {
           <ToggleButton value="ATTENDANCE" aria-label="centered">
             { translate("certos.wizard.kind.ATTENDANCE") }
           </ToggleButton>
-          <ToggleButton value="INVITATION" aria-label="right aligned">
-            { translate("certos.wizard.kind.INVITATION") }
+          <ToggleButton value="BADGE" aria-label="right aligned">
+            { translate("certos.wizard.kind.BADGE") }
           </ToggleButton>
         </ToggleButtonGroup>
         <Box component="div" display="flex" position="relative" flexDirection="column" alignItems="center" sx={{backgroundColor:"#333"}} p={2} mb={2}>

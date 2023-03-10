@@ -204,6 +204,12 @@ describe! {
       download_proof_link.share_on_social_networks_call_to_action(&i18n::Lang::En).await?,
       "This invitation is certified by the Bitcoin blockchain!".to_string()
     );
+
+    template.update().kind(TemplateKind::Badge).save().await?;
+    assert_eq!(
+      download_proof_link.share_on_social_networks_call_to_action(&i18n::Lang::En).await?,
+      "This badge is certified by the Bitcoin blockchain!".to_string()
+    );
   }
 
   regtest!{ public_certificate_metadata (_db, c, mut chain)
