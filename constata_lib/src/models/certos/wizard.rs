@@ -76,8 +76,8 @@ impl Wizard {
     let (filename, custom_message) = match kind {
       TemplateKind::Diploma => ("diploma", i18n::t!(lang, template_message_for_diploma)),
       TemplateKind::Attendance => ("attendance", i18n::t!(lang, template_message_for_attendance)),
-      TemplateKind::Badge => ("invitation", i18n::t!(lang, template_message_for_badge)),
-      TemplateKind::Invitation => ("invitation", i18n::t!(lang, template_message_for_invitation)),
+      // To change when template is ready
+      _ => ("invitation", i18n::t!(lang, template_message_for_badge)),
     };
 
     let mut context = i18n::Context::new();
@@ -113,13 +113,13 @@ describe!{
     let a = c.alice().await;
     let person = a.person().await;
 
-    let w = Wizard{
+    let w = Wizard {
       person,
       name: "Some diploma 2023".to_string(),
       template: WizardTemplate::New {
         name: "A diploma template".to_string(),
         logo: ImageOrText::Image(read("wizard/logo.png")),
-        kind: TemplateKind::Invitation,
+        kind: TemplateKind::Badge,
       },
       csv: read("wizard/default.csv"),
     };
@@ -129,7 +129,7 @@ describe!{
 
     assert_eq!(
       &request.entry_vec().await?[0].params_and_custom_message().await?.1.unwrap(),
-      "Hola Stan Marsh, esta es una invitación para el evento llamado Arte con plastilina."
+      "Hola Stan Marsh, esta es una insignia por Arte con plastilina."
     );
 
     assert_eq!(request.entry_scope().count().await?, 2);
@@ -138,6 +138,7 @@ describe!{
 
     let mut zipfile = zip::ZipArchive::new(std::io::Cursor::new(request.template().await?.payload().await?))?;
     let mut inner = zipfile.by_index(0)?;
+    // To change
     assert_eq!(inner.name(), "invitation.html.tera");
     let mut contents = String::new();
     inner.read_to_string(&mut contents)?;
@@ -154,8 +155,8 @@ describe!{
     );
 
     assert_eq!(
-      &Wizard::make_template_zip(i18n::Lang::En, ImageOrText::Text("test".to_string()), TemplateKind::Invitation).await?.0,
-      "Hello {{ name }}, this is an invitation for you to attend {{ motive }}."
+      &Wizard::make_template_zip(i18n::Lang::En, ImageOrText::Text("test".to_string()), TemplateKind::Badge).await?.0,
+      "Hello {{ name }}, this is a badge for {{ motive }}."
     );
   }
 
@@ -200,7 +201,7 @@ describe!{
       template: WizardTemplate::New {
         name: "A diploma template".to_string(),
         logo: ImageOrText::Image(read("wizard/default.csv")),
-        kind: TemplateKind::Invitation,
+        kind: TemplateKind::Badge,
       },
       csv: read("wizard/default.csv"),
     };

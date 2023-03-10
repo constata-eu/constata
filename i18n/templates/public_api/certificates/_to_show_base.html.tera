@@ -19,6 +19,8 @@
       {%- block __diploma_issued_by -%}{%- endblock __diploma_issued_by -%}
     {%- elif template_kind == "Attendance" -%}
       {%- block __attendance_issued_by -%}{%- endblock __attendance_issued_by -%}
+    {%- elif template_kind == "Badge" -%}
+      {%- block __badge_issued_by -%}{%- endblock __badge_issued_by -%}
     {%- elif template_kind == "Invitation" -%}
       {%- block __invitation_issued_by -%}{%- endblock __invitation_issued_by -%}
     {%- else -%}
@@ -46,6 +48,8 @@
       {%- block __diploma_issued_by -%}{%- endblock __diploma_issued_by -%}
     {%- elif template_kind == "Attendance" -%}
       {%- block __attendance_issued_by -%}{%- endblock __attendance_issued_by -%}
+    {%- elif template_kind == "Badge" -%}
+      {%- block __badge_issued_by -%}{%- endblock __badge_issued_by -%}
     {%- elif template_kind == "Invitation" -%}
       {%- block __invitation_issued_by -%}{%- endblock __invitation_issued_by -%}
     {%- else -%}
