@@ -6,8 +6,8 @@
         "createdAt": "Creado el",
         "download": "Descargar CSV",
         "export_csv": "Exportar emisión a csv",
-        "adminVisitCount": "Recepciones confirmadas",
-        "publicVisitCount": "Visitas públicas",
+        "adminVisitCount": "Abiertas",
+        "publicVisitCount": "Vistas",
         "entries": "Entradas",
         "errors": "Errores",
         "evidence": "",
@@ -52,11 +52,14 @@
         "requestId": "Emisión",
         "rowNumber": "Línea",
         "state": "Estado",
-        "adminVisited": "Recepción confirmada",
-        "publicVisitCount": "Visitas públicas"
+        "adminVisited": "Abierta",
+        "publicVisitCount": "Vistas",
+        "statistics": "Estadísticas"
       },
       "name": "Entrada |||| Entradas",
-      "value": "VALOR"
+      "value": "VALOR",
+      "yes": "Si",
+      "no": "No"
     },
     "Template": {
       "create": "Crear una Plantilla",
