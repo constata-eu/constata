@@ -612,11 +612,14 @@
         "requestId": "Issuance",
         "rowNumber": "Line",
         "state": "State",
-        "adminVisited": "Confirmed reception",
-        "publicVisitCount": "Public visits"
+        "adminVisited": "Opened",
+        "publicVisitCount": "Views",
+        "statistics": "Statistics"
       },
       "name": "Entry |||| Entries",
-      "value": "VALUE"
+      "value": "VALUE",
+      "yes": "Yes",
+      "no": "No"
     },
     "Request": {
       "create": "Start issuance",
@@ -631,8 +634,8 @@
         "createdAt": "Created on",
         "download": "Download CSV",
         "export_csv": "Export issuance to CSV",
-        "adminVisitCount": "Confirmed receptions",
-        "publicVisitCount": "Public visits",
+        "adminVisitCount": "Opened",
+        "publicVisitCount": "Views",
         "entries": "Entries",
         "errors": "Errors",
         "evidence": "",
