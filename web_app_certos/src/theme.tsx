@@ -166,6 +166,10 @@ export default createTheme(
           },
           "& .column-statistics": {
             minWidth: "140px",
+          },
+          "& .column-copyLink": {
+            display: "block",
+            minWidth: "100px",
           }
         }
       }

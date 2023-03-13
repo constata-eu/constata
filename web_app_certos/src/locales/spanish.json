@@ -41,7 +41,7 @@
       "field": "CAMPO",
       "fields": {
         "createdAt": "Creado el",
-        "downloadProof": "Descargar Certificado",
+        "copyUrl": "Copiar URL",
         "errors": "Errores",
         "hasEmailCallback": "Notificación por email",
         "id": "ID",
@@ -59,7 +59,8 @@
       "name": "Entrada |||| Entradas",
       "value": "VALOR",
       "yes": "Si",
-      "no": "No"
+      "no": "No",
+      "copy_to_clipboard": "Link copiado al portapapeles"
     },
     "Template": {
       "create": "Crear una Plantilla",

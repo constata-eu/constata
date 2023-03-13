@@ -17,6 +17,7 @@ pub struct Entry {
   public_visit_count: i32,
   has_email_callback: bool,
   email_callback_sent_at: Option<UtcDateTime>,
+  download_proof_link_url: Option<String>,
   payload: Option<String>,
 }
 
@@ -85,16 +86,18 @@ impl Showable<entry::Entry, EntryFilter> for Entry {
 
     let document = d.document().await?;
     let story_id = if let Some(d) = document.as_ref() { Some(d.story().await?.attrs.id) } else { None };
+    let download_proof_link = if let Some(doc) = document.as_ref() {
+      doc.download_proof_link_scope().optional().await?
+    } else {
+      None
+    };
 
-    let mut admin_visited: bool = false;
-    let mut public_visit_count: i32 = 0;
-    if let Some(doc) = document { 
-      if let Some(l) = doc.download_proof_link_scope().optional().await? {
-        admin_visited = l.attrs.admin_visited;
-        public_visit_count = l.attrs.public_visit_count;
-      }
-    }
-   
+    let (admin_visited, public_visit_count, download_proof_link_url) = if let Some(l) = download_proof_link.as_ref() {
+      (l.attrs.admin_visited, l.attrs.public_visit_count, Some(l.safe_env_url().await?))
+    } else {
+      (false, 0, None)
+    };
+
     Ok(Entry {
       id: d.attrs.id,
       request_id: d.attrs.request_id,
@@ -110,6 +113,7 @@ impl Showable<entry::Entry, EntryFilter> for Entry {
       story_id,
       admin_visited,
       public_visit_count,
+      download_proof_link_url,
       payload,
     })
   }
