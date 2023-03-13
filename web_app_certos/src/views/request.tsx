@@ -255,16 +255,16 @@ function RequestShow(props){
                       else return `${translate("certos.entry.notified")} ${parseDate(record.emailCallbackSentAt)}.`;
                     }}
                   />
-                  <FunctionField source="statistics" 
-                  render={record => {
-                    const keyAdminVisited = translate("resources.Entry.fields.adminVisited");
-                    const keyPublicVisitCount = translate("resources.Entry.fields.publicVisitCount");
-                    const json = {};
-                    json[keyAdminVisited] = record.adminVisited ? translate("resources.Entry.yes") : translate("resources.Entry.no");
-                    json[keyPublicVisitCount] = record.publicVisitCount;
-                    return formatJsonInline(JSON.stringify(json))
-                  }}/>
-                
+                  <FunctionField source="statistics" sortable={false}
+                    render={record => {
+                      const keyAdminVisited = translate("resources.Entry.fields.adminVisited");
+                      const keyPublicVisitCount = translate("resources.Entry.fields.publicVisitCount");
+                      let statisticsJson = {};
+                      statisticsJson[keyAdminVisited] = record.adminVisited ? translate("resources.Entry.yes") : translate("resources.Entry.no");
+                      statisticsJson[keyPublicVisitCount] = record.publicVisitCount;
+                      return formatJsonInline(JSON.stringify(statisticsJson))
+                    }}
+                  />
                   <FunctionField source="params" render={ record => formatJsonInline(record.params)} sortable={false} />
                   <FunctionField
                     render={record => <EntryActions data={record} {...props} /> }
