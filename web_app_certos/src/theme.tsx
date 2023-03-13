@@ -163,6 +163,13 @@ export default createTheme(
           },
           "& .column-rowNumber": {
             maxWidth: "100px",
+          },
+          "& .column-statistics": {
+            minWidth: "140px",
+          },
+          "& .column-copyLink": {
+            display: "block",
+            minWidth: "100px",
           }
         }
       }
