@@ -1,12 +1,12 @@
 import { useEffect, useState, useCallback } from "react";
 import { List, Datagrid, TextField, ShowButton, useDataProvider, useTranslate, FunctionField,
          SimpleShowLayout, ShowBase, useNotify, Button, ReferenceManyField, Pagination,
-         FilterForm, SimpleList, WithRecord, useGetRecordId, BooleanField } from 'react-admin'
+         FilterForm, SimpleList, WithRecord, useGetRecordId } from 'react-admin'
 import { Typography, Container, Box, Card, Link, useMediaQuery } from '@mui/material';
 import CardTitle from '../components/card_title';
 import { PaginationDefault, formatJsonInline,
-         downloadFile, parseDate, openBlob, defaultSort } from '../components/utils'
-import { TaskAlt } from '@mui/icons-material';
+         copyToClipboard, parseDate, openBlob, defaultSort } from '../components/utils'
+import { Link as LinkIcon } from '@mui/icons-material';
 import SelectTemplates from "../components/select_templates";
 import TranslatedTextField from "../components/translated_textfield";
 import ParsedDateTextField from "../components/parsed_date_textfield";
@@ -103,7 +103,7 @@ function RequestShow(props){
 
   const onEntryClick = (data) => {
     if(data.storyId && data.state === "completed") {
-      downloadProof(data.storyId)
+      copyToClipboard(data.downloadProofLinkUrl, notify);
     } else {
       openPreview(dataProvider, data.id)
     }
@@ -113,11 +113,10 @@ function RequestShow(props){
     return <div>
       { data.storyId && data.state === "completed" ?
         <Button
-          sx={{display: "block"}}
           onClick={() => onEntryClick(data)}
-          label="resources.Entry.fields.downloadProof"
+          label="resources.Entry.fields.copyUrl"
         >
-          <TaskAlt />
+          <LinkIcon />
         </Button>
         :
         <Button
@@ -127,10 +126,6 @@ function RequestShow(props){
       }
     </div>
   };
-
-  const downloadProof = async (storyId) => {
-    await downloadFile(`/stories/${storyId}/html_proof`, `proof_${storyId}.html`, notify);
-  }
 
   function handleChange(e){
     if(e.target.value === ""){
@@ -266,7 +261,7 @@ function RequestShow(props){
                     }}
                   />
                   <FunctionField source="params" render={ record => formatJsonInline(record.params)} sortable={false} />
-                  <FunctionField
+                  <FunctionField className="column-copyLink"
                     render={record => <EntryActions data={record} {...props} /> }
                   />
                 </Datagrid>
