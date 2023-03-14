@@ -68,25 +68,27 @@ function App() {
               }
             }`
           };
-        } else if (resource === 'Wizard') {
+        } else if (resource === 'CreateIssuanceFromCsv') {
           const parser = function(data){
             return buildQuery(introspection)('GET_ONE', 'Issuance', params).parseResponse(data);
           }
           return {
             parseResponse: parser,
             variables: params.data,
-            query: gql`mutation($input: WizardInput!){
-              data: createWizard(input: $input) {
-                id,
-                templateId,
-                templateName,
-                state,
-                name,
-                createdAt,
-                errors,
-                entries {
-                  id
-                },
+            query: gql`mutation($input: CreateIssuanceFromCsvInput!){
+              data: createIssuanceFromCsv(input: $input) {
+                id
+                templateId
+                templateName
+                templateKind
+                state
+                name
+                createdAt
+                errors
+                tokensNeeded
+                entriesCount
+                adminVisitedCount
+                publicVisitCount
               }
             }`
           };

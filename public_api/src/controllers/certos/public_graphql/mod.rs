@@ -58,7 +58,15 @@ pub mod download_proof_link_graphql;
 pub mod proof_graphql;
 pub mod attestation_graphql;
 pub use template_graphql::{Template, TemplateFilter, TemplateInput};
-pub use issuance_graphql::{Issuance, IssuanceFilter, IssuanceExport, CreateIssuanceFromJsonInput, CreateIssuanceFromCsvInput, AppendEntriesToIssuanceInput};
+pub use issuance_graphql::{
+  Issuance,
+  IssuanceFilter,
+  IssuanceExport,
+  CreateIssuanceInput,
+  CreateIssuanceFromJsonInput,
+  CreateIssuanceFromCsvInput,
+  AppendEntriesToIssuanceInput
+};
 pub use entry_graphql::{Entry, EntryFilter, SigningIteratorInput, Preview};
 pub use account_state_graphql::AccountState;
 pub use endorsement_manifest_graphql::*;

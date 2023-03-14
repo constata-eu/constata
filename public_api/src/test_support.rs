@@ -140,11 +140,11 @@ impl PublicApiClient {
     serde_json::from_str(&string).unwrap_or_else(|_| panic!("Could not parse response {}", string))
   }
 
-  pub async fn gql<'a, T, Q>(&'a self, query: Q) -> T
+  pub async fn gql<'a, T: core::fmt::Debug, Q>(&'a self, query: Q) -> T
     where Q: Serialize, T: DeserializeOwned
   {
-    self.post::<graphql_client::Response<T>, _>("/graphql/", serde_json::to_string(&query).expect("gql query was not JSON")).await
-      .data.expect("Response data to be there")
+    let query_str = serde_json::to_string(&query).expect("gql query was not JSON");
+    self.post::<graphql_client::Response<T>, _>("/graphql/", query_str).await.data.expect("Response data to be there")
   }
 
   pub async fn get<T: DeserializeOwned>(&self, path: &str) -> T {
@@ -222,13 +222,13 @@ impl PublicApiClient {
 
 #[cfg(test)]
 macro_rules! make_graphql_queries {
-  ($($type:ident),*) => {
+  ($($type:ident,)*) => {
     $(
       #[derive(graphql_client::GraphQLQuery)]
       #[graphql(
           schema_path = "public_api_schema.graphql",
           query_path = "public_api_queries.graphql",
-          response_derives = "Debug,Serialize,Deserialize",
+          response_derives = "Debug,Serialize,Deserialize,PartialEq",
           normalization = "Normalization::Rust",
       )]
       pub struct $type;
@@ -238,6 +238,7 @@ macro_rules! make_graphql_queries {
 
 pub mod gql {
   type DateTime = chrono::DateTime<chrono::Utc>;
+  type EntryParams = String;
 
   make_graphql_queries![
     CreateAttestation,
@@ -247,6 +248,8 @@ pub mod gql {
     CreateIssuanceFromCsv,
     CreateIssuanceFromJson,
     AppendEntriesToIssuance,
+    Issuance,
+    AllIssuances,
   ];
 
   impl From<constata_lib::signed_payload::SignedPayload> for create_attestation::SignedPayload {

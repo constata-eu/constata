@@ -60,7 +60,7 @@ export default function Issuance() {
             primaryText={(record) => `${record.name} #${record.id}`}
             linkType={(_, id) => `/wizard/${id}`}
             secondaryText={ (record) => record.templateName }
-            tertiaryText={ (record) => translate(`certos.wizard.kind_numbered.${record.templateKind}`, record.entries.length)}
+            tertiaryText={ (record) => translate(`certos.wizard.kind_numbered.${record.templateKind}`, record.entriesCount)}
             rowStyle={() => ({borderTop: "1px solid", borderColor: theme?.palette?.grey[200]})}
           />
         </ListContextProvider>
@@ -78,7 +78,7 @@ export default function Issuance() {
             primaryText={(record) => `${record.name} #${record.id}`}
             linkType={(_, id) => `/Issuance/${id}/show`}
             secondaryText={ (record) => record.templateName }
-            tertiaryText={ (record) => translate(`certos.wizard.kind_numbered.${record.templateKind}`, record.entries.length)}
+            tertiaryText={ (record) => translate(`certos.wizard.kind_numbered.${record.templateKind}`, record.entriesCount)}
             rowStyle={() => ({borderTop: "1px solid", borderColor: theme?.palette?.grey[200]})}
           />
         </ListContextProvider>
@@ -96,7 +96,7 @@ export default function Issuance() {
             primaryText={(record) => `${record.name} #${record.id}`}
             linkType={(_, id) => `/Issuance/${id}/show`}
             secondaryText={ (record) => record.templateName }
-            tertiaryText={ (record) => translate(`certos.wizard.kind_numbered.${record.templateKind}`, record.entries.length)}
+            tertiaryText={ (record) => translate(`certos.wizard.kind_numbered.${record.templateKind}`, record.entriesCount)}
           />
         </ListContextProvider>
         { recentIssuancesUnseen > 0 && <ActionSeeMore unseen={recentIssuancesUnseen} state="completed" /> }

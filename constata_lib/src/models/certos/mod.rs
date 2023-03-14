@@ -12,13 +12,15 @@ pub use entry::*;
 pub use template_kind::*;
 pub use wizard::*;
 
-use crate::{ Result as ConstataResult, Error };
-
 describe!{
   use std::io::Read; 
-  use bitcoin::network::constants::Network;
-  use crate::models::{Previewer, storable::*};
   use std::collections::HashMap;
+  use bitcoin::network::constants::Network;
+  use crate::{
+    models::{Previewer, storable::*},
+    Result as ConstataResult,
+    Error
+  };
 
   regtest!{ process_one_issuance_from_an_arbitrary_template (site, c, mut chain)
     let alice = c.alice().await;
@@ -199,8 +201,7 @@ describe!{
       ]))?,
     };
 
-    let received = w.process().await?;
-    let mut issuance = received.into_inner();
+    let mut issuance = w.process().await?;
 
     let entries = issuance.entry_vec().await?;
     assert_eq!(entries.len(), 2);

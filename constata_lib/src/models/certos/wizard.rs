@@ -174,7 +174,7 @@ pub struct JsonIssuanceBuilder {
 }
 
 impl JsonIssuanceBuilder {
-  pub async fn process(self) -> CrateResult<request::Received> {
+  pub async fn process(self) -> CrateResult<request::Request> {
     let org = self.person.org().await?;
     let app = org.get_or_create_certos_app().await?;
 
@@ -188,7 +188,7 @@ impl JsonIssuanceBuilder {
       }
     }
     
-    let received = self.person.state.request()
+    let request = self.person.state.request()
       .insert(InsertRequest{
         app_id: app.attrs.id,
         person_id: self.person.attrs.id,
@@ -197,10 +197,10 @@ impl JsonIssuanceBuilder {
         state: "received".to_string(),
         name: self.name,
         size_in_bytes: 0,
-      }).save().await?.in_received()?;
+      }).save().await?;
 
-    received.append_entries(&self.entries).await?;
+    request.in_received()?.append_entries(&self.entries).await?;
 
-    Ok(received)
+    Ok(request.reloaded().await?)
   }
 }

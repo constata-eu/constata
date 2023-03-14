@@ -14,7 +14,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getKeyPair, getSignedPayload } from "../components/cypher";
 import _ from 'lodash';
 import {v4 as uuid} from 'uuid';
-import { useList, ListContextProvider, SimpleList, required, useTheme, useGetOne, useGetMany } from 'react-admin';
+import { useList, ListContextProvider, SimpleList, required, useTheme, useGetOne, useGetList } from 'react-admin';
 import csv from 'csvtojson';
 import CardTitle from '../components/card_title';
 import { openPreview } from "./issuance"
@@ -581,7 +581,7 @@ const CreateIssuance = ({canSendEmail, setCreatedIssuance}) => {
     }
     const csv = stringify(matrix);
     
-    let {data} = await dataProvider.create('Wizard', { data: { input: {
+    let {data} = await dataProvider.create('CreateIssuanceFromCsv', { data: { input: {
       templateId: wizardState.templateId,
       newKind: wizardState.kind,
       newName: wizardState.newName,
@@ -632,12 +632,8 @@ const Preview = (props) => {
   const translate = useTranslate();
   const dataProvider = useDataProvider();
   const [discardOpen, setDiscardOpen] = useSafeSetState(false);
-  const {data} = useGetMany(
-    'Entry',
-    { ids: props.createdIssuance.entries.map(i => i.id) }
-  );
+  const {data} = useGetList('Entry', { filter: {issuanceIdEq: props.createdIssuance.id } } );
   const listContext = useList({ perPage: 10, data });
-
 
   const onSubmit = (values) => {
     props.setPassword(values.password);
@@ -660,7 +656,7 @@ const Preview = (props) => {
         <Typography variant="body1">
           { translate("certos.wizard.review_and_sign.text") }
           &nbsp;
-          { translate(`certos.wizard.kind_numbered.${props.createdIssuance.templateKind}`, props.createdIssuance.entries.length) }.
+          { translate(`certos.wizard.kind_numbered.${props.createdIssuance.templateKind}`, props.createdIssuance.entriesCount) }.
         </Typography>
         <Typography variant="body1">
         { translate("certos.wizard.review_and_sign.tokens_needed", props.createdIssuance.tokensNeeded) }
@@ -682,7 +678,7 @@ const Preview = (props) => {
           rowStyle={() => ({borderTop: "1px solid", borderColor: theme?.palette?.grey[200]})}
           linkType={false}
         />
-        { props.createdIssuance.entries.length > 10 && <Pagination rowsPerPageOptions={[]} /> }
+        { props.createdIssuance.entriesCount > 10 && <Pagination rowsPerPageOptions={[]} /> }
       </ListContextProvider>
     </Card>
     <Card sx={{mb:5}}>
@@ -716,7 +712,7 @@ const Preview = (props) => {
 }
 
 const Signing = ({password, ...props}) => {
-  const entryCount = props.createdIssuance.entries.length;
+  const entryCount = props.createdIssuance.entriesCount;
   const [signedCount, setSignedCount] = useSafeSetState(0);
   const notify = useNotify();
   const dataProvider = useDataProvider();
@@ -840,10 +836,7 @@ const TokensNeeded = ({hasEmails, templateKind, entries, pendingInvoiceLinkUrl})
 
 const Done = ({...props}) => {
   const {templateKind} = props.createdIssuance;
-  const {data: entries} = useGetMany(
-    'Entry',
-    { ids: props.createdIssuance.entries.map(i => i.id) }
-  );
+  const {data: entries} = useGetList( 'Entry', { filter: {issuanceIdEq: props.createdIssuance.id } });
   const hasEmails = _.some(entries, (i) => _.isEmpty(i.has_email_callback));
 
   const {data: accountState, refetch: refetchAccount } = useGetOne(

@@ -1,4 +1,4 @@
-mod workroom {
+mod website {
   constata_lib::describe_one! {
     use integration_tests::*;
     use constata_lib::{
@@ -636,7 +636,6 @@ mod workroom {
       d.wait_for_text("#section-email-address .MuiTypography-body2", r"Will be shown in your issued certificates*").await;
     }
 
-
     async fn reload(d: &Selenium) {
       d.goto("http://localhost:8000/not_found").await;
       d.goto("http://localhost:8000").await;
@@ -646,6 +645,7 @@ mod workroom {
       d.click("button[type='submit']").await;
       d.wait_for("#constata_dashboard").await;
     }
+
     async fn add_recipients_with_csv(d: &Selenium, site: &Site, csv: &str) {
       d.fill_in("input[type='file']", &csv).await;
       d.click("#continue").await;

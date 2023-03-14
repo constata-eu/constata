@@ -4,8 +4,8 @@ mutation CreateSignup($input: SignupInput!) {
     __typename
   }
 }
-mutation CreateWizard($input: WizardInput!) {
-  createWizard(input: $input) {
+mutation CreateIssuanceFromCsv($input: CreateIssuanceFromCsvInput!) {
+  createIssuanceFromCsv(input: $input) {
     id
     templateId
     templateName
@@ -15,22 +15,43 @@ mutation CreateWizard($input: WizardInput!) {
     createdAt
     errors
     tokensNeeded
-    entries {
-      id
-      issuanceId
-      issuanceName
-      rowNumber
-      state
-      createdAt
-      params
-      errors
-      documentId
-      storyId
-      hasEmailCallback
-      emailCallbackSentAt
-      payload
-      __typename
-    }
+    entriesCount
+    adminVisitedCount
+    publicVisitCount
+    __typename
+  }
+}
+mutation CreateIssuanceFromJson($input: CreateIssuanceFromJsonInput!) {
+  createIssuanceFromJson(input: $input) {
+    id
+    templateId
+    templateName
+    templateKind
+    state
+    name
+    createdAt
+    errors
+    tokensNeeded
+    entriesCount
+    adminVisitedCount
+    publicVisitCount
+    __typename
+  }
+}
+mutation AppendEntriesToIssuance($input: AppendEntriesToIssuanceInput!) {
+  appendEntriesToIssuance(input: $input) {
+    id
+    templateId
+    templateName
+    templateKind
+    state
+    name
+    createdAt
+    errors
+    tokensNeeded
+    entriesCount
+    adminVisitedCount
+    publicVisitCount
     __typename
   }
 }
@@ -66,14 +87,17 @@ mutation SigningIterator($input: SigningIteratorInput!) {
     issuanceName
     rowNumber
     state
-    createdAt
+    receivedAt
     params
     errors
     documentId
     storyId
+    adminVisited
+    publicVisitCount
     hasEmailCallback
     emailCallbackSentAt
     payload
+    adminAccessUrl
     __typename
   }
 }
@@ -165,22 +189,9 @@ mutation UpdateIssuance($id: Int!) {
     createdAt
     errors
     tokensNeeded
-    entries {
-      id
-      issuanceId
-      issuanceName
-      rowNumber
-      state
-      createdAt
-      params
-      errors
-      documentId
-      storyId
-      hasEmailCallback
-      emailCallbackSentAt
-      payload
-      __typename
-    }
+    entriesCount
+    adminVisitedCount
+    publicVisitCount
     __typename
   }
 }
@@ -203,14 +214,17 @@ query Entry($id: Int!) {
     issuanceName
     rowNumber
     state
-    createdAt
+    receivedAt
     params
     errors
     documentId
     storyId
+    adminVisited
+    publicVisitCount
     hasEmailCallback
     emailCallbackSentAt
     payload
+    adminAccessUrl
     __typename
   }
 }
@@ -221,14 +235,17 @@ query AllEntries($page: Int, $perPage: Int, $sortField: String, $sortOrder: Stri
     issuanceName
     rowNumber
     state
-    createdAt
+    receivedAt
     params
     errors
     documentId
     storyId
+    adminVisited
+    publicVisitCount
     hasEmailCallback
     emailCallbackSentAt
     payload
+    adminAccessUrl
     __typename
   }
 }
@@ -249,22 +266,9 @@ query Issuance($id: Int!) {
     createdAt
     errors
     tokensNeeded
-    entries {
-      id
-      issuanceId
-      issuanceName
-      rowNumber
-      state
-      createdAt
-      params
-      errors
-      documentId
-      storyId
-      hasEmailCallback
-      emailCallbackSentAt
-      payload
-      __typename
-    }
+    entriesCount
+    adminVisitedCount
+    publicVisitCount
     __typename
   }
 }
@@ -279,22 +283,9 @@ query AllIssuances($page: Int, $perPage: Int, $sortField: String, $sortOrder: St
     createdAt
     errors
     tokensNeeded
-    entries {
-      id
-      issuanceId
-      issuanceName
-      rowNumber
-      state
-      createdAt
-      params
-      errors
-      documentId
-      storyId
-      hasEmailCallback
-      emailCallbackSentAt
-      payload
-      __typename
-    }
+    entriesCount
+    adminVisitedCount
+    publicVisitCount
     __typename
   }
 }

@@ -1,13 +1,47 @@
 use super::*;
 use std::collections::HashMap;
 use constata_lib::models::certos::wizard::*;
+use juniper::{InputValue, ScalarValue, Value, ScalarToken, ParseScalarResult, ParseScalarValue};
+use constata_lib::{Result as ConstataResult};
+
+#[rocket::async_trait]
+pub trait CreateIssuanceInput: Send + Sized {
+  async fn create(self, person: Person, template: WizardTemplate) -> ConstataResult<request::Request>;
+  fn attrs(&self) -> (&Option<i32>, &Option<models::TemplateKind>, &Option<String>, &Option<String>, &Option<String>);
+
+  fn required<T: Clone>(val: &Option<T>, name: &str) -> ConstataResult<T> {
+    val.clone().ok_or_else(|| Error::validation(name, "cannot_be_empty"))
+  }
+
+  async fn process(self, context: &Context) -> FieldResult<Issuance> {
+    let (template_id, new_kind, new_name, new_logo_text, new_logo_image) = self.attrs();
+
+    let template = match template_id {
+      Some(id) => WizardTemplate::Existing{ template_id: *id},
+      None => {
+        WizardTemplate::New {
+          kind: Self::required(new_kind, "newKind")?,
+          name: Self::required(new_name, "newName")?,
+          logo: if let Some(i) = new_logo_image {
+            ImageOrText::Image(base64::decode(i)?)
+          } else {
+            ImageOrText::Text(Self::required(new_logo_text, "newLogoText")?)
+          }
+        }
+      }
+    };
+
+    let person = context.site.person().find(context.person_id()).await?;
+    Ok(Issuance::db_to_graphql(self.create(person, template).await?, false).await?)
+  }
+}
 
 #[derive(GraphQLInputObject, Serialize, Deserialize)]
 #[graphql(description = "A CreateIssuanceFromJsonInput configures a new Issuance, with optional initial entries, where more new entries may be added later. Once all desired entries have been added, the issuance may be signed and will be certified and optionally distributed by Constata. If you want to create an Issuance all at once from a single CSV file we suggest you use CreateIssuanceFromCsvInput.")]
 #[serde(rename_all = "camelCase")]
 pub struct CreateIssuanceFromJsonInput {
   #[graphql(description = "An array of JSON objects corresponding to each recipient for whom you want to create a diploma, certificate of attendance or badge")]
-  entries: Vec<HashMap<String,String>>,
+  entries: Vec<EntryParams>,
   #[graphql(description = "The name of the Issuance to be created.")]
   name: String,
   #[graphql(description = "The ID of an existing template to use, if any. See the Templates resource.")]
@@ -22,40 +56,48 @@ pub struct CreateIssuanceFromJsonInput {
   new_logo_image: Option<String>,
 }
 
-impl CreateIssuanceFromJsonInput {
-  pub async fn process(self, context: &Context) -> FieldResult<Issuance> {
-    let template = match self.template_id {
-      Some(id) => WizardTemplate::Existing{ template_id: id},
-      None => {
-        WizardTemplate::New {
-          kind: self.new_kind.ok_or_else(|| Error::validation("newKind", "cannot_be_empty"))?,
-          name: self.new_name.ok_or_else(|| Error::validation("newName", "cannot_be_empty"))?,
-          logo: match self.new_logo_image {
-            Some(i) => ImageOrText::Image(base64::decode(i)?),
-            _ => ImageOrText::Text(self.new_logo_text.ok_or_else(|| Error::validation("newLogoText", "cannot_be_empty"))?),
-          }
-        }
-      }
-    };
-
-    let person = context.site.person().find(context.person_id()).await?;
-
-    let db_request = JsonIssuanceBuilder {
+#[rocket::async_trait]
+impl CreateIssuanceInput for CreateIssuanceFromJsonInput {
+  async fn create(self, person: Person, template: WizardTemplate) -> ConstataResult<request::Request> {
+    JsonIssuanceBuilder {
       person: person,
-      entries: self.entries,
-      name: self.name,
+      entries: self.entries.into_iter().map(|e| e.0).collect(),
+      name: self.name.clone(),
       template
-    }.process().await?
-    .into_inner();
+    }.process().await
+  }
 
-    Ok(Issuance::db_to_graphql(db_request, false).await?)
+  fn attrs(&self) -> (&Option<i32>, &Option<models::TemplateKind>, &Option<String>, &Option<String>, &Option<String>) {
+    (&self.template_id, &self.new_kind, &self.new_name, &self.new_logo_text, &self.new_logo_image)
+  }
+}
+
+#[derive(juniper::GraphQLScalar, serde::Serialize, serde::Deserialize)]
+pub struct EntryParams(pub HashMap<String, String>);
+
+impl EntryParams {
+  fn from_input<S>(v: &InputValue<S>) -> Result<Self, String> where S: ScalarValue {
+    let string = v.as_string_value()
+      .ok_or_else(|| "value was not serializable".to_string())?;
+    let vec: HashMap<String,String> = serde_json::from_str(&string)
+      .map_err(|_| format!("EntryParams should be a json object with only strings as its values, it was: {}", &string))?;
+
+    Ok(EntryParams(vec))
+  }
+
+  fn to_output<S: ScalarValue>(&self) -> Value<S> {
+    Value::scalar(serde_json::to_string(&self.0).unwrap())
+  }
+
+  fn parse_token<S>(value: ScalarToken<'_>) -> ParseScalarResult<S> where S: ScalarValue {
+    <String as ParseScalarValue<S>>::from_str(value)
   }
 }
 
 #[derive(GraphQLInputObject, Serialize, Deserialize)]
 #[graphql(description = "A CreateIssuanceFromCsvInput configures a new Issuance, with at least one recipient, where more new entries may be added later. Once all desired entries have been added, the issuance may be signed and will be certified and optionally distributed by Constata. If you want to create an Issuance all at once from a single CSV file we suggest you use the Wizard endpoint.")]
 #[serde(rename_all = "camelCase")]
-pub struct  CreateIssuanceFromCsvInput {
+pub struct CreateIssuanceFromCsvInput {
   #[graphql(description = "The CSV file to be used for creating the entries.")]
   csv: String,
   #[graphql(description = "The name of the Issuance to be created.")]
@@ -72,32 +114,19 @@ pub struct  CreateIssuanceFromCsvInput {
   new_logo_image: Option<String>,
 }
 
-impl CreateIssuanceFromCsvInput {
-  pub async fn process(self, context: &Context) -> FieldResult<Issuance> {
-    let template = match self.template_id {
-      Some(id) => WizardTemplate::Existing{ template_id: id},
-      None => {
-        WizardTemplate::New {
-          kind: self.new_kind.ok_or_else(|| Error::validation("newKind", "cannot_be_empty"))?,
-          name: self.new_name.ok_or_else(|| Error::validation("newName", "cannot_be_empty"))?,
-          logo: match self.new_logo_image {
-            Some(i) => ImageOrText::Image(base64::decode(i)?),
-            _ => ImageOrText::Text(self.new_logo_text.ok_or_else(|| Error::validation("newLogoText", "cannot_be_empty"))?),
-          }
-        }
-      }
-    };
-
-    let person = context.site.person().find(context.person_id()).await?;
-
-    let db_request = Wizard {
+#[rocket::async_trait]
+impl CreateIssuanceInput for CreateIssuanceFromCsvInput {
+  async fn create(self, person: Person, template: WizardTemplate) -> ConstataResult<request::Request> {
+    Wizard {
       person: person,
       csv: self.csv.into_bytes().clone(),
-      name: self.name,
+      name: self.name.clone(),
       template
-    }.process().await?;
+    }.process().await
+  }
 
-    Ok(Issuance::db_to_graphql(db_request, false).await?)
+  fn attrs(&self) -> (&Option<i32>, &Option<models::TemplateKind>, &Option<String>, &Option<String>, &Option<String>) {
+    (&self.template_id, &self.new_kind, &self.new_name, &self.new_logo_text, &self.new_logo_image)
   }
 }
 
@@ -108,14 +137,16 @@ pub struct AppendEntriesToIssuanceInput {
   #[graphql(description = "The ID of the Issuance to which the entries are to be added.")]
   issuance_id: i32,
   #[graphql(description = "An array of JSON objects corresponding to each recipient for whom you want to create a diploma, certificate of attendance or badge")]
-  entries: Vec<HashMap<String,String>>,
+  entries: Vec<EntryParams>,
 }
 
 impl AppendEntriesToIssuanceInput {
   pub async fn process(self, context: &Context) -> FieldResult<Issuance> {
-    let issuance = context.person().org().await?.request_scope().id_eq(&context.issuance_id).one().await?;
+    let issuance = context.person().org().await?.request_scope().id_eq(&self.issuance_id).one().await?;
     if let Some(received) = issuance.flow().for_adding_entries().await? {
-      received.append_entries(&self.entries).await?;
+      received.append_entries(
+        &self.entries.into_iter().map(|e| e.0).collect::<Vec<HashMap<String,String>>>(),
+      ).await?;
       Ok(Issuance::db_to_graphql(received.into_inner(), false).await?)
     } else {
       Err(field_error("already_signing", "cannot_append_entries_at_this_point"))
@@ -144,8 +175,8 @@ pub struct Issuance {
     errors: Option<String>,
     #[graphql(description = "Amount of tokens that the user must buy to certify this issuance.")]
     tokens_needed: Option<i32>,
-    #[graphql(description = "Entries that belong to this issuance.")]
-    entries: Vec<Entry>,
+    #[graphql(description = "Entry count for this issuance. All entries can be fetch separately with an Entries query, filtering by issuance id.")]
+    entries_count: i32,
     #[graphql(description = "Stats: How many recipients viewed the admin link that was sent to them.")]
     admin_visited_count: i32,
     #[graphql(description = "Stats: How many visits did the published entries in this Issuance get, collectively.")]
@@ -208,16 +239,11 @@ impl Showable<request::Request, IssuanceFilter> for Issuance {
 
     let mut admin_visited_count = 0;
     let mut public_visit_count = 0;
-    for entry in db_entries.iter() {
+    for entry in &db_entries {
       let Some(document) = entry.document().await? else { continue; };
       let Some(l) = document.download_proof_link_scope().optional().await? else { continue; };
       if l.attrs.admin_visited { admin_visited_count += 1 };
       public_visit_count += l.attrs.public_visit_count;
-    }
-
-    let mut entries = vec![];
-    for entry in db_entries {
-      entries.push(Entry::db_to_graphql(entry, false).await?);
     }
 
     Ok(Issuance {
@@ -230,37 +256,127 @@ impl Showable<request::Request, IssuanceFilter> for Issuance {
       errors: d.attrs.errors,
       created_at: d.attrs.created_at,
       tokens_needed,
-      entries,
+      entries_count: db_entries.len() as i32,
       admin_visited_count,
       public_visit_count,
     })
   }
 }
 
-
-/*
-El workflow del usuario via graphql es:
-- Envía un issuance, con entries inline opcionalmente, espera a que esté created.
-- Le puede agregar mas entries, eso pasa el issuance de "created" otra vez a "received".
-- Si está en created o received puede seguir agregando entries.
-- Si fue creado via CSV igual se le puede agregar entries.
-- Puede tirar errores de validación del entry que estoy intentando agregar.
-- Como el entry se crea asincrónicamente, y pasa el issuance de "created" a "received", es posible que el Issuance quede en failed culpa de un entry y tenga que cargar todo otra vez.
-  - Esto va a estar muy mitigado por la validación.
-  - En cualquier caso, un Issuance fallido no se puede firmar.
-*/
 constata_lib::describe_one! {
-  fulltest!{ can_create_an_issuance (_site, c, client, mut chain)
+  fulltest!{ can_create_an_issuance (site, c, client, _chain)
     client.signer.verify_email("test@example.com").await;
 
     use gql::{
       *,
       create_issuance_from_json as create,
-      append_entries_to_issuance as append,
       issuance as show,
-      all_issuances as all,
+      append_entries_to_issuance as append,
     };
 
+    let entries = vec![
+      serde_json::json!({
+        "name": "Kenny Mcormic",
+        "email": "kenny@cc.com",
+        "recipient_identification": "AB-12345",
+        "custom_text": "Artísta plastilínico",
+        "motive": "Arte con plastilina",
+        "date": "3 de marzo de 1999",
+        "place": "Sout Park",
+        "shared_text": "Gracias a todos por venir",
+      }).to_string(),
+      serde_json::json!({
+        "name": "Kyle Broflovsky",
+        "email": "kyle@cc.com",
+        "recipient_identification": "AB-12345",
+        "custom_text": "Artísta plastilínico",
+        "motive": "Arte con plastilina",
+        "date": "3 de marzo de 1999",
+        "place": "Sout Park",
+        "shared_text": "Gracias a todos por venir",
+      }).to_string(),
+    ];
+
+    let vars = create::Variables{
+      input: create::CreateIssuanceFromJsonInput {
+        entries,
+        name: "testing".to_string(),
+        template_id: None,
+        new_kind: Some(create::TemplateKind::DIPLOMA),
+        new_name: Some("nuevo diploma".to_string()),
+        new_logo_text: Some("nuevo texto del logo".to_string()),
+        new_logo_image: None,
+      }
+    };
+
+    let received: create::ResponseData = client.gql(&CreateIssuanceFromJson::build_query(vars)).await;
+
+    assert_that!(&received, structure!{ create::ResponseData {
+      create_issuance_from_json: structure! { create::CreateIssuanceFromJsonCreateIssuanceFromJson {
+        id: eq(1),
+        template_id: eq(1),
+        template_name: rematch("nuevo diploma"),
+        template_kind: eq(create::TemplateKind::DIPLOMA),
+        state: rematch("received"),
+        name: rematch("testing"),
+        errors: eq(None),
+        tokens_needed: eq(None),
+        entries_count: eq(2),
+        admin_visited_count: eq(0),
+        public_visit_count: eq(0),
+      }}
+    }});
+
+    site.request().create_all_received().await?;
+
+    let created: show::ResponseData = client.gql(&Issuance::build_query(show::Variables{ id: 1 })).await;
+
+    assert_that!(&created, structure!{ show::ResponseData {
+      issuance: structure! { show::IssuanceIssuance {
+        id: eq(1),
+        state: rematch("created"),
+      }}
+    }});
+
+    let new_entries = vec![
+      serde_json::json!({
+        "name": "Kenny Mcormic",
+        "email": "kenny@cc.com",
+        "recipient_identification": "AB-12345",
+        "custom_text": "Artísta plastilínico",
+        "motive": "Arte con plastilina",
+        "date": "3 de marzo de 1999",
+        "place": "Sout Park",
+        "shared_text": "Gracias a todos por venir",
+      }).to_string(),
+      serde_json::json!({
+        "name": "Kyle Broflovsky",
+        "email": "kyle@cc.com",
+        "recipient_identification": "AB-12345",
+        "custom_text": "Artísta plastilínico",
+        "motive": "Arte con plastilina",
+        "date": "3 de marzo de 1999",
+        "place": "Sout Park",
+        "shared_text": "Gracias a todos por venir",
+      }).to_string(),
+    ];
+
+    let vars = append::Variables{
+      input: append::AppendEntriesToIssuanceInput {
+        issuance_id: 1,
+        entries: new_entries,
+      }
+    };
+
+    let appended: append::ResponseData = client.gql(&AppendEntriesToIssuance::build_query(vars)).await;
+
+    assert_that!(&appended, structure!{ append::ResponseData {
+      append_entries_to_issuance: structure! { append::AppendEntriesToIssuanceAppendEntriesToIssuance {
+        id: eq(1),
+        template_id: eq(1),
+        template_name: rematch("nuevo diploma"),
+        entries_count: eq(4),
+      }}
+    }});
   }
 }
-
