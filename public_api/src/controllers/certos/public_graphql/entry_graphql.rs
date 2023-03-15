@@ -32,6 +32,7 @@ pub struct Entry {
   has_email_callback: bool,
   #[graphql(description = "Date when the email was sent, if it has already been sent.")]
   email_callback_sent_at: Option<UtcDateTime>,
+  download_proof_link_url: Option<String>,
   #[graphql(description = "The data payload for this entry.")]
   payload: Option<String>,
   #[graphql(description = "The administrative access url for the direct recipient of this entry. They can use it to download, view or share the document.")]
@@ -63,17 +64,25 @@ impl Showable<entry::Entry, EntryFilter> for Entry {
     }
   }
 
-  fn filter_to_select(org_id: i32, f: EntryFilter) -> SelectEntry {
-    SelectEntry {
-      id_in: f.ids,
-      org_id_eq: Some(org_id),
-      id_eq: f.id_eq,
-      document_id_eq: f.document_id_eq,
-      request_id_eq: f.issuance_id_eq,
-      state_eq: f.state_eq,
-      params_ilike: into_like_search(f.params_like),
-      deletion_id_is_set: Some(false),
-      ..Default::default()
+  fn filter_to_select(org_id: i32, filter: Option<EntryFilter>) -> SelectEntry {
+    if let Some(f) = filter {
+      SelectEntry {
+        id_in: f.ids,
+        org_id_eq: Some(org_id),
+        id_eq: f.id_eq,
+        document_id_eq: f.document_id_eq,
+        request_id_eq: f.issuance_id_eq,
+        state_eq: f.state_eq,
+        params_ilike: into_like_search(f.params_like),
+        deletion_id_is_set: Some(false),
+        ..Default::default()
+      }
+    } else {
+      SelectEntry {
+        org_id_eq: Some(org_id),
+        deletion_id_is_set: Some(false),
+        ..Default::default()
+      }
     }
   }
 
@@ -95,15 +104,18 @@ impl Showable<entry::Entry, EntryFilter> for Entry {
 
     let document = d.document().await?;
     let story_id = if let Some(d) = document.as_ref() { Some(d.story().await?.attrs.id) } else { None };
+    let download_proof_link = if let Some(doc) = document.as_ref() {
+      doc.download_proof_link_scope().optional().await?
+    } else {
+      None
+    };
 
-    let mut admin_visited: bool = false;
-    let mut public_visit_count: i32 = 0;
-    if let Some(doc) = document { 
-      if let Some(l) = doc.download_proof_link_scope().optional().await? {
-        admin_visited = l.attrs.admin_visited;
-        public_visit_count = l.attrs.public_visit_count;
-      }
-    }
+    let (admin_visited, public_visit_count, download_proof_link_url) = if let Some(l) = download_proof_link.as_ref() {
+      (l.attrs.admin_visited, l.attrs.public_visit_count, Some(l.safe_env_url().await?))
+    } else {
+      (false, 0, None)
+    };
+
     let admin_access_url = d.admin_access_url().await?;
 
     Ok(Entry {
@@ -121,6 +133,7 @@ impl Showable<entry::Entry, EntryFilter> for Entry {
       story_id,
       admin_visited,
       public_visit_count,
+      download_proof_link_url,
       payload,
       admin_access_url
     })
