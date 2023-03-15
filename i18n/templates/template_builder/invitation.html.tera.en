@@ -1,11 +1,7 @@
 {% extends "template_builder/_invitation_base.html.tera" %}
 
 {% block __title %}
-Invitation
-{% endblock %}
-
-{% block __we_invite %}
-We are pleased to invite you to
+Badge
 {% endblock %}
 
 {% block __place %}
