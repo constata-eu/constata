@@ -98,15 +98,23 @@ impl Showable<attestation::Attestation, AttestationFilter> for Attestation {
     }
   }
 
-  fn filter_to_select(org_id: i32, f: AttestationFilter) -> SelectAttestation {
-    SelectAttestation {
-      id_in: f.ids,
-      org_id_eq: Some(org_id),
-      id_eq: f.id_eq,
-      person_id_eq: f.person_id_eq,
-      markers_ilike: into_like_search(f.markers_like),
-      deletion_id_is_set: Some(false),
-      ..Default::default()
+  fn filter_to_select(org_id: i32, filter: Option<AttestationFilter>) -> SelectAttestation {
+    if let Some(f) = filter {
+      SelectAttestation {
+        id_in: f.ids,
+        org_id_eq: Some(org_id),
+        id_eq: f.id_eq,
+        person_id_eq: f.person_id_eq,
+        markers_ilike: into_like_search(f.markers_like),
+        deletion_id_is_set: Some(false),
+        ..Default::default()
+      }
+    } else {
+      SelectAttestation {
+        org_id_eq: Some(org_id),
+        deletion_id_is_set: Some(false),
+        ..Default::default()
+      }
     }
   }
 
@@ -334,6 +342,16 @@ constata_lib::describe_one! {
         }}
       }}
     }});
+
+    let bob_client = crate::test_support::PublicApiClient::new(c.bob().await).await;
+    let empty_search = all::Variables{
+      page: None,
+      sort_field: None,
+      per_page: None,
+      sort_order: None,
+      filter: None,
+    };
+    let nothing: all::ResponseData = bob_client.gql(&AllAttestations::build_query(empty_search)).await;
+    assert!(&nothing.all_attestations.is_empty());
   }
 }
-

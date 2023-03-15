@@ -199,7 +199,7 @@ const DEFAULT_PAGE: i32 = 0;
 #[rocket::async_trait]
 trait Showable<Model: SqlxModel<State=Site>, Filter: Send>: Sized {
   fn sort_field_to_order_by(field: &str) -> Option<<Model as SqlxModel>::ModelOrderBy>;
-  fn filter_to_select(org_id: i32, f: Filter) -> <Model as SqlxModel>::SelectModel;
+  fn filter_to_select(org_id: i32, f: Option<Filter>) -> <Model as SqlxModel>::SelectModel;
   fn select_by_id(org_id: i32, id: <Model as SqlxModel>::Id) -> <Model as SqlxModel>::SelectModel;
   async fn db_to_graphql(d: Model, with_payload: bool) -> MyResult<Self>;
 
@@ -245,10 +245,7 @@ trait Showable<Model: SqlxModel<State=Site>, Filter: Send>: Sized {
     }; 
 
     let selected = <Model as SqlxModel>::SelectModelHub::from_state(context.site.clone())
-      .use_struct( filter
-        .map(|x| Self::filter_to_select(context.org_id(), x))
-        .unwrap_or(Default::default())
-      )
+      .use_struct( Self::filter_to_select(context.org_id(), filter) )
       .maybe_order_by(maybe_order_by)
       .limit(limit.into())
       .offset(offset.into())
@@ -266,10 +263,7 @@ trait Showable<Model: SqlxModel<State=Site>, Filter: Send>: Sized {
     where Filter: 'async_trait
   {
     let count = <Model as SqlxModel>::SelectModelHub::from_state(context.site.clone())
-      .use_struct( filter
-        .map(|x| Self::filter_to_select(context.org_id(), x) )
-        .unwrap_or(Default::default())
-      )
+      .use_struct( Self::filter_to_select(context.org_id(), filter) )
       .count().await?
       .to_i32()
       .ok_or(FieldError::new("too_many_records", graphql_value!({})))?;

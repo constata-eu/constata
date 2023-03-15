@@ -6,8 +6,8 @@
         "createdAt": "Creado el",
         "download": "Descargar CSV",
         "export_csv": "Exportar emisión a csv",
-        "adminVisitCount": "Recepciones confirmadas",
-        "publicVisitCount": "Visitas públicas",
+        "adminVisitCount": "Abiertas",
+        "publicVisitCount": "Vistas",
         "entries": "Entradas",
         "errors": "Errores",
         "evidence": "",
@@ -41,7 +41,7 @@
       "field": "CAMPO",
       "fields": {
         "createdAt": "Creado el",
-        "downloadProof": "Descargar Certificado",
+        "copyUrl": "Copiar URL",
         "errors": "Errores",
         "hasEmailCallback": "Notificación por email",
         "id": "ID",
@@ -52,11 +52,15 @@
         "issuanceId": "Emisión",
         "rowNumber": "Línea",
         "state": "Estado",
-        "adminVisited": "Recepción confirmada",
-        "publicVisitCount": "Visitas públicas"
+        "adminVisited": "Abierta",
+        "publicVisitCount": "Vistas",
+        "statistics": "Estadísticas"
       },
       "name": "Entrada |||| Entradas",
-      "value": "VALOR"
+      "value": "VALOR",
+      "yes": "Si",
+      "no": "No",
+      "copy_to_clipboard": "Link copiado al portapapeles"
     },
     "Template": {
       "create": "Crear una Plantilla",

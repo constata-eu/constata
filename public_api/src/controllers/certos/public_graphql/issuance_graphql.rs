@@ -214,17 +214,25 @@ impl Showable<request::Request, IssuanceFilter> for Issuance {
     }
   }
 
-  fn filter_to_select(org_id: i32, f: IssuanceFilter) -> SelectRequest {
-    SelectRequest {
-      id_in: f.ids,
-      org_id_eq: Some(org_id),
-      id_eq: f.id_eq,
-      template_id_eq: f.template_id_eq,
-      state_eq: f.state_eq,
-      state_ne: Some("failed".to_string()),
-      name_ilike: into_like_search(f.name_like),
-      deletion_id_is_set: Some(false),
-      ..Default::default()
+  fn filter_to_select(org_id: i32, filter: Option<IssuanceFilter>) -> SelectRequest {
+    if let Some(f) = filter {
+      SelectRequest {
+        id_in: f.ids,
+        org_id_eq: Some(org_id),
+        id_eq: f.id_eq,
+        template_id_eq: f.template_id_eq,
+        state_eq: f.state_eq,
+        state_ne: Some("failed".to_string()),
+        name_ilike: into_like_search(f.name_like),
+        deletion_id_is_set: Some(false),
+        ..Default::default()
+      }
+    } else {
+      SelectRequest {
+        org_id_eq: Some(org_id),
+        deletion_id_is_set: Some(false),
+        ..Default::default()
+      }
     }
   }
 

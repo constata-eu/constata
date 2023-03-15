@@ -143,13 +143,17 @@ impl Showable<kyc_request::KycRequest, KycRequestFilter> for KycRequest {
     }
   }
 
-  fn filter_to_select(org_id: i32, f: KycRequestFilter) -> SelectKycRequest {
-    SelectKycRequest {
-      org_id_eq: Some(org_id),
-      id_in: f.ids,
-      id_eq: f.id_eq,
-      state_eq: f.state_eq,
-      ..Default::default()
+  fn filter_to_select(org_id: i32, filter: Option<KycRequestFilter>) -> SelectKycRequest {
+    if let Some(f) = filter {
+      SelectKycRequest {
+        org_id_eq: Some(org_id),
+        id_in: f.ids,
+        id_eq: f.id_eq,
+        state_eq: f.state_eq,
+        ..Default::default()
+      }
+    } else {
+      SelectKycRequest { org_id_eq: Some(org_id), ..Default::default() }
     }
   }
 
