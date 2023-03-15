@@ -47,24 +47,22 @@
     .bordered-frame-outer {
       flex: 1 0 10%;
       border: 2px solid #d2d2d2;
+      border-radius: 20px;
       margin: 2em;
       position: relative;
       box-shadow: 1px 1px 10px #d2d2d2;
     }
 
     .bordered-frame-inner {
-      border: 3px solid #d2d2d2;
+      flex: 1 0 10%;
       margin: 1em;
-      padding: 2em 8em;
       position: relative;
-      background: #ffffff;
-      display: flex;
-      flex-wrap: wrap;
+      padding: 2em 8em;
     }
 
     .item {
       width: 100%;
-      border-bottom: 4px solid #d2d2d2;
+      text-align: center;
     }
 
     .background {
@@ -75,9 +73,8 @@
 
     .logo-big {
       margin: 2em auto;
-      max-width: 100px;
-      height: 100px;
-      text-align: center;
+      max-width: 80px;
+      height: 80px;
     }
     .logo-big img {
       max-height: 100%;
@@ -102,11 +99,6 @@
       text-transform: uppercase;
     }
 
-    .person {
-      font-size: 1.5em;
-      line-height: 1.5em;
-    }
-
     .identification {
       font-size: 0.5em;
     }
@@ -120,9 +112,41 @@
       font-size: 1.5em;
     }
 
+    .badge{
+      margin: auto;
+      position: relative;
+      display: inline-block;
+      text-align: center;
+      top: 10%;
+    }
+
+      .title{
+        font-weight: bold;
+        font-size: 1.7em;
+        position: absolute;
+        top: -28px;
+        text-align: center;
+        width: 100%;
+        padding: 20px 0;
+      }
+      .subtitle{
+        position: absolute;
+        font-size: 1.8em;
+        width: 100%;
+        text-align: center;
+        color: white;
+        position: absolute;
+        top: 35%;
+      }
+        
+
       @media only screen and (max-width: 600px) {
         .logo-big {
           margin: 1em auto;
+        }
+
+        .badge{
+          margin-top: 16px;
         }
 
         .lead {
@@ -147,8 +171,7 @@
         }
 
         .bordered-frame-inner {
-          border: 1px solid #D3EAFE;
-          margin: 2px;
+          padding: 0.5em 1em;
         }
 
         .item1 {
@@ -164,6 +187,7 @@
       <div class="bordered-frame-outer">
         <div class="bordered-frame-inner">
           <div class="item">
+
             {% if image %}
               <div class="logo-big">
                 <img src="{{ image }}"/>
@@ -173,17 +197,19 @@
                 {{ issuer }}
               </div>
             {% endif %}
+            <div class="badge">
+              <svg xmlns="http://www.w3.org/2000/svg" version="1.1" x="0px" y="0px" width="216px" height="232px" viewBox="0 0 216 232">
+                <path fill="#BFA2DB" d="M207,0C171.827,0.001,43.875,0.004,9.003,0c-5.619-0.001-9,3.514-9,9c0,28.23-0.006,151.375,0,169    c0.005,13.875,94.499,54,107.999,54S216,191.57,216,178V9C216,3.298,212.732,0,207,0z"/>
+            </svg>
+              <p class="title text-uppercase"><strong>{% raw %} {{ motive }} {% endraw %}</strong></p>
+              <p class="subtitle text-uppercase"><strong>{% raw %} {{ name }} {% endraw %}</strong></p>
+            </div>
               <p class="person text-uppercase">
-                <strong>{% raw %} {{ name }} {% endraw %}</strong>
+               
                 <br/>
-                {% raw %}
-                  {% if recipient_identification %}
-                    <span class="identification">{{ recipient_identification }}</span>
-                    <br/>
-                  {% endif %}
-                {% endraw %}
+
                 {% block __we_invite %}{% endblock %}</p> 
-            <p class="lead text-uppercase"><strong>{% raw %} {{ motive }} {% endraw %}</strong></p>
+            <p class="lead text-uppercase"></p>
           </div>
           <div class="item">
             <p class="small">{% raw %} {{ place }} {% endraw %}</p>
@@ -191,16 +217,6 @@
           <div class="item">
             <p class="small">{% raw %} {{ date }} {% endraw %}</p>
           </div>
-          {% raw %}
-            <div class="item">
-            {% if custom_text %}
-              <p>{{ custom_text }}</p>
-            {% endif %}
-            {% if shared_text %}
-              <p>{{ shared_text }}</p>
-            {% endif %}
-            </div>
-          {% endraw %}
         </div>
       </div>
     </div>

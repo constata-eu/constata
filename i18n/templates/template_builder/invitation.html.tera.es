@@ -1,11 +1,7 @@
 {% extends "template_builder/_invitation_base.html.tera" %}
 
 {% block __title %}
-Invitación
-{% endblock %}
-
-{% block __we_invite %}
-Nos complace invitarle a
+Insignia
 {% endblock %}
 
 {% block __place %}
