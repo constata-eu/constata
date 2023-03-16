@@ -528,6 +528,45 @@ mod workroom {
       open_download_proof_link_and_public_certificate(&d, &c.site, 5, 1).await;
       check_statistic(&d, 5, 10, 2, "Yes", 4).await;
       check_statistic(&d, 5, 10, 1, "Yes", 1).await;
+
+      d.goto(&format!("http://localhost:8000/#")).await;
+      // d.click("#dashboard-menu-item").await;
+      let mut admin_visited_count = 5;
+      let mut public_visit_count = 10;
+      d.click("#templates").await;
+      d.wait_for_text(".ra-field-adminVisitedCount > span", &format!(r"{admin_visited_count}/5*")).await;
+      d.wait_for_text(".ra-field-publicVisitCount > span", &format!(r"{public_visit_count}*")).await;
+      d.goto(&format!("http://localhost:8000/#")).await;
+      d.click("#templates").await;
+      d.click("a[href='#/Template/1/show']").await;
+      d.wait_for_text(".ra-field-adminVisitedCount > span", &format!(r"{admin_visited_count}/5*")).await;
+      d.wait_for_text(".ra-field-publicVisitCount > span", &format!(r"{public_visit_count}*")).await;
+      d.goto(&format!("http://localhost:8000/#")).await;
+      create_wizard(&d, &c.site, 5, "testing-template").await;
+      sign_wizard(&d).await;
+      chain.fund_signer_wallet();
+      chain.simulate_stamping().await;
+      for entry in c.site.request().find(&1).await?.entry_vec().await? {
+        entry.in_signed()?.try_complete().await?;
+      }
+      d.click("a[href='#/']").await;
+      check_statistic(&d, 1, 1, 5, "Yes", 1).await;
+      open_download_proof_link_and_public_certificate(&d, &c.site, 1, 1).await;
+      check_statistic(&d, 2, 2, 4, "Yes", 2).await;
+      open_download_proof_link_and_public_certificate(&d, &c.site, 1, 1).await;
+      check_statistic(&d, 3, 3, 3, "Yes", 3).await;
+      open_download_proof_link_and_public_certificate(&d, &c.site, 1, 1).await;
+      d.goto(&format!("http://localhost:8000/#")).await;
+      d.click("#templates").await;
+      d.wait_for_text(".ra-field-adminVisitedCount > span", &format!(r"{admin_visited_count}/5*")).await;
+      d.wait_for_text(".ra-field-publicVisitCount > span", &format!(r"{public_visit_count}*")).await;
+      d.goto(&format!("http://localhost:8000/#")).await;
+      d.click("#templates").await;
+      d.click("a[href='#/Template/1/show']").await;
+      d.wait_for_text(".ra-field-adminVisitedCount > span", &format!(r"{admin_visited_count}/5*")).await;
+      d.wait_for_text(".ra-field-publicVisitCount > span", &format!(r"{public_visit_count}*")).await;
+      wait_here();
+
     }
 
     pub async fn open_download_proof_link_and_public_certificate(
@@ -557,12 +596,12 @@ mod workroom {
     ) {
       d.goto(&format!("http://localhost:8000/#")).await;
       d.click("#requests-menu-item").await;
-      d.wait_for_text(".column-adminVisitCount > span", &format!(r"{admin_visited_count}/5*")).await;
+      d.wait_for_text(".column-adminVisitedCount > span", &format!(r"{admin_visited_count}/5*")).await;
       d.wait_for_text(".column-publicVisitCount > span", &format!(r"{public_visit_count}*")).await;
       d.goto(&format!("http://localhost:8000/#")).await;
       d.click("#requests-menu-item").await;
       d.click("a[href='#/Request/1/show']").await;
-      d.wait_for_text(".ra-field-adminVisitCount > span", &format!(r"{admin_visited_count}/5*")).await;
+      d.wait_for_text(".ra-field-adminVisitedCount > span", &format!(r"{admin_visited_count}/5*")).await;
       d.wait_for_text(".ra-field-publicVisitCount > span", &format!(r"{public_visit_count}*")).await;
       d.wait_for_text(&format!("#review-entries-big tbody > tr:nth-child({child}) .column-statistics .params:nth-child(1) span:nth-child(2)"), &format!(r"{admin_visited}*")).await;
       d.wait_for_text(&format!("#review-entries-big tbody > tr:nth-child({child}) .column-statistics .params:nth-child(2) span:nth-child(2)"), &format!(r"{public_visit}*")).await;
