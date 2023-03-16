@@ -761,6 +761,8 @@
 			"create": "Create template",
 			"fields": {
 				"createdAt": "Created at",
+        "adminVisitCount": "Views",
+        "publicVisitCount": "Opened",
 				"customMessage": "custom message",
 				"evidence": "",
 				"id": "ID",

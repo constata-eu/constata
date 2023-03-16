@@ -66,6 +66,8 @@
       "create": "Crear una Plantilla",
       "fields": {
         "createdAt": "Creado el",
+        "adminVisitCount": "Vistas",
+        "publicVisitCount": "Abiertas",
         "customMessage": "Mensaje Personalizado",
         "evidence": "",
         "id": "ID",
