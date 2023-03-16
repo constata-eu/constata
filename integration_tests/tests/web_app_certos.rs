@@ -717,8 +717,17 @@ mod workroom {
       d.click("button[type='submit']").await;
     }
 
-    async fn create_wizard(d: &Selenium, site: &Site, recipient_count: i32, template_name: &str) {
-      create_template(&d, template_name).await;
+    async fn select_template(d: &Selenium) {
+      d.click("a[href='#/wizard']").await;
+      wait_here();
+    }
+
+    async fn create_wizard(d: &Selenium, site: &Site, recipient_count: i32, template_name: &str, new_template: bool) {
+      if new_template {
+        create_template(&d, template_name).await;
+      } else {
+        select_template(&d).await;
+      }
 
       for i in 0..recipient_count {
         let email = format!("probando{i}@constata.eu");
