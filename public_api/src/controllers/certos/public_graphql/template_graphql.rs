@@ -9,6 +9,9 @@ pub struct Template {
   created_at: UtcDateTime,
   schema: String,
   custom_message: Option<String>,
+  admin_visited_count: i32,
+  entries_count: i32,
+  public_visit_count: i32,   
   archived: bool,
 }
 
@@ -59,6 +62,20 @@ impl Showable<template::Template, TemplateFilter> for Template {
   }
 
   async fn db_to_graphql(d: template::Template, _with_payload: bool) -> MyResult<Self> {
+    let mut admin_visited_count = 0;
+    let mut entries_count = 0;
+    let mut public_visit_count = 0;
+
+    for r in d.request_vec().await? {
+      for e in r.entry_vec().await? {
+        let Some(doc) = e.document().await? else { continue; };
+        let Some(l) = doc.download_proof_link_scope().optional().await? else { continue; };
+        if l.attrs.admin_visited { admin_visited_count += 1 };
+        entries_count += 1;
+        public_visit_count += l.attrs.public_visit_count;
+      }
+    } 
+
     Ok(Template {
       id: d.attrs.id,
       name: d.attrs.name,
@@ -66,6 +83,9 @@ impl Showable<template::Template, TemplateFilter> for Template {
       created_at: d.attrs.created_at,
       schema: d.attrs.schema,
       custom_message: d.attrs.custom_message,
+      admin_visited_count,
+      entries_count,
+      public_visit_count,
       archived: d.attrs.archived,
     })
   }
