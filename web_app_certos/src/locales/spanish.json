@@ -186,21 +186,6 @@
       "title": "Creando Firma"
     }
   },
-  "patch": {
-    "action": {
-      "clear_input_value": "Limpiar valor",
-      "confirm": "Confirmar",
-      "unselect": "Deseleccionar"
-    },
-    "auth": {
-      "auth_check_error": "Por favor inicie sesión para continuar",
-      "user_menu": "Perfil"
-    },
-    "navigation": {
-      "page_rows_per_page": "Filas por página:",
-      "skip_nav": "Saltar al contenido"
-    }
-  },
   "certos": {
     "account_state": {
       "pending_invoice": {
@@ -780,6 +765,21 @@
         "text": "Los diplomas, certificados de asistencia o invitaciones se generarán en base a una plantilla con su logo, que luego se completará con los datos de cada destinatario.",
         "title": "¿Qué desea emitir?"
       }
+    }
+  },
+  "patch": {
+    "action": {
+      "clear_input_value": "Limpiar valor",
+      "confirm": "Confirmar",
+      "unselect": "Deseleccionar"
+    },
+    "auth": {
+      "auth_check_error": "Por favor inicie sesión para continuar",
+      "user_menu": "Perfil"
+    },
+    "navigation": {
+      "page_rows_per_page": "Filas por página:",
+      "skip_nav": "Saltar al contenido"
     }
   }
 }
