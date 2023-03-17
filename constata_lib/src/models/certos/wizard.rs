@@ -76,8 +76,7 @@ impl Wizard {
     let (filename, custom_message) = match kind {
       TemplateKind::Diploma => ("diploma", i18n::t!(lang, template_message_for_diploma)),
       TemplateKind::Attendance => ("attendance", i18n::t!(lang, template_message_for_attendance)),
-      // To change when template is ready
-      _ => ("invitation", i18n::t!(lang, template_message_for_badge)),
+      _ => ("badge", i18n::t!(lang, template_message_for_badge)),
     };
 
     let mut context = i18n::Context::new();
@@ -138,8 +137,7 @@ describe!{
 
     let mut zipfile = zip::ZipArchive::new(std::io::Cursor::new(request.template().await?.payload().await?))?;
     let mut inner = zipfile.by_index(0)?;
-    // To change
-    assert_eq!(inner.name(), "invitation.html.tera");
+    assert_eq!(inner.name(), "badge.html.tera");
     let mut contents = String::new();
     inner.read_to_string(&mut contents)?;
     assert_that!(&contents, rematch(r#"\{\{ name \}\}"#));
