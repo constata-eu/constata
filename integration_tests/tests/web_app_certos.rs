@@ -557,11 +557,11 @@ mod website {
         public_visit: i32,
       ) {
         d.goto(&format!("http://localhost:8000/#")).await;
-        d.click("#requests-menu-item").await;
+        d.click("#issuances-menu-item").await;
         d.wait_for_text(".column-adminVisitedCount > span", &format!(r"{admin_visited_count}/5*")).await;
         d.wait_for_text(".column-publicVisitCount > span", &format!(r"{public_visit_count}*")).await;
         d.goto(&format!("http://localhost:8000/#")).await;
-        d.click("#requests-menu-item").await;
+        d.click("#issuances-menu-item").await;
         d.click("a[href='#/Request/1/show']").await;
         d.wait_for_text(".ra-field-adminVisitedCount > span", &format!(r"{admin_visited_count}/5*")).await;
         d.wait_for_text(".ra-field-publicVisitCount > span", &format!(r"{public_visit_count}*")).await;
