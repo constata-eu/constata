@@ -553,15 +553,14 @@ impl SignerClient {
   }
   
   pub async fn make_request(&self, template_id: i32, request_file: Vec<u8>) -> Result<Request> {
-    self.db.site.request().insert(InsertRequest{
-      app_id: self.get_certos_id().await,
-      org_id: *self.org().await.id(),
-      person_id: self.person_id.unwrap(),
-      template_id: template_id,
-      state: "received".to_string(),
+    Wizard{
+      person: self.person().await,
       name: "certos_request.csv".to_string(),
-      size_in_bytes: request_file.len() as i32,
-    }).validate_and_save(&request_file).await
+      template: WizardTemplate::Existing {
+        template_id,
+      },
+      csv: request_file,
+    }.process().await
   }
 
   pub async fn make_entry_and_sign_it(&self) -> crate::models::certos::entry::Entry {
