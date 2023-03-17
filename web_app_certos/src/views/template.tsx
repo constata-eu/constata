@@ -26,7 +26,7 @@ function TemplateList(props) {
     <Container maxWidth="md" sx={{mb:3}}>
       <Card>
         <CardTitle text={<>
-          <Link href="#/Request"> { translate("resources.Request.admin_title") } </Link>
+          <Link href="#/Issuance"> { translate("resources.Issuance.admin_title") } </Link>
           &gt;
           { translate("resources.Template.admin_title") }
         </>} />
@@ -82,7 +82,7 @@ function TemplateShow(props){
       <Container maxWidth="md" sx={{mb:3}}>
         <Card sx={{ mb: 3 }}>
           <CardTitle text={<>
-            <Link href="#/Request"> { translate("resources.Request.admin_title") } </Link>
+            <Link href="#/Issuance"> { translate("resources.Issuance.admin_title") } </Link>
             &gt;
             <Link href="#/Template"> { translate("resources.Template.admin_title") } </Link>
             &gt;

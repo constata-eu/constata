@@ -1,6 +1,6 @@
 {
   "resources": {
-    "Request": {
+    "Issuance": {
       "create": "Crear una Emisión",
       "fields": {
         "createdAt": "Creado el",
@@ -49,7 +49,7 @@
         "params": "Parámetros",
         "paramsLike": "Por parámetros:",
         "proof": "Certificado",
-        "requestId": "Emisión",
+        "issuanceId": "Emisión",
         "rowNumber": "Línea",
         "state": "Estado",
         "adminVisited": "Abierta",
@@ -385,9 +385,9 @@
       "dashboard": "Tablero",
       "help": "Ayuda",
       "logout": "Salir",
-      "requests": "Emisiones"
+      "issuances": "Emisiones"
     },
-    "request": {
+    "issuance": {
       "create": "Crear emisión",
       "csv": "Archivo csv",
       "export_csv": "Exportar emisión a csv",
@@ -542,11 +542,11 @@
         "go_to_dashboard": "Ir al Tablero",
         "kind_text": {
           "ATTENDANCE": {
-            "and_we": " y lo ||| y los ",
+            "and_we": " y lo |||| y los ",
             "base": "el certificado de asistencia |||| los %{smart_count} certificados de asistencia "
           },
           "DIPLOMA": {
-            "and_we": " y lo ||| y los ",
+            "and_we": " y lo |||| y los ",
             "base": " el diploma |||| los %{smart_count} diplomas "
           },
           "INVITATION": {

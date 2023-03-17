@@ -41,15 +41,16 @@ model!{
     #[sqlx_model_hints(varchar)]
     state: String,
     #[sqlx_model_hints(timestamptz, default)]
-    created_at: UtcDateTime,
-    size_in_bytes: i32,
+    received_at: UtcDateTime,
+    #[sqlx_model_hints(int4, default)]
+    size_in_bytes: Option<i32>,
     #[sqlx_model_hints(varchar)]
     params: String,
-    #[sqlx_model_hints(text)]
+    #[sqlx_model_hints(text, default)]
     errors: Option<String>,
-    #[sqlx_model_hints(varchar)]
+    #[sqlx_model_hints(varchar, default)]
     document_id: Option<String>,
-    #[sqlx_model_hints(int4)]
+    #[sqlx_model_hints(int4, default)]
     email_callback_id: Option<i32>,
     #[sqlx_model_hints(int4, default)]
     deletion_id: Option<i32>,
@@ -70,6 +71,7 @@ derive_storable!(Entry, "we");
 impl Entry {
   pub fn flow(&self) -> Flow {
     match self.state().as_ref() {
+      "received" => Flow::Received(Received(self.clone())),
       "created" => Flow::Created(Created(self.clone())),
       "signed" => Flow::Signed(Signed(self.clone())),
       "completed" => Flow::Completed(Completed(self.clone())),
@@ -134,26 +136,28 @@ impl Entry {
 #[derive(Debug, PartialEq, Clone, Serialize)]
 #[serde(tag = "state")]
 pub enum Flow {
+  Received(Received),
   Created(Created),
   Signed(Signed),
   Completed(Completed),
   Failed(Failed),
 }
 
-#[duplicate_item(flow_variant; [ Created ]; [ Signed ]; [ Completed ]; [ Failed ];)]
+#[duplicate_item(flow_variant; [ Received ]; [ Created ]; [ Signed ]; [ Completed ]; [ Failed ];)]
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct flow_variant(Entry);
 
-#[duplicate_item(flow_variant; [ Created ]; [ Signed ]; [ Completed ]; [ Failed ];)]
+#[duplicate_item(flow_variant; [ Received ]; [ Created ]; [ Signed ]; [ Completed ]; [ Failed ];)]
 impl flow_variant {
   pub fn id(&self) -> &i32 { self.0.id() }
-  pub fn created_at(&self) -> &UtcDateTime { self.0.created_at() }
+  pub fn received_at(&self) -> &UtcDateTime { self.0.received_at() }
   pub fn into_inner(self) -> Entry { self.0 }
   pub fn as_inner<'a>(&'a self) -> &'a Entry { &self.0 }
 }
 
 #[duplicate_item(
   in_state          is_state          state_str       state_struct;
+  [ in_received   ] [ is_received   ] [ "received"  ] [ Received  ];
   [ in_created    ] [ is_created    ] [ "created"   ] [ Created   ];
   [ in_signed     ] [ is_signed     ] [ "signed"    ] [ Signed    ];
   [ in_completed  ] [ is_completed  ] [ "completed" ] [ Completed ];
@@ -171,6 +175,7 @@ impl Entry {
 
 #[duplicate_item(
   in_state          is_state          variant(i)            state_struct;
+  [ in_received   ] [ is_received   ] [ Flow::Received(i) ] [ Received  ];
   [ in_created    ] [ is_created    ] [ Flow::Created(i)  ] [ Created   ];
   [ in_signed     ] [ is_signed     ] [ Flow::Signed(i)   ] [ Signed    ];
   [ in_completed  ] [ is_completed  ] [ Flow::Completed(i)] [ Completed ];
@@ -191,6 +196,7 @@ impl Flow {
 impl Flow {
   pub fn as_inner<'a>(&'a self) -> &'a Entry {
     match self {
+      Flow::Received(a) => a.as_inner(),
       Flow::Created(a) => a.as_inner(),
       Flow::Signed(a) => a.as_inner(),
       Flow::Completed(a) => a.as_inner(),
@@ -199,13 +205,13 @@ impl Flow {
   }
 }
 
-impl EntryHub {
-  pub async fn create(self, request: &Request, row_number: i32, template_files: &[(String, Vec<u8>)], row: HashMap<String,String>) -> Result<Created> {
+impl Received {
+  pub async fn create(self, template_files: &[(String, Vec<u8>)]) -> Result<Created> {
     use std::io::Write;
     use zip::write::FileOptions;
 
-    let params = serde_json::to_string(&row)?;
-    let context = i18n::tera::Context::from_serialize(row)?;
+    let inner = self.into_inner();
+    let context = i18n::tera::Context::from_serialize(inner.parsed_params()?)?;
 
     let mut destination_buffer = vec![];
 
@@ -227,24 +233,12 @@ impl EntryHub {
       destination.finish()?;
     }
 
-    let entry = self.state.entry().insert(InsertEntry{
-      app_id: *request.app_id(),
-      person_id: *request.person_id(),
-      org_id: *request.org_id(),
-      request_id: *request.id(),
-      row_number,
-      state: "created".to_string(),
-      size_in_bytes: destination_buffer.len() as i32,
-      params,
-      errors: None,
-      document_id: None,
-      email_callback_id: None,
-    })
-    .save().await?;
-
-    entry.storage_put(&destination_buffer).await?;
-
-    entry.in_created()
+    inner.storage_put(&destination_buffer).await?;
+    inner.update()
+      .state("created".to_string())
+      .size_in_bytes(Some(destination_buffer.len() as i32))
+      .save().await?
+      .in_created()
   }
 }
 
