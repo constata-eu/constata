@@ -1,8 +1,9 @@
 use super::*;
 
 #[derive(GraphQLObject)]
-#[graphql(description = "An pubkey on certos")]
+#[graphql(description = "The public key of a Person is used to sign certificates created through Issuances and Attestations. It's also used to authenticate to this API.")]
 pub struct Pubkey {
+  #[graphql(description = "Unique ID of the pubkey, corresponds to a mainnet bitcoin address.")]
   id: String,
   person_id: i32,
   org_id: i32,

@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { useTranslate, useCheckAuth } from 'ra-core';
 import AccountStateSection from '../components/account_state_section';
 import Balance from '../components/balance_section';
-import RequestsSection from '../components/requests_section';
+import IssuancesSection from '../components/issuances_section';
 import EndorsementsSection from '../components/endorsements_section';
 import EmailAddress from '../components/email_address_section';
 import OtherActions from '../components/other_actions';
@@ -37,7 +37,7 @@ export default function Dashboard() {
     </Button>
     <EndorsementsSection/>
     <EmailAddress/>
-    <RequestsSection/>
+    <IssuancesSection/>
     <Balance />
     <OtherActions />
   </Container>)
