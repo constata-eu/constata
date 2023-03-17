@@ -602,7 +602,7 @@
       "field": "FIELD",
       "fields": {
         "createdAt": "Created on",
-        "downloadProof": "Download certificate",
+        "copyUrl": "Copy URL",
         "errors": "Errors",
         "hasEmailCallback": "Email notification",
         "id": "ID",
@@ -612,10 +612,16 @@
         "proof": "Certificate",
         "requestId": "Issuance",
         "rowNumber": "Line",
-        "state": "State"
+        "state": "State",
+        "adminVisited": "Opened",
+        "publicVisitCount": "Views",
+        "statistics": "Statistics"
       },
       "name": "Entry |||| Entries",
-      "value": "VALUE"
+      "value": "VALUE",
+      "yes": "Yes",
+      "no": "No",
+      "copy_to_clipboard": "Link copied to clipboard"
     },
     "Request": {
       "create": "Start issuance",
@@ -630,8 +636,8 @@
         "createdAt": "Created on",
         "download": "Download CSV",
         "export_csv": "Export issuance to CSV",
-        "adminVisitedCount": "Confirmed receptions",
-        "publicVisitCount": "Visits to published entries",
+        "adminVisitCount": "Opened",
+        "publicVisitCount": "Views",
         "entries": "Entries",
         "errors": "Errors",
         "evidence": "",

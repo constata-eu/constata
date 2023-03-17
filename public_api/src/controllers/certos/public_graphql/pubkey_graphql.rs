@@ -25,13 +25,21 @@ impl Showable<pubkey::Pubkey, PubkeyFilter> for Pubkey {
     }
   }
 
-  fn filter_to_select(org_id: i32, f: PubkeyFilter) -> SelectPubkey {
-    SelectPubkey {
-      id_in: f.ids,
-      id_ilike: into_like_search(f.id_like),
-      org_id_eq: Some(org_id),
-      deletion_id_is_set: Some(false),
-      ..Default::default()
+  fn filter_to_select(org_id: i32, filter: Option<PubkeyFilter>) -> SelectPubkey {
+    if let Some(f) = filter {
+      SelectPubkey {
+        id_in: f.ids,
+        id_ilike: into_like_search(f.id_like),
+        org_id_eq: Some(org_id),
+        deletion_id_is_set: Some(false),
+        ..Default::default()
+      }
+    } else {
+      SelectPubkey {
+        org_id_eq: Some(org_id),
+        deletion_id_is_set: Some(false),
+        ..Default::default()
+      }
     }
   }
 

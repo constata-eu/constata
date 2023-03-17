@@ -120,8 +120,12 @@ export const parseDate = (date) => {
 
 export function formatJsonInline(params){
   return <pre>
-    { Object.entries(orderJsonObject(JSON.parse(params))).map(([key, value]) =>
-    <span key={key}><><b>{key}</b>: {value} <br/></></span>
+    { Object.entries(orderJsonObject(JSON.parse(params))).map(([key, value] : [string, string]) =>
+    <span key={key} className="params">
+        <span><b>{key}</b>: </span>
+        <span>{value}</span>
+        <br/>
+    </span>
     ) }
   </pre>
 }
@@ -163,4 +167,9 @@ export class BaseError extends Error {
 export const handleBoundingClientRect = (resource: string) => {
   let element = document.querySelector(`[role='menuitem'][href='#/${resource}']`)?.getBoundingClientRect();
   return new DOMRect(element?.x, element?.y, element?.width, element?.height ? element.height - 10 : 0);
+}
+
+export const copyToClipboard = (toCopy: string, notify: any) => {
+  navigator.clipboard.writeText(toCopy);
+  notify("resources.Entry.copy_to_clipboard");
 }
