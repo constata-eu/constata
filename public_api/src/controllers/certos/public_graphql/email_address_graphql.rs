@@ -3,10 +3,12 @@ use serde::{Deserialize, Serialize};
 use models::{email_address, outgoing_email_message_kind::*};
 
 #[derive(Clone, GraphQLInputObject, Serialize, Deserialize)]
-#[graphql(description = "An email address")]
+#[graphql(description = "Input data object to register a new email address or change the visibility of a current one. ")]
 #[serde(rename_all = "camelCase")]
 pub struct EmailAddressInput {
+  #[graphql(description = "email to be registered by the person")]
   pub address: String,
+  #[graphql(description = "boolean pointing out whether the email should be registered as private or could be public")]
   pub keep_private: bool,
 }
 
@@ -20,18 +22,24 @@ impl EmailAddressInput {
 }
 
 #[derive(GraphQLObject)]
-#[graphql(description = "An email address")]
+#[graphql(description = "This resource is used by Constata's frontend when you attempt to verify your email address following a link we send to your email.")]
 pub struct EmailAddressVerification {
+  #[graphql(description = "Unique id of the email address that was verified")]
   pub id: i32,
 }
 
 #[derive(GraphQLObject)]
-#[graphql(description = "An email address")]
+#[graphql(description = "This object show an email address information")]
 pub struct EmailAddress {
+  #[graphql(description = "number identifying this email address")]
   id: i32,
+  #[graphql(description = "Id of the Person ownining this address")]
   person_id: i32,
+  #[graphql(description = "The actual email address.")]
   address: String,
+  #[graphql(description = "Date when the email was verified, if verified.")]
   verified_at: Option<UtcDateTime>,
+  #[graphql(description = "Whether constata should also make this address part of the person's public signature information")]
   keep_private: bool,
 }
 

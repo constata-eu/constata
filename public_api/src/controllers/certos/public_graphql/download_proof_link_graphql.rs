@@ -2,14 +2,21 @@ use super::*;
 use models::download_proof_link;
 
 #[derive(GraphQLObject)]
-#[graphql(description = "A Download Proof Link")]
+#[graphql(description = "This resource is used by Constata's admin front-end to show options for viewing, downolading or sharing a certificate on social networks. NOTICE: You should probably never use this resource yourself, use the Attestation and Issuance resources instead. If you insist on using it, keep in mind this endpoint does not authenticate using the 'Authentication' header, you should send an Auth-Token header with the special token generated for administrative access.")]
 pub struct DownloadProofLink {
+  #[graphql(description = "Unique ID for this link.")]
   pub id: i32,
+  #[graphql(description = "Expiration date, this admin link will not be valid after this date and time.")]
   pub valid_until: Option<UtcDateTime>,
+  #[graphql(description = "A verifiable certificate may contain several documents. This many are pending to be certified.")]
   pub pending_doc_count: i32,
+  #[graphql(description = "Creation date of the last document in this verifiable certificate.")]
   pub last_doc_date: Option<UtcDateTime>,
+  #[graphql(description = "Public URL that displays this certificate, if sharing is active.")]
   pub public_certificate_url: String,
+  #[graphql(description = "Whether this certificate's sharing is active. If so, the public_certificate_url can be shared on social media and viewed by anyone.")]
   pub public_certificate_is_active: bool,
+  #[graphql(description = "The text to display in the front-end for the 'share on social media' call to action.")]
   pub share_on_social_networks_call_to_action: String,
   pub document_funded_at: Option<UtcDateTime>,
   pub entry_title: Option<String>,
@@ -62,8 +69,9 @@ impl DownloadProofLink {
 
 
 #[derive(Clone, GraphQLInputObject, Serialize, Deserialize)]
-#[graphql(description = "A download proof link input")]
+#[graphql(description = "This input object allows changing the public_certificate_is_active flag, to enable and disable sharing publicly.")]
 pub struct DownloadProofLinkInput {
+  #[graphql(description = "Send 'publish' to enable, or 'unpublish' to disable. Any other value will be understood as 'unpublish'.")]
   pub action: String,
 }
 

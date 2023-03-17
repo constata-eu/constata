@@ -3,15 +3,18 @@ use crate::controllers::Result as ConstataResult;
 use models::{outgoing_email_message_kind::*};
 
 #[derive(GraphQLInputObject)]
-#[graphql(description = "A SignUp form")]
+#[graphql(description = "The signup process in Constata can only be done through the website. It involves sending a special signed message in the request headers, but it also allows sending an initial email address to verify, which is represented by this input object.")]
 pub struct SignupInput {
+  #[graphql(description = "email to be registered by the person, if any")]
   email: Option<String>,
+  #[graphql(description = "boolean pointing out whether the email should be registered as private or could be public")]
   keep_private: bool,
 }
 
 #[derive(GraphQLObject)]
-#[graphql(description = "A person's signup")]
+#[graphql(description = "This object show the id of the newly created person in reply to a signup. Remember signup can only be done through the website as some spam filtering checks are performed there.")]
 pub struct Signup {
+  #[graphql(description = "number identifying the person who signed up")]
   id: i32,
 }
 
