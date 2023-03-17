@@ -36,13 +36,20 @@ impl Showable<story::Story, StoryFilter> for Story {
     }
   }
 
-  fn filter_to_select(org_id: i32, f: StoryFilter) -> SelectStory {
-    SelectStory{
-      id_in: f.ids,
-      id_eq: f.id_eq,
-      org_id_eq: Some(org_id),
-      private_markers_like: into_like_search(f.private_markers_like),
-      ..Default::default()
+  fn filter_to_select(org_id: i32, filter: Option<StoryFilter>) -> SelectStory {
+    if let Some(f) = filter {
+      SelectStory{
+        id_in: f.ids,
+        id_eq: f.id_eq,
+        org_id_eq: Some(org_id),
+        private_markers_like: into_like_search(f.private_markers_like),
+        ..Default::default()
+      }
+    } else {
+      SelectStory{
+        org_id_eq: Some(org_id),
+        ..Default::default()
+      }
     }
   }
 

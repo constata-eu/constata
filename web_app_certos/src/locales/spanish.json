@@ -6,8 +6,8 @@
         "createdAt": "Creado el",
         "download": "Descargar CSV",
         "export_csv": "Exportar emisión a csv",
-        "adminVisitedCount": "Recepciones confirmadas",
-        "publicVisitCount": "Visitas a entradas publicadas",
+        "adminVisitCount": "Abiertas",
+        "publicVisitCount": "Vistas",
         "entries": "Entradas",
         "errors": "Errores",
         "evidence": "",
@@ -41,7 +41,7 @@
       "field": "CAMPO",
       "fields": {
         "createdAt": "Creado el",
-        "downloadProof": "Descargar Certificado",
+        "copyUrl": "Copiar URL",
         "errors": "Errores",
         "hasEmailCallback": "Notificación por email",
         "id": "ID",
@@ -51,10 +51,16 @@
         "proof": "Certificado",
         "requestId": "Emisión",
         "rowNumber": "Línea",
-        "state": "Estado"
+        "state": "Estado",
+        "adminVisited": "Abierta",
+        "publicVisitCount": "Vistas",
+        "statistics": "Estadísticas"
       },
       "name": "Entrada |||| Entradas",
-      "value": "VALOR"
+      "value": "VALOR",
+      "yes": "Si",
+      "no": "No",
+      "copy_to_clipboard": "Link copiado al portapapeles"
     },
     "Template": {
       "create": "Crear una Plantilla",
@@ -771,7 +777,7 @@
         "new_template_divider": "O cree una nueva plantilla",
         "sample": "ejemplo",
         "text": "Los diplomas, certificados de asistencia o insignias se generarán en base a una plantilla con su logo, que luego se completará con los datos de cada destinatario.",
-        "title": "¿Que desea emitir?"
+        "title": "¿Qué desea emitir?"
       }
     }
   }
