@@ -562,7 +562,7 @@ mod website {
         d.wait_for_text(".column-publicVisitCount > span", &format!(r"{public_visit_count}*")).await;
         d.goto(&format!("http://localhost:8000/#")).await;
         d.click("#issuances-menu-item").await;
-        d.click("a[href='#/Request/1/show']").await;
+        d.click("a[href='#/Issuance/1/show']").await;
         d.wait_for_text(".ra-field-adminVisitedCount > span", &format!(r"{admin_visited_count}/5*")).await;
         d.wait_for_text(".ra-field-publicVisitCount > span", &format!(r"{public_visit_count}*")).await;
         d.wait_for_text(&format!("#review-entries-big tbody > tr:nth-child({child}) .column-statistics .params:nth-child(1) span:nth-child(2)"), &format!(r"{admin_visited}*")).await;
