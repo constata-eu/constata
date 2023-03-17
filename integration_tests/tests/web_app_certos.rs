@@ -475,7 +475,7 @@ mod website {
       add_all_recipients(&d, &c.site, 3).await;
       sign_wizard(&d).await;
       d.click("a[href='#/']").await;
-      d.click("#requests-menu-item").await;
+      d.click("#issuances-menu-item").await;
       d.click("a[href='#/Request/1/show']").await;
       d.click("button[aria-label='Preview']").await;
       d.get_handles_and_go_to_window_one().await;
