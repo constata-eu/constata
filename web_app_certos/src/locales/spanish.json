@@ -284,7 +284,8 @@
       },
       "other_actions" : {
         "title": "Otras acciones",
-        "content": "Ver todas las Plantillas"
+        "templates": "Ver todas las Plantillas",
+        "graphiql": "Ir a Graphiql"
       }
     },
     "entry": {

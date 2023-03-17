@@ -84,7 +84,8 @@
       },
       "other_actions" : {
         "title": "Other actions",
-        "content": "See all Templates"
+        "templates": "See all Templates",
+        "graphiql": "Go to Graphiql"
       }
 		},
 		"entry": {
