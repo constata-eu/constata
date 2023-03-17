@@ -679,9 +679,9 @@
           },
           "BADGE": {
             "custom_text": {
-              "help": "Opcional. ej: \"Ha obtenido el primer puesto en CTF.\"",
+              "help": "Opcional. ej: \"Ha obtenido el primer puesto en el Hackatón Web3.\"",
               "label": "Texto personalizado",
-              "sample": "Ha obtenido el primer puesto en CTF (opcional)"
+              "sample": "Ha obtenido el primer puesto en el Hackatón Web3 (opcional)"
             },
             "date": {
               "help": "Opcional, ej: \"10 de agosto de 2023\"",
@@ -694,28 +694,28 @@
               "sample": "jose.soto@example.com (opcional)"
             },
             "motive": {
-              "help": "ej: \"CTF Primer puesto.\"",
+              "help": "ej: \"Primer puesto en Hackatón Web3.\"",
               "label": "Objetivo alcanzado",
-              "sample": "Primer puesto en Web3 CTF."
+              "sample": "Primer puesto en Web3 Hackatón."
             },
             "name": {
-              "help": "ej: \"Estimado Sr. José Soto +1 \"",
+              "help": "ej: \"José Soto\"",
               "label": "Nombre y apellido",
               "sample": "José Soto"
             },
             "place": {
               "help": "Opcional, \"Lugar o evento en donde se obtuvo la insignia.\"",
-              "label": "Dirección",
-              "sample": "DeFi-Security-Summit-Stanford. (opcional)"
+              "label": "Lugar o Evento",
+              "sample": "Hackatón Web3. (opcional)"
             },
             "recipient_identification": {
-              "help": "Opcional. \"Socia #12121\", \"DNI A4384572J\".",
-              "label": "Identificación del invitado",
+              "help": "Opcional. Se mostrará en la insignia. Puede ser un DNI o su email.",
+              "label": "Identificación de quién recibe la insignia",
               "sample": "DNI A4384572J (opcional)"
             },
             "shared_text": {
               "help": "Opcional, ej: \"Felicitaciones por el primer puesto.\"",
-              "label": "Texto adicional",
+              "label": "Texto final",
               "sample": "Felicitaciones por el primer puesto. (opcional)"
             }
           }

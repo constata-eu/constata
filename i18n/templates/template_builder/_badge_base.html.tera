@@ -60,9 +60,15 @@
     }
 
     .item {
+      display: flex;
+      justify-content: center;
+      align-content: space-between;
+      flex-wrap: wrap;
+      flex-direction: row;
       width: 11em;
       height: 25em;
       text-align: center;
+      margin-bottom: 1.5em;
     }
 
     .background {
@@ -73,8 +79,8 @@
 
     .logo-big {
       margin: 2em auto;
-      max-width: 80px;
-      height: 80px;
+      max-width: 400px;
+      max-height: 100px;
     }
     .logo-big img {
       max-height: 100%;
@@ -85,7 +91,7 @@
         display: flex;
         justify-content: center;
         font-family: 'Work Sans';
-        margin: 2em auto;
+        margin: 1em auto 1.5em auto;
         text-align: center;
         font-size: 2.3em;
       }
@@ -114,30 +120,27 @@
       font-size: 1.5em;
     }
 
-    .badge{
+    .badge {
       margin: auto;
       position: relative;
       display: inline-block;
       text-align: center;
     }
 
-    .title{
+    .title {
       font-weight: bold;
       font-size: 1.6em;
       position: absolute;
       top: -28px;
       text-align: center;
-      width: 100%;
       padding: 20px 0;
     }
-    .subtitle{
-      position: absolute;
+    .subtitle {
       font-size: 1.7em;
-      width: 100%;
-      text-align: center;
-      color: white;
       position: absolute;
       top: 35%;
+      text-align: center;
+      color: white;
     }
         
 
@@ -146,7 +149,7 @@
           margin: 1em auto;
         }
 
-        .badge{
+        .badge {
           margin-top: 16px;
         }
 
@@ -199,19 +202,20 @@
               </div>
             {% endif %}
             <div class="badge">
-              <svg xmlns="http://www.w3.org/2000/svg" version="1.1" x="0px" y="0px" width="400px" height="430px" viewBox="0 0 216 232">
+              <svg xmlns="http://www.w3.org/2000/svg" version="1.1" x="0px" y="0px" width="350px" height="380px" viewBox="0 0 216 232">
                 <path fill="#BFA2DB" d="M207,0C171.827,0.001,43.875,0.004,9.003,0c-5.619-0.001-9,3.514-9,9c0,28.23-0.006,151.375,0,169    c0.005,13.875,94.499,54,107.999,54S216,191.57,216,178V9C216,3.298,212.732,0,207,0z"/>
             </svg>
               <p class="title text-uppercase"><strong>{% raw %} {{ motive }} {% endraw %}</strong></p>
               <p class="subtitle text-uppercase"><strong>{% raw %} {{ name }} {% endraw %}</strong></p>
             </div>
-              <p class="person text-uppercase">
-               
-                <br/>
-
-                {% block __we_invite %}{% endblock %}</p> 
-            <p class="lead text-uppercase"></p>
+            <br/>
           </div>
+          {% raw %}{% if recipient_identification %}{% endraw %}
+            <p class="small">
+              <strong>{% raw %}{{ recipient_identification }}{% endraw %}</strong>
+            </p>
+          {% raw %}{% endif %}{% endraw %}
+
           {% raw %}{% if place %}{% endraw %}
             <p class="small">
               {% raw %} {{ place }} {% endraw %}
@@ -220,7 +224,7 @@
  
           {% raw %}{% if date %}{% endraw %}
             <p class="small">
-              <strong>{% raw %}{{ date }}{% endraw %}</strong>.
+              {% raw %}{{ date }}{% endraw %}.
             </p>
           {% raw %}{% endif %}{% endraw %}
         </div>
