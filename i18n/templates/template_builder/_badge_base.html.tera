@@ -24,11 +24,10 @@
         }
       {% endif %}
 
-      *{
-        font-family: Open Sans;
-      }
-
+    * {
+      font-family: Open Sans;
     }
+
 
     body {
       font-size: 1.5em;
@@ -61,7 +60,8 @@
     }
 
     .item {
-      width: 100%;
+      width: 11em;
+      height: 25em;
       text-align: center;
     }
 
@@ -81,11 +81,13 @@
       max-width: 100%;
     }
     {% if not image %}
-      .logo-text{
+      .logo-text {
+        display: flex;
+        justify-content: center;
         font-family: 'Work Sans';
-        margin: 1.5em auto;
+        margin: 2em auto;
         text-align: center;
-        font-size: 3.8em;
+        font-size: 2.3em;
       }
     {% endif %}
 
@@ -117,27 +119,26 @@
       position: relative;
       display: inline-block;
       text-align: center;
-      top: 10%;
     }
 
-      .title{
-        font-weight: bold;
-        font-size: 1.7em;
-        position: absolute;
-        top: -28px;
-        text-align: center;
-        width: 100%;
-        padding: 20px 0;
-      }
-      .subtitle{
-        position: absolute;
-        font-size: 1.8em;
-        width: 100%;
-        text-align: center;
-        color: white;
-        position: absolute;
-        top: 35%;
-      }
+    .title{
+      font-weight: bold;
+      font-size: 1.6em;
+      position: absolute;
+      top: -28px;
+      text-align: center;
+      width: 100%;
+      padding: 20px 0;
+    }
+    .subtitle{
+      position: absolute;
+      font-size: 1.7em;
+      width: 100%;
+      text-align: center;
+      color: white;
+      position: absolute;
+      top: 35%;
+    }
         
 
       @media only screen and (max-width: 600px) {
@@ -198,7 +199,7 @@
               </div>
             {% endif %}
             <div class="badge">
-              <svg xmlns="http://www.w3.org/2000/svg" version="1.1" x="0px" y="0px" width="216px" height="232px" viewBox="0 0 216 232">
+              <svg xmlns="http://www.w3.org/2000/svg" version="1.1" x="0px" y="0px" width="400px" height="430px" viewBox="0 0 216 232">
                 <path fill="#BFA2DB" d="M207,0C171.827,0.001,43.875,0.004,9.003,0c-5.619-0.001-9,3.514-9,9c0,28.23-0.006,151.375,0,169    c0.005,13.875,94.499,54,107.999,54S216,191.57,216,178V9C216,3.298,212.732,0,207,0z"/>
             </svg>
               <p class="title text-uppercase"><strong>{% raw %} {{ motive }} {% endraw %}</strong></p>
@@ -211,12 +212,17 @@
                 {% block __we_invite %}{% endblock %}</p> 
             <p class="lead text-uppercase"></p>
           </div>
-          <div class="item">
-            <p class="small">{% raw %} {{ place }} {% endraw %}</p>
-          </div>
-          <div class="item">
-            <p class="small">{% raw %} {{ date }} {% endraw %}</p>
-          </div>
+          {% raw %}{% if place %}{% endraw %}
+            <p class="small">
+              {% raw %} {{ place }} {% endraw %}
+            </p>
+          {% raw %}{% endif %}{% endraw %}
+ 
+          {% raw %}{% if date %}{% endraw %}
+            <p class="small">
+              <strong>{% raw %}{{ date }}{% endraw %}</strong>.
+            </p>
+          {% raw %}{% endif %}{% endraw %}
         </div>
       </div>
     </div>

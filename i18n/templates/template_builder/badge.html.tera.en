@@ -1,4 +1,4 @@
-{% extends "template_builder/_invitation_base.html.tera" %}
+{% extends "template_builder/_badge_base.html.tera" %}
 
 {% block __title %}
 Badge
