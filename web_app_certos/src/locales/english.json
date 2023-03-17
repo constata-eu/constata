@@ -486,9 +486,9 @@
           },
           "BADGE": {
             "custom_text": {
-              "help": "Optional. ex: \"Has awarded first place at CTF.\"",
+              "help": "Optional. ex: \"Has awarded first place at Hackathon.\"",
               "label": "Custom text",
-              "sample": "Has awarded first place at CTF (optional)"
+              "sample": "Has awarded first place at Web3 Hackathon (optional)"
             },
             "date": {
               "help": "Optional, ej: \"august 10, 2023\"",
@@ -501,28 +501,28 @@
               "sample": "jane.doe@example.com (optional)"
             },
             "motive": {
-              "help": "ex: \"CTF First Place.\"",
+              "help": "ex: \"Hackathon First Place.\"",
               "label": "Goal achieved",
-              "sample": "First place at Web3 CTF."
+              "sample": "First place at Web3 Hackathon."
             },
             "name": {
-              "help": "ej: \"Mr. John Smith +1\"",
+              "help": "ej: \"John Smith\"",
               "label": "Name and last name",
               "sample": "John Smith"
             },
             "place": {
               "help": "Optional, \"Place or event where the badge was earned.\"",
-              "label": "Address",
-              "sample": "DeFi-Security-Summit-Stanford. (optional)"
+              "label": "Place or Event",
+              "sample": "Web3 Hackathon. (optional)"
             },
             "recipient_identification": {
-              "help": "Optional. \"Member #12121\", \"jane.doe@example.com\".",
-              "label": "Guest identification",
-              "sample": "Member #12121 (optional)"
+              "help": "Optional. Will show in the badge, may be a national ID, or your email.",
+              "label": "Identification of the badge recipient",
+              "sample": "DNI A4384572J (optional)"
             },
             "shared_text": {
               "help": "Optional, ex: \"Congratulations on winning first place!\"",
-              "label": "Extra Text",
+              "label": "Final Text",
               "sample": "Congratulations on winning first place! (optional)"
             }
           }
