@@ -44,7 +44,7 @@ tempfile = "3"
 tree_magic_mini = { version = "3.0.2", features = ["with-gpl-data"] }
 mime2ext = "0.1.49"
 url = "2.2.2"
-log = "*"
+log = "0.4.0"
 log4rs = { version = "1.0.0", features = ["json_encoder", "gzip", "all_components"] }
 rand = "0.8.4"
 num-traits = "*"

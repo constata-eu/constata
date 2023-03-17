@@ -185,10 +185,10 @@
 			"dashboard": "Dashboard",
 			"help": "Help",
 			"logout": "Logout",
-			"requests": "Issuances",
+			"issuances": "Issuances",
       "login": "Login"
 		},
-		"request": {
+		"issuance": {
 			"create": "Start issuing",
 			"csv": "CSV file",
       "export_csv": "Export issuance to CSV",
@@ -343,11 +343,11 @@
 				"go_to_dashboard": "Go to dashboard",
         "kind_text": {
           "ATTENDANCE": {
-            "and_we": " and we will send it ||| and we will send them ",
+            "and_we": " and we will send it |||| and we will send them ",
             "base": "the certificate of attendance |||| al %{smart_count} certificates of attendance"
           },
           "DIPLOMA": {
-            "and_we": " and we will send it ||| and we will send them ",
+            "and_we": " and we will send it |||| and we will send them ",
             "base": " the diploma |||| all %{smart_count} diplomas "
           },
           "BADGE": {
@@ -610,7 +610,7 @@
         "params": "Parameters",
         "paramsLike": "By parameters:",
         "proof": "Certificate",
-        "requestId": "Issuance",
+        "issuanceId": "Issuance",
         "rowNumber": "Line",
         "state": "State",
         "adminVisited": "Opened",
@@ -623,7 +623,7 @@
       "no": "No",
       "copy_to_clipboard": "Link copied to clipboard"
     },
-    "Request": {
+    "Issuance": {
       "create": "Start issuance",
       "fields": {
         "states": {

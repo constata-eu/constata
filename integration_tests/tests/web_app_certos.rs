@@ -1,4 +1,4 @@
-mod workroom {
+mod website {
   constata_lib::describe_one! {
     use integration_tests::*;
     use constata_lib::{
@@ -47,12 +47,12 @@ mod workroom {
       try_until(40, "bulletin_is_published", || async { c.site.bulletin().find(1).await.unwrap().is_published() }).await;
       c.site.request().try_complete().await?;
       d.wait_for_text("h2", "Recent issuances").await;
-      d.click("a[href='#/Request/4/show']").await;
+      d.click("a[href='#/Issuance/4/show']").await;
       d.click("#export_to_csv").await;
       d.check_downloads_for_file("constata_issuance_4.csv").await;
     }
 
-    integration_test!{ sign_previously_created_request (c, d)
+    integration_test!{ sign_previously_created_issuance (c, d)
       signup_and_verify(&d, &c.site).await;
       create_wizard(&d, &c.site, 2, "testing-template").await;
       reload(&d).await;
@@ -60,7 +60,7 @@ mod workroom {
       sign_wizard(&d).await;
     }
 
-    integration_test!{ use_previous_template_to_create_requests (c, d)
+    integration_test!{ use_previous_template_to_create_issuances (c, d)
       signup_and_verify(&d, &c.site).await;
       create_wizard(&d, &c.site, 2, "testing-template").await;
       sign_wizard(&d).await;
@@ -83,7 +83,7 @@ mod workroom {
       d.click("a[href='#/']").await;
     }
 
-    integration_test!{ create_custom_template_and_create_request (c, d)
+    integration_test!{ create_custom_template_and_create_issuance (c, d)
       let mut chain = TestBlockchain::new().await;
       signup_and_verify(&d, &c.site).await;
       let payload = std::fs::read("static/custom_template.zip").expect("custom_template.zip");
@@ -141,14 +141,14 @@ mod workroom {
       check_public_certificate(&d, &title, &description, &image).await;
     }
 
-    integration_test!{ discards_request (c, d)
+    integration_test!{ discards_issuance (c, d)
       signup_and_verify(&d, &c.site).await;
       create_wizard(&d, &c.site, 2, "testing-template").await;
-      d.wait_for("#requests-menu-item").await;
+      d.wait_for("#issuances-menu-item").await;
       d.click("#discard-button").await;
       d.click("#confirm-discard-button").await;
       d.wait_for("#template-wizard-step").await;
-      d.click("#requests-menu-item").await;
+      d.click("#issuances-menu-item").await;
       d.wait_for_text("p", "No results found").await;
     }
 
@@ -304,7 +304,7 @@ mod workroom {
         add_recipients_with_csv(&d, &c.site, &csv).await;
         sign_wizard(&d).await;
         d.click("a[href='#/']").await;
-        d.click(&format!("#request-section-signed a[href='#/Request/{}/show']", i + 1)).await;
+        d.click(&format!("#issuance-section-signed a[href='#/Issuance/{}/show']", i + 1)).await;
         d.wait_for_text("#review-entries-big > tbody > tr:nth-child(1) .column-params pre > span:nth-child(2)", r"3 de marzo de 1999*").await;
         d.wait_for_text("#review-entries-big > tbody > tr:nth-child(1) .column-params pre > span:nth-child(4)", motive).await;
         d.click("#dashboard-menu-item").await;
@@ -518,8 +518,8 @@ mod workroom {
         .key_up(thirtyfour::Key::Enter)
         .perform().await.expect("to autoselect sucessfully");
 
-      d.wait_for("#create-request-container").await;
-      d.wait_for_text("#create-request-container > div > div > div > p", r"template-show*").await;
+      d.wait_for("#create-issuance-container").await;
+      d.wait_for_text("#create-issuance-container > div > div > div > p", r"template-show*").await;
     }
 
     integration_test!{ shows_usage_statistics_for_issuances (c, d)
@@ -575,12 +575,12 @@ mod workroom {
       public_visit: i32,
     ) {
       d.goto(&format!("http://localhost:8000/#")).await;
-      d.click("#requests-menu-item").await;
+      d.click("#issuances-menu-item").await;
       d.wait_for_text(".column-adminVisitCount > span", &format!(r"{admin_visited_count}/5*")).await;
       d.wait_for_text(".column-publicVisitCount > span", &format!(r"{public_visit_count}*")).await;
       d.goto(&format!("http://localhost:8000/#")).await;
-      d.click("#requests-menu-item").await;
-      d.click("a[href='#/Request/1/show']").await;
+      d.click("#issuances-menu-item").await;
+      d.click("a[href='#/Issuance/1/show']").await;
       d.wait_for_text(".ra-field-adminVisitCount > span", &format!(r"{admin_visited_count}/5*")).await;
       d.wait_for_text(".ra-field-publicVisitCount > span", &format!(r"{public_visit_count}*")).await;
       d.wait_for_text(&format!("#review-entries-big tbody > tr:nth-child({child}) .column-statistics .params:nth-child(1) span:nth-child(2)"), &format!(r"{admin_visited}*")).await;
@@ -655,7 +655,6 @@ mod workroom {
       d.wait_for_text("#section-email-address .MuiTypography-body2", r"Will be shown in your issued certificates*").await;
     }
 
-
     async fn reload(d: &Selenium) {
       d.goto("http://localhost:8000/not_found").await;
       d.goto("http://localhost:8000").await;
@@ -665,6 +664,7 @@ mod workroom {
       d.click("button[type='submit']").await;
       d.wait_for("#constata_dashboard").await;
     }
+
     async fn add_recipients_with_csv(d: &Selenium, site: &Site, csv: &str) {
       d.fill_in("input[type='file']", &csv).await;
       d.click("#continue").await;

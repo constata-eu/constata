@@ -1,31 +1,49 @@
 use super::*;
+use serde::{Serialize, Deserialize};
 
 #[derive(GraphQLObject)]
-#[graphql(description = "An entry on certos")]
+#[graphql(description = "An Entry represents a single certified Diploma, Proof of Attendance, or Badge, that is part of a larger Issuance. Each entry is certified separately, and has its own state. If you make several Issuances in parallel, you may run out of tokens, and some Entries will be certified while others will remain pending until you purchase the tokens.")]
 pub struct Entry {
+  #[graphql(description = "Unique identifier for this Entry, across all Issuances.")]
   id: i32,
-  request_id: i32,
-  request_name: String,
+  #[graphql(description = "Id of the Issuance this entry belongs to.")]
+  issuance_id: i32,
+  #[graphql(description = "Name of the issuance this entry belongs to, for convenience.")]
+  issuance_name: String,
+  #[graphql(description = "This entries position within the larger Issuance. When the issuance is created from a CSV, this will be the row number.")]
   row_number: i32,
+  #[graphql(description = "The state of this entry. Can be 'received': We got this row's data and will attempt to create a document such as a diploma, proof of attendance, or badge with the given details; 'created': The document was created correctly, and you should sign it; 'signed': You have signed this document, it is up to constata to certify it now; 'completed': The document has been timestamped and certified by Constata, and emailed to the recipient if required. 'failed': A problem ocurred that prevented further processing of this Entry, this could happen between 'received' and 'created' if the provided data is malformed. A failure in one single Entry will abort the whole Issuance, and nothing will be certified.")]
   state: String,
-  created_at: UtcDateTime,
+  #[graphql(description = "Date in which this entry was received by Constata")]
+  received_at: UtcDateTime,
+  #[graphql(description = "Parameters used to create this particular entry. If the issuance was created from a CSV, these will be the row's data.")]
   params: String,
+  #[graphql(description = "Errors found when moving this entry from 'received' to 'created', if any.")]
   errors: Option<String>,
+  #[graphql(description = "ID of the document that this entry belongs to.")]
   document_id: Option<String>,
+  #[graphql(description = "ID of the story that this entry belongs to.")]
   story_id: Option<i32>,
+  #[graphql(description = "Boolean whether this entries admin link has been visited.")]
   admin_visited: bool,
+  #[graphql(description = "When published, this is the visit count for the public page.")]
   public_visit_count: i32,
+  #[graphql(description = "Boolean that determines whether an email should be sent for this entry.")]
   has_email_callback: bool,
+  #[graphql(description = "Date when the email was sent, if it has already been sent.")]
   email_callback_sent_at: Option<UtcDateTime>,
   download_proof_link_url: Option<String>,
+  #[graphql(description = "The data payload for this entry.")]
   payload: Option<String>,
+  #[graphql(description = "The administrative access url for the direct recipient of this entry. They can use it to download, view or share the document.")]
+  admin_access_url: Option<String>,
 }
 
 #[derive(Clone, GraphQLInputObject, Debug)]
 pub struct EntryFilter {
   ids: Option<Vec<i32>>,
   id_eq: Option<i32>,
-  request_id_eq: Option<i32>,
+  issuance_id_eq: Option<i32>,
   state_eq: Option<String>,
   document_id_eq: Option<String>,
   params_like: Option<String>,
@@ -38,10 +56,10 @@ impl Showable<entry::Entry, EntryFilter> for Entry {
     match field {
       "id" => Some(EntryOrderBy::Id),
       "documentId" => Some(EntryOrderBy::DocumentId),
-      "requestId" => Some(EntryOrderBy::RequestId),
+      "issuanceId" => Some(EntryOrderBy::RequestId),
       "state" => Some(EntryOrderBy::State),
       "rowNumber" => Some(EntryOrderBy::RowNumber),
-      "createdAt" => Some(EntryOrderBy::CreatedAt),
+      "receivedAt" => Some(EntryOrderBy::ReceivedAt),
       _ => None,
     }
   }
@@ -53,7 +71,7 @@ impl Showable<entry::Entry, EntryFilter> for Entry {
         org_id_eq: Some(org_id),
         id_eq: f.id_eq,
         document_id_eq: f.document_id_eq,
-        request_id_eq: f.request_id_eq,
+        request_id_eq: f.issuance_id_eq,
         state_eq: f.state_eq,
         params_ilike: into_like_search(f.params_like),
         deletion_id_is_set: Some(false),
@@ -98,13 +116,15 @@ impl Showable<entry::Entry, EntryFilter> for Entry {
       (false, 0, None)
     };
 
+    let admin_access_url = d.admin_access_url().await?;
+
     Ok(Entry {
       id: d.attrs.id,
-      request_id: d.attrs.request_id,
-      request_name: d.request().await?.attrs.name,
+      issuance_id: d.attrs.request_id,
+      issuance_name: d.request().await?.attrs.name,
       row_number: d.attrs.row_number,
       state: d.attrs.state,
-      created_at: d.attrs.created_at,
+      received_at: d.attrs.received_at,
       params: d.attrs.params,
       errors: d.attrs.errors,
       document_id: d.attrs.document_id,
@@ -115,34 +135,51 @@ impl Showable<entry::Entry, EntryFilter> for Entry {
       public_visit_count,
       download_proof_link_url,
       payload,
+      admin_access_url
     })
   }
 }
 
-impl Entry {
-  pub async fn signing_iterator(
-    context: &Context, id: i32, entry_id: Option<i32>, signature: Option<String>
-  ) -> FieldResult<Option<Entry>> {
-    let db_data = match (entry_id, signature) {
+#[derive(GraphQLInputObject, Serialize, Deserialize)]
+#[graphql(description = "SigningIteratorInput Object")]
+#[serde(rename_all = "camelCase")]
+pub struct SigningIteratorInput {
+  #[graphql(description = "ID of the issuance to which this entry belongs.")]
+  issuance_id: i32,
+  #[graphql(description = "Number that identifies this entry.")]
+  entry_id: Option<i32>,
+  #[graphql(description = "Signature applied to the referenced entry.")]
+  signature: Option<String>,
+}
+
+impl SigningIteratorInput {
+  pub async fn sign(self, context: &Context) -> FieldResult<Option<Entry>> {
+    let db_data = match (self.entry_id, self.signature) {
       (Some(i), Some(s)) => Some(request::EntrySignature::from_base64(i, &s)?),
       _ => None,
     };
     
-    let db_entry = context.site.request()
+    let Some(next_entry) = context.site.request()
       .select()
-      .id_eq(&id)
+      .id_eq(&self.issuance_id)
       .org_id_eq(context.org_id())
       .one()
       .await?
       .in_created()?
       .signing_iterator(db_data)
-      .await?;
+      .await?
+      else { return Ok(None) };
       
-    let next_entry = match db_entry {
-      Some(e) => Some(Entry::db_to_graphql(e, true).await?),
-      None => None,
-    };
-      
-    Ok(next_entry)
+    Ok(Some(Entry::db_to_graphql(next_entry, true).await?))
   }
 }
+
+#[derive(GraphQLObject)]
+#[graphql(description = "Represents an HTML preview of the contents of an entry.")]
+pub struct Preview{
+  #[graphql(description = "The numerical identifier of the entry.")]
+  pub id: i32,
+  #[graphql(description = "The HTML formatted contents of the entry.")]
+  pub html: String
+}
+
