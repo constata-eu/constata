@@ -147,7 +147,7 @@ describe!{
 
     assert_eq!(
       &request.entry_vec().await?[0].params_and_custom_message().await?.1.unwrap(),
-      "Hola Stan Marsh, esta es una invitación para el evento llamado Arte con plastilina."
+      "Hola Stan Marsh, esta es una insignia por Arte con plastilina."
     );
 
     assert_eq!(request.entry_scope().count().await?, 2);
@@ -156,7 +156,7 @@ describe!{
 
     let mut zipfile = zip::ZipArchive::new(std::io::Cursor::new(request.template().await?.payload().await?))?;
     let mut inner = zipfile.by_index(0)?;
-    assert_eq!(inner.name(), "invitation.html.tera");
+    assert_eq!(inner.name(), "badge.html.tera");
     let mut contents = String::new();
     inner.read_to_string(&mut contents)?;
     assert_that!(&contents, rematch(r#"\{\{ name \}\}"#));
@@ -211,7 +211,7 @@ describe!{
 
     assert_eq!(
       &issuance.entry_vec().await?[0].params_and_custom_message().await?.1.unwrap(),
-      "Hola Stan Marsh, esta es una invitación para el evento llamado Arte con plastilina."
+      "Hola Stan Marsh, esta es una insignia por Arte con plastilina."
     );
 
     issuance.reload().await?;
@@ -279,7 +279,7 @@ describe!{
 
     assert_eq!(
       &WizardTemplate::make_template_zip(i18n::Lang::En, ImageOrText::Text("test".to_string()), TemplateKind::Invitation).await?.0,
-      "Hello {{ name }}, this is an invitation for you to attend {{ motive }}."
+      "Hello {{ name }}, this is a badge for {{ motive }}."
     );
   }
 
