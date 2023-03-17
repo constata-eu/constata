@@ -78,13 +78,14 @@
     }
 
     .logo-big {
-      margin: 2em auto;
+      margin: 2.5em auto;
       max-width: 400px;
       max-height: 100px;
     }
     .logo-big img {
       max-height: 100%;
       max-width: 100%;
+      height: 5em;
     }
     {% if not image %}
       .logo-text {
@@ -123,7 +124,8 @@
     .badge {
       margin: auto;
       position: relative;
-      display: inline-block;
+      display: flex;
+      justify-content: center;
       text-align: center;
     }
 
