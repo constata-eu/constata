@@ -3,33 +3,52 @@ use serde::{Deserialize, Serialize};
 use models::{kyc_request, outgoing_email_message_kind::*};
 
 #[derive(Clone, GraphQLInputObject, Serialize, Deserialize)]
-#[graphql(description = "A full kyc request")]
+#[graphql(description = "This object allows us to submit a kyc request to be considered by a constata admin")]
 #[serde(rename_all = "camelCase")]
 pub struct KycRequestInput {
+  #[graphql(description = "email to be registered by the person")]
   pub email: String,
+  #[graphql(description = "boolean pointing out whether the email should be registered as private or could be public")]
   pub keep_private: bool,
+  #[graphql(description = "Your first names")]
   pub name: String,
+  #[graphql(description = "Your last names")]
   pub last_name: String,
+  #[graphql(description = "Government or otherwise officially issued ID number")]
   pub id_number: Option<String>,
+  #[graphql(description = "Type of the officially issued id. Ej: DNI")]
   pub id_type: Option<String>,
+  #[graphql(description = "Date of birth")]
   pub birthdate: Option<UtcDateTime>,
+  #[graphql(description = "Country of birth")]
   pub nationality: Option<String>,
+  #[graphql(description = "Country you currently live in.")]
   pub country: Option<String>,
+  #[graphql(description = "Your role, title or position in your company, if any.")]
   pub job_title: Option<String>,
+  #[graphql(description = "Name of the company")]
   pub legal_entity_name: Option<String>,
+  #[graphql(description = "Country where the company is based on, or where it has its HQ.")]
   pub legal_entity_country: Option<String>,
+  #[graphql(description = "Company registration number in the required public registries, if any.")]
   pub legal_entity_registration: Option<String>,
+  #[graphql(description = "Company tax identification number")]
   pub legal_entity_tax_id: Option<String>,
+  #[graphql(description = "Your company LinkedIn page, if any.")]
   pub legal_entity_linkedin_id: Option<String>,
+  #[graphql(description = "The files attached as proof for the details provided.")]
   pub evidence: Vec<KycRequestEvidenceInput>,
 }
 
 #[derive(Clone, GraphQLInputObject, Serialize, Deserialize)]
-#[graphql(description = "A full kyc request")]
+#[graphql(description = "This object has a file that proves the user identity")]
 #[serde(rename_all = "camelCase")]
 pub struct KycRequestEvidenceInput {
+  #[graphql(description = "name of the file used as evidence for this kyc request")]
   pub filename: String,
+  #[graphql(description = "the file itself")]
   pub payload: String,
+
 }
 
 impl KycRequestInput {
@@ -68,24 +87,41 @@ impl KycRequestInput {
 }
 
 #[derive(GraphQLObject)]
-#[graphql(description = "An request on certos")]
+#[graphql(description = "This object show us the information of a kyc request")]
 pub struct KycRequest {
+  #[graphql(description = "number identifying this kyc request")]
   id: i32,
+  #[graphql(description = "id of the person that requested this kyc")]
   person_id: PersonId,
+  #[graphql(description = "id of the organization to which this person belongs")]
   org_id: i32,
+  #[graphql(description = "date in which this kyc request was created")]
   created_at: UtcDateTime,
+  #[graphql(description = "state of the kyc request, can be 'Pending' or 'Proccesed'")]
   state: String,
+  #[graphql(description = "Your first names")]
   name: Option<String>,
+  #[graphql(description = "Your last names")]
   last_name: Option<String>,
+  #[graphql(description = "Government or otherwise officially issued ID number")]
   id_number: Option<String>,
+  #[graphql(description = "Type of the officially issued id. Ej: DNI")]
   id_type: Option<String>,
+  #[graphql(description = "Date of birth")]
   birthdate: Option<UtcDateTime>,
+  #[graphql(description = "Country of birth")]
   nationality: Option<String>,
+  #[graphql(description = "Country you currently live in.")]
   country: Option<String>,
+  #[graphql(description = "Your role, title or position in your company, if any.")]
   job_title: Option<String>,
+  #[graphql(description = "Name of the company")]
   legal_entity_name: Option<String>,
+  #[graphql(description = "Country where the company is based on, or where it has its HQ.")]
   legal_entity_country: Option<String>,
+  #[graphql(description = "Company registration number in the required public registries, if any.")]
   legal_entity_registration: Option<String>,
+  #[graphql(description = "Company tax identification number")]
   legal_entity_tax_id: Option<String>,
 }
 

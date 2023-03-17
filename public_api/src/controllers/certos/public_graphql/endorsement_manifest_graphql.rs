@@ -1,19 +1,26 @@
 use super::*;
 
 #[derive(GraphQLObject)]
-#[graphql(description = "The customer endorsements")]
+#[graphql(description = "A Person may have many endorsements from Constata, such as their identity, owning an email account, or being the manager of a website. This manifest gathers all those endorsements. You can only query your own manifest for now.")]
 pub struct EndorsementManifest {
+  #[graphql(description = "You'll always get number 1.")]
   pub id: i32,
+  #[graphql(description = "the final text to be used as the user endorsements, if any")]
   pub text: Option<String>,
+  #[graphql(description = "websites registered by the user, if any")]
   pub websites: Vec<String>,
+  #[graphql(description = "data from the user's kyc endorsement, if any")]
   pub kyc: Option<KycEndorsementManifest>,
+  #[graphql(description = "data from the user's telegram account, if any")]
   pub telegram: Option<TelegramEndorsementManifest>,
+  #[graphql(description = "email registered by the user, if any")]
   pub email: Option<EmailEndorsementManifest>,
+  #[graphql(description = "boolean pointing out whether the an email is going to be send to the student when created an issuance")]
   pub can_send_email: bool,
 }
 
 #[derive(GraphQLObject)]
-#[graphql(description = "The customer telegram account endorsement")]
+#[graphql(description = "Your telegram account as verified by Constata's telegram robot.")]
 pub struct TelegramEndorsementManifest {
   username: Option<String>,
   first_name: String,
@@ -21,27 +28,41 @@ pub struct TelegramEndorsementManifest {
 }
 
 #[derive(GraphQLObject)]
-#[graphql(description = "The customer telegram account endorsement")]
+#[graphql(description = "Your email account, as verified by Constata's email robot.")]
 pub struct EmailEndorsementManifest {
   pub address: String,
+  #[graphql(description = "Whether you told us to use this email as part of your public endorsements or not.")]
   pub keep_private: bool,
 }
 
 #[derive(GraphQLObject)]
-#[graphql(description = "The customer identity verification endorsement")]
+#[graphql(description = "The personal and company details you sent Constata for verification and to include in all your signed certificates. Keep in mind all fields are optional, this data is protected by data protection laws such as GDPR. https://api.constata.eu/terms_acceptance/show/#privacy_policies ")]
 pub struct KycEndorsementManifest {
+  #[graphql(description = "Your first names")]
   name: Option<String>,
+  #[graphql(description = "Your last names")]
   last_name: Option<String>,
+  #[graphql(description = "Government or otherwise officially issued ID number")]
   id_number: Option<String>,
+  #[graphql(description = "Type of the officially issued id. Ej: DNI")]
   id_type: Option<String>,
+  #[graphql(description = "Date of birth")]
   birthdate: Option<UtcDateTime>,
+  #[graphql(description = "Country of birth")]
   nationality: Option<String>,
+  #[graphql(description = "Country you currently live in.")]
   country: Option<String>,
+  #[graphql(description = "Your role, title or position in your company, if any.")]
   job_title: Option<String>,
+  #[graphql(description = "Name of the company")]
   legal_entity_name: Option<String>,
+  #[graphql(description = "Country where the company is based on, or where it has its HQ.")]
   legal_entity_country: Option<String>,
+  #[graphql(description = "Company registration number in the required public registries, if any.")]
   legal_entity_registration: Option<String>,
+  #[graphql(description = "Company tax identification number")]
   legal_entity_tax_id: Option<String>,
+  #[graphql(description = "Date of last update to this data.")]
   updated_at: UtcDateTime,
 }
 
