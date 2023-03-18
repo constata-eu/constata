@@ -58,6 +58,7 @@ pub mod access_token;
 pub mod storable;
 pub mod template_schema;
 pub mod attestation;
+pub mod web_callback;
 
 pub use bulletin::{Bulletin, Draft, Proposed, Published, Submitted};
 pub use story::Story;
@@ -103,7 +104,7 @@ pub use site::{Db, Site, SiteSettings, Environment};
 pub use certos::*;
 pub use storable::*;
 pub use template_schema::*;
-
+pub use web_callback::*;
 use magic_link::MagicLink;
 
 pub use sqlx::types::chrono::{DateTime, Utc};
