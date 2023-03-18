@@ -13,8 +13,9 @@ import 'graphiql/graphiql.css';
 
 const Graphiql = () => {
   const [schema, setSchema] = useSafeSetState<GraphQLSchema>();
-  const [body, setBody] = useSafeSetState();
-  const [headers, setHeaders] = useSafeSetState("{}");
+  const [body, setBody] = useSafeSetState<string | boolean>();
+  const [headers, setHeaders] = useSafeSetState<string>("");
+  const [headersSetted, setHeadersSetted] = useSafeSetState<boolean>(false);
   const origin = envs[localStorage.getItem("environment")].url;
   const graphqlUrl = `${origin}/graphql`;
   const fetcher = createGraphiQLFetcher({url: graphqlUrl});
@@ -31,17 +32,21 @@ const Graphiql = () => {
 
 
   const change = async (s) => {
-    const maybeNewBody = JSON.stringify({query: s.tabs[s.activeTabIndex].query});
+    const query = s.tabs[s.activeTabIndex].query;
+    if (query === "") { setHeadersSetted(false); return; }
+
+    const maybeNewBody = JSON.stringify({query});
     if (body !== maybeNewBody) {
       setHeaders(JSON.stringify({Authentication: await getRawAuthorization(graphqlUrl, "POST", maybeNewBody)}));
       setBody(maybeNewBody);
+      setHeadersSetted(true);
     }
   }
 
   if (!schema) return <Loading />;
 
   return(
-    <Box sx={{height: "100vh"}}>
+    <Box sx={{height: "100vh"}} id={headersSetted ? "header-setted" : "header-not-setted"}>
       <GraphiQL
         fetcher={fetcher}
         headers={headers}
