@@ -144,7 +144,8 @@ impl PublicApiClient {
     where Q: Serialize, T: DeserializeOwned
   {
     let query_str = serde_json::to_string(&query).expect("gql query was not JSON");
-    self.post::<graphql_client::Response<T>, _>("/graphql/", query_str).await.data.expect("Response data to be there")
+    let response = self.post::<graphql_client::Response<T>, _>("/graphql/", query_str).await;
+    response.data.expect(&format!("No gql response. Error was {:?}", response.errors))
   }
 
   pub async fn get<T: DeserializeOwned>(&self, path: &str) -> T {
@@ -250,6 +251,11 @@ pub mod gql {
     AppendEntriesToIssuance,
     Issuance,
     AllIssuances,
+    UpdateWebCallbacksUrl,
+    WebCallback,
+    AllWebCallbacks,
+    WebCallbackAttempt,
+    AllWebCallbackAttempts,
   ];
 
   impl From<constata_lib::signed_payload::SignedPayload> for create_attestation::SignedPayload {

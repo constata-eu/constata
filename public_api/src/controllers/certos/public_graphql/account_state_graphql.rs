@@ -27,6 +27,8 @@ pub struct AccountState {
   pending_tyc_url: Option<String>,
   #[graphql(description = "Whenever you are missing tokens, you can visit this url in your browser and it will present you with payment options to buy the tokens you need. No login required, so you can send it to anyone in your organization in charge of payments.")]
   pending_invoice_link_url: Option<String>,
+  #[graphql(description = "This should be an address on your own website such as 'https://yoursite.com/web_callbacks_from_constata' where we can notify you about done attestations, issuances, or pending token purchases.")]
+  web_callbacks_url: Option<String>,
 }
 
 #[derive(GraphQLObject)]
@@ -65,6 +67,7 @@ impl AccountState {
       invoices,
       pending_tyc_url: d.pending_tyc_url,
       pending_invoice_link_url: d.pending_invoice_link_url,
+      web_callbacks_url: d.org.attrs.web_callbacks_url
     })
   }
 }

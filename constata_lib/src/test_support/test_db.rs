@@ -563,6 +563,29 @@ impl SignerClient {
     }.process().await
   }
 
+  pub async fn make_signed_diplomas_issuance(&self) -> Result<Request> {
+    let mut issuance = Wizard{
+      person: self.person().await,
+      name: "certos_request.csv".to_string(),
+      template: WizardTemplate::New {
+        kind: TemplateKind::Diploma,
+        logo: ImageOrText::Text("sample diploma".to_string()),
+        name: "new template".to_string(),
+      },
+      csv: read("certos_request.csv"),
+    }.process().await?;
+    self.db.site.request().create_all_received().await?;
+
+    issuance.reload().await?;
+    let created = issuance.in_created()?;
+    let mut signature = None;
+    while let Some(next) = created.signing_iterator(signature).await? {
+      signature = Some(self.sign_request_entry(next).await);
+    }
+    issuance.reload().await?;
+    Ok(issuance)
+  }
+
   pub async fn make_entry_and_sign_it(&self) -> crate::models::certos::entry::Entry {
     let template = self.make_template(read("certos_template.zip")).await;
     let request = self.make_request(*template.id(), read("certos_request.csv")).await.expect("to create request");
