@@ -621,7 +621,7 @@ mod website {
         entry.in_signed()?.try_complete().await?;
       }
 
-      check_statistic_for_template(&d, 5, 5, 10).await;
+      check_statistic_for_template(&d, 5, 10, 10).await;
       open_download_proof_link_and_public_certificate(&d, &c.site, 6, 1).await;
       open_download_proof_link_and_public_certificate(&d, &c.site, 7, 1).await;
       open_download_proof_link_and_public_certificate(&d, &c.site, 8, 1).await;

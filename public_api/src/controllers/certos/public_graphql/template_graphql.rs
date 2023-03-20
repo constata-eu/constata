@@ -76,10 +76,12 @@ impl Showable<template::Template, TemplateFilter> for Template {
 
     for r in d.request_vec().await? {
       for e in r.entry_vec().await? {
+        if e.is_signed() || e.is_completed() {
+          entries_count += 1;
+        }
         let Some(doc) = e.document().await? else { continue; };
         let Some(l) = doc.download_proof_link_scope().optional().await? else { continue; };
         if l.attrs.admin_visited { admin_visited_count += 1 };
-        entries_count += 1;
         public_visit_count += l.attrs.public_visit_count;
       }
     } 
