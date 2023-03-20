@@ -34,6 +34,7 @@ async fn main() {
   every![100, |s| {
     run!("workroom_create_received" { s.request().create_all_received().await });
     run!("workroom_complete_all_notified" { s.request().try_complete().await });
+    run!("attempting_webhooks" { s.web_callback().attempt_all_pending().await });
   }];
 
   every![10000, |s| {

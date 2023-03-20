@@ -57,6 +57,8 @@ pub mod invoice_link_graphql;
 pub mod download_proof_link_graphql;
 pub mod proof_graphql;
 pub mod attestation_graphql;
+pub mod web_callback_graphql;
+
 pub use template_graphql::{Template, TemplateFilter, TemplateInput};
 pub use issuance_graphql::{
   Issuance,
@@ -78,6 +80,7 @@ pub use invoice_link_graphql::{InvoiceLink, InvoiceLinkInput};
 pub use download_proof_link_graphql::{DownloadProofLink, DownloadProofLinkInput};
 pub use proof_graphql::Proof;
 pub use attestation_graphql::*;
+pub use web_callback_graphql::*;
 
 #[rocket::get("/graphiql")]
 pub fn graphiql() -> rocket::response::content::RawHtml<String> {
@@ -325,6 +328,8 @@ make_graphql_query!{
     [KycRequest, allKycRequests, allKycRequestsMeta, "_allKycRequestsMeta", KycRequestFilter, i32],
     [EmailAddress, allEmailAddresses, allEmailAddressesMeta, "_allEmailAddressesMeta", EmailAddressFilter, i32],
     [Attestation, allAttestations, allAttestationsMeta, "_allAttestationsMeta", AttestationFilter, i32],
+    [WebCallback, allWebCallbacks, allWebCallbacksMeta, "_allWebCallbacksMeta", WebCallbackFilter, i32],
+    [WebCallbackAttempt, allWebCallbackAttempts, allWebCallbackAttemptsMeta, "_allWebCallbackAttemptsMeta", WebCallbackAttemptFilter, i32],
   }
 
   #[graphql(name="Preview")]
@@ -458,6 +463,12 @@ impl Mutation {
 
   pub async fn update_template(context: &Context, input: TemplateInput) -> FieldResult<Template> {
     input.update_template(context).await
+  }
+
+  pub async fn update_web_callbacks_url(context: &Context, url: Option<String>) -> FieldResult<AccountState> {
+    let mut org = context.org().await?;
+    org = org.update().web_callbacks_url(url).save().await?;
+    AccountState::from_db(org.account_state().await?)
   }
 }
 
