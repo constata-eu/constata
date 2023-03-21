@@ -474,7 +474,7 @@ mod website {
         d.click(".graphiql-tab-add").await;
         d.click(".graphiql-query-editor").await;
         d.fill_in(".graphiql-query-editor textarea", query).await;
-        d.wait_for("#header-setted").await;
+        d.wait_for("#header-set").await;
         d.click(".graphiql-execute-button").await;
         d.wait_for(".cm-def").await;
         d.wait_for_text(".result-window .CodeMirror-scroll .cm-def", r"data*").await;
