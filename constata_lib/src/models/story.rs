@@ -7,6 +7,7 @@ use crate::{
     UtcDateTime,
     DocumentSource,
     document::{self, DocumentOrderBy},
+    attestation::*,
     story_snapshot::*,
     document::*,
     Site,
@@ -40,6 +41,7 @@ model!{
   has_many {
     StorySnapshot(story_id),
     Document(story_id),
+    Attestation(story_id),
   },
   belongs_to {
     Org(org_id),
@@ -199,6 +201,10 @@ impl Story {
       },
       Err(x) => Err(x),
     }
+  }
+
+  pub async fn attestation(&self) -> Result<Option<Attestation>> {
+    Ok(self.attestation_scope().optional().await?)
   }
 }
 
