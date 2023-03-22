@@ -54,7 +54,7 @@
     "start": "REACT_APP_CERTOS_API_DOMAIN=http://localhost:8000 craco start",
     "build": "craco build",
     "clean": "rm build/asset-manifest.json",
-    "move": "rm -rf ../public_api/static/certos/static/js/* && rm -rf ../target/debug/.fingerprint/public_api* && ncp build ../public_api/static/certos/",
+    "move": "rm -rf ../public_api/static/certos/static/js/* && rm -rf ../target/debug/.fingerprint/public_api* && ncp build ../public_api/static/certos/ && git add ../public_api/static/certos",
     "prod": "npm run build && npm run clean && npm run move",
     "test": "craco test",
     "eject": "react-scripts-ts eject",

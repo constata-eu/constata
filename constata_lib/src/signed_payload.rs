@@ -9,6 +9,7 @@ use bitcoin::{
   util::misc::{MessageSignature, BITCOIN_SIGNED_MSG_PREFIX},
   Address,
   PrivateKey,
+  network::constants::Network,
 };
 
 use serde_with::{serde_as, DisplayFromStr};
@@ -24,6 +25,14 @@ pub struct SignedPayload {
 }
 
 impl SignedPayload {
+  pub fn create(message: &[u8], key: &PrivateKey, network: Network) -> Self {
+    Self {
+      payload: message.to_vec(),
+      signer: Address::p2pkh( &key.public_key(&secp256k1::Secp256k1::new()), network),
+      signature: Self::sign_with_key(message, key),
+    }
+  }
+
   pub fn signed_msg_hash(msg: &[u8]) -> sha256d::Hash {
     let mut engine = sha256d::Hash::engine();
     engine.input(BITCOIN_SIGNED_MSG_PREFIX);
