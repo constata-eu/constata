@@ -15,7 +15,6 @@ const Graphiql = () => {
   const [schema, setSchema] = useSafeSetState<GraphQLSchema>();
   const [body, setBody] = useSafeSetState<string | boolean>();
   const [headers, setHeaders] = useSafeSetState<string>("");
-
   const origin = envs[localStorage.getItem("environment")].url;
   const graphqlUrl = `${origin}/graphql`;
   const fetcher = createGraphiQLFetcher({url: graphqlUrl});
