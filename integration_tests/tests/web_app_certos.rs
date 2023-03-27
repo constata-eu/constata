@@ -463,9 +463,6 @@ mod website {
 
       template.clone().update().kind(TemplateKind::Badge).save().await?;
       check_public_certificate(&d, &title, &format!("Badge {raw_description}"), &image).await;
-
-      template.update().kind(TemplateKind::Invitation).save().await?;
-      check_public_certificate(&d, &title, &format!("Invitation {raw_description}"), &image).await;
     }
 
     integration_test!{ use_wizard_with_badge (c, d)

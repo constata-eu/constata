@@ -138,8 +138,7 @@ impl DownloadProofLink {
         match entry.template_kind().await? {
           TemplateKind::Diploma => i18n::t!(l, public_certificate_share_text_diploma),
           TemplateKind::Attendance => i18n::t!(l, public_certificate_share_text_attendance),
-          TemplateKind:: Badge => i18n::t!(l, public_certificate_share_text_badge),
-          TemplateKind:: Invitation => i18n::t!(l, public_certificate_share_text_invitation),
+          TemplateKind::Badge => i18n::t!(l, public_certificate_share_text_badge),
         }
       },
       None => i18n::t!(l, public_certificate_share_text_default),
@@ -197,12 +196,6 @@ describe! {
     assert_eq!(
       download_proof_link.share_on_social_networks_call_to_action(&i18n::Lang::En).await?,
       "This certificate of attendance is sealed by the Bitcoin blockchain!".to_string()
-    );
-
-    template.clone().update().kind(TemplateKind::Invitation).save().await?;
-    assert_eq!(
-      download_proof_link.share_on_social_networks_call_to_action(&i18n::Lang::En).await?,
-      "This invitation is certified by the Bitcoin blockchain!".to_string()
     );
 
     template.update().kind(TemplateKind::Badge).save().await?;

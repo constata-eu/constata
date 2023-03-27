@@ -7,7 +7,6 @@ pub enum TemplateKind {
   Diploma,
   Attendance,
   Badge,
-  Invitation,
 }
 
 impl TemplateKind {
