@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import { Admin, Resource, CustomRoutes } from 'react-admin';
+import { Admin, Resource, CustomRoutes, Authenticated } from 'react-admin';
 import { Route } from "react-router-dom";
 import { DriveFileMove, Image, BackupTable } from '@mui/icons-material';
 import { ApolloClient, InMemoryCache, HttpLink, from } from '@apollo/client';
@@ -24,6 +24,7 @@ import Loading from "./views/loading";
 import {InvoiceLink, InvoiceLinkSuccess, InvoiceLinkError} from "./views/invoice_link";
 import Safe from "./views/safe";
 import { DownloadProofLink, CertificateShow } from "./views/download_proof_link";
+import Graphiql from "./views/graphiql";
 
 
 function App() {
@@ -142,6 +143,7 @@ function App() {
           <Route path="/safe" element={<Safe />} />
           <Route path="/safe/:access_token" element={<DownloadProofLink />} />
           <Route path="/safe/:access_token/show" element={<CertificateShow />} />
+          <Route path="/graphiql" element={<Authenticated><Graphiql /></Authenticated>} />
         </CustomRoutes>
         <CustomRoutes>
           <Route path="/wizard" element={<Wizard />} />
