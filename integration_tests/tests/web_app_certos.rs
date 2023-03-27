@@ -465,6 +465,35 @@ mod website {
       check_public_certificate(&d, &title, &format!("Invitation {raw_description}"), &image).await;
     }
 
+
+    integration_test!{ use_graphiql (c, d)
+      async fn send_graphql_query(d : &Selenium, query: &str) {
+        d.goto("http://localhost:8000/#").await;
+        d.click("#graphiql").await;
+        d.driver.maximize_window().await.expect("to maximize window");
+        d.click(".graphiql-tab-add").await;
+        d.click(".graphiql-query-editor").await;
+        d.fill_in(".graphiql-query-editor textarea", query).await;
+        d.wait_for("#header-set").await;
+        d.click(".graphiql-execute-button").await;
+        d.wait_for(".cm-def").await;
+        d.wait_for_text(".result-window .CodeMirror-scroll .cm-def", r"data*").await;
+      }
+      signup_and_verify(&d, &c.site).await;
+      create_wizard(&d, &c.site, 1, "testing-template").await;
+      sign_wizard(&d).await;
+
+      send_graphql_query(&d, "{Entry(id: 1) { id }}").await;
+      d.wait_for_text(".result-window .CodeMirror-scroll .cm-property", r"Entry*").await;
+
+      send_graphql_query(&d, "mutation { createEmailAddress(input: { address:\"testing_graphiql@constata.com\", keepPrivate: true }) { id }}").await;
+      d.wait_for_text(".result-window .CodeMirror-scroll .cm-property", r"createEmailAddress*").await;
+      let email_address = c.site.email_address().find(2).await?;
+      assert_eq!(email_address.attrs.address, "testing_graphiql@constata.com".to_string());
+      assert_eq!(email_address.attrs.keep_private, true);
+    }
+
+
     integration_test!{ archive_and_unarchive_template (c, d)
       signup_and_verify(&d, &c.site).await;
       create_wizard(&d, &c.site, 2, "template-show").await;
