@@ -9,17 +9,13 @@ Certificación
 Diploma emitido por
 {%- endblock __diploma_issued_by -%}
 
-{%- block __assistance_issued_by -%}
+{%- block __attendance_issued_by -%}
 Certificado de asistencia emitido por
-{%- endblock __assistance_issued_by -%}
+{%- endblock __attendance_issued_by -%}
 
 {%- block __badge_issued_by -%}
 Insignia emitida por
 {%- endblock __badge_issued_by -%}
-
-{%- block __invitation_issued_by -%}
-Invitación emitida por
-{%- endblock __invitation_issued_by -%}
 
 {%- block __certification_issued_by -%}
 Certificación emitida por
