@@ -6,7 +6,6 @@ const SelectTemplateKind = ({source}) => {
     { id: 'DIPLOMA', name: "resources.Template.fields.kinds.diploma" },
     { id: 'ASSISTANCE', name: "resources.Template.fields.kinds.assistance" },
     { id: 'BADGE', name: "resources.Template.fields.kinds.badge" },
-    { id: 'INVITATION', name: "resources.Template.fields.kinds.invitation" },
   ]} />
 )};
 
