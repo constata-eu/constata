@@ -48,7 +48,6 @@ impl Showable<template::Template, TemplateFilter> for Template {
         "DIPLOMA" => Some(TemplateKind::Diploma),
         "ATTENDANCE" => Some(TemplateKind::Attendance),
         "BADGE" => Some(TemplateKind::Badge),
-        "INVITATION" => Some(TemplateKind::Invitation),
         _ => None,
       }
     );

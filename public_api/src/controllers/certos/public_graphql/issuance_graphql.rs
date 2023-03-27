@@ -163,7 +163,7 @@ pub struct Issuance {
     template_id: i32,
     #[graphql(description = "Name of the template linked to this issuance.")]
     template_name: String,
-    #[graphql(description = "The kind of template, which can be 'Diploma', 'Attendance', or 'Invitation'.")]
+    #[graphql(description = "The kind of template, which can be 'DIPLOMA', 'ATTENDANCE', or 'BADGE'.")]
     template_kind: TemplateKind,
     #[graphql(description = "The state of the issuance, which can be 'received': The recipients data has been received, and we're in the process of generating each recipients document; 'created': Individual entries have been generated from the selected template, using each recipient's data. At this point you can still add more recipients which will rewind the state to 'received'; 'signed': You have signed the entries, no further entries can be added. Documents will be certified and notified within 2 hours; 'completed': All entries have been certified and notified; 'failed': An error ocurred in the creation process, and the whole issuance has been aborted. Look at the errors field for more details.")]
     state: String,

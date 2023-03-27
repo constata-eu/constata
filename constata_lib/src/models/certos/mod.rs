@@ -135,9 +135,9 @@ describe!{
       person,
       name: "Some diploma 2023".to_string(),
       template: WizardTemplate::New {
-        name: "A diploma template".to_string(),
+        name: "A badge template".to_string(),
         logo: ImageOrText::Image(read("wizard/logo.png")),
-        kind: TemplateKind::Invitation,
+        kind: TemplateKind::Badge,
       },
       csv: read("wizard/default.csv"),
     };
@@ -175,7 +175,7 @@ describe!{
       template: WizardTemplate::New {
         name: "A diploma template".to_string(),
         logo: ImageOrText::Text("SuperUni".to_string()),
-        kind: TemplateKind::Invitation,
+        kind: TemplateKind::Badge,
       },
       entries: serde_json::from_value(serde_json::json!([
         {
@@ -263,7 +263,7 @@ describe!{
       template: WizardTemplate::New {
         name: "A diploma template".to_string(),
         logo: ImageOrText::Text("SuperUni".to_string()),
-        kind: TemplateKind::Invitation,
+        kind: TemplateKind::Badge,
       },
       entries: serde_json::from_value(serde_json::json!([{ "ñombré": "Stan Marsh" }]))?,
     };
@@ -278,7 +278,7 @@ describe!{
     );
 
     assert_eq!(
-      &WizardTemplate::make_template_zip(i18n::Lang::En, ImageOrText::Text("test".to_string()), TemplateKind::Invitation).await?.0,
+      &WizardTemplate::make_template_zip(i18n::Lang::En, ImageOrText::Text("test".to_string()), TemplateKind::Badge).await?.0,
       "Hello {{ name }}, this is a badge for {{ motive }}."
     );
   }
@@ -324,7 +324,7 @@ describe!{
       template: WizardTemplate::New {
         name: "A diploma template".to_string(),
         logo: ImageOrText::Image(read("wizard/default.csv")),
-        kind: TemplateKind::Invitation,
+        kind: TemplateKind::Badge,
       },
       csv: read("wizard/default.csv"),
     };

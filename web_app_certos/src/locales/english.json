@@ -363,7 +363,6 @@
       "kind": {
         "ATTENDANCE": "Certificate of attendance",
         "DIPLOMA": "Diploma",
-        "INVITATION": "Invitation",
         "BADGE": "Badge"
       },
       "kind_numbered": {

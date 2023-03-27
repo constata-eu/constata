@@ -562,7 +562,6 @@
       "kind": {
         "ATTENDANCE": "Certificado de Asistencia",
         "DIPLOMA": "Diploma",
-        "INVITATION": "Invitación",
         "BADGE": "Insignia"
       },
       "kind_numbered": {
