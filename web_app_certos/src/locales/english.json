@@ -352,7 +352,7 @@
             "base": " the diploma |||| all %{smart_count} diplomas "
           },
           "BADGE": {
-            "and_we": " and we will send it ||| and we will send them ",
+            "and_we": " and we will send it |||| and we will send them ",
             "base": " the badge |||| all %{smart_count} badges "
           }
         },

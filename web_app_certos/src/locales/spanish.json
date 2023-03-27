@@ -551,7 +551,7 @@
             "base": " el diploma |||| los %{smart_count} diplomas "
           },
           "BADGE": {
-            "and_we": " y la||| y las ",
+            "and_we": " y la |||| y las ",
             "base": " la insignia |||| las %{smart_count} insignias "
           }
         },
