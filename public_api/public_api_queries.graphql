@@ -96,6 +96,7 @@ mutation SigningIterator($input: SigningIteratorInput!) {
     publicVisitCount
     hasEmailCallback
     emailCallbackSentAt
+    downloadProofLinkUrl
     payload
     adminAccessUrl
     __typename
@@ -207,6 +208,28 @@ mutation UpdateTemplate($input: TemplateInput!) {
     __typename
   }
 }
+mutation UpdateWebCallbacksUrl($url: String) {
+  updateWebCallbacksUrl(url: $url) {
+    id
+    missing
+    tokenBalance
+    pricePerToken
+    maxMonthlyGift
+    monthlyGiftRemainder
+    parkedCount
+    invoices {
+      amount
+      tokens
+      description
+      url
+      __typename
+    }
+    pendingTycUrl
+    pendingInvoiceLinkUrl
+    webCallbacksUrl
+    __typename
+  }
+}
 query Entry($id: Int!) {
   Entry(id: $id) {
     id
@@ -223,6 +246,7 @@ query Entry($id: Int!) {
     publicVisitCount
     hasEmailCallback
     emailCallbackSentAt
+    downloadProofLinkUrl
     payload
     adminAccessUrl
     __typename
@@ -244,6 +268,7 @@ query AllEntries($page: Int, $perPage: Int, $sortField: String, $sortOrder: Stri
     publicVisitCount
     hasEmailCallback
     emailCallbackSentAt
+    downloadProofLinkUrl
     payload
     adminAccessUrl
     __typename
@@ -479,6 +504,66 @@ query AllAttestationsMeta($page: Int, $perPage: Int, $sortField: String, $sortOr
     __typename
   }
 }
+query WebCallback($id: Int!) {
+  WebCallback(id: $id) {
+    id
+    kind
+    resourceId
+    state
+    lastAttemptId
+    createdAt
+    nextAttemptOn
+    requestBody
+    __typename
+  }
+}
+query AllWebCallbacks($page: Int, $perPage: Int, $sortField: String, $sortOrder: String, $filter: WebCallbackFilter) {
+  allWebCallbacks(page: $page, perPage: $perPage, sortField: $sortField, sortOrder: $sortOrder, filter: $filter) {
+    id
+    kind
+    resourceId
+    state
+    lastAttemptId
+    createdAt
+    nextAttemptOn
+    requestBody
+    __typename
+  }
+}
+query AllWebCallbacksMeta($page: Int, $perPage: Int, $sortField: String, $sortOrder: String, $filter: WebCallbackFilter) {
+  _allWebCallbacksMeta(page: $page, perPage: $perPage, sortField: $sortField, sortOrder: $sortOrder, filter: $filter) {
+    count
+    __typename
+  }
+}
+query WebCallbackAttempt($id: Int!) {
+  WebCallbackAttempt(id: $id) {
+    id
+    webCallbackId
+    attemptedAt
+    url
+    resultCode
+    resultText
+    __typename
+  }
+}
+query AllWebCallbackAttempts($page: Int, $perPage: Int, $sortField: String, $sortOrder: String, $filter: WebCallbackAttemptFilter) {
+  allWebCallbackAttempts(page: $page, perPage: $perPage, sortField: $sortField, sortOrder: $sortOrder, filter: $filter) {
+    id
+    webCallbackId
+    attemptedAt
+    url
+    resultCode
+    resultText
+    __typename
+  }
+}
+query AllWebCallbackAttemptsMeta($page: Int, $perPage: Int, $sortField: String, $sortOrder: String, $filter: WebCallbackAttemptFilter) {
+  _allWebCallbackAttemptsMeta(page: $page, perPage: $perPage, sortField: $sortField, sortOrder: $sortOrder, filter: $filter) {
+    count
+    __typename
+  }
+}
 query Preview($id: Int!) {
   Preview(id: $id) {
     id
@@ -504,6 +589,7 @@ query AccountState($id: Int!) {
     }
     pendingTycUrl
     pendingInvoiceLinkUrl
+    webCallbacksUrl
     __typename
   }
 }
