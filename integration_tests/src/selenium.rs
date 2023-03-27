@@ -60,6 +60,7 @@ impl Selenium {
     }
 
     let driver = WebDriver::new("http://localhost:4444", caps).await.expect("Webdriver init");
+    driver.maximize_window().await.expect("to maximize window");
     Selenium{child, driver}
   }
 
