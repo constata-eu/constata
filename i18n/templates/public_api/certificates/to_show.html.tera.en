@@ -16,10 +16,6 @@ Certificate of attendance issued by
 Badge issued by 
 {%- endblock __badge_issued_by -%}
 
-{%- block __invitation_issued_by -%}
-Invitation issued by 
-{%- endblock __invitation_issued_by -%}
-
 {%- block __certification_issued_by -%}
 Certificate issued by 
 {%- endblock __certification_issued_by -%}

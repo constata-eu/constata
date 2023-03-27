@@ -215,7 +215,7 @@ module.exports = {
           kindEq: 'By Kind:',
           kinds: {
             diploma: 'Diploma',
-            assistance: 'Assistance',
+            attendance: 'Attendance',
             badge: "Badge"
           }
         },
