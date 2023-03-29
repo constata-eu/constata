@@ -141,7 +141,7 @@
         "bitcoin_backed": "La emisión estará respaldada por blockchain de Bitcoin y Constata.",
         "done": "Políticas y condiciones aceptadas.",
         "giveaway": "Le regalamos los primeros 10 tokens que necesite cada mes.",
-        "issue_documents": "Usted podrá emitir diplomas, certificados de asistencia e invitaciones.",
+        "issue_documents": "Usted podrá emitir diplomas, certificados de asistencia o insignias.",
         "link": "Leer políticas y condiciones del servicio",
         "mustAcceptTyc": "Debe aceptar las políticas y condiciones.",
         "review": "Revisar",
@@ -264,7 +264,7 @@
       "issue": {
         "button": "Hacer una emisión",
         "text": "La BLOCKCHAIN DE BITCOIN garantiza la inmutabilidad y la fecha, CONSTATA verifica su identidad.",
-        "title": "Emita diplomas, certificados de asistencia o invitaciones."
+        "title": "Emita diplomas, certificados de asistencia o insignias."
       },
       "pending_signatures": {
         "text": "Revíselas y fírmelas para que podamos completar el proceso de emisión.",
@@ -550,9 +550,9 @@
             "and_we": " y lo |||| y los ",
             "base": " el diploma |||| los %{smart_count} diplomas "
           },
-          "INVITATION": {
-            "and_we": " y la||| y las ",
-            "base": " la invitación |||| las %{smart_count} invitaciones "
+          "BADGE": {
+            "and_we": " y la |||| y las ",
+            "base": " la insignia |||| las %{smart_count} insignias "
           }
         },
         "see_in_dashboard": "Puede ver el progreso que hagamos desde el tablero principal.",
@@ -562,12 +562,12 @@
       "kind": {
         "ATTENDANCE": "Certificado de Asistencia",
         "DIPLOMA": "Diploma",
-        "INVITATION": "Invitación"
+        "BADGE": "Insignia"
       },
       "kind_numbered": {
         "ATTENDANCE": "un certificado de asistencia |||| %{smart_count} certificados de asistencia",
         "DIPLOMA": "un diploma |||| %{smart_count} diplomas",
-        "INVITATION": "una invitación |||| %{smart_count} invitaciones"
+        "BADGE": "una insignia |||| %{smart_count} insignias"
       },
       "recipients": {
         "add_many_button": "Agregar varios vía CSV",
@@ -683,46 +683,46 @@
               "sample": "Se realizó una práctica en la empresa CiberWidgets (opcional)"
             }
           },
-          "INVITATION": {
+          "BADGE": {
             "custom_text": {
-              "help": "Opcional. ej: \"Ha sido ternado en la categoría Emprendedores.\"",
+              "help": "Opcional. ej: \"Ha obtenido el primer puesto en el Hackatón Web3.\"",
               "label": "Texto personalizado",
-              "sample": "Ha sido ternado en la categoría Emprendedores (opcional)"
+              "sample": "Ha obtenido el primer puesto en el Hackatón Web3 (opcional)"
             },
             "date": {
               "help": "Opcional, ej: \"10 de agosto de 2023\"",
-              "label": "Fecha del evento",
+              "label": "Fecha de la insignia",
               "sample": "10 de agosto de 2023 (opcional)"
             },
             "email": {
-              "help": "Opcional. No se mostrará en la invitación, solo se usará para enviarla por correo.",
+              "help": "Opcional. No se mostrará en la insignia, solo se usará para enviarla por correo.",
               "label": "Email",
               "sample": "jose.soto@example.com (opcional)"
             },
             "motive": {
-              "help": "ej: \"Premios de la industria automotriz.\"",
-              "label": "Ocasión, nombre del evento",
-              "sample": "XXII Premios de la industria automotriz."
+              "help": "ej: \"Primer puesto en Hackatón Web3.\"",
+              "label": "Objetivo alcanzado",
+              "sample": "Primer puesto en Web3 Hackatón."
             },
             "name": {
-              "help": "ej: \"Estimado Sr. José Soto +1 \"",
+              "help": "ej: \"José Soto\"",
               "label": "Nombre y apellido",
               "sample": "José Soto"
             },
             "place": {
-              "help": "Opcional, \"Teatro del Cuarteto, Avda. Carlos Gimenez 44\"",
-              "label": "Dirección",
-              "sample": "Teatro del Cuarteto. Carlos Gimenez 44 (opcional)"
+              "help": "Opcional, \"Lugar o evento en donde se obtuvo la insignia.\"",
+              "label": "Lugar o Evento",
+              "sample": "Hackatón Web3. (opcional)"
             },
             "recipient_identification": {
-              "help": "Opcional. \"Socia #12121\", \"DNI A4384572J\".",
-              "label": "Identificación del invitado",
+              "help": "Opcional. Se mostrará en la insignia. Puede ser un DNI o su email.",
+              "label": "Identificación de quién recibe la insignia",
               "sample": "DNI A4384572J (opcional)"
             },
             "shared_text": {
-              "help": "Opcional, ej: \"Esperamos que pueda acompañarnos. Por favor confirmar asistencia.\"",
-              "label": "Texto adicional",
-              "sample": "Se ruega confirmar asistencia (opcional)"
+              "help": "Opcional, ej: \"Felicitaciones por el primer puesto.\"",
+              "label": "Texto final",
+              "sample": "Felicitaciones por el primer puesto. (opcional)"
             }
           }
         },
@@ -776,7 +776,7 @@
         "new_name_label": "Nombre de la plantilla",
         "new_template_divider": "O cree una nueva plantilla",
         "sample": "ejemplo",
-        "text": "Los diplomas, certificados de asistencia o invitaciones se generarán en base a una plantilla con su logo, que luego se completará con los datos de cada destinatario.",
+        "text": "Los diplomas, certificados de asistencia o insignias se generarán en base a una plantilla con su logo, que luego se completará con los datos de cada destinatario.",
         "title": "¿Qué desea emitir?"
       }
     }
