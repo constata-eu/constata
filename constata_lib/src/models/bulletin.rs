@@ -347,6 +347,12 @@ impl Submitted {
       .block_time(Some(block_time))
       .save().await?;
 
+    for doc in updated.document_vec().await? {
+      if let Some(att) = doc.story().await?.attestation().await? {
+        att.on_done().await?;
+      }
+    }
+
     Ok(Published(updated))
   }
 

@@ -1,4 +1,190 @@
 {
+  "resources": {
+    "Entry": {
+      "field": "FIELD",
+      "fields": {
+        "createdAt": "Created on",
+        "copyUrl": "Copy URL",
+        "errors": "Errors",
+        "hasEmailCallback": "Email notification",
+        "id": "ID",
+        "name": "Name",
+        "params": "Parameters",
+        "paramsLike": "By parameters:",
+        "proof": "Certificate",
+        "issuanceId": "Issuance",
+        "rowNumber": "Line",
+        "state": "State",
+        "adminVisited": "Opened",
+        "publicVisitCount": "Views",
+        "statistics": "Statistics"
+      },
+      "name": "Entry |||| Entries",
+      "value": "VALUE",
+      "yes": "Yes",
+      "no": "No",
+      "copy_to_clipboard": "Link copied to clipboard"
+    },
+    "Issuance": {
+      "create": "Start issuance",
+      "fields": {
+        "states": {
+          "completed": "Completed",
+          "created": "Documents Created",
+          "failed": "Failed",
+          "received": "Received",
+          "signed": "Signed"
+        },
+        "createdAt": "Created on",
+        "download": "Download CSV",
+        "export_csv": "Export issuance to CSV",
+        "adminVisitedCount": "Opened",
+        "publicVisitCount": "Views",
+        "entries": "Entries",
+        "errors": "Errors",
+        "evidence": "",
+        "id": "ID",
+        "name": "Name",
+        "nameLike": "By name:",
+        "nextStep": "Next Step",
+        "nextSteps": {
+          "completed": "You have completed all steps",
+          "created": "You must sign your entries",
+          "received": "You must wait until entries are created",
+          "signed": "You must wait for entries to be certified and notified"
+        },
+        "payload": "File",
+        "state": "State",
+        "templateId": "Template",
+        "templateIdEq": "By Template:"
+      },
+      "name": "Issuance |||| Issuances",
+      "admin_title": "Issuances"
+    },
+    "SignUp": {
+      "ConfirmPassStep": {
+        "done": "Password confirmed",
+        "label": "Confirm your password"
+      },
+      "DownloadStep": {
+        "filename": "signature.json",
+        "download": "Download signature and enter",
+        "email": "hola@constata.eu",
+        "title": "All Done!",
+        "usage": "Download your password protected digital signature, use to access from other devices."
+      },
+      "EmailAddressStep": {
+        "change": "Change",
+        "done": "Email",
+        "no_email": "Not provided",
+        "endorse": "Show it in your issuances, so recipients can identify you.",
+        "helper": "You may leave it empty",
+        "label": "Email Address",
+        "news": "Notify you about incidents and news about our service",
+        "poll": "Ask for feedback on our service and receive your comments",
+        "send_copy": "Send you a copy of your password protected digital signature.",
+        "support": "Provide technical support via email.",
+        "title": "Optionally, your email, so we can:"
+      },
+      "PasswordStep": {
+        "change": "Change",
+        "done": "Password created, don't forget it.",
+        "dont_remember": "We suggest you don't save it in your browser.",
+        "label": "New password",
+        "make_it_easy": "Make it easy to remember and type in each time.",
+        "no_change": "You won't be able to change it. Contact us if you need to change it.",
+        "no_recovery": "If you forget it, you won't be able to use this signature again.",
+        "phrase": "It's better to use a phrase in all lowercase than than using special symbols.",
+        "title": "Create a password",
+        "we_remember": "If you verify your account we can help you recover your previously signed documents.",
+        "will_encrypt": "This password will protect your digital signature."
+      },
+      "PrivacyStep": {
+        "acceptPrivacyPolicy": "Accept privacy and cookie policy.",
+        "accept_our_policy": "You must read and accept our privacy policy and cookie policy.",
+        "data_privacy": "We don't sell your data. We don't track you. We respect your privacy.",
+        "done": "Privacy policy and cookies accepted.",
+        "link": "Read our privacy policy",
+        "mandatory": "You won't be able to create your digital signature if you do not accept these cookies.",
+        "mustAcceptPrivacyPolicy": "You must accept our privacy policy and cookies.",
+        "one_cookie": "We use cookies to ensure you're not a robot.",
+        "owner": "They are third party cookies: The recaptcha service by Google.",
+        "review": "Review",
+        "title": "About your privacy."
+      },
+      "TycStep": {
+        "acceptTyc": "Accept privacy policy, terms and conditions.",
+        "accept_our_policies": "You must read and accept the privacy policy, terms and conditions.",
+        "bitcoin_backed": "Your certificates will be backed by Bitcoin's blockchain and Constata.",
+        "done": "Terms and conditions accepted.",
+        "giveaway": "We give you your first 10 tokens each month.",
+        "issue_documents": "You will be able to issue diplomas, certificates of attendance and badges.",
+        "link": "Read service terms and conditions.",
+        "mustAcceptTyc": "You must accept our terms and conditions.",
+        "review": "Review",
+        "title": "About Constata's service",
+        "tokens_needed": "To issue certificates you need tokens, priced at 1 EUR each.",
+        "valid_forever_free": "You can share and validate your certificates forever, free of charge.",
+        "we_keep_a_copy": "We store a backup of every certificate for 5 years."
+      },
+      "WordsStep": {
+        "done": "Backup completed. Store it safely.",
+        "if_you_lose": "If you lose your signature but cannot remember your password, you will be able to recover it.",
+        "must_contact_us": "You will have to contact us perform the recovery.",
+        "optional": "This step is optional, but reccommended.",
+        "store_physically": "You can keep a backup of your signature in paper.",
+        "title": "Paper Backup.",
+        "view_again": "See again",
+        "write_it_down": "Write down these words on paper, order is important."
+      },
+      "description": "You will create an encrypted digital signature with Constata's help.",
+      "email_taken": "This email address is in use by another signature, please use another one. If you don't have another signature, or this seems a mistake, please contact us.",
+      "invalid_email": "Email must be valid, but it's optional",
+      "invalid_password": "Invalid password",
+      "invalid_recaptcha": "Invalid Captcha",
+      "mismatch_passwords": "Passwords do not match",
+      "ready": "Continue",
+      "IntroStep": {
+        "checklist": "It will take you 3 minutes.",
+        "done": "Digital signature creation started.",
+        "for_login": "Can be used to access our WEB3 app.",
+        "for_signing": "Can be used to sign diplomas and certificates.",
+        "help": "We're here to help.",
+        "ill_do_it_later": "I'll do this later",
+        "no_account": "It won't be linked to your identity.",
+        "no_recovery": "If you forget your password you won't be able to recover it.",
+        "safekeep": "You'll store it responsibly.",
+        "start_btn": "Start",
+        "unique": "Nobody can sign impersonating you.",
+        "verify_later": "You may link it to your identity for an extra fee."
+      },
+      "title": "Creating Signature"
+    },
+    "Template": {
+      "create": "Create template",
+      "fields": {
+        "createdAt": "Created at",
+        "adminVisitedCount": "Opened",
+        "publicVisitCount": "Views",
+        "customMessage": "custom message",
+        "evidence": "",
+        "id": "ID",
+        "name": "Name",
+        "archived": "Is archived?",
+        "nameLike": "By name:",
+        "payload": "File"
+      },
+      "name": "Template |||| Templates",
+      "admin_title": "Templates",
+      "archive": "Archive",
+      "unarchive": "Unarchive",
+      "archiveTitle": "Are you sure you want to ARCHIVE this template?",
+      "archiveContent": "After you archive this template you wont be able to select it when creating an issuance",
+      "unarchiveTitle": "Are you sure you want to UNARCHIVE this template?",
+      "unarchiveContent": "After disarchive this template you will be able to use it when creating an issuance",
+      "errorUpdating": "Error modifying Template"
+    }
+  },
 	"certos": {
 		"account_state": {
 			"pending_invoice": {
@@ -64,7 +250,7 @@
 			"issue": {
 				"button": "Issue certificates",
 				"text": "BITCOIN'S BLOCKCHAIN guarantees immutability and date, CONSTATA verifies your identity.",
-				"title": "Issue diplomas, certificates of attendance, and invitations"
+				"title": "Issue diplomas, certificates of attendance, and badges"
 			},
 			"pending_signatures": {
 				"text": "Review and sign them so that we can complete the issuance process",
@@ -84,7 +270,8 @@
       },
       "other_actions" : {
         "title": "Other actions",
-        "content": "See all Templates"
+        "templates": "See all Templates",
+        "graphiql": "Go to Graphiql"
       }
 		},
 		"entry": {
@@ -350,9 +537,9 @@
             "and_we": " and we will send it |||| and we will send them ",
             "base": " the diploma |||| all %{smart_count} diplomas "
           },
-          "INVITATION": {
+          "BADGE": {
             "and_we": " and we will send it |||| and we will send them ",
-            "base": " the invitation |||| all %{smart_count} invitations "
+            "base": " the badge |||| all %{smart_count} badges "
           }
         },
         "see_in_dashboard": "You can follow the process in the dashboard.",
@@ -362,12 +549,12 @@
       "kind": {
         "ATTENDANCE": "Certificate of attendance",
         "DIPLOMA": "Diploma",
-        "INVITATION": "Invitation"
+        "BADGE": "Badge"
       },
       "kind_numbered": {
         "ATTENDANCE": "a certificate of attendance |||| %{smart_count} certificates of attendance",
         "DIPLOMA": "a diploma |||| %{smart_count} diplomas",
-        "INVITATION": "an invitation |||| %{smart_count} invitations "
+        "BADGE": "an badge |||| %{smart_count} badges "
       },
       "recipients": {
         "add_many_button": "Add many via CSV",
@@ -483,46 +670,46 @@
               "sample": "Student did a 3 month internship at CyberWidgets (optional)"
             }
           },
-          "INVITATION": {
+          "BADGE": {
             "custom_text": {
-              "help": "Optional. ex: \"Has been nominated in the Entrepreneurs category\"",
+              "help": "Optional. ex: \"Has awarded first place at Hackathon.\"",
               "label": "Custom text",
-              "sample": "Has been nominated in the Entrepreneurs category (optional)"
+              "sample": "Has awarded first place at Web3 Hackathon (optional)"
             },
             "date": {
               "help": "Optional, ej: \"august 10, 2023\"",
-              "label": "Date of the event",
+              "label": "Date of the badge",
               "sample": "august 10, 2023 (optional)"
             },
             "email": {
-              "help": "Optional. Will not be shown in the invitation, will only be used to notify the recipient.",
+              "help": "Optional. Will not be shown in the badge, will only be used to notify the recipient.",
               "label": "Email",
               "sample": "jane.doe@example.com (optional)"
             },
             "motive": {
-              "help": "ex: \"Auto Industry Awards.\"",
-              "label": "Ocassion, name of the event",
-              "sample": "XXII Auto Industry Awards."
+              "help": "ex: \"Hackathon First Place.\"",
+              "label": "Goal achieved",
+              "sample": "First place at Web3 Hackathon."
             },
             "name": {
-              "help": "ej: \"Mr. John Smith +1\"",
+              "help": "ej: \"John Smith\"",
               "label": "Name and last name",
               "sample": "John Smith"
             },
             "place": {
-              "help": "Optional, \"Auto Convention Center, Charles Gimli st #1112\"",
-              "label": "Address",
-              "sample": "Auto convention center, Charles Gimli st #1112 (optional)"
+              "help": "Optional, \"Place or event where the badge was earned.\"",
+              "label": "Place or Event",
+              "sample": "Web3 Hackathon. (optional)"
             },
             "recipient_identification": {
-              "help": "Optional. \"Member #12121\", \"jane.doe@example.com\".",
-              "label": "Guest identification",
-              "sample": "Member #12121 (optional)"
+              "help": "Optional. Will show in the badge, may be a national ID, or your email.",
+              "label": "Identification of the badge recipient",
+              "sample": "DNI A4384572J (optional)"
             },
             "shared_text": {
-              "help": "Optional, ex: \"We look forward to seeing you at the event, please confirm attendance.\"",
-              "label": "Extra Text",
-              "sample": "Please confirm attendance (optional)"
+              "help": "Optional, ex: \"Congratulations on winning first place!\"",
+              "label": "Final Text",
+              "sample": "Congratulations on winning first place! (optional)"
             }
           }
         },
@@ -576,7 +763,7 @@
         "new_name_label": "Template name",
         "new_template_divider": "Or create a new template",
         "sample": "example",
-        "text": "The diplomas, certificates of attendance, or invitations will be generated from a template that has your logo and then fills out all fields with each recipients details.",
+        "text": "The diplomas, certificates of attendance, or badges will be generated from a template that has your logo and then fills out all fields with each recipients details.",
         "title": "What are you issuing?"
       }
     }
@@ -594,192 +781,6 @@
     "navigation": {
       "page_rows_per_page": "Rows per page:",
       "skip_nav": "Skip"
-    }
-  },
-  "resources": {
-    "Entry": {
-      "field": "FIELD",
-      "fields": {
-        "createdAt": "Created on",
-        "copyUrl": "Copy URL",
-        "errors": "Errors",
-        "hasEmailCallback": "Email notification",
-        "id": "ID",
-        "name": "Name",
-        "params": "Parameters",
-        "paramsLike": "By parameters:",
-        "proof": "Certificate",
-        "issuanceId": "Issuance",
-        "rowNumber": "Line",
-        "state": "State",
-        "adminVisited": "Opened",
-        "publicVisitCount": "Views",
-        "statistics": "Statistics"
-      },
-      "name": "Entry |||| Entries",
-      "value": "VALUE",
-      "yes": "Yes",
-      "no": "No",
-      "copy_to_clipboard": "Link copied to clipboard"
-    },
-    "Issuance": {
-      "create": "Start issuance",
-      "fields": {
-        "states": {
-          "completed": "Completed",
-          "created": "Documents Created",
-          "failed": "Failed",
-          "received": "Received",
-          "signed": "Signed"
-        },
-        "createdAt": "Created on",
-        "download": "Download CSV",
-        "export_csv": "Export issuance to CSV",
-        "adminVisitedCount": "Opened",
-        "publicVisitCount": "Views",
-        "entries": "Entries",
-        "errors": "Errors",
-        "evidence": "",
-        "id": "ID",
-        "name": "Name",
-        "nameLike": "By name:",
-        "nextStep": "Next Step",
-        "nextSteps": {
-          "completed": "You have completed all steps",
-          "created": "You must sign your entries",
-          "received": "You must wait until entries are created",
-          "signed": "You must wait for entries to be certified and notified"
-        },
-        "payload": "File",
-        "state": "State",
-        "templateId": "Template",
-        "templateIdEq": "By Template:"
-      },
-      "name": "Issuance |||| Issuances",
-      "admin_title": "Issuances"
-    },
-    "SignUp": {
-      "ConfirmPassStep": {
-        "done": "Password confirmed",
-        "label": "Confirm your password"
-      },
-      "DownloadStep": {
-        "filename": "signature.json",
-        "download": "Download signature and enter",
-        "email": "hola@constata.eu",
-        "title": "All Done!",
-        "usage": "Download your password protected digital signature, use to access from other devices."
-      },
-      "EmailAddressStep": {
-        "change": "Change",
-        "done": "Email",
-        "no_email": "Not provided",
-        "endorse": "Show it in your issuances, so recipients can identify you.",
-        "helper": "You may leave it empty",
-        "label": "Email Address",
-        "news": "Notify you about incidents and news about our service",
-        "poll": "Ask for feedback on our service and receive your comments",
-        "send_copy": "Send you a copy of your password protected digital signature.",
-        "support": "Provide technical support via email.",
-        "title": "Optionally, your email, so we can:"
-      },
-      "PasswordStep": {
-        "change": "Change",
-        "done": "Password created, don't forget it.",
-        "dont_remember": "We suggest you don't save it in your browser.",
-        "label": "New password",
-        "make_it_easy": "Make it easy to remember and type in each time.",
-        "no_change": "You won't be able to change it. Contact us if you need to change it.",
-        "no_recovery": "If you forget it, you won't be able to use this signature again.",
-        "phrase": "It's better to use a phrase in all lowercase than than using special symbols.",
-        "title": "Create a password",
-        "we_remember": "If you verify your account we can help you recover your previously signed documents.",
-        "will_encrypt": "This password will protect your digital signature."
-      },
-      "PrivacyStep": {
-        "acceptPrivacyPolicy": "Accept privacy and cookie policy.",
-        "accept_our_policy": "You must read and accept our privacy policy and cookie policy.",
-        "data_privacy": "We don't sell your data. We don't track you. We respect your privacy.",
-        "done": "Privacy policy and cookies accepted.",
-        "link": "Read our privacy policy",
-        "mandatory": "You won't be able to create your digital signature if you do not accept these cookies.",
-        "mustAcceptPrivacyPolicy": "You must accept our privacy policy and cookies.",
-        "one_cookie": "We use cookies to ensure you're not a robot.",
-        "owner": "They are third party cookies: The recaptcha service by Google.",
-        "review": "Review",
-        "title": "About your privacy."
-      },
-      "TycStep": {
-        "acceptTyc": "Accept privacy policy, terms and conditions.",
-        "accept_our_policies": "You must read and accept the privacy policy, terms and conditions.",
-        "bitcoin_backed": "Your certificates will be backed by Bitcoin's blockchain and Constata.",
-        "done": "Terms and conditions accepted.",
-        "giveaway": "We give you your first 10 tokens each month.",
-        "issue_documents": "You will be able to issue diplomas, certificates of attendance and invitations.",
-        "link": "Read service terms and conditions.",
-        "mustAcceptTyc": "You must accept our terms and conditions.",
-        "review": "Review",
-        "title": "About Constata's service",
-        "tokens_needed": "To issue certificates you need tokens, priced at 1 EUR each.",
-        "valid_forever_free": "You can share and validate your certificates forever, free of charge.",
-        "we_keep_a_copy": "We store a backup of every certificate for 5 years."
-      },
-      "WordsStep": {
-        "done": "Backup completed. Store it safely.",
-        "if_you_lose": "If you lose your signature but cannot remember your password, you will be able to recover it.",
-        "must_contact_us": "You will have to contact us perform the recovery.",
-        "optional": "This step is optional, but reccommended.",
-        "store_physically": "You can keep a backup of your signature in paper.",
-        "title": "Paper Backup.",
-        "view_again": "See again",
-        "write_it_down": "Write down these words on paper, order is important."
-      },
-      "description": "You will create an encrypted digital signature with Constata's help.",
-      "email_taken": "This email address is in use by another signature, please use another one. If you don't have another signature, or this seems a mistake, please contact us.",
-      "invalid_email": "Email must be valid, but it's optional",
-      "invalid_password": "Invalid password",
-      "invalid_recaptcha": "Invalid Captcha",
-      "mismatch_passwords": "Passwords do not match",
-      "ready": "Continue",
-      "IntroStep": {
-        "checklist": "It will take you 3 minutes.",
-        "done": "Digital signature creation started.",
-        "for_login": "Can be used to access our WEB3 app.",
-        "for_signing": "Can be used to sign diplomas and certificates.",
-        "help": "We're here to help.",
-        "ill_do_it_later": "I'll do this later",
-        "no_account": "It won't be linked to your identity.",
-        "no_recovery": "If you forget your password you won't be able to recover it.",
-        "safekeep": "You'll store it responsibly.",
-        "start_btn": "Start",
-        "unique": "Nobody can sign impersonating you.",
-        "verify_later": "You may link it to your identity for an extra fee."
-      },
-      "title": "Creating Signature"
-    },
-    "Template": {
-      "create": "Create template",
-      "fields": {
-        "createdAt": "Created at",
-        "adminVisitedCount": "Opened",
-        "publicVisitCount": "Views",
-        "customMessage": "custom message",
-        "evidence": "",
-        "id": "ID",
-        "name": "Name",
-        "archived": "Is archived?",
-        "nameLike": "By name:",
-        "payload": "File"
-      },
-      "name": "Template |||| Templates",
-      "admin_title": "Templates",
-      "archive": "Archive",
-      "unarchive": "Unarchive",
-      "archiveTitle": "Are you sure you want to ARCHIVE this template?",
-      "archiveContent": "After you archive this template you wont be able to select it when creating an issuance",
-      "unarchiveTitle": "Are you sure you want to UNARCHIVE this template?",
-      "unarchiveContent": "After disarchive this template you will be able to use it when creating an issuance",
-      "errorUpdating": "Error modifying Template"
     }
   }
 }

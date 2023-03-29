@@ -215,8 +215,8 @@ module.exports = {
           kindEq: 'By Kind:',
           kinds: {
             diploma: 'Diploma',
-            assistance: 'Assistance',
-            invitation: 'Invitation',
+            attendance: 'Attendance',
+            badge: "Badge"
           }
         },
         validateJson: 'If you fill in this field, it must be a json',

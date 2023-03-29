@@ -4,7 +4,7 @@
 {% block main %}
   Welcome to Constata.
   <br/><br/>
-  You can start issuing Diplomas, Certificates of Attendance and Invitations.
+  You can start issuing Diplomas, Certificates of Attendance and Badges.
   <br/><br/>
   {{ macros::email_verification(url_to_verify_email = url_to_verify_email, keep_private = keep_private) }}
   {{ macros::accept_tyc(url_to_tyc = url_to_tyc) }}
