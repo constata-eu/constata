@@ -34,7 +34,7 @@ mod website {
 
       signup(&d).await;
       for _ in 0..4 {
-        create_template(&d, "testing-template").await;
+        create_template(&d, "testing-template", "DIPLOMA").await;
         let csv = format!("{}/tests/resources/default_certos_recipients.csv", env::current_dir().unwrap().display());
         add_recipients_with_csv(&d, &c.site, &csv).await;
         sign_wizard(&d).await;
@@ -172,7 +172,7 @@ mod website {
 
     integration_test!{ notifies_no_emails_will_be_sent_for_unverified_customers (_c, d)
       signup(&d).await;
-      create_template(&d, "testing-template").await;
+      create_template(&d, "testing-template", "DIPLOMA").await;
       d.wait_for_text(".MuiAlert-message div", "Recipient notifications disabled").await;
     }
 
@@ -299,7 +299,7 @@ mod website {
         ("certos_recipients_semicolon_special.csv", r"Arte con plastiliña;*")
       ];
       for (i, (file, motive)) in files.iter().enumerate() {
-        create_template(&d, "testing-template").await;
+        create_template(&d, "testing-template", "DIPLOMA").await;
         let csv = format!("{}/tests/resources/{}", env::current_dir().unwrap().display(), &file);
         add_recipients_with_csv(&d, &c.site, &csv).await;
         sign_wizard(&d).await;
@@ -461,10 +461,24 @@ mod website {
       template.clone().update().kind(TemplateKind::Attendance).save().await?;
       check_public_certificate(&d, &title, &format!("Certificate of attendance {raw_description}"), &image).await;
 
-      template.update().kind(TemplateKind::Invitation).save().await?;
-      check_public_certificate(&d, &title, &format!("Invitation {raw_description}"), &image).await;
+      template.clone().update().kind(TemplateKind::Badge).save().await?;
+      check_public_certificate(&d, &title, &format!("Badge {raw_description}"), &image).await;
     }
 
+    integration_test!{ use_wizard_with_badge (c, d)
+      signup_and_verify(&d, &c.site).await;
+      create_template(&d, "template-show", "BADGE").await;
+      add_all_recipients(&d, &c.site, 3).await;
+      sign_wizard(&d).await;
+      d.click("a[href='#/']").await;
+      d.click("#issuances-menu-item").await;
+      d.click("a[href='#/Issuance/1/show']").await;
+      d.click("button[aria-label='Preview']").await;
+      d.get_handles_and_go_to_window_one().await;
+      d.wait_for("iframe").await.enter_frame().await.expect("to enter frame");
+      d.wait_for(".badge").await;
+      d.close_window_and_go_to_handle_zero().await;
+    }
 
     integration_test!{ use_graphiql (c, d)
       async fn send_graphql_query(d : &Selenium, query: &str) {
@@ -492,7 +506,6 @@ mod website {
       assert_eq!(email_address.attrs.address, "testing_graphiql@constata.com".to_string());
       assert_eq!(email_address.attrs.keep_private, true);
     }
-
 
     integration_test!{ archive_and_unarchive_template (c, d)
       signup_and_verify(&d, &c.site).await;
@@ -575,7 +588,6 @@ mod website {
       }
     }
 
-
     pub async fn check_statistic(
       d: &Selenium,
       admin_visited_count: i32,
@@ -596,7 +608,6 @@ mod website {
       d.wait_for_text(&format!("#review-entries-big tbody > tr:nth-child({child}) .column-statistics .params:nth-child(1) span:nth-child(2)"), &format!(r"{admin_visited}*")).await;
       d.wait_for_text(&format!("#review-entries-big tbody > tr:nth-child({child}) .column-statistics .params:nth-child(2) span:nth-child(2)"), &format!(r"{public_visit}*")).await;
     }
-
 
     async fn confirm_archive_template(d: &Selenium) {
       d.wait_for_text(".MuiDialog-container h2", r"Are you sure you want to ARCHIVE this template?*").await;
@@ -739,16 +750,15 @@ mod website {
       d.click("button[type='submit']").await;
     }
 
-    async fn create_template(d: &Selenium, template_name: &str) {
+    async fn create_template(d: &Selenium, template_name: &str, template_kind: &str) {
       d.click("a[href='#/wizard']").await;
+      d.click(&format!("button[value='{template_kind}']")).await;
       d.fill_in("#newName", template_name).await;
       d.fill_in("#newLogoText", "Constata.eu").await;
       d.click("button[type='submit']").await;
     }
 
-    async fn create_wizard(d: &Selenium, site: &Site, recipient_count: i32, template_name: &str) {
-      create_template(&d, template_name).await;
-
+    async fn add_all_recipients(d: &Selenium, site: &Site, recipient_count: i32) {
       for i in 0..recipient_count {
         let email = format!("probando{i}@constata.eu");
         add_recipient(&d, "Luciano Carreño", &email, "82736123", i).await;
@@ -759,6 +769,11 @@ mod website {
 
       site.request().create_all_received().await.expect("to create sucessfully the entries");
       d.wait_for_text("h2", "Review and sign").await;
+    }
+
+    async fn create_wizard(d: &Selenium, site: &Site, recipient_count: i32, template_name: &str) {
+      create_template(&d, template_name, "DIPLOMA").await;
+      add_all_recipients(&d, site, recipient_count).await;
     }
 
     async fn sign_wizard(d: &Selenium) {

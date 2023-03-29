@@ -63,7 +63,7 @@ impl WizardTemplate {
     let (filename, custom_message) = match kind {
       TemplateKind::Diploma => ("diploma", i18n::t!(lang, template_message_for_diploma)),
       TemplateKind::Attendance => ("attendance", i18n::t!(lang, template_message_for_attendance)),
-      TemplateKind::Invitation => ("invitation", i18n::t!(lang, template_message_for_invitation)),
+      _ => ("badge", i18n::t!(lang, template_message_for_badge)),
     };
 
     let mut context = i18n::Context::new();
