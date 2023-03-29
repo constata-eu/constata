@@ -1,7 +1,8 @@
 use super::*;
+use constata_lib::models::attestation::for_api::from_model;
+pub use constata_lib::models::attestation::for_api::Attestation;
 use constata_lib::signed_payload;
 use serde::{Deserialize, Serialize};
-use rust_decimal_macros::dec;
 
 #[derive(GraphQLInputObject, Serialize, Deserialize)]
 #[graphql(description = "An AttestationInput has all parameters required to create an Attestation on several of documents.")]
@@ -44,31 +45,6 @@ impl SignedPayload {
   pub fn decode(&self) -> MyResult<signed_payload::SignedPayload> {
     Ok(serde_json::from_str(&serde_json::to_string(self)?)?)
   }
-}
-
-#[derive(GraphQLObject)]
-#[graphql(description = "An Attestation over several documents")]
-pub struct Attestation {
-  id: i32,
-  person_id: i32,
-  org_id: i32,
-  markers: String,
-  open_until: Option<UtcDateTime>,
-  state: String,
-  parking_reason: Option<String>,
-  done_documents: i32,
-  parked_documents: i32,
-  processing_documents: i32,
-  total_documents: i32,
-  tokens_cost: f64,
-  tokens_paid: f64,
-  tokens_owed: f64,
-  buy_tokens_url: Option<String>,
-  accept_tyc_url: Option<String>,
-  last_doc_date: Option<UtcDateTime>,
-  email_admin_access_url_to: Vec<String>,
-  admin_access_url: Option<String>,
-  created_at: UtcDateTime,
 }
 
 #[derive(GraphQLObject)]
@@ -123,87 +99,7 @@ impl Showable<attestation::Attestation, AttestationFilter> for Attestation {
   }
 
   async fn db_to_graphql(d: attestation::Attestation, _with_payload: bool) -> MyResult<Self> {
-    let story = d.story().await?;
-    let account_state = d.org().await?.account_state().await?;
-    
-    let mut email_admin_access_url_to = std::collections::HashSet::new();
-    let mut tokens_cost = dec!(0);
-    let mut tokens_paid = dec!(0);
-    let mut tokens_owed = dec!(0);
-    let mut done_documents = 0;
-    let mut parked_documents = 0;
-    let mut processing_documents = 0;
-
-    for doc in &story.documents().await? {
-      tokens_cost += doc.attrs.cost;
-      if doc.attrs.funded {
-        tokens_paid += doc.attrs.cost;
-      } else {
-        tokens_owed += doc.attrs.cost;
-      }
-      if doc.bulletin().await?.map(|b| b.is_published()).unwrap_or(false) {
-        done_documents += 1;
-      } else if doc.is_parked() {
-        parked_documents += 1;
-      } else {
-        processing_documents += 1;
-      }
-      for cb in doc.email_callback_scope().cc_eq(true).all().await? {
-        email_admin_access_url_to.insert(cb.attrs.address);
-      }
-    }
-
-    let state = if done_documents > 0 {
-      if parked_documents == 0 && processing_documents == 0 {
-        "done"
-      } else if parked_documents > 0 {
-        "updates_parked"
-      } else {
-        "updates_processing"
-      }
-    } else {
-      if parked_documents > 0 {
-        "parked"
-      } else {
-        "processing"
-      }
-    };
-
-    let parking_reason = if state == "parked" || state == "updates_parked" {
-      if account_state.pending_tyc_url.is_some() {
-        Some("must_accept_tyc")
-      } else {
-        Some("must_buy_tokens")
-      }
-    } else {
-      None
-    };
-
-    let admin_access_url = story.create_download_proof_link(30).await?;
-    let last_doc_date = story.documents().await?.last().map(|d| d.attrs.created_at.clone());
-
-    Ok(Attestation {
-      id: d.attrs.id,
-      person_id: d.attrs.person_id,
-      org_id: d.attrs.org_id,
-      state: state.to_string(),
-      parking_reason: parking_reason.map(|x| x.to_string()),
-      open_until: story.attrs.open_until,
-      markers: d.attrs.markers,
-      created_at: d.attrs.created_at,
-      email_admin_access_url_to: Vec::from_iter(email_admin_access_url_to),
-      admin_access_url: admin_access_url,
-      buy_tokens_url: account_state.pending_invoice_link_url,
-      accept_tyc_url: account_state.pending_tyc_url,
-      done_documents,
-      parked_documents,
-      processing_documents,
-      total_documents: done_documents + parked_documents + processing_documents,
-      tokens_cost: tokens_cost.to_f64().unwrap_or(0.0),
-      tokens_paid: tokens_paid.to_f64().unwrap_or(0.0),
-      tokens_owed: tokens_owed.to_f64().unwrap_or(0.0),
-      last_doc_date,
-    })
+    Ok(from_model(d).await?)
   }
 }
 

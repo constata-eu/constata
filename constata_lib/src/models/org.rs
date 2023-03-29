@@ -40,6 +40,8 @@ model!{
     deletion_id: Option<i32>,
     #[sqlx_model_hints(timestamptz, default)]
     created_at: UtcDateTime,
+    #[sqlx_model_hints(varchar, default)]
+    web_callbacks_url: Option<String>,
   },
   has_many {
     Person(org_id),
@@ -63,6 +65,7 @@ model!{
     Template(org_id),
     Entry(org_id),
     Attestation(org_id),
+    WebCallback(org_id),
   },
   belongs_to {
     OrgDeletion(deletion_id),

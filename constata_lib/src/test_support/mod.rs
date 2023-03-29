@@ -83,6 +83,14 @@ pub fn read_to_string(file: &str) -> String {
   std::fs::read_to_string(&format!("../constata_lib/src/test_support/resources/{file}")).unwrap()
 }
 
+pub fn mock_callbacks_url(hits: usize, status: usize) -> mockito::Mock {
+  mockito::mock("POST", "/callbacks_url")
+    .with_status(status)
+    .with_body("got it")
+    .expect(hits)
+    .create()
+}
+
 pub async fn assert_bulletin_payload(bulletin: &crate::models::Bulletin, count: usize, expected: Vec<&str>) {
   let payload = bulletin.payload().await.unwrap();
   let found: Vec<&str> = payload.trim_end_matches('\n').split('\n').collect();
