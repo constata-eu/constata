@@ -64,8 +64,10 @@ function IssuanceList(props) {
                 }
               />
               <ParsedDateTextField source="createdAt" />
-              <FunctionField source="adminVisitCount" render={record => `${record.adminVisitedCount}/${record.entriesCount}`} />  
-              <TextField source="publicVisitCount"/>
+              <FunctionField source="adminVisitedCount" sortable={false}
+                render={record => `${record.adminVisitedCount}/${record.entriesCount}`} 
+              />  
+              <TextField source="publicVisitCount" sortable={false} />
               <FunctionField
                 render={record => {
                   if (record.state === "created") {
@@ -180,7 +182,7 @@ function IssuanceShow(props){
                 }
               />
               <ParsedDateTextField source="createdAt" />
-              <FunctionField source="adminVisitCount" render={record => `${record.adminVisitedCount}/${record.entriesCount}`} />  
+              <FunctionField source="adminVisitedCount" render={record => `${record.adminVisitedCount}/${record.entriesCount}`} />  
               <TextField source="publicVisitCount"/>
               <FunctionField label="resources.Issuance.fields.export_csv" render={() => 
                 <a id="export_to_csv" href="#/Issuance" onClick={handleExport}>

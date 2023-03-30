@@ -16,7 +16,7 @@ mod website {
 
     integration_test!{ full_flow_from_signup_until_stamped (c, d)
       signup_and_verify(&d, &c.site).await;
-      create_wizard(&d, &c.site, 2, "testing-template").await;
+      create_wizard(&d, &c.site, 2, "testing-template", true).await;
       d.click("#preview-1").await;
 
       let handles = d.get_handles_and_go_to_window_one().await;
@@ -54,7 +54,7 @@ mod website {
 
     integration_test!{ sign_previously_created_issuance (c, d)
       signup_and_verify(&d, &c.site).await;
-      create_wizard(&d, &c.site, 2, "testing-template").await;
+      create_wizard(&d, &c.site, 2, "testing-template", true).await;
       reload(&d).await;
       d.click("a[href='#/wizard/1']").await;
       sign_wizard(&d).await;
@@ -62,7 +62,7 @@ mod website {
 
     integration_test!{ use_previous_template_to_create_issuances (c, d)
       signup_and_verify(&d, &c.site).await;
-      create_wizard(&d, &c.site, 2, "testing-template").await;
+      create_wizard(&d, &c.site, 2, "testing-template", true).await;
       sign_wizard(&d).await;
       d.click("a[href='#/']").await;
       d.click("a[href='#/wizard']").await;
@@ -143,7 +143,7 @@ mod website {
 
     integration_test!{ discards_issuance (c, d)
       signup_and_verify(&d, &c.site).await;
-      create_wizard(&d, &c.site, 2, "testing-template").await;
+      create_wizard(&d, &c.site, 2, "testing-template", true).await;
       d.wait_for("#issuances-menu-item").await;
       d.click("#discard-button").await;
       d.click("#confirm-discard-button").await;
@@ -253,7 +253,7 @@ mod website {
       d.goto(&format!("http://localhost:8000/#/invoice/{}", token)).await;
       check_i_am_in_buy_tokens_page(&d, false).await;
       signup_and_verify(&d, &c.site).await;
-      create_wizard(&d, &c.site, 12, "testing-template").await;
+      create_wizard(&d, &c.site, 12, "testing-template", true).await;
       sign_wizard(&d).await;
       d.click("#wizard-buy-tokens").await;
       check_i_am_in_buy_tokens_page(&d, true).await;
@@ -280,7 +280,7 @@ mod website {
 
     integration_test!{ see_account_state_section_when_out_of_tokens (c, d)
       signup_and_verify(&d, &c.site).await;
-      create_wizard(&d, &c.site, 12, "testing-template").await;
+      create_wizard(&d, &c.site, 12, "testing-template", true).await;
       sign_wizard(&d).await;
       d.click("#dashboard-menu-item").await;
       d.wait_for_text(".MuiAlert-message > div", r"There's a pending payment.*").await;
@@ -313,7 +313,7 @@ mod website {
 
     integration_test!{ cannot_access_after_org_deletion (c, d)
       signup_and_verify(&d, &c.site).await;
-      create_wizard(&d, &c.site, 2, "testing-template").await;
+      create_wizard(&d, &c.site, 2, "testing-template", true).await;
       c.alice().await.make_org_deletion_for(1, b"person deletion").await;
 
       // There's no marker that the  person has been deleted.
@@ -437,7 +437,7 @@ mod website {
       let alice = c.alice().await;
 
       signup_and_verify(&d, &c.site).await;
-      create_wizard(&d, &c.site, 2, "testing-template").await;
+      create_wizard(&d, &c.site, 2, "testing-template", true).await;
       sign_wizard(&d).await;
       chain.fund_signer_wallet();
       chain.simulate_stamping().await;
@@ -494,7 +494,7 @@ mod website {
         d.wait_for_text(".result-window .CodeMirror-scroll .cm-def", r"data*").await;
       }
       signup_and_verify(&d, &c.site).await;
-      create_wizard(&d, &c.site, 1, "testing-template").await;
+      create_wizard(&d, &c.site, 1, "testing-template", true).await;
       sign_wizard(&d).await;
 
       send_graphql_query(&d, "{Entry(id: 1) { id }}").await;
@@ -508,8 +508,35 @@ mod website {
     }
 
     integration_test!{ archive_and_unarchive_template (c, d)
+      async fn confirm_archive_template(d: &Selenium) {
+        d.wait_for_text(".MuiDialog-container h2", r"Are you sure you want to ARCHIVE this template?*").await;
+        d.click(".ra-confirm").await;
+        d.wait_for("#unarchive-button").await;
+        d.click("#dashboard-menu-item").await;
+        d.click("a[href='#/wizard']").await;
+      }
+  
+      async fn archive_template_one_and_verify_was_archived(d: &Selenium) {
+        d.click("#archive-button").await;
+        confirm_archive_template(d).await;
+        d.not_exists("#templateId").await;
+        d.click("#dashboard-menu-item").await;
+        d.click("#templates").await;
+      }
+  
+      async fn unarchive_template_one_and_verify_was_unarchived(d: &Selenium) {
+        d.click("#unarchive-button").await;
+        d.wait_for_text(".MuiDialog-container h2", r"Are you sure you want to UNARCHIVE this template?*").await;
+        d.click(".ra-confirm").await;
+        d.wait_for("#archive-button").await;
+        d.click("#dashboard-menu-item").await;
+        d.click("a[href='#/wizard']").await;
+        d.wait_for("#templateId").await;
+        d.click("#dashboard-menu-item").await;
+      }
+
       signup_and_verify(&d, &c.site).await;
-      create_wizard(&d, &c.site, 2, "template-show").await;
+      create_wizard(&d, &c.site, 2, "template-show", true).await;
       sign_wizard(&d).await;
 
       d.click("a[href='#/']").await;
@@ -524,7 +551,7 @@ mod website {
       d.click("a[href='#/Template/1/show']").await;
       unarchive_template_one_and_verify_was_unarchived(&d).await;
 
-      create_wizard(&d, &c.site, 2, "template-not-to-show").await;
+      create_wizard(&d, &c.site, 2, "template-not-to-show", true).await;
       sign_wizard(&d).await;
       d.click("a[href='#/']").await;
       d.click("#templates").await;
@@ -546,9 +573,64 @@ mod website {
     }
 
     integration_test!{ shows_usage_statistics_for_issuances (c, d)
+      pub async fn open_download_proof_link_and_public_certificate(
+        d: &Selenium,
+        site: &Site,
+        id: i32,
+        times_to_open: i32
+      ) {
+        d.goto(&format!("http://localhost:8000/#")).await;
+        let token = site.download_proof_link().find(&id).await.expect("to find download proof link").token().await.expect("to have a token");
+        d.goto(&format!("http://localhost:8000/#/safe/{token}")).await;
+        d.click("#safe-button-change-public-certificate-state").await;
+        for _ in 0..times_to_open {
+          d.click("#go-to-public-certificate").await;
+          d.get_handles_and_go_to_window_one().await;
+          d.close_window_and_go_to_handle_zero().await;
+        }
+      }
+  
+      pub async fn check_statistic(
+        d: &Selenium,
+        admin_visited_count: i32,
+        public_visit_count: i32,
+        child: i32,
+        admin_visited: &str,
+        public_visit: i32,
+      ) {
+        d.goto(&format!("http://localhost:8000/#")).await;
+        d.click("#issuances-menu-item").await;
+        d.wait_for_text(".column-adminVisitedCount > span", &format!(r"{admin_visited_count}/5*")).await;
+        d.wait_for_text(".column-publicVisitCount > span", &format!(r"{public_visit_count}*")).await;
+        d.goto(&format!("http://localhost:8000/#")).await;
+        d.click("#issuances-menu-item").await;
+        d.click("a[href='#/Issuance/1/show']").await;
+        d.wait_for_text(".ra-field-adminVisitedCount > span", &format!(r"{admin_visited_count}/5*")).await;
+        d.wait_for_text(".ra-field-publicVisitCount > span", &format!(r"{public_visit_count}*")).await;
+        d.wait_for_text(&format!("#review-entries-big tbody > tr:nth-child({child}) .column-statistics .params:nth-child(1) span:nth-child(2)"), &format!(r"{admin_visited}*")).await;
+        d.wait_for_text(&format!("#review-entries-big tbody > tr:nth-child({child}) .column-statistics .params:nth-child(2) span:nth-child(2)"), &format!(r"{public_visit}*")).await;
+      }
+
+      pub async fn check_statistic_for_template(
+        d: &Selenium,
+        admin_visited_count: i32,
+        number_of_entries: i32,
+        public_visit_count: i32,
+      ) {
+        d.goto(&format!("http://localhost:8000/#")).await;
+        d.click("#templates").await;
+        d.wait_for_text(&format!(".column-adminVisitedCount > span"), &format!(r"{admin_visited_count}/{number_of_entries}*")).await;
+        d.wait_for_text(&format!(".column-publicVisitCount > span"), &format!(r"{public_visit_count}*")).await;
+        d.goto(&format!("http://localhost:8000/#")).await;
+        d.click("#templates").await;
+        d.click("a[href='#/Template/1/show']").await;
+        d.wait_for_text(".ra-field-adminVisitedCount > span", &format!(r"{admin_visited_count}/{number_of_entries}*")).await;
+        d.wait_for_text(".ra-field-publicVisitCount > span", &format!(r"{public_visit_count}*")).await;
+      }
+
       let mut chain = TestBlockchain::new().await;
       signup_and_verify(&d, &c.site).await;
-      create_wizard(&d, &c.site, 5, "testing-template").await;
+      create_wizard(&d, &c.site, 5, "testing-template", true).await;
       sign_wizard(&d).await;
       chain.fund_signer_wallet();
       chain.simulate_stamping().await;
@@ -557,7 +639,7 @@ mod website {
         entry.in_signed()?.try_complete().await?;
       }
       
-      d.click("a[href='#/']").await;
+      check_statistic_for_template(&d, 0, 5, 0).await;
       check_statistic(&d, 0, 0, 5, "No", 0).await;
       open_download_proof_link_and_public_certificate(&d, &c.site, 1, 1).await;
       check_statistic(&d, 1, 1, 5, "Yes", 1).await;
@@ -566,74 +648,28 @@ mod website {
       open_download_proof_link_and_public_certificate(&d, &c.site, 3, 2).await;
       check_statistic(&d, 3, 5, 3, "Yes", 2).await;
       open_download_proof_link_and_public_certificate(&d, &c.site, 4, 4).await;
-      d.goto(&format!("http://localhost:8000/#")).await;
       open_download_proof_link_and_public_certificate(&d, &c.site, 5, 1).await;
       check_statistic(&d, 5, 10, 2, "Yes", 4).await;
       check_statistic(&d, 5, 10, 1, "Yes", 1).await;
-    }
 
-    pub async fn open_download_proof_link_and_public_certificate(
-      d: &Selenium,
-      site: &Site,
-      id: i32,
-      times_to_open: i32
-    ) {
-      let token = site.download_proof_link().find(&id).await.expect("to find download proof link").token().await.expect("to have a token");
-      d.goto(&format!("http://localhost:8000/#/safe/{token}")).await;
-      d.click("#safe-button-change-public-certificate-state").await;
-      for _ in 0..times_to_open {
-        d.click("#go-to-public-certificate").await;
-        d.get_handles_and_go_to_window_one().await;
-        d.close_window_and_go_to_handle_zero().await;
+      check_statistic_for_template(&d, 5, 5, 10).await;
+      
+      d.goto(&format!("http://localhost:8000/#")).await;
+      create_wizard(&d, &c.site, 5, "", false).await;
+      sign_wizard(&d).await;
+      chain.fund_signer_wallet();
+      chain.simulate_stamping().await;
+      for entry in c.site.request().find(&2).await?.entry_vec().await? {
+        entry.in_signed()?.try_complete().await?;
       }
-    }
 
-    pub async fn check_statistic(
-      d: &Selenium,
-      admin_visited_count: i32,
-      public_visit_count: i32,
-      child: i32,
-      admin_visited: &str,
-      public_visit: i32,
-    ) {
-      d.goto(&format!("http://localhost:8000/#")).await;
-      d.click("#issuances-menu-item").await;
-      d.wait_for_text(".column-adminVisitCount > span", &format!(r"{admin_visited_count}/5*")).await;
-      d.wait_for_text(".column-publicVisitCount > span", &format!(r"{public_visit_count}*")).await;
-      d.goto(&format!("http://localhost:8000/#")).await;
-      d.click("#issuances-menu-item").await;
-      d.click("a[href='#/Issuance/1/show']").await;
-      d.wait_for_text(".ra-field-adminVisitCount > span", &format!(r"{admin_visited_count}/5*")).await;
-      d.wait_for_text(".ra-field-publicVisitCount > span", &format!(r"{public_visit_count}*")).await;
-      d.wait_for_text(&format!("#review-entries-big tbody > tr:nth-child({child}) .column-statistics .params:nth-child(1) span:nth-child(2)"), &format!(r"{admin_visited}*")).await;
-      d.wait_for_text(&format!("#review-entries-big tbody > tr:nth-child({child}) .column-statistics .params:nth-child(2) span:nth-child(2)"), &format!(r"{public_visit}*")).await;
-    }
-
-    async fn confirm_archive_template(d: &Selenium) {
-      d.wait_for_text(".MuiDialog-container h2", r"Are you sure you want to ARCHIVE this template?*").await;
-      d.click(".ra-confirm").await;
-      d.wait_for("#unarchive-button").await;
-      d.click("#dashboard-menu-item").await;
-      d.click("a[href='#/wizard']").await;
-    }
-
-    async fn archive_template_one_and_verify_was_archived(d: &Selenium) {
-      d.click("#archive-button").await;
-      confirm_archive_template(d).await;
-      d.not_exists("#templateId").await;
-      d.click("#dashboard-menu-item").await;
-      d.click("#templates").await;
-    }
-
-    async fn unarchive_template_one_and_verify_was_unarchived(d: &Selenium) {
-      d.click("#unarchive-button").await;
-      d.wait_for_text(".MuiDialog-container h2", r"Are you sure you want to UNARCHIVE this template?*").await;
-      d.click(".ra-confirm").await;
-      d.wait_for("#archive-button").await;
-      d.click("#dashboard-menu-item").await;
-      d.click("a[href='#/wizard']").await;
-      d.wait_for("#templateId").await;
-      d.click("#dashboard-menu-item").await;
+      check_statistic_for_template(&d, 5, 10, 10).await;
+      open_download_proof_link_and_public_certificate(&d, &c.site, 6, 1).await;
+      open_download_proof_link_and_public_certificate(&d, &c.site, 7, 1).await;
+      open_download_proof_link_and_public_certificate(&d, &c.site, 8, 1).await;
+      open_download_proof_link_and_public_certificate(&d, &c.site, 9, 1).await;
+      open_download_proof_link_and_public_certificate(&d, &c.site, 10, 1).await;
+      check_statistic_for_template(&d, 10, 10, 15).await;
     }
 
     async fn set_up_download_proof_link(alice: &SignerClient, chain: &mut TestBlockchain) -> Result<DownloadProofLink> {
@@ -758,6 +794,12 @@ mod website {
       d.click("button[type='submit']").await;
     }
 
+    async fn select_template(d: &Selenium) {
+      d.click("a[href='#/wizard']").await;
+      d.click("#templateId").await;
+      autoselect_first_option(&d).await;
+    }
+
     async fn add_all_recipients(d: &Selenium, site: &Site, recipient_count: i32) {
       for i in 0..recipient_count {
         let email = format!("probando{i}@constata.eu");
@@ -771,8 +813,12 @@ mod website {
       d.wait_for_text("h2", "Review and sign").await;
     }
 
-    async fn create_wizard(d: &Selenium, site: &Site, recipient_count: i32, template_name: &str) {
-      create_template(&d, template_name, "DIPLOMA").await;
+    async fn create_wizard(d: &Selenium, site: &Site, recipient_count: i32, template_name: &str, new_template: bool) {
+      if new_template {
+        create_template(&d, template_name, "DIPLOMA").await;
+      } else {
+        select_template(&d).await;
+      }
       add_all_recipients(&d, site, recipient_count).await;
     }
 

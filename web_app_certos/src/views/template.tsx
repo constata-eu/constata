@@ -48,6 +48,10 @@ function TemplateList(props) {
                 <TextField source="name" />
                 <BooleanField source="archived" />
                 <ParsedDateTextField source="createdAt" />
+                <FunctionField source="adminVisitedCount" sortable={false}
+                  render={record => `${record.adminVisitedCount}/${record.entriesCount}`} 
+                />  
+                <TextField source="publicVisitCount" sortable={false} />
                 <ShowButton />
                 <FunctionField render={record => {
                   return <ArchiveTemplateAction
@@ -96,6 +100,8 @@ function TemplateShow(props){
               />
               <BooleanField source="archived" />
               <ParsedDateTextField source="createdAt" />
+              <FunctionField source="adminVisitedCount" render={record => `${record.adminVisitedCount}/${record.entriesCount}`} />  
+              <TextField source="publicVisitCount"/>
               <RichTextField source='customMessage' />
               <FunctionField label="certos.template.evidence"
                   render={() => {
