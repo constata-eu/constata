@@ -4,7 +4,6 @@
 Certificación
 {%- endblock __default_metadata_title -%}
 
-
 {%- block __diploma_issued_by -%}
 Diploma emitido por
 {%- endblock __diploma_issued_by -%}

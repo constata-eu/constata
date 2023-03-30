@@ -6,7 +6,7 @@ use juniper::GraphQLEnum;
 pub enum DocumentSource {
   Email,
   Api,
-  Telegram,
+  Telegram, // Legacy document source from when we had a telegram robot.
   Internal,
 }
 

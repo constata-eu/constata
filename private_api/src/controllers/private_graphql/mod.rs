@@ -8,7 +8,6 @@ use constata_lib::models::{
   person::{self, PersonOrderBy, SelectPerson},
   email_address::{self, EmailAddressOrderBy, SelectEmailAddress},
   pubkey::{self, PubkeyOrderBy, SelectPubkey},
-  telegram::{self, TelegramUserOrderBy, SelectTelegramUser},
   document::{self, SelectDocument, DocumentOrderBy},
   org::{self, OrgOrderBy, SelectOrg},
   story::{self, SelectStory, StoryOrderBy},
@@ -57,7 +56,6 @@ pub mod pubkey_domain_endorsement_graphql;
 pub mod pubkey_graphql;
 pub mod story_graphql;
 pub mod subscription_graphql;
-pub mod telegram_graphql;
 pub mod terms_acceptance_graphql;
 pub mod top_ten_graphql;
 pub mod template_graphql;
@@ -82,7 +80,6 @@ pub use pubkey_domain_endorsement_graphql::{PubkeyDomainEndorsement, PubkeyDomai
 pub use pubkey_graphql::{Pubkey, PubkeyFilter};
 pub use story_graphql::{Story, StoryFilter};
 pub use subscription_graphql::{Subscription, SubscriptionFilter};
-pub use telegram_graphql::{Telegram, TelegramFilter};
 pub use terms_acceptance_graphql::{TermsAcceptance, TermsAcceptanceFilter};
 pub use top_ten_graphql::{TopTen};
 pub use template_graphql::{Template, TemplateFilter};
@@ -276,7 +273,6 @@ make_graphql_query!{
     [Person, allPeople, allPeopleMeta, "_allPeopleMeta", PersonFilter, i32],
     [EmailAddress, allEmailAddresses, allEmailAddressesMeta, "_allEmailAddressesMeta", EmailAddressFilter, i32],
     [Pubkey, allPubkeys, allPubkeysMeta, "_allPubkeysMeta", PubkeyFilter, String],
-    [Telegram, allTelegrams, allTelegramsMeta, "_allTelegramsMeta", TelegramFilter, String],
     [Payment, allPayments, allPaymentsMeta, "_allPaymentsMeta", PaymentFilter, i32],
     [Invoice, allInvoices, allInvoicesMeta, "_allInvoicesMeta", InvoiceFilter, i32],
     [InvoiceLink, allInvoiceLinks, allInvoiceLinksMeta, "_allInvoiceLinksMeta", InvoiceLinkFilter, i32],

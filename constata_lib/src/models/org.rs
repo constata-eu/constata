@@ -14,7 +14,6 @@ use super::{
   terms_acceptance::*,
   certos::app::*,
   org_deletion::*,
-  create_email_credentials_token::*,
   kyc_request::*,
   parked_reminder::*,
   attestation::*,
@@ -56,9 +55,6 @@ model!{
     InvoiceLink(org_id),
     TermsAcceptance(org_id),
     App(org_id),
-    TelegramBotPrivateChat(org_id),
-    TelegramUser(org_id),
-    CreateEmailCredentialsToken(org_id),
     KycRequest(org_id),
     ParkedReminder(org_id),
     Request(org_id),
@@ -208,17 +204,6 @@ impl Org {
     self.update().stripe_customer_id(Some(customer_id.to_string())).save().await?;
 
     Ok(customer_id)
-  }
-
-  pub async fn get_parked_documents_urls(&self) -> sqlx::Result<Vec<(String, String)>> {
-    let mut parked: Vec<(String, String)> = vec![];
-
-    for doc in self.document_scope().funded_eq(false).bulletin_id_is_set(false).all().await? {
-      let friendly_name = doc.base_document_part().await?.attrs.friendly_name;
-      let url = doc.get_or_create_delete_parked_url().await?;
-      parked.push((friendly_name, url));
-    }
-    Ok(parked)
   }
 
   pub async fn get_or_create_invoice_link(&self) -> Result<InvoiceLink> {

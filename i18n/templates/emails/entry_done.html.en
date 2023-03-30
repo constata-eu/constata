@@ -82,5 +82,10 @@
 {% endblock container %}
 
 {% block footer %}
-  {% include "emails/_public_footer.html.en" %}
+  This certification consists in a timestamp linked to Bitcoin's blockchain.
+  Certificates are in HTML format to contain source documents, and can be shared and viewed in any device.
+  <br>
+  Your contact details are used with the sole purpose and legitimate interest of sending you this message.
+  If you have any questions regarding our service or your personal data treatment you can contact us at
+  <a href="malito:hola@constata.eu">hola@constata.eu</a>
 {% endblock footer %}

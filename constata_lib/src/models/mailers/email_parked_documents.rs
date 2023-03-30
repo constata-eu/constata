@@ -14,7 +14,6 @@ pub struct EmailParkedDocuments {
   pub funded_documents_count: i64,
   pub total_document_count: i64,
   pub invoices: Vec<Invoice>,
-  pub parked_documents_urls: Vec<(String, String)>,
   pub lang: i18n::Lang,
 }
 
@@ -42,7 +41,6 @@ impl EmailParkedDocuments {
       invoices: account_state.invoices,
       total_price: (subscription.price_per_token() * account_state.missing).to_f64().expect("no loss"),
       url_to_tyc: account_state.pending_tyc_url,
-      parked_documents_urls: account_state.parked_documents_urls,
     })
   }
 

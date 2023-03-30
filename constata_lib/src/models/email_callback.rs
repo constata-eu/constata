@@ -1,7 +1,9 @@
-use super::*;
+/* 
+ * An EmailCallback can be scheduled for a document, and will be triggered when the document is stamped.
+ */
+use super::{*, mailers::EntryDone};
 use crate::{
   Site, Error, Result,
-  models::mailers::*,
 };
 
 model!{
@@ -14,8 +16,6 @@ model!{
     document_id: String,
     #[sqlx_model_hints(varchar)]
     address: String,
-    #[sqlx_model_hints(boolean)]
-    cc: bool,
     #[sqlx_model_hints(text)]
     custom_message: Option<String>,
     #[sqlx_model_hints(timestamptz)]
@@ -60,7 +60,7 @@ impl EmailCallback {
   }
 
   pub async fn render_mailer_html(&self) -> Result<String> {
-    DocumentWasStampedForCarbonCopies::new(&self.state, self.document_id(), self.custom_message().to_owned()).await?.render_html()
+    EntryDone::new(&self.state, self.document_id(), self.custom_message().to_owned()).await?.render_html()
   }
 }
 
@@ -112,7 +112,6 @@ describe! {
     let err = site.email_callback().insert(InsertEmailCallback{
       document_id: "11".to_string(),
       address: "yo@example.com".to_string(),
-      cc: false,
       custom_message: None,
       sent_at: None,
     }).save().await.unwrap_err();
@@ -128,7 +127,6 @@ describe! {
     c.site.email_callback().insert(InsertEmailCallback{
       document_id: document_id,
       address: "yo@example.com".to_string(),
-      cc: false,
       custom_message: None,
       sent_at: None,
     })

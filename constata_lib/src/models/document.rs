@@ -16,7 +16,6 @@ use crate::{
     document_part::{DocumentPart, SelectDocumentPartHub},
     email_callback::*,
     download_proof_link::*,
-    MagicLink,
     certos::entry::{Entry, SelectEntryHub},
   },
   signed_payload::SignedPayload,
@@ -186,10 +185,6 @@ impl Document {
     Ok(self.document_part_scope().count().await? as i32)
   }
 
-  pub async fn email_callback(&self) -> sqlx::Result<EmailCallback> {
-    self.email_callback_scope().cc_eq(false).one().await
-  }
-
   pub fn can_be_deleted(&self) -> bool {
     if self.bulletin_id().is_none() && self.attrs.funded == false && self.is_parked() {
       return true;
@@ -204,19 +199,6 @@ impl Document {
       &self.state.settings.url,
       self.attrs.delete_parked_token.clone().unwrap_or("".to_string())
     )
-  }
-
-  pub async fn get_or_create_delete_parked_url(&self) -> sqlx::Result<String> {
-    match self.delete_parked_token() {
-      Some(_) => Ok(self.delete_parked_url()),
-      None => {
-        Ok(self.clone().update()
-          .delete_parked_token(Some(MagicLink::make_random_token()))
-          .save().await?
-          .delete_parked_url()
-        )
-      }
-    }
   }
 
   pub async fn eta(&self) -> Option<i64> {
@@ -936,8 +918,7 @@ describe! {
       .accepted_document_with_filename(
         &read("html_json_docx_xlsx_pptx.zip"),
         Some("document.zip")
-    ).await
-      .into_inner();
+      ).await.into_inner();
 
     let parts = document.document_part_vec().await?;
     assert_eq!(parts.len(), 6);
@@ -1126,16 +1107,29 @@ describe! {
     assert!(encrypted_hash != part.attrs.hash);
   }
 
-  dbtest!{ can_delete_parked_document (site, c)
-    let user = c.bot().await;
-    let document_email = user.witnessed_email_with_story().await;
-    let witnessed_document = site.witnessed_document().select().document_id_eq(document_email.id()).one().await?;
-    delete_parked_doc(document_email).await?;
-    assert_that!(witnessed_document.reloaded().await.is_err());
+  dbtest!{ can_delete_parked_document (_site, c)
+    let user = c.enterprise().await;
+    let document = user.signed_document(b"hello world").await;
 
-    let enterprise = c.enterprise().await;
-    let document_api = enterprise.signed_document(b"hello world").await;
-    delete_parked_doc(document_api).await?;
+    assert!(document.is_parked());
+
+    let parts = document.document_part_vec().await?;
+    let mut signatures = vec![];
+    for part in parts.iter() {
+      signatures.append(&mut part.document_part_signature_vec().await?)
+    }
+
+    assert_that!(document.in_parked()?.delete_parked().await.is_ok());
+    assert_that!(document.state.document().find(document.id()).await.is_err());
+    assert_that!(document.reloaded().await.is_err());
+    for part in parts {
+      assert_that!(part.reloaded().await.is_err());
+    }
+    for signature in signatures {
+      assert_that!(signature.reloaded().await.is_err());
+    }
+
+    assert_that!(document.reloaded().await.is_err());
   }
 
   dbtest!{ cannot_delete_accepted_document (_site, c)
@@ -1173,32 +1167,6 @@ describe! {
     assert_document_existance_is(false, sixty_days_parked).await?;
   }
 
-  async fn delete_parked_doc(document: Document) -> Result<()> {
-    assert!(document.is_parked());
-    let parts = document.document_part_vec().await?;
-    let mut signatures_vec = vec![];
-    for part in parts.iter() {
-      signatures_vec.push(part.document_part_signature_vec().await?)
-    }
- 
-    assert_that!(document.in_parked()?.delete_parked().await.is_ok());
-    assert_that!(document.state.document().find(document.id()).await.is_err());
-    assert_that!(document.reloaded().await.is_err());
-    for part in parts {
-      assert_that!(part.reloaded().await.is_err());
-    }
-    for signatures in signatures_vec {
-      assert_signature_is_none(signatures).await?;
-    }
-
-    Ok(())
-  }
-  async fn assert_signature_is_none(signatures: Vec<DocumentPartSignature>) -> Result<()> {
-    for signature in signatures {
-      assert_that!(signature.reloaded().await.is_err());
-    }
-    Ok(())
-  }
   async fn assert_document_existance_is(should_exist: bool, documents: Vec<Document>) -> Result<()> {
     for document in documents {
       assert!(document.reloaded().await.is_ok() == should_exist)

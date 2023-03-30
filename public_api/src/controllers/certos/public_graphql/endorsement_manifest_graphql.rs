@@ -11,20 +11,10 @@ pub struct EndorsementManifest {
   pub websites: Vec<String>,
   #[graphql(description = "data from the user's kyc endorsement, if any")]
   pub kyc: Option<KycEndorsementManifest>,
-  #[graphql(description = "data from the user's telegram account, if any")]
-  pub telegram: Option<TelegramEndorsementManifest>,
   #[graphql(description = "email registered by the user, if any")]
   pub email: Option<EmailEndorsementManifest>,
   #[graphql(description = "boolean pointing out whether the an email is going to be send to the student when created an issuance")]
   pub can_send_email: bool,
-}
-
-#[derive(GraphQLObject)]
-#[graphql(description = "Your telegram account as verified by Constata's telegram robot.")]
-pub struct TelegramEndorsementManifest {
-  username: Option<String>,
-  first_name: String,
-  last_name: Option<String>,
 }
 
 #[derive(GraphQLObject)]
@@ -94,13 +84,6 @@ impl EndorsementManifest {
       .map(|o| o.attrs.domain)
       .collect();
 
-    let telegram = person.telegram_user_scope().optional().await?
-      .map(|o| TelegramEndorsementManifest{
-        username: o.attrs.username,
-        first_name: o.attrs.first_name,
-        last_name: o.attrs.last_name,
-      });
-
     let email = person.email_address().await?
       .map(|e| EmailEndorsementManifest {
         address: e.attrs.address,
@@ -109,6 +92,6 @@ impl EndorsementManifest {
 
     let can_send_email = person.can_send_email().await?;
 
-    Ok(Self{ id: 1, text, kyc, websites, telegram, email, can_send_email })
+    Ok(Self{ id: 1, text, kyc, websites, email, can_send_email })
   }
 }

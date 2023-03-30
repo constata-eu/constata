@@ -1,11 +1,5 @@
-pub mod document_received;
-pub use document_received::*;
-
-pub mod document_was_stamped_for_carbon_copies;
-pub use document_was_stamped_for_carbon_copies::*;
-
-pub mod email_bot_chat_greeting;
-pub use email_bot_chat_greeting::*;
+pub mod entry_done;
+pub use entry_done::*;
 
 pub mod email_parked_documents;
 pub use email_parked_documents::*;

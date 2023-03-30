@@ -7,7 +7,6 @@ import {BulletinList, BulletinShow} from './views/bulletin';
 import {DocumentList, DocumentShow} from './views/document';
 import {OrgList, OrgShow, OrgEdit} from './views/org';
 import {EmailList, EmailShow} from './views/email_address';
-import {TelegramList, TelegramShow} from './views/telegram';
 import {GiftList, GiftShow, GiftCreate} from './views/gift';
 import {InvoiceList, InvoiceShow} from "./views/invoice"
 import {InvoiceLinkList, InvoiceLinkShow, InvoiceLinkCreate} from "./views/invoice_link";
@@ -30,7 +29,7 @@ import {TemplateList, TemplateShow, TemplateCreate, TemplateEdit} from './views/
 import MissingTokenList from './views/missing_token';
 import TopTenList from './views/top_ten';
 import {PermIdentity, PostAdd, Assignment, AttachMoney, VpnKey, Pause, Create, Fingerprint, Image,
-        Link, Receipt, AccountCircle, DynamicFeed, DomainVerification, SupervisorAccount, Telegram,
+        Link, Receipt, AccountCircle, DynamicFeed, DomainVerification, SupervisorAccount,
         CardGiftcard, AlternateEmail, EmojiEvents, Delete, Inbox, Business} from '@mui/icons-material';
 import { Login } from 'ra-ui-materialui';
 import { LoginForm } from './views/login.tsx';
@@ -202,13 +201,6 @@ function App() {
           show={PubkeyShow}
           icon={VpnKey}
           options={{ label: 'Public Keys' }}
-        />,
-        <Resource
-          name="Telegram"
-          list={TelegramList}
-          show={TelegramShow}
-          icon={Telegram}
-          options={{ label: 'Telegrams' }}
         />,
         <Resource
           name="Template"

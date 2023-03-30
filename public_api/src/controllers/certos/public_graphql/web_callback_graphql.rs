@@ -154,7 +154,6 @@ impl Showable<web_callback::WebCallbackAttempt, WebCallbackAttemptFilter> for We
 
 constata_lib::describe_one! {
   fulltest!{ can_list_web_callbacks (site, c, client, mut chain)
-    use chrono::prelude::*;
     use constata_lib::test_support::mock_callbacks_url;
 
     use gql::{
