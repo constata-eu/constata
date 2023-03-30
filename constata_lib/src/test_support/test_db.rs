@@ -1,4 +1,4 @@
-use super::{samples, read};
+use super::read;
 use chrono::Utc;
 use crate::{
   models::{
@@ -14,7 +14,6 @@ use crate::{
     admin_user::{AdminUser, AdminRole},
     invoice_link::*,
     kyc_request::*,
-    email_bot_chat::{InsertEmailBotChat, InsertEmailBotChatParticipant},
     download_proof_link::InsertDownloadProofLink,
     TemplateSchemaField,
   },
@@ -131,10 +130,6 @@ impl TestDb {
     SignerClient::create(self, "5JYkZjmN7PVMjJUfJWfRFwtuXTGB439XV6faajeHPAM9Z2PT2R3")
       .signup_person(person).await
       .accept_terms_and_conditions().await
-  }
-
-  pub async fn bot(&self) -> WitnessClient {
-    WitnessClient::create(self).await
   }
 
   pub async fn accept_terms_to_all_clients(&self) {
@@ -356,12 +351,6 @@ impl SignerClient {
     self.db.site.email_address()
       .create(self.person().await, address, b"an email we received by them".to_vec(), true, false).await
       .expect("Email address to be saved")
-  }
-
-  pub async fn make_telegram(&self) -> crate::models::telegram::TelegramUser {
-    self.db.site.telegram_user().create_with_new_person(
-      "id_telegram".to_string(), "Satoshi".to_string(), None, None, i18n::Lang::Es
-    ).await.expect("Telegram to be saved")
   }
 
   pub async fn make_pubkey_domain_endorsement(&self) -> crate::models::PubkeyDomainEndorsement {
@@ -598,99 +587,5 @@ impl SignerClient {
     }
 
     request.entry_vec().await.expect("to get entry vec")[1].clone()
-  }
-}
-
-pub struct WitnessClient {
-  pub db: TestDb,
-  pub person_id: PersonId,
-  pub org_id: i32,
-}
-
-impl WitnessClient {
-  pub async fn create(db: &TestDb) -> WitnessClient {
-    let email_address = db.site.email_address()
-      .create_with_new_org("bob@example.com", b"test".to_vec(), false, i18n::Lang::Es, false)
-      .await.unwrap();
-
-    let org = email_address.org().await.unwrap();
-
-    WitnessClient {
-      db: db.clone(),
-      org_id: *org.id(),
-      person_id: org.admin().await.unwrap().attrs.id
-    }
-  }
-
-  pub async fn person(&self) -> Person {
-    self.db.site.person().find(&self.person_id).await.unwrap()
-  }
-
-  pub async fn accept_terms_and_conditions(self) -> Self {
-    let tyc = self.person().await.get_or_create_terms_acceptance().await.unwrap();
-    tyc.accept(b"").await.unwrap();
-    self
-  }
-
-  pub async fn add_funds(self) -> Self {
-    self.fund().await;
-    self
-  }
-
-  pub async fn fund(&self) {
-    self.db.add_funds_to_org(self.org_id).await;
-  }
-
-  pub async fn witnessed_email_with_story(&self) -> Document {
-    self.witnessed_email(&self.make_story().await, samples::multipart_email().as_bytes(), None).await
-  }
-
-  pub async fn witnessed_email_with_story_and_payload(&self, payload: &[u8], mime: Option<(String, String)>) -> Document {
-    self.witnessed_email(&self.make_story().await, payload, mime).await
-  }
-
-  pub async fn make_story(&self) -> Story {
-    self.db.site.story().create(self.person_id, None, String::new(), i18n::Lang::Es).await.unwrap()
-  }
-
-  pub async fn witnessed_email(&self, story: &Story, payload: &[u8], mime: Option<(String, String)>) -> Document {
-    let doc = self.db.site.witnessed_document().create_from_payload(
-      story,
-      payload,
-      &b"some evidence so far".to_vec(),
-      self.person_id,
-      mime,
-      DocumentSource::Email,
-      false
-    ).await.unwrap();
-
-    let chat = self.db.site.email_bot_chat().insert(InsertEmailBotChat{
-      story_id: doc.attrs.story_id.clone(),
-      first_document_id: doc.attrs.id.clone(),
-      person_id: doc.attrs.person_id.clone(),
-      thread_id: format!("1"),
-      message_id: format!("1@msg-id-placeholder-by-constata"),
-      subject: format!("Subject"),
-    }).save().await.unwrap();
-
-    self.db.site.email_bot_chat_participant()
-      .insert(InsertEmailBotChatParticipant{
-        email_bot_chat_id: chat.attrs.id,
-        address: format!("prueba@constata.eu")
-      }).save().await.unwrap();
-
-    doc
-  }
-
-  pub async fn witnessed_email_with_person_id(&self, story: &Story, person_id: i32, payload: &[u8], mime: Option<(String, String)>) -> Document {
-    self.db.site.witnessed_document().create_from_payload(
-      story,
-      payload,
-      &b"some evidence so far".to_vec(),
-      person_id,
-      mime,
-      DocumentSource::Email,
-      false,
-    ).await.unwrap()
   }
 }

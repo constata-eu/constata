@@ -7,13 +7,11 @@ use crate::{
     kyc_endorsement::*,
     pubkey_domain_endorsement::*,
     email_address::*,
-    create_email_credentials_token::*,
     download_proof_link::*,
   },
   Site, Result,
 };
 use super::*;
-
 
 model!{
   state: Site,
@@ -51,7 +49,6 @@ model!{
     Request(deletion_id),
     Template(deletion_id),
     Entry(deletion_id),
-    CreateEmailCredentialsToken(deletion_id),
     DownloadProofLink(deletion_id),
   }
 }
@@ -64,7 +61,6 @@ impl OrgDeletionHub {
     description: String,
     evidence: Vec<&[u8]>,
   ) -> Result<OrgDeletion> {
-    
     let org = self.state.org().find(&org_id).await?;
     let evidence_vec = evidence.iter().map(|x| x.to_vec()).collect();
 
@@ -113,7 +109,6 @@ impl OrgDeletion {
     set_deletion_id![org.document_vec().await?];
     set_deletion_id![org.story_vec().await?];
     set_deletion_id![org.email_address_vec().await?];
-    set_deletion_id![org.create_email_credentials_token_vec().await?];
     for m in org.document_vec().await? {
       set_deletion_id![m.download_proof_link_vec().await?];
     };
@@ -169,7 +164,6 @@ describe!{
     site.email_callback().insert(InsertEmailCallback{
       document_id: document.attrs.id.clone(),
       address: email_address.attrs.address.clone(),
-      cc: false,
       custom_message: None,
       sent_at: None,
     }).save().await?;

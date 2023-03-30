@@ -31,8 +31,6 @@ use controllers::{
   request,
   entry,
   safe,
-  delete_parked,
-  create_email_credentials_tokens,
   invoices,
   public_certificates,
   certos::{public_graphql::{
@@ -125,19 +123,11 @@ pub fn server(site: Site) -> rocket::Rocket<rocket::Build> {
         documents::each_part_html_proof,
       ],
     )
-    .mount("/delete_parked",routes![
-      delete_parked::confirm,
-      delete_parked::delete,
-    ])
     .mount("/account_state", routes![account_state::show])
     .mount("/terms_acceptance",routes![
       terms_acceptance::show,
       terms_acceptance::show_bare,
       terms_acceptance::accept,
-    ])
-    .mount("/create_email_credentials_token", routes![
-      create_email_credentials_tokens::new,
-      create_email_credentials_tokens::update,
     ])
     .mount("/template", routes![
       template::download_payload,

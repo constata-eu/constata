@@ -5,7 +5,6 @@ members = [
   "private_api",
   "stamper",
   "email_bot",
-  "telegram_bot",
   "worker",
   "stamper",
   "integration_tests",

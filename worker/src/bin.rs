@@ -1,6 +1,5 @@
 use constata_lib::models::{Site, Utc};
 use email_bot::EmailBot;
-use telegram_bot::TelegramBot;
 use log::*;
 use std::time::Duration;
 
@@ -39,22 +38,9 @@ async fn main() {
 
   every![10000, |s| {
     match EmailBot::new(s.clone()).await {
-      Ok(email_bot) => {
-        run!("witness_emails" { email_bot.witness_emails(50).await });
-        run!("notify_emails" { email_bot.handle_notify_emails().await });
-      },
+      Ok(email_bot) => run!("notify_emails" { email_bot.handle_notify_emails().await }),
       Err(err) => error!("Error connecting to email bot: {:?}", err),
     };
-  }];
-
-  every![2000, |s| {
-    let bot = TelegramBot::new(s.clone());
-    run!("telegram_bot_sync_updates" { bot.sync_updates().await });
-    run!("telegram_bot_process_updates" { bot.process_updates().await });
-    run!("telegram_bot_greet_group_chats" { bot.greet_group_chats().await });
-    run!("telegram_bot_remind_group_chats" { bot.remind_group_chats().await });
-    run!("telegram_bot_notify_private_chat_documents" { bot.notify_private_chat_documents().await });
-    run!("telegram_bot_flush_outgoing_messages" { bot.flush_outgoing_messages().await });
   }];
 
   every![300000, |s| {

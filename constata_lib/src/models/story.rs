@@ -229,12 +229,12 @@ describe! {
 
     assert_eq!(story.published_documents().await?.len(), 1);
 
-    let bot = c.bot().await;
-    bot.witnessed_email(&story, samples::multipart_email().as_bytes(), None).await;
+    let bob = c.bob().await;
+    bob.make_signed_document(&story, b"hello world", None).await;
 
     let last_docs = story.documents().await?;
     assert_eq!(last_docs[1].attrs.org_id, *alice.org().await.id());
-    assert_eq!(last_docs[1].attrs.person_id, bot.person_id);
+    assert_eq!(last_docs[1].attrs.person_id, bob.person_id());
     assert_eq!(last_docs.len(), 2);
     assert_eq!(story.published_documents().await?.len(), 1);
 

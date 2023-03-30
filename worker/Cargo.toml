@@ -7,7 +7,6 @@ edition = "2021"
 [dependencies]
 constata_lib = { path = "../constata_lib" }
 email_bot = { path = "../email_bot" }
-telegram_bot = { path = "../telegram_bot" }
 dialoguer = "0.8.0"
 tokio = { version = "1.2.0", features = ["full"] }
 bitcoin-wallet = { git = "https://github.com/rust-bitcoin/rust-wallet" }

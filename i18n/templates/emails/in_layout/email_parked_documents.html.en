@@ -14,6 +14,5 @@
 {% endblock main %}
 
 {% block footer %}
-  {% include "emails/_account_state.html.en" %}
-  {% include "emails/_footer.html.en" %}
+  {% include "emails/_footer_outgoing.html.en" %}
 {% endblock footer %}

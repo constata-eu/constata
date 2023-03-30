@@ -24,7 +24,6 @@ pub struct AccountState {
   pub total_document_tokens: Decimal,
   pub pending_tyc_url: Option<String>,
   pub pending_invoice_link_url: Option<String>,
-  pub parked_documents_urls: Vec<(String, String)>,
 }
 
 impl AccountState {
@@ -87,7 +86,6 @@ impl AccountState {
     let monthly_gift_remainder = subscription.monthly_gift_remainder().await?;
     let tyc = org.get_or_create_terms_acceptance().await?;
     let pending_tyc_url = if tyc.is_needed() { Some(tyc.full_url()) } else { None };
-    let parked_documents_urls = org.get_parked_documents_urls().await?;
     let pending_invoice_link_url = if missing.is_zero() {
       None
     } else {
@@ -113,7 +111,6 @@ impl AccountState {
       total_document_tokens: unfunded + spent,
       pending_tyc_url,
       pending_invoice_link_url,
-      parked_documents_urls,
     })
   }
 }
@@ -209,7 +206,6 @@ describe! {
     let fourth = user.signed_document(&vec![0; 1024 * 1024 * 5]).await.in_parked()?;
     assert_that!(&fourth.as_inner().cost(), eq(dec!(5)));
     assert_account_state!(9, 17, vec![invoice.clone()], 3);
-    assert_eq!(3, org.account_state().await?.parked_documents_urls.len());
 
     // The payment is made, and all documents but this last one are accepted.
     // The invoice no longer shows as pending.
