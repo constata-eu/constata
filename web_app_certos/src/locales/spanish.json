@@ -6,7 +6,7 @@
         "createdAt": "Creado el",
         "download": "Descargar CSV",
         "export_csv": "Exportar emisión a csv",
-        "adminVisitCount": "Abiertas",
+        "adminVisitedCount": "Abiertas",
         "publicVisitCount": "Vistas",
         "entries": "Entradas",
         "errors": "Errores",
@@ -66,6 +66,8 @@
       "create": "Crear una Plantilla",
       "fields": {
         "createdAt": "Creado el",
+        "adminVisitedCount": "Abiertas",
+        "publicVisitCount": "Vistas",
         "customMessage": "Mensaje Personalizado",
         "evidence": "",
         "id": "ID",
@@ -182,21 +184,6 @@
         "verify_later": "Podrá asociarla a su identidad por un cargo adicional."
       },
       "title": "Creando Firma"
-    }
-  },
-  "patch": {
-    "action": {
-      "clear_input_value": "Limpiar valor",
-      "confirm": "Confirmar",
-      "unselect": "Deseleccionar"
-    },
-    "auth": {
-      "auth_check_error": "Por favor inicie sesión para continuar",
-      "user_menu": "Perfil"
-    },
-    "navigation": {
-      "page_rows_per_page": "Filas por página:",
-      "skip_nav": "Saltar al contenido"
     }
   },
   "certos": {
@@ -779,6 +766,21 @@
         "text": "Los diplomas, certificados de asistencia o insignias se generarán en base a una plantilla con su logo, que luego se completará con los datos de cada destinatario.",
         "title": "¿Qué desea emitir?"
       }
+    }
+  },
+  "patch": {
+    "action": {
+      "clear_input_value": "Limpiar valor",
+      "confirm": "Confirmar",
+      "unselect": "Deseleccionar"
+    },
+    "auth": {
+      "auth_check_error": "Por favor inicie sesión para continuar",
+      "user_menu": "Perfil"
+    },
+    "navigation": {
+      "page_rows_per_page": "Filas por página:",
+      "skip_nav": "Saltar al contenido"
     }
   }
 }

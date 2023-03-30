@@ -15,6 +15,13 @@ pub struct Template {
   schema: String,
   #[graphql(description = "A personalized message that the user can add to the email sent to the student when the entry is certified")]
   custom_message: Option<String>,
+  #[graphql(description = "Stats: How many recipients viewed the admin link that was sent to them.")]
+  admin_visited_count: i32,
+  #[graphql(description = "Entry count for all issuances that used this template.")]
+  entries_count: i32,
+  #[graphql(description = "Stats: How many visits did the published entries in this Template get, collectively.")]
+  public_visit_count: i32,   
+  #[graphql(description = "Whether this template was archived by the user.")]
   archived: bool,
 }
 
@@ -63,6 +70,22 @@ impl Showable<template::Template, TemplateFilter> for Template {
   }
 
   async fn db_to_graphql(d: template::Template, _with_payload: bool) -> MyResult<Self> {
+    let mut admin_visited_count = 0;
+    let mut entries_count = 0;
+    let mut public_visit_count = 0;
+
+    for r in d.request_vec().await? {
+      for e in r.entry_vec().await? {
+        if e.is_signed() || e.is_completed() {
+          entries_count += 1;
+        }
+        let Some(doc) = e.document().await? else { continue; };
+        let Some(l) = doc.download_proof_link_scope().optional().await? else { continue; };
+        if l.attrs.admin_visited { admin_visited_count += 1 };
+        public_visit_count += l.attrs.public_visit_count;
+      }
+    } 
+
     Ok(Template {
       id: d.attrs.id,
       name: d.attrs.name,
@@ -70,6 +93,9 @@ impl Showable<template::Template, TemplateFilter> for Template {
       created_at: d.attrs.created_at,
       schema: d.attrs.schema,
       custom_message: d.attrs.custom_message,
+      admin_visited_count,
+      entries_count,
+      public_visit_count,
       archived: d.attrs.archived,
     })
   }
