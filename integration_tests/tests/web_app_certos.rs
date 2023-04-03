@@ -189,7 +189,7 @@ mod website {
       create_kyc_request_and_process_it(&d, &c.site, "reject").await;
       assert_that!(c.site.kyc_endorsement().find(&1).await.is_err());
       reload(&d).await;
-      d.wait_for_text(".MuiPaper-elevation1 > div > h2", r"Unverified identity*").await;
+      d.wait_for("#section-endorsement-not-yet").await;
       check_autocomplete_in_kyc(&d).await;
     }
 
