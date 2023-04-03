@@ -92,5 +92,8 @@
         <br/><br/>
         Once you have bought the missing tokens your message will be certified in a matter of minutes and you'll get it in your inbox.
     {% endif %}
+    <br/><br/>
+    Replies to your certified message on the same thread will also be certified, at your expense,
+    we suggest you buy tokens in advance to prevent delay in certifications.
 {% endmacro enough_tokens %}
 

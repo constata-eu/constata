@@ -42,8 +42,6 @@ pub struct SiteSettings {
   pub storage_backup: StorageSettings,
   pub email_bot_sender: Option<String>,
   pub customer_care_email: Option<String>,
-  pub telegram_token: String,
-  pub telegram_timeout: u32,
   pub recaptcha_threshold: Option<f64>,
   pub default_logo_url: Option<String>,
 }

@@ -249,7 +249,6 @@ mod back_office_panel {
     }
 
     integration_test_private!{ admin_panel_missing_tokens_and_terms_acceptance (c, d)
-      let bot = c.bot().await;
       let bob = c.bob().await;
       let alice = c.alice_no_money_no_tyc().await;
       let enterprise = c.enterprise().await;
@@ -263,14 +262,14 @@ mod back_office_panel {
       alice.make_invoice().await;
 
       for _ in 0..20 {
-        create_person_with_parked(&c, &bot).await?;
+        c.enterprise().await.signed_document(b"prueba").await.in_parked()?;
       }
 
       login(&d, &c).await?;
 
       click_menu(&d, "Person").await;
       d.click("button[aria-label='Go to next page']").await;
-      d.wait_for_text(".MuiTablePagination-displayedRows", r"21-26 of 26*").await;
+      d.wait_for_text(".MuiTablePagination-displayedRows", r"21-25 of 25*").await;
       wait_until_loaded(&d).await;
       d.wait_for(".column-isTermsAccepted [data-testid=true]").await;
       d.wait_for(".column-isTermsAccepted [data-testid=false]").await;
@@ -280,7 +279,7 @@ mod back_office_panel {
       d.wait_for_text(".MuiTablePagination-displayedRows", r"21-21 of 21*").await;
       click_menu(&d, "TermsAcceptance").await;
       d.wait_for_text("#acceptedIsSet", r"Only not accepted*").await;
-      d.wait_for_text(".MuiTablePagination-displayedRows", r"1-4 of 4*").await;
+      d.wait_for_text(".MuiTablePagination-displayedRows", r"1-3 of 3*").await;
     }
 
     integration_test_private!{ admin_panel_check_reference_field (c, d)
@@ -308,14 +307,13 @@ mod back_office_panel {
     }
 
     integration_test_private!{ admin_panel_check_all_sortable_fields (c, d)
-      let bot = c.bot().await;
-      create_resources(&c, &c.alice().await, &bot, b"https://alice.com","alice@gmail.com").await?;
-      create_resources(&c, &c.robert().await, &bot, b"https://robert.com","robert@gmail.com").await?;
+      create_resources(&c, &c.alice().await, b"https://alice.com","alice@gmail.com").await?;
+      create_resources(&c, &c.robert().await, b"https://robert.com","robert@gmail.com").await?;
       login(&d, &c).await?;
 
       let sortable_resources = vec![
         "Bulletin", "Document", "Story", "Org", "Person", "TermsAcceptance", "EmailAddress", "Pubkey",
-        "Telegram", "Payment", "Invoice", "InvoiceLink", "Gift", "KycEndorsement", "KycRequest", "OrgDeletion",
+        "Payment", "Invoice", "InvoiceLink", "Gift", "KycEndorsement", "KycRequest", "OrgDeletion",
         "PubkeyDomainEndorsement", "AdminUser"
       ];
 
@@ -336,11 +334,10 @@ mod back_office_panel {
       d.wait_for(".RaLoadingIndicator-loadedIcon").await;
     }
 
-    async fn create_resources(c: &TestDb, signer: &SignerClient, bot: &WitnessClient, domain: &[u8], email: &str) -> Result<(), anyhow::Error> {
+    async fn create_resources(c: &TestDb, signer: &SignerClient, domain: &[u8], email: &str) -> Result<(), anyhow::Error> {
       c.make_bulletin().await;
       signer.make_signed_document(&signer.make_story().await, domain, None).await;
       signer.make_email(email).await;
-      signer.make_telegram().await;
       signer.make_invoice().await;
       signer.make_invoice_link().await;
       signer.make_gift().await;
@@ -350,16 +347,7 @@ mod back_office_panel {
       signer.make_org_deletion(b"deletion").await;
       c.creates_admin_user(email, "password").await;
       c.add_funds_to_all_clients().await;
-      create_person_with_parked(&c, &bot).await?;
-
-      Ok(())
-    }
-
-    async fn create_person_with_parked(c: &TestDb, bot: &WitnessClient) -> Result<(), anyhow::Error> {
-      let person = c.create_enterprise_person().await;
-      person.get_or_create_terms_acceptance().await?.accept(b"acceptando").await?;
-      let story = person.state.story().create(person.attrs.id, None, "prueba".to_string(), i18n::Lang::Es).await?;
-      bot.witnessed_email_with_person_id(&story, person.attrs.id, b"prueba", None).await;
+      c.enterprise().await.signed_document(b"prueba").await.in_parked()?;
 
       Ok(())
     }

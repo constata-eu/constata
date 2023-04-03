@@ -123,24 +123,6 @@ impl PubkeyHub {
     ).await?)
   }
 
-  pub async fn create_from_credentials_token(
-    &self,
-    email_credentials_token: CreateEmailCredentialsToken,
-    signed_payload: &SignedPayload
-  ) -> Result<Pubkey> {
-    let person = email_credentials_token.person().await?;
-    let id = self.validate_pubkey_creation(person.id(), signed_payload).await?;
-    let email_address = person.last_email_address().await?;
-    let expected_payload = format!("{}-{}", *email_address.address(), *email_credentials_token.id());
-
-    if &signed_payload.payload != expected_payload.as_bytes() {
-      return Err(Error::validation( "signed_payload/payload", "payload_should_be_email_address_plus_credentials_token"));
-    }
-
-    Ok(self.create(id, *person.id(), signed_payload, None, None).await?)
-  }
-
-
   pub async fn create(&self, id: String, person_id: PersonId, signed_payload: &SignedPayload, encrypted_key: Option<String>, public_key: Option<String>) -> sqlx::Result<Pubkey> {
     let org_id = self.state.person().find(&person_id).await?.org().await?.attrs.id;
     self.insert(InsertPubkey{

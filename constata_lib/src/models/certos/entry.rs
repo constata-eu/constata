@@ -273,7 +273,6 @@ impl Created {
         if person.can_send_email().await? {
           Some(state.email_callback().insert(InsertEmailCallback{
             address: address.to_owned(),
-            cc: true,
             document_id: document.attrs.id.clone(),
             custom_message,
             sent_at: None,

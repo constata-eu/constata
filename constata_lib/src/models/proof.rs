@@ -290,10 +290,9 @@ describe! {
     let endorsed_content = proof.render_html(i18n::Lang::Es).expect("Content to be ready now");
     std::fs::write("../target/artifacts/proof.html", &endorsed_content)?;
 
-
     assert!(!make_proof().await?.will_be_updated);
 
-    c.bot().await.witnessed_email(&story, samples::multipart_email().as_bytes(), None).await;
+    c.bob().await.make_signed_document(&story, samples::multipart_email().as_bytes(), None).await;
 
     let incomplete = make_proof().await?;
     assert!(incomplete.will_be_updated);

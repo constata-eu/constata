@@ -1,3 +1,8 @@
+/* Outgoing email messages notify a user about a general aspect of their account.
+ * They work as a simple queue for our mailing robot.
+ * Each MessageKind produces their own text.
+ * These mailers cannot receive any arbitrary parameters and do not wait on any condition to be sent.
+ */
 use super::*;
 use crate::{ Site, Result };
 use serde_with::serde_as;
@@ -126,7 +131,7 @@ describe! {
     assert_email(&c,
       OutgoingEmailMessageKind::KycRequestReceived,
       "kyc_request_received",
-      vec!["Recibimos su pedido de verificación", "Necesitamos que confirme recepción de este correo"],
+      vec!["Recibimos su pedido de verificación", "Necesitamos que confirmes recepción de este correo"],
       vec!["We have received your request to verify", "We need to confirm that you have received"],
     ).await;
   }

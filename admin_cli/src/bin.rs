@@ -99,7 +99,6 @@ async fn populate_backup_storage() -> Result<()> {
   make_backup_copy!(request);
   make_backup_copy!(entry);
   make_backup_copy!(kyc_request_evidence);
-  make_backup_copy!(telegram_bot_update);
 
   Ok(())
 }

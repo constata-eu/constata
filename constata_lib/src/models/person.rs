@@ -7,7 +7,6 @@ use super::{
   pubkey_domain_endorsement::*,
   kyc_endorsement::*,
   terms_acceptance::*,
-  create_email_credentials_token::*,
   kyc_request::*,
 };
 use i18n::Lang;
@@ -42,10 +41,7 @@ model!{
     Pubkey(person_id),
     PubkeyDomainEndorsement(person_id),
     KycEndorsement(person_id),
-    TelegramBotPrivateChat(person_id),
     TermsAcceptance(person_id),
-    TelegramUser(person_id),
-    CreateEmailCredentialsToken(person_id),
     KycRequest(person_id),
     Request(person_id),
     Template(person_id),
@@ -92,10 +88,6 @@ impl Person {
     self.pubkey_scope().optional().await
   }
 
-  pub async fn telegram(&self) -> sqlx::Result<Option<TelegramUser>> {
-    self.telegram_user_scope().optional().await
-  }
-
   pub async fn kyc_endorsement(&self) -> sqlx::Result<Option<KycEndorsement>> {
     self.kyc_endorsement_scope().optional().await
   }
@@ -111,18 +103,6 @@ impl Person {
           .save().await
       }
     }
-  }
-
-  pub async fn get_or_create_email_credentials_token_url(&self) -> sqlx::Result<Option<String>> {
-    if self.pubkey().await?.is_some() {
-      return Ok(None);
-    }
-
-    if let Some(existing) = self.create_email_credentials_token_scope().optional().await? {
-      return Ok(existing.full_url());
-    }
-
-    Ok(self.state.create_email_credentials_token().create(*self.id()).await?.full_url())
   }
 
   pub async fn get_or_create_kyc_endorsement(&self) -> sqlx::Result<KycEndorsement> {
@@ -171,12 +151,6 @@ impl Person {
       .all().await?
       .into_iter()
       .map(|o| Endorsement::Website { url: o.attrs.domain, })
-    );
-
-    endorsements.extend(self.telegram_user_scope()
-      .all().await?
-      .into_iter()
-      .map(|o| Endorsement::Telegram { attrs: o.attrs })
     );
 
     Ok(endorsements)

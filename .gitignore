@@ -27,3 +27,4 @@ telegram_bot/po
 email_bot/po
 constata_lib/po
 Rocket.toml
+email_bot/src/test_support/
