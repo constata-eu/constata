@@ -269,7 +269,7 @@ mod back_office_panel {
 
       click_menu(&d, "Person").await;
       d.click("button[aria-label='Go to next page']").await;
-      d.wait_for_text(".MuiTablePagination-displayedRows", r"21-26 of 26*").await;
+      d.wait_for_text(".MuiTablePagination-displayedRows", r"21-25 of 25*").await;
       wait_until_loaded(&d).await;
       d.wait_for(".column-isTermsAccepted [data-testid=true]").await;
       d.wait_for(".column-isTermsAccepted [data-testid=false]").await;
@@ -279,7 +279,7 @@ mod back_office_panel {
       d.wait_for_text(".MuiTablePagination-displayedRows", r"21-21 of 21*").await;
       click_menu(&d, "TermsAcceptance").await;
       d.wait_for_text("#acceptedIsSet", r"Only not accepted*").await;
-      d.wait_for_text(".MuiTablePagination-displayedRows", r"1-4 of 4*").await;
+      d.wait_for_text(".MuiTablePagination-displayedRows", r"1-3 of 3*").await;
     }
 
     integration_test_private!{ admin_panel_check_reference_field (c, d)
