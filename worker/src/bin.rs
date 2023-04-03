@@ -38,7 +38,7 @@ async fn main() {
 
   every![10000, |s| {
     match EmailBot::new(s.clone()).await {
-      Ok(email_bot) => run!("notify_emails" { email_bot.handle_notify_emails().await }),
+      Ok(email_bot) => { run!("notify_emails" { email_bot.handle_notify_emails().await }); },
       Err(err) => error!("Error connecting to email bot: {:?}", err),
     };
   }];
