@@ -3,7 +3,7 @@ pub struct TranslatedStrings {
   pub mailer_document_received_subject: &'static str,
   pub template_message_for_diploma: &'static str,
   pub template_message_for_attendance: &'static str,
-  pub template_message_for_invitation: &'static str,
+  pub template_message_for_badge: &'static str,
   pub mailer_email_callback_subject: &'static str,
   pub mailer_parked_document_reminder_because_tyc_are_not_accepted_subject: &'static str,
   pub mailer_parked_document_reminder_because_payment_is_needed_subject: &'static str,
@@ -12,7 +12,7 @@ pub struct TranslatedStrings {
   pub mailer_email_address_verification_subject: &'static str,
   pub public_certificate_share_text_diploma: &'static str,
   pub public_certificate_share_text_attendance: &'static str,
-  pub public_certificate_share_text_invitation: &'static str,
+  pub public_certificate_share_text_badge: &'static str,
   pub public_certificate_share_text_default: &'static str,
 }
 
@@ -21,7 +21,7 @@ pub const ENGLISH_STRINGS: TranslatedStrings = TranslatedStrings {
   mailer_document_received_subject: "I got your document",
   template_message_for_diploma: "Hello {{ name }}, this is your diploma for {{ motive }}.",
   template_message_for_attendance: "Hello {{ name }}, this is your certificate of attendance to {{ motive }}.",
-  template_message_for_invitation: "Hello {{ name }}, this is an invitation for you to attend {{ motive }}.",
+  template_message_for_badge: "Hello {{ name }}, this is a badge for {{ motive }}.",
   mailer_email_callback_subject: "A certified document from {0}",
   mailer_parked_document_reminder_because_tyc_are_not_accepted_subject: "You have pending certifications, you need to accept our Terms and Conditions.",
   mailer_parked_document_reminder_because_payment_is_needed_subject: "You have pending certifications, your payment is needed.",
@@ -30,7 +30,7 @@ pub const ENGLISH_STRINGS: TranslatedStrings = TranslatedStrings {
   mailer_email_address_verification_subject: "We need to verify this is your email",
   public_certificate_share_text_diploma: "This diploma is certified by the Bitcoin blockchain!",
   public_certificate_share_text_attendance: "This certificate of attendance is sealed by the Bitcoin blockchain!",
-  public_certificate_share_text_invitation: "This invitation is certified by the Bitcoin blockchain!",
+  public_certificate_share_text_badge: "This badge is certified by the Bitcoin blockchain!",
   public_certificate_share_text_default: "This document is certified by the Bitcoin blockchain!",
 };
 
@@ -40,7 +40,7 @@ pub const SPANISH_STRINGS: TranslatedStrings = TranslatedStrings {
   mailer_document_received_subject: "Recibí tu documento",
   template_message_for_diploma: "Hola {{ name }}, este es tu diploma de {{ motive }}.",
   template_message_for_attendance: "Hola {{ name }}, este es tu certificado de asistencia a {{ motive }}.",
-  template_message_for_invitation: "Hola {{ name }}, esta es una invitación para el evento llamado {{ motive }}.",
+  template_message_for_badge: "Hola {{ name }}, esta es una insignia por {{ motive }}.",
   mailer_email_callback_subject: "Un documento certificado de parte de {0}",
   mailer_parked_document_reminder_because_tyc_are_not_accepted_subject: "Tienes certificaciones pendientes, necesitas aceptar nuestros términos y condiciones.",
   mailer_parked_document_reminder_because_payment_is_needed_subject: "Tienes certificaciones pendientes, se necesita un pago.",
@@ -49,6 +49,6 @@ pub const SPANISH_STRINGS: TranslatedStrings = TranslatedStrings {
   mailer_email_address_verification_subject: "Tenemos que verificar que este es tu email",
   public_certificate_share_text_diploma: "¡Este diploma está certificado en la blockchain de Bitcoin!",
   public_certificate_share_text_attendance: "¡Este certificado de asistencia está sellado en la blockchain de Bitcoin!",
-  public_certificate_share_text_invitation: "¡Esta invitación está certificada en la blockchain de Bitcoin!",
+  public_certificate_share_text_badge: "¡Esta insignia está certificada en la blockchain de Bitcoin!",
   public_certificate_share_text_default: "¡Este documento está certificado en la blockchain de Bitcoin!",
 };
