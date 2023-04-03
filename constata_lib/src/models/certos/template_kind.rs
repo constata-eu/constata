@@ -6,7 +6,7 @@ use juniper::GraphQLEnum;
 pub enum TemplateKind {
   Diploma,
   Attendance,
-  Invitation,
+  Badge,
 }
 
 impl TemplateKind {

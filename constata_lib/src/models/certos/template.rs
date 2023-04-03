@@ -8,6 +8,8 @@ use crate::{
     TemplateKind,
     storable::*,
     TemplateSchema,
+    SelectRequestHub,
+    Request,
   },
   Error, Result,
 };
@@ -41,6 +43,9 @@ model!{
     schema: String,
     #[sqlx_model_hints(int4, default)]
     deletion_id: Option<i32>,
+  },
+  has_many {
+    Request(template_id),
   },
   belongs_to {
     OrgDeletion(deletion_id),

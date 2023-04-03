@@ -4,8 +4,8 @@ const SelectTemplateKind = ({source}) => {
   return(
   <SelectInput source={source} choices={[
     { id: 'DIPLOMA', name: "resources.Template.fields.kinds.diploma" },
-    { id: 'ASSISTANCE', name: "resources.Template.fields.kinds.assistance" },
-    { id: 'INVITATION', name: "resources.Template.fields.kinds.invitation" },
+    { id: 'ATTENDANCE', name: "resources.Template.fields.kinds.attendance" },
+    { id: 'BADGE', name: "resources.Template.fields.kinds.badge" },
   ]} />
 )};
 
