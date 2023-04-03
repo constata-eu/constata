@@ -20,7 +20,7 @@ mod proof_integration {
       chain.fund_signer_wallet();
       chain.simulate_stamping().await;
 
-      c.bot().await.witnessed_email(&story, samples::multipart_email().as_bytes(), None).await;
+      c.bob().await.make_signed_document(&story, samples::multipart_email().as_bytes(), None).await; 
       chain.simulate_stamping().await;
 
       let content = story.proof(Network::Regtest, &key).await?.render_html(i18n::Lang::Es).unwrap();
@@ -63,44 +63,12 @@ mod proof_integration {
       d.check_downloads_for_file("2_hello.txt").await;
     }
 
-    test!{ can_generate_for_realistic_email 
-      let c = TestDb::new().await.unwrap();
-      let mut chain = TestBlockchain::new().await;
-      let mut server = public_api_server::PublicApiServer::start();
-      let selenium = Selenium::start().await;
-
-      let bot = c.bot().await.accept_terms_and_conditions().await;
-      let document = bot.witnessed_email_with_story_and_payload(
-        &std::fs::read("tests/resources/multipart_email_with_text_and_attachment").unwrap(),
-        Some(("message/rfc822".to_string(), "email".to_string())),
-      ).await;
-
-      let key = TestBlockchain::default_private_key().await?;
-
-      chain.fund_signer_wallet();
-      chain.simulate_stamping().await;
-
-      let content = document.story().await?.proof(Network::Regtest, &key).await?
-        .render_html(i18n::Lang::Es).expect("Content to be ready now");
-
-      let content_path = "/tmp/content.html";
-      std::fs::write(&content_path, &content).unwrap();
-      let d = &selenium.driver;
-
-      d.goto(&format!("file://{}", content_path)).await?;
-
-      server.stop();
-      selenium.stop().await;
-    }
-
     integration_test!{ makes_certificate_for_email_conversation (c, d)
       let mut chain = TestBlockchain::new().await;
 
       let alice = c.alice().await;
       alice.make_pubkey_domain_endorsement().await;
       alice.make_kyc_endorsement().await;
-      let bot = c.bot().await.accept_terms_and_conditions().await;
-
       let story = alice.clone().add_funds().await.story_with_signed_doc(&read("document.zip"), None, "").await;
       let doc = &story.documents().await?[0];
 
@@ -109,7 +77,7 @@ mod proof_integration {
 
       let token = alice.make_download_proof_link_from_doc(&doc, 30).await.token().await?;
 
-      bot.witnessed_email(&story, samples::multipart_email().as_bytes(), None).await;
+      c.bob().await.make_signed_document(&story, samples::multipart_email().as_bytes(), None).await; 
 
       d.goto(&format!("http://localhost:8000/safe/{token}")).await;
       d.wait_for("#pending_docs_title").await;
@@ -144,64 +112,5 @@ mod proof_integration {
 
       d.wait_for_text(".meta-section p strong", r#"application/octet-stream"#).await;
     }
-
-  /*
-    test!{ offers_viewing_download_proof_link_directly_in_safe_env
-      let c = TestDb::new().await.unwrap();
-      let mut chain = TestBlockchain::new().await;
-      let mut server = public_api_server::PublicApiServer::start();
-      let selenium = Selenium::start().await;
-      let d = &selenium.driver;
-
-      let bot = c.bot().await.accept_terms_and_conditions().await;
-      let document = bot.witnessed_email_with_story_and_payload(
-        &std::fs::read("tests/resources/multipart_email_with_text_and_attachment").unwrap(),
-        Some(("message/rfc822".to_string(), "email".to_string())),
-      ).await;
-
-      chain.fund_signer_wallet();
-      chain.simulate_stamping().await;
-
-      let token = document.create_download_proof_link(30).await?.attrs.token;
-
-      d.goto(&format!("http://localhost:8000/safe/{token}")).await?;
-
-      // Assertion: Can download an attachment.
-      let elem = d.query(By::Css(".btn-download")).first().await?;
-      elem.wait_until().clickable().await?;
-      elem.click().await?;
-
-      /*
-      d.in_new_tab(|| async {
-        d.goto("chrome://downloads/").await.unwrap();
-        d.query(By::Css("downloads-manager")).first().await.unwrap()
-          .get_shadow_root().await.unwrap()
-          .query(By::Css("downloads-item")).first().await.unwrap()
-          .get_shadow_root().await?.query(By::Css("a"))
-          .with_text(StringMatch::new("certificado").partial())
-          .first().await.expect("Link matcher to be correct")
-          .wait_until().displayed().await
-      }).await?;
-      */
-
-      // Assertion: Can download an attachment.
-      let show_link = d.query(By::Css(".btn-show")).first().await?;
-      show_link.wait_until().clickable().await?;
-      show_link.click().await?;
-
-      d.query(By::Css("#message"))
-        .with_text(StringMatch::new("Este certificado no puede verse").partial())
-        .first().await.expect("Link matcher to be correct")
-        .wait_until().displayed().await?;
-
-      d.goto(&format!("http://localhost:8000/safe/bogustoken")).await?;
-      d.query(By::Css("h1"))
-        .with_text(StringMatch::new("El link de descarga no existe o expiró").partial())
-        .first().await.expect("Link matcher to be correct")
-        .wait_until().displayed().await?;
-
-      server.stop();
-      selenium.stop().await;
-    }*/
   }
 }

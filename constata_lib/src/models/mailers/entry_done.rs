@@ -3,7 +3,7 @@ use serde::{Serialize};
 use chrono::Utc;
 
 #[derive(Debug, Serialize)]
-pub struct DocumentWasStampedForCarbonCopies {
+pub struct EntryDone {
   pub email_subject: String,
   pub timestamp_date: String,
   pub download_link: String,
@@ -14,7 +14,7 @@ pub struct DocumentWasStampedForCarbonCopies {
   pub lang: i18n::Lang,
 }
 
-impl DocumentWasStampedForCarbonCopies {
+impl EntryDone {
   pub async fn new(site: &Site, document_id: &str, custom_message: Option<String>) -> Result<Self> {
     let doc = site.document().find(&document_id.to_string()).await?;
     let lang = doc.story().await?.attrs.lang;
@@ -24,7 +24,7 @@ impl DocumentWasStampedForCarbonCopies {
     let org = doc.org().await?;
     let on_behalf_of = org.name_for_on_behalf_of().await?;
 
-    Ok(DocumentWasStampedForCarbonCopies{
+    Ok(EntryDone{
       download_link,
       on_behalf_of,
       lang,
@@ -37,7 +37,7 @@ impl DocumentWasStampedForCarbonCopies {
   }
 
   pub fn render_html(&self) -> Result<String> {
-    Ok(i18n::render_from_serialize(self.lang, "emails/document_was_stamped_for_carbon_copies.html", &self)?)
+    Ok(i18n::render_from_serialize(self.lang, "emails/entry_done.html", &self)?)
   }
 }
 
@@ -55,7 +55,7 @@ describe! {
     chain.fund_signer_wallet();
     chain.simulate_stamping().await;
 
-    let mail = DocumentWasStampedForCarbonCopies::new(&site, &doc.id(), Some("\
+    let mail = EntryDone::new(&site, &doc.id(), Some("\
       <b>Because</b> IPO built many reinvested all-time-high for lots of block height,
       Ethereum threw away many dead cat bounce behind a anarcho-capitalism,
       or although Litecoin returns some burned crypto of lots of private chain,
@@ -73,7 +73,7 @@ describe! {
     assert_that!(&content_message, rematch("&lt;b&gt;Because&lt;&#x2F;"));
 
 
-    let mail = DocumentWasStampedForCarbonCopies::new(&site, &doc.id(), None).await?;
+    let mail = EntryDone::new(&site, &doc.id(), None).await?;
     let content = mail.render_html()?;
     std::fs::write("../target/artifacts/content_cc.html", &content).unwrap();
     assert_that!(&content, rematch("La empresa Constata.EU le transmite este mensaje"));
@@ -93,7 +93,7 @@ describe! {
     chain.fund_signer_wallet();
     chain.simulate_stamping().await;
 
-    let mail = DocumentWasStampedForCarbonCopies::new(&site, &doc.id(), Some("hello".to_string())).await?;
+    let mail = EntryDone::new(&site, &doc.id(), Some("hello".to_string())).await?;
     let content = mail.render_html()?;
     std::fs::write("../target/artifacts/content_cc_message_english.html", &content).unwrap();
     assert_that!(&content, rematch("Constata, a trust service provider, transmits"));

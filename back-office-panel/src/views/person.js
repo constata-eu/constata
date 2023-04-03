@@ -50,9 +50,6 @@ const personGrid =
     <ReferenceField source="emailAddress" reference="EmailAddress" link="show" sortable={false}>
       <TextField source="address" />
     </ReferenceField>
-    <ReferenceField source="telegram" reference="Telegram" link="show" sortable={false}>
-      <TextField source="firstName" />
-    </ReferenceField>
     <BooleanField source='isTermsAccepted' sortable={false} />
     <ShowButton />
   </Datagrid>
@@ -93,9 +90,6 @@ function PersonShow(){
           <ReferenceField source="emailAddress" reference="EmailAddress" link="show">
             <TextField source="address" />
           </ReferenceField>
-          <ReferenceField source="telegram" reference="Telegram" link="show" sortable={false}>
-            <TextField source="firstName" />
-          </ReferenceField>
           <ParsedDateTextField source='registrationDate' />
           <FunctionField source='termsUrl'
             render={record => {
@@ -108,18 +102,7 @@ function PersonShow(){
                 />;
               }
             }}
-          />;
-          <FunctionField source='createCredentialsUrl'
-            render={record => {
-              if (!record.createCredentialsUrl) {
-                return translate("resources.Person.fields.credentials_created");
-              } else {
-                return <a href={record.createCredentialsUrl} target="_blank" rel="noreferrer">
-                  {translate("resources.Person.fields.credentials_to_create")}
-                </a>;
-              }
-            }}
-          />;
+          />
         </Tab>
         <Tab label="resources.Document.many" path="documents">
           <div className="nested-resource" >

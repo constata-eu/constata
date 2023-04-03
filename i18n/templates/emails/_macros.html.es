@@ -4,7 +4,7 @@
 
 {% macro accept_tyc(url_to_tyc) %}
   {% if url_to_tyc %}
-    Además recuerde aceptar nuestros <b>Términos y condiciones</b>.
+    Además recuerda aceptar nuestros <b>Términos y condiciones</b>.
     <br/><br/>
     <a style="padding: 10px; margin: 15px 0; background: #1059CE; color: #fafafa; text-decoration: none; font-weight: bold; text-transform: uppercase; font-size: 12px;" target="_blank" href="{{url_to_tyc | safe }}">Revisar términos y condiciones</a>
     <br/>
@@ -13,7 +13,7 @@
 
 {% macro email_verification(url_to_verify_email, keep_private) %}
   {% if url_to_verify_email %}
-    Necesitamos que confirme recepción de este correo.
+    Necesitamos que confirmes recepción de este correo.
     <br/><br/>
     <a style="padding: 10px; margin: 15px 0; background: #1059CE; color: #fafafa; text-decoration: none; font-weight: bold; text-transform: uppercase; font-size: 12px;" target="_blank" href="{{url_to_verify_email | safe }}">Confirmar recepción</a>
     <br/><br/>
@@ -22,10 +22,9 @@
 
 {% macro welcome_and_start(give_welcome, document_friendly_name, accepted, eta, url_to_tyc) %}
     {% if give_welcome %}
-        Recuerda que cuando nos escribes o pones en copia certificamos ese correo.
-        <br/><br/>
-        También agregamos las respuestas al certificado, mientras se mantenga en copia de las mismas a <b>ace@constata.eu</b>.
-
+      Recuerda que cuando nos escribes o pones en copia certificamos ese correo.
+      <br/><br/>
+      También agregamos las respuestas al certificado, mientras se mantenga en copia de las mismas a <b>ace@constata.eu</b>.
     {% endif %}
 
     {% if accepted %}
@@ -89,7 +88,16 @@
         <br/><br/>
         <a style="padding: 10px; margin: 15px 0; background: #1059CE; color: #fafafa; text-decoration: none; font-weight: bold; text-transform: uppercase; font-size: 12px;" target="_blank" href="{{buy_tokens_link | safe }}">Comprar Tokens</a>
         <br/><br/>
-        Una vez que hayas comprado los tokens faltantes tu mensaje estará certificado en unos minutos y lo recibirás en tu correo.
+        Una vez que hayas comprado los tokens faltantes tu mensaje estará certificado y lo recibirás en tu correo.
+    {% endif  %}
+
+    <br/><br/>
+    Las respuestas a tus mensajes certificados que sigan en el mismo hilo también serán certificadas a tu cargo,
+    por eso te recomendamos comprar tokens de antemano para evitar demoras en las certificaciones.
+
+    {% if has_enough_tokens %}
+        <br/><br/>
+        <a style="padding: 10px; margin: 15px 0; background: #1059CE; color: #fafafa; text-decoration: none; font-weight: bold; text-transform: uppercase; font-size: 12px;" target="_blank" href="{{buy_tokens_link | safe }}">Comprar Tokens</a>
     {% endif %}
 {% endmacro enough_tokens %}
 

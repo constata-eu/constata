@@ -41,8 +41,6 @@ pub mod template;
 pub mod request;
 pub mod entry;
 pub mod safe;
-pub mod delete_parked;
-pub mod create_email_credentials_tokens;
 pub mod invoices;
 pub mod public_certificates;
 

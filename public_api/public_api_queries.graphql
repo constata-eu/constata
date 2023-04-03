@@ -614,12 +614,6 @@ query EndorsementManifest($id: Int!) {
       updatedAt
       __typename
     }
-    telegram {
-      username
-      firstName
-      lastName
-      __typename
-    }
     email {
       address
       keepPrivate

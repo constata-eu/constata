@@ -9,9 +9,6 @@ pub struct Person {
   pubkey: Option<String>,
   email_address: Option<i32>,
   address: Option<String>,
-  telegram: Option<String>,
-  telegram_first_name: Option<String>,
-  create_credentials_url: Option<String>,
   registration_date: Option<UtcDateTime>,
   is_terms_accepted: bool,
   terms_url: Option<String>,
@@ -46,8 +43,6 @@ impl Showable<person::Person, PersonFilter> for Person {
   async fn db_to_graphql(d: person::Person ) -> MyResult<Self> {
     let email_address = d.email_address().await?;
     let pubkey = d.pubkey().await?;
-    let telegram = d.telegram().await?;
-    let create_credentials_url = d.get_or_create_email_credentials_token_url().await?;
     let terms_acceptance = d.get_or_create_terms_acceptance().await?;
     let terms_url = if terms_acceptance.attrs.accepted.is_none() {
       Some(terms_acceptance.full_url())
@@ -61,9 +56,6 @@ impl Showable<person::Person, PersonFilter> for Person {
       pubkey: pubkey.map(|i| i.attrs.id),
       email_address: email_address.clone().map(|i| i.attrs.id),
       address: email_address.map(|i| i.attrs.address),
-      telegram: telegram.clone().map(|i| i.attrs.id),
-      telegram_first_name: telegram.clone().map(|i| i.attrs.first_name),
-      create_credentials_url,
       registration_date: terms_acceptance.attrs.created_at,
       is_terms_accepted: terms_url.is_none(),
       terms_url,

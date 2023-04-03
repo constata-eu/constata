@@ -67,7 +67,6 @@ impl AttestationHub {
         if person.can_send_email().await? {
           self.state.email_callback().insert(InsertEmailCallback{
             address: address.clone(),
-            cc: true,
             document_id: document.attrs.id.clone(),
             custom_message: None,
             sent_at: None,
@@ -148,7 +147,7 @@ pub mod for_api {
       } else {
         processing_documents += 1;
       }
-      for cb in doc.email_callback_scope().cc_eq(true).all().await? {
+      for cb in doc.email_callback_scope().all().await? {
         email_admin_access_url_to.insert(cb.attrs.address);
       }
     }
