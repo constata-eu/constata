@@ -36,24 +36,43 @@ pub trait CreateIssuanceInput: Send + Sized {
   }
 }
 
-#[derive(GraphQLInputObject, Serialize, Deserialize)]
+#[derive(GraphQLInputObject, Serialize)]
 #[graphql(description = "A CreateIssuanceFromJsonInput configures a new Issuance, with optional initial entries, where more new entries may be added later. Once all desired entries have been added, the issuance may be signed and will be certified and optionally distributed by Constata. If you want to create an Issuance all at once from a single CSV file we suggest you use CreateIssuanceFromCsvInput.")]
 #[serde(rename_all = "camelCase")]
+#[derive(clap::Args)]
 pub struct CreateIssuanceFromJsonInput {
+  #[arg(short, long="entry", value_name="ENTRY", value_parser=clap_entry_params, action=clap::ArgAction::Append,
+    help="A JSON object corresponding to each recipient for whom you want to create a diploma, certificate of attendance or badge. \
+      This is a nice shortcut for issuances with just a few, small entries. \
+      See the append-entries-to-issuance command for incrementally building an issuance from larger entries.")]
   #[graphql(description = "An array of JSON objects corresponding to each recipient for whom you want to create a diploma, certificate of attendance or badge")]
-  entries: Vec<EntryParams>,
+  pub entries: Vec<EntryParams>,
+
+  #[arg(help="The name of the Issuance to be created")]
   #[graphql(description = "The name of the Issuance to be created.")]
-  name: String,
-  #[graphql(description = "The ID of an existing template to use, if any. See the Templates resource.")]
-  template_id: Option<i32>,
+  pub name: String,
+
+  #[arg(short, long, help="The kind of template to be created if no template_id is given.")]
+  #[graphql(description = "The ID of an existing template to use, if any. See the allTemplates query.")]
+  pub template_id: Option<i32>,
+
+  #[arg(long, help="The kind of template to be created if no template_id is given.")]
   #[graphql(description = "The kind of template to be created if no template_id is given.")]
-  new_kind: Option<models::TemplateKind>,
+  pub new_kind: Option<models::TemplateKind>,
+
+  #[arg(long, help="The name of the new template to be created, if no template_id is given.")]
   #[graphql(description = "The name of the new template to be created, if no template_id is given.")]
-  new_name: Option<String>,
+  pub new_name: Option<String>,
+
+  #[arg(long, help="The text to be used as the logo for the new template, if no template_id is given.")]
   #[graphql(description = "The text to be used as the logo for the new template, if no template_id is given.")]
-  new_logo_text: Option<String>,
+  pub new_logo_text: Option<String>,
+
+  #[arg(long, help="The base64 encoded image to be used as the logo for the new template, \
+    if no template_id is given. If you leave it empty your new_logo_text will be displayed."
+  )]
   #[graphql(description = "The base64 encoded image to be used as the logo for the new template, if no template_id is given. If you leave it empty your new_logo_text will be displayed.")]
-  new_logo_image: Option<String>,
+  pub new_logo_image: Option<String>,
 }
 
 #[rocket::async_trait]
@@ -72,8 +91,20 @@ impl CreateIssuanceInput for CreateIssuanceFromJsonInput {
   }
 }
 
-#[derive(juniper::GraphQLScalar, serde::Serialize, serde::Deserialize)]
-pub struct EntryParams(pub HashMap<String, String>);
+#[derive(Clone, Debug, juniper::GraphQLScalar, serde::Serialize, serde::Deserialize)]
+pub struct EntryParams(#[serde(serialize_with="as_json")] pub HashMap<String, String>);
+
+fn as_json<T, S>(v: &T, serializer: S) -> Result<S::Ok, S::Error>
+  where T: Serialize, S: serde::ser::Serializer,
+{
+  let as_str = serde_json::to_string(&v).unwrap();
+  serializer.serialize_str(&as_str)
+}
+
+fn clap_entry_params(s: &str) -> Result<EntryParams, String> {
+  serde_json::from_str(&s)
+    .map_err(|_| format!("EntryParams should be a json object with only strings as its values, it was: {}", &s))
+}
 
 impl EntryParams {
   fn from_input<S>(v: &InputValue<S>) -> Result<Self, String> where S: ScalarValue {
@@ -94,24 +125,24 @@ impl EntryParams {
   }
 }
 
-#[derive(GraphQLInputObject, Serialize, Deserialize)]
+#[derive(GraphQLInputObject, Serialize)]
 #[graphql(description = "A CreateIssuanceFromCsvInput configures a new Issuance, with at least one recipient, where more new entries may be added later. Once all desired entries have been added, the issuance may be signed and will be certified and optionally distributed by Constata. If you want to create an Issuance all at once from a single CSV file we suggest you use the Wizard endpoint.")]
 #[serde(rename_all = "camelCase")]
 pub struct CreateIssuanceFromCsvInput {
   #[graphql(description = "The CSV file to be used for creating the entries.")]
-  csv: String,
+  pub csv: String,
   #[graphql(description = "The name of the Issuance to be created.")]
-  name: String,
+  pub name: String,
   #[graphql(description = "The ID of an existing template to use, if any. See the Templates resource.")]
-  template_id: Option<i32>,
+  pub template_id: Option<i32>,
   #[graphql(description = "The kind of template to be created if no template_id is given.")]
-  new_kind: Option<models::TemplateKind>,
+  pub new_kind: Option<models::TemplateKind>,
   #[graphql(description = "The name of the new template to be created, if no template_id is given.")]
-  new_name: Option<String>,
+  pub new_name: Option<String>,
   #[graphql(description = "The text to be used as the logo for the new template, if no template_id is given.")]
-  new_logo_text: Option<String>,
+  pub new_logo_text: Option<String>,
   #[graphql(description = "The base64 encoded image to be used as the logo for the new template, if no template_id is given. If you leave it empty your new_logo_text will be displayed.")]
-  new_logo_image: Option<String>,
+  pub new_logo_image: Option<String>,
 }
 
 #[rocket::async_trait]
@@ -130,13 +161,21 @@ impl CreateIssuanceInput for CreateIssuanceFromCsvInput {
   }
 }
 
-#[derive(GraphQLInputObject, Serialize, Deserialize)]
+#[derive(GraphQLInputObject, Serialize)]
 #[graphql(description = "This is the best way to compose an Issuance incrementally. You can add new entries at any time before signing the Issuance. Entries will be validated as they are recevied, and then will be 'created' by our workers. In the unlikely case an entry passes validation and is received, but then an error when our worker tries to create it, the request will be marked as failed, as well as all other entries. ")]
 #[serde(rename_all = "camelCase")]
+#[derive(clap::Args)]
 pub struct AppendEntriesToIssuanceInput {
-  #[graphql(description = "The ID of the Issuance to which the entries are to be added.")]
+  #[arg(value_parser=clap_entry_params, help="The ID of the issuance to which the entries are to be appended")])
+  #[graphql(description = "The ID of the Issuance to which the entries are to be appended.")]
   issuance_id: i32,
-  #[graphql(description = "An array of JSON objects corresponding to each recipient for whom you want to create a diploma, certificate of attendance or badge")]
+
+  #[arg(short, long="entry", value_name="ENTRY", value_parser=clap_entry_params, action=clap::ArgAction::Append,
+    help="An array of flat JSON objects with strings as their keys and values, to be used as parameters for your entries. \
+      ie: '[{\"name\":\"Alice\",\"motive\":\"Cream of the crop\"},{\"name\":\"Bob\",\"motive\":\"Accredited Expert\"}]'")]
+  #[graphql(description = "An array of JSON objects corresponding to each recipient for whom you want to create a diploma, \
+      certificate of attendance or badge. \
+      ie: '[{\"name\":\"Alice\",\"motive\":\"Cream of the crop\"},{\"name\":\"Bob\",\"motive\":\"Accredited Expert\"}]'")]
   entries: Vec<EntryParams>,
 }
 
@@ -154,7 +193,8 @@ impl AppendEntriesToIssuanceInput {
   }
 }
 
-#[derive(GraphQLObject)]
+#[derive(Debug, GraphQLObject, serde::Deserialize, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
 #[graphql(description = "Represents a batch generation and certification of diplomas, proofs of attendance, and badges from a template. Can be started from a CSV file using CreateIssuanceFromCsv, or from json directly using CreateIssuanceFromJson.")]
 pub struct Issuance {
     #[graphql(description = "Unique identifier for the issuance.")]

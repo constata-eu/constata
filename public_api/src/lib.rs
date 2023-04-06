@@ -14,7 +14,7 @@ use rocket::http::Method;
 use rocket_cors::{AllowedHeaders, AllowedOrigins, Origins};
 use rocket_recaptcha_v3::ReCaptcha;
 
-mod controllers;
+pub mod controllers;
 use controllers::{
   static_files,
   bulletins,
@@ -155,10 +155,4 @@ pub fn server(site: Site) -> rocket::Rocket<rocket::Build> {
       certos_app::app,
       certos_app::build_dir,
     ])
-}
-
-#[rocket::launch]
-async fn rocket() -> rocket::Rocket<rocket::Build> {
-  // It's ok to unwrap here as it will panic when the process launches, which helps us know and fix it right away.
-  server(Site::from_stdin_password().await.unwrap())
 }

@@ -34,6 +34,7 @@ validators = "*"
 include_dir = { version="*", features= ["glob"]}
 graphql_client = "0.12.0"
 futures = "*"
+clap = { version = "4.2.1", features = ["derive"] }
 
 [dependencies.rocket_dyn_templates]
 version = "0.1.0-rc.1"
@@ -55,7 +56,7 @@ time-test = { version = "0.2.2" }
 
 [[bin]]
 name = "public_api"
-path = "src/main.rs"
+path = "src/bin.rs"
 
 [[bin]]
 name = "export_graphql_definitions"

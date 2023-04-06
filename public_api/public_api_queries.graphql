@@ -204,6 +204,9 @@ mutation UpdateTemplate($input: TemplateInput!) {
     createdAt
     schema
     customMessage
+    adminVisitedCount
+    entriesCount
+    publicVisitCount
     archived
     __typename
   }
@@ -328,6 +331,9 @@ query Template($id: Int!) {
     createdAt
     schema
     customMessage
+    adminVisitedCount
+    entriesCount
+    publicVisitCount
     archived
     __typename
   }
@@ -340,6 +346,9 @@ query AllTemplates($page: Int, $perPage: Int, $sortField: String, $sortOrder: St
     createdAt
     schema
     customMessage
+    adminVisitedCount
+    entriesCount
+    publicVisitCount
     archived
     __typename
   }

@@ -1,7 +1,8 @@
 use super::*;
 use crate::Decimal;
 
-#[derive(GraphQLObject)]
+#[derive(Debug, GraphQLObject, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all="camelCase")]
 #[graphql(description = "This is your organization's account information and stats.")]
 pub struct AccountState {
   #[graphql(description = "Unique ID of your organization assigned by us.")]
@@ -9,7 +10,7 @@ pub struct AccountState {
   #[graphql(description = "Tokens your organization needs to buy in order to certify all parked documents created through Issuances, Attestations or any other means.")]
   missing: i32,
   #[graphql(description = "You have this many tokens in your balance.")]
-  token_balance: i32,
+  pub token_balance: i32,
   #[graphql(description = "The special price you'll pay for each token when you buy them.")]
   price_per_token: i32,
   #[graphql(description = 
@@ -31,7 +32,8 @@ pub struct AccountState {
   web_callbacks_url: Option<String>,
 }
 
-#[derive(GraphQLObject)]
+#[derive(Debug, GraphQLObject, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
 #[graphql(description = "An invoice generated when you chose a payment method and amount of tokens to buy, that has not been paid yet.")]
 pub struct Invoice {
   #[graphql(description = "Amount to pay, in EUR")]

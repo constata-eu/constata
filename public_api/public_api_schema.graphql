@@ -201,7 +201,7 @@ type EmailAddress {
 input CreateIssuanceFromJsonInput {
   "An array of JSON objects corresponding to each recipient for whom you want to create a diploma, certificate of attendance or badge" entries: [EntryParams!]!
   "The name of the Issuance to be created." name: String!
-  "The ID of an existing template to use, if any. See the Templates resource." templateId: Int
+  "The ID of an existing template to use, if any. See the allTemplates query." templateId: Int
   "The kind of template to be created if no template_id is given." newKind: TemplateKind
   "The name of the new template to be created, if no template_id is given." newName: String
   "The text to be used as the logo for the new template, if no template_id is given." newLogoText: String
@@ -344,6 +344,13 @@ type Template {
   schema: String!
   "A personalized message that the user can add to the email sent to the student when the entry is certified"
   customMessage: String
+  "Stats: How many recipients viewed the admin link that was sent to them."
+  adminVisitedCount: Int!
+  "Entry count for all issuances that used this template."
+  entriesCount: Int!
+  "Stats: How many visits did the published entries in this Template get, collectively."
+  publicVisitCount: Int!
+  "Whether this template was archived by the user."
   archived: Boolean!
 }
 
