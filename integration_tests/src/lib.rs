@@ -22,6 +22,19 @@ macro_rules! integration_test {
   }
 }
 
+#[macro_export]
+macro_rules! api_integration_test {
+  ($i:ident($c:ident, $($chain:ident)+) $($e:tt)* ) => {
+    test!{ $i
+      time_test::time_test!("integration test");
+      let $c = TestDb::new().await?;
+      let mut server = public_api_server::PublicApiServer::start();
+      let $($chain)+ = TestBlockchain::new().await;
+      {$($e)*};
+      server.stop();
+    }
+  }
+}
 
 #[macro_export]
 macro_rules! integration_test_private {
