@@ -27,7 +27,51 @@ enum Commands {
   CreateIssuanceFromCsv(create_issuance_from_csv::Query),
 
   /// Append entries to a previously created issuance before signing it. 
-  AppendEntriesToIssuance(append_entries_to_issuance::Query),
+  AppendEntriesToIssuance(public_api::controllers::certos::public_graphql::issuance_graphql::AppendEntriesToIssuanceInput),
+
+  /// Lists your issuances
+  AllIssuances(all_issuances::Query),
+
+  /// Queries an issuance's state to check if it is created
+  IsIssuanceCreated(is_issuance_created::Query),
+
+  /// Queries an issuance's state to check if it is done
+  IsIssuanceDone(is_issuance_done::Query),
+
+  /// Lists entries across all Issuances
+  AllEntries(all_entries::Query),
+
+  /// Gets an HTML preview of an entry so you can have a look before signing
+  Preview(preview::Query),
+
+  /// Lists all the templates you can use for your Issuances
+  AllTemplates(all_templates::Query),
+
+  /// Lists all your attestations
+  AllAttestations(all_attestations::Query),
+
+  /*
+
+  constata-cli get-sample-entry-preview <issuance_id>
+
+      or if you want to be specific:
+
+      constata-cli all-entries --filter
+
+      constata-cli issuance get-entry-preview <entry_id>
+
+  then you can sign all entries:
+
+  constata-cli sign-issuance sign <id>
+
+  /* And there's more */
+
+  constata-cli issuance list ...
+
+  constata-cli entries list ...
+
+  constata-cli issuance export <issuance_id>
+  */
 
   /// Gets your organization's account state
   AccountState(account_state::Query),
@@ -39,6 +83,7 @@ enum Commands {
 fn main() {
   if let Err(e) = run() {
     println!("An error ocurred: {}", e);
+    std::process::exit(1);
   }
 }
 
@@ -63,6 +108,40 @@ fn run() -> ClientResult<()> {
     },
     Commands::CreateIssuanceFromCsv(query) => {
       printit(&query.run(&client)?)?;
+    },
+    Commands::AppendEntriesToIssuance(input) => {
+      let query = append_entries_to_issuance::Query{ input };
+      printit(&query.run(&client)?)?;
+    },
+    Commands::AllIssuances(query) => {
+      printit(&query.run(&client)?)?;
+    },
+    Commands::AllEntries(query) => {
+      printit(&query.run(&client)?)?;
+    },
+    Commands::Preview(query) => {
+      let result = query.run(&client)?;
+      if query.out_file.is_none() {
+        printit(&result);
+      } else {
+        println!("Preview for {} saved to file", result.id);
+      }
+    },
+    Commands::AllTemplates(query) => {
+      printit(&query.run(&client)?)?;
+    },
+    Commands::AllAttestations(query) => {
+      printit(&query.run(&client)?)?;
+    },
+    Commands::IsIssuanceCreated(query) => {
+      let value = query.run(&client)?;
+      println!("{}", value);
+      std::process::exit(if value { 0 } else { 1 })
+    },
+    Commands::IsIssuanceDone(query) => {
+      let value = query.run(&client)?;
+      println!("{}", value);
+      std::process::exit(if value { 0 } else { 1 })
     },
     Commands::AccountState(query) => {
       printit(&query.run(&client)?)?;

@@ -166,13 +166,13 @@ impl CreateIssuanceInput for CreateIssuanceFromCsvInput {
 #[serde(rename_all = "camelCase")]
 #[derive(clap::Args)]
 pub struct AppendEntriesToIssuanceInput {
-  #[arg(value_parser=clap_entry_params, help="The ID of the issuance to which the entries are to be appended")])
+  #[arg(help="The ID of the issuance to which the entries are to be appended")]
   #[graphql(description = "The ID of the Issuance to which the entries are to be appended.")]
   issuance_id: i32,
 
   #[arg(short, long="entry", value_name="ENTRY", value_parser=clap_entry_params, action=clap::ArgAction::Append,
-    help="An array of flat JSON objects with strings as their keys and values, to be used as parameters for your entries. \
-      ie: '[{\"name\":\"Alice\",\"motive\":\"Cream of the crop\"},{\"name\":\"Bob\",\"motive\":\"Accredited Expert\"}]'")]
+    help="A flat JSON objects with strings as its keys and values, to be used as parameters for your entry. You can repeat this argument. \
+      ie: '{\"name\":\"Bob\",\"motive\":\"Accredited Expert\"}'")]
   #[graphql(description = "An array of JSON objects corresponding to each recipient for whom you want to create a diploma, \
       certificate of attendance or badge. \
       ie: '[{\"name\":\"Alice\",\"motive\":\"Cream of the crop\"},{\"name\":\"Bob\",\"motive\":\"Accredited Expert\"}]'")]
@@ -197,30 +197,30 @@ impl AppendEntriesToIssuanceInput {
 #[serde(rename_all = "camelCase")]
 #[graphql(description = "Represents a batch generation and certification of diplomas, proofs of attendance, and badges from a template. Can be started from a CSV file using CreateIssuanceFromCsv, or from json directly using CreateIssuanceFromJson.")]
 pub struct Issuance {
-    #[graphql(description = "Unique identifier for the issuance.")]
-    id: i32,
-    #[graphql(description = "Identifier of the template linked to this issuance.")]
-    template_id: i32,
-    #[graphql(description = "Name of the template linked to this issuance.")]
-    template_name: String,
-    #[graphql(description = "The kind of template, which can be 'DIPLOMA', 'ATTENDANCE', or 'BADGE'.")]
-    template_kind: TemplateKind,
-    #[graphql(description = "The state of the issuance, which can be 'received': The recipients data has been received, and we're in the process of generating each recipients document; 'created': Individual entries have been generated from the selected template, using each recipient's data. At this point you can still add more recipients which will rewind the state to 'received'; 'signed': You have signed the entries, no further entries can be added. Documents will be certified and notified within 2 hours; 'completed': All entries have been certified and notified; 'failed': An error ocurred in the creation process, and the whole issuance has been aborted. Look at the errors field for more details.")]
-    state: String,
-    #[graphql(description = "The name of the issuance.")]
-    name: String,
-    #[graphql(description = "The date on which this issuance was created.")]
-    created_at: UtcDateTime,
-    #[graphql(description = "Errors that happened in the process of the issuance, if any. When an error occurs, the whole issuance is halted and no documents are certified.")]
-    errors: Option<String>,
-    #[graphql(description = "Amount of tokens that the user must buy to certify this issuance.")]
-    tokens_needed: Option<i32>,
-    #[graphql(description = "Entry count for this issuance. All entries can be fetch separately with an Entries query, filtering by issuance id.")]
-    entries_count: i32,
-    #[graphql(description = "Stats: How many recipients viewed the admin link that was sent to them.")]
-    admin_visited_count: i32,
-    #[graphql(description = "Stats: How many visits did the published entries in this Issuance get, collectively.")]
-    public_visit_count: i32, 
+  #[graphql(description = "Unique identifier for the issuance.")]
+  pub id: i32,
+  #[graphql(description = "Identifier of the template linked to this issuance.")]
+  pub template_id: i32,
+  #[graphql(description = "Name of the template linked to this issuance.")]
+  pub template_name: String,
+  #[graphql(description = "The kind of template, which can be 'DIPLOMA', 'ATTENDANCE', or 'BADGE'.")]
+  pub template_kind: TemplateKind,
+  #[graphql(description = "The state of the issuance, which can be 'received': The recipients data has been received, and we're in the process of generating each recipients document; 'created': Individual entries have been generated from the selected template, using each recipient's data. At this point you can still add more recipients which will rewind the state to 'received'; 'signed': You have signed the entries, no further entries can be added. Documents will be certified and notified within 2 hours; 'completed': All entries have been certified and notified; 'failed': An error ocurred in the creation process, and the whole issuance has been aborted. Look at the errors field for more details.")]
+  pub state: String,
+  #[graphql(description = "The name of the issuance.")]
+  pub name: String,
+  #[graphql(description = "The date on which this issuance was created.")]
+  pub created_at: UtcDateTime,
+  #[graphql(description = "Errors that happened in the process of the issuance, if any. When an error occurs, the whole issuance is halted and no documents are certified.")]
+  pub errors: Option<String>,
+  #[graphql(description = "Amount of tokens that the user must buy to certify this issuance.")]
+  pub tokens_needed: Option<i32>,
+  #[graphql(description = "Entry count for this issuance. All entries can be fetch separately with an Entries query, filtering by issuance id.")]
+  pub entries_count: i32,
+  #[graphql(description = "Stats: How many recipients viewed the admin link that was sent to them.")]
+  pub admin_visited_count: i32,
+  #[graphql(description = "Stats: How many visits did the published entries in this Issuance get, collectively.")]
+  pub public_visit_count: i32, 
 }
 
 #[derive(GraphQLObject)]
@@ -232,13 +232,20 @@ pub struct IssuanceExport {
   pub csv: String,
 }
 
-#[derive(Clone, GraphQLInputObject, Debug)]
+#[derive(Debug, Clone, Default, GraphQLInputObject, serde::Serialize, serde::Deserialize)]
+#[derive(clap::Args)]
+#[serde(rename_all = "camelCase")]
 pub struct IssuanceFilter {
-  ids: Option<Vec<i32>>,
-  id_eq: Option<i32>,
-  template_id_eq: Option<i32>,
-  state_eq: Option<String>,
-  name_like: Option<String>,
+  #[arg(long, help="Fetch a specific list of issuances by their ids", action=clap::ArgAction::Append)]
+  pub ids: Option<Vec<i32>>,
+  #[arg(long, help="Fetch a specific issuance by id")]
+  pub id_eq: Option<i32>,
+  #[arg(long, help="Filter by template id")]
+  pub template_id_eq: Option<i32>,
+  #[arg(long, help="Filter by state: 'received', 'created', 'signed', 'completed', 'failed'")]
+  pub state_eq: Option<String>,
+  #[arg(long, help="Filter where name contains this text")]
+  pub name_like: Option<String>,
 }
 
 #[rocket::async_trait]

@@ -55,11 +55,16 @@ pub struct AttestationHtmlExport {
   pub verifiable_html: String,
 }
 
-#[derive(Clone, GraphQLInputObject, Debug)]
+#[derive(Debug, Clone, GraphQLInputObject, serde::Serialize, serde::Deserialize)]
+#[derive(clap::Args)]
+#[serde(rename_all = "camelCase")]
 pub struct AttestationFilter {
+  #[arg(long, help="Fetch a specific list of attestations by their ids", action=clap::ArgAction::Append)]
   ids: Option<Vec<i32>>,
+  #[arg(long, help="Fetch a specific attestation by id")]
   id_eq: Option<i32>,
   person_id_eq: Option<i32>,
+  #[arg(long, help="Filter attestations that have this text in their markers")]
   markers_like: Option<String>,
 }
 

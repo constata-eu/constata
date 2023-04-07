@@ -1,6 +1,4 @@
-use serde::{Serialize, Deserialize};
-
-#[derive(Debug,Serialize,Deserialize)]
+#[derive(Debug, juniper::GraphQLObject, serde::Deserialize, serde::Serialize)]
 pub struct TemplateSchemaField {
   pub name: String,
   pub optional: bool,
