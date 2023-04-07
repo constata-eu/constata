@@ -41,15 +41,21 @@ enum Commands {
   /// Lists entries across all Issuances
   AllEntries(all_entries::Query),
 
-  /// Gets an HTML preview of an entry so you can have a look before signing
+  /// Gets an HTML preview of a specific entry so you can have a look before signing
   Preview(preview::Query),
+
+  /// Gets an HTML preview of some entry in the given issue. Use when you don't care about a specific entry.
+  PreviewSampleFromIssuance(preview_sample_from_issuance::Query),
+
+  /// Sign all entries in an issuance.
+  /// This will download all entries and digitally sign them locally with your secure digital signature.
+  SignIssuance(sign_issuance::Query),
 
   /// Lists all the templates you can use for your Issuances
   AllTemplates(all_templates::Query),
 
   /// Lists all your attestations
   AllAttestations(all_attestations::Query),
-
   /*
 
   constata-cli get-sample-entry-preview <issuance_id>
@@ -122,10 +128,24 @@ fn run() -> ClientResult<()> {
     Commands::Preview(query) => {
       let result = query.run(&client)?;
       if query.out_file.is_none() {
-        printit(&result);
+        printit(&result)?;
       } else {
         println!("Preview for {} saved to file", result.id);
       }
+    },
+    Commands::PreviewSampleFromIssuance(query) => {
+      let has_out_file = query.out_file.is_none();
+      let result = query.run(&client)?;
+
+      if has_out_file {
+        printit(&result)?;
+      } else {
+        println!("Preview for {} saved to file", result.id);
+      }
+    },
+    Commands::SignIssuance(query) => {
+      let entries = query.run(&client)?;
+      println!("All {} entries signed", entries);
     },
     Commands::AllTemplates(query) => {
       printit(&query.run(&client)?)?;

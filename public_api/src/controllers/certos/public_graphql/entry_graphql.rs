@@ -6,55 +6,54 @@ use serde::{Serialize, Deserialize};
 #[graphql(description = "An Entry represents a single certified Diploma, Proof of Attendance, or Badge, that is part of a larger Issuance. Each entry is certified separately, and has its own state. If you make several Issuances in parallel, you may run out of tokens, and some Entries will be certified while others will remain pending until you purchase the tokens.")]
 pub struct Entry {
   #[graphql(description = "Unique identifier for this Entry, across all Issuances.")]
-  id: i32,
+  pub id: i32,
   #[graphql(description = "Id of the Issuance this entry belongs to.")]
-  issuance_id: i32,
+  pub issuance_id: i32,
   #[graphql(description = "Name of the issuance this entry belongs to, for convenience.")]
-  issuance_name: String,
+  pub issuance_name: String,
   #[graphql(description = "This entries position within the larger Issuance. When the issuance is created from a CSV, this will be the row number.")]
-  row_number: i32,
+  pub row_number: i32,
   #[graphql(description = "The state of this entry. Can be 'received': We got this row's data and will attempt to create a document such as a diploma, proof of attendance, or badge with the given details; 'created': The document was created correctly, and you should sign it; 'signed': You have signed this document, it is up to constata to certify it now; 'completed': The document has been timestamped and certified by Constata, and emailed to the recipient if required. 'failed': A problem ocurred that prevented further processing of this Entry, this could happen between 'received' and 'created' if the provided data is malformed. A failure in one single Entry will abort the whole Issuance, and nothing will be certified.")]
-  state: String,
+  pub state: String,
   #[graphql(description = "Date in which this entry was received by Constata")]
-  received_at: UtcDateTime,
+  pub received_at: UtcDateTime,
   #[graphql(description = "Parameters used to create this particular entry. If the issuance was created from a CSV, these will be the row's data.")]
-  params: String,
+  pub params: String,
   #[graphql(description = "Errors found when moving this entry from 'received' to 'created', if any.")]
-  errors: Option<String>,
+  pub errors: Option<String>,
   #[graphql(description = "ID of the document that this entry belongs to.")]
-  document_id: Option<String>,
+  pub document_id: Option<String>,
   #[graphql(description = "ID of the story that this entry belongs to.")]
-  story_id: Option<i32>,
+  pub story_id: Option<i32>,
   #[graphql(description = "Boolean whether this entries admin link has been visited.")]
-  admin_visited: bool,
+  pub admin_visited: bool,
   #[graphql(description = "When published, this is the visit count for the public page.")]
-  public_visit_count: i32,
+  pub public_visit_count: i32,
   #[graphql(description = "Boolean that determines whether an email should be sent for this entry.")]
-  has_email_callback: bool,
+  pub has_email_callback: bool,
   #[graphql(description = "Date when the email was sent, if it has already been sent.")]
-  email_callback_sent_at: Option<UtcDateTime>,
-  download_proof_link_url: Option<String>,
+  pub email_callback_sent_at: Option<UtcDateTime>,
   #[graphql(description = "The data payload for this entry.")]
-  payload: Option<String>,
+  pub payload: Option<String>,
   #[graphql(description = "The administrative access url for the direct recipient of this entry. They can use it to download, view or share the document.")]
-  admin_access_url: Option<String>,
+  pub admin_access_url: Option<String>,
 }
 
-#[derive(Clone, GraphQLInputObject, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Default, Debug, GraphQLInputObject, serde::Serialize, serde::Deserialize)]
 #[derive(clap::Args)]
 #[serde(rename_all = "camelCase")]
 pub struct EntryFilter {
   #[arg(long, help="Fetch a specific list of entries by their ids", action=clap::ArgAction::Append)]
-  ids: Option<Vec<i32>>,
+  pub ids: Option<Vec<i32>>,
   #[arg(long, help="Fetch a specific entry by id")]
-  id_eq: Option<i32>,
+  pub id_eq: Option<i32>,
   #[arg(long, help="Filter entries that belong to a specific issuance")]
-  issuance_id_eq: Option<i32>,
+  pub issuance_id_eq: Option<i32>,
   #[arg(long, help="Filter by state: 'received', 'created', 'signed', 'completed', 'failed'")]
-  state_eq: Option<String>,
-  document_id_eq: Option<String>,
+  pub state_eq: Option<String>,
+  pub document_id_eq: Option<String>,
   #[arg(long, help="Filter entries where the params contain this text")]
-  params_like: Option<String>,
+  pub params_like: Option<String>,
 }
 
 
@@ -112,19 +111,12 @@ impl Showable<entry::Entry, EntryFilter> for Entry {
 
     let document = d.document().await?;
     let story_id = if let Some(d) = document.as_ref() { Some(d.story().await?.attrs.id) } else { None };
-    let download_proof_link = if let Some(doc) = document.as_ref() {
-      doc.download_proof_link_scope().optional().await?
-    } else {
-      None
-    };
 
-    let (admin_visited, public_visit_count, download_proof_link_url) = if let Some(l) = download_proof_link.as_ref() {
+    let (admin_visited, public_visit_count, admin_access_url) = if let Some(l) = d.admin_access_link().await? {
       (l.attrs.admin_visited, l.attrs.public_visit_count, Some(l.safe_env_url().await?))
     } else {
       (false, 0, None)
     };
-
-    let admin_access_url = d.admin_access_url().await?;
 
     Ok(Entry {
       id: d.attrs.id,
@@ -141,7 +133,6 @@ impl Showable<entry::Entry, EntryFilter> for Entry {
       story_id,
       admin_visited,
       public_visit_count,
-      download_proof_link_url,
       payload,
       admin_access_url
     })
@@ -153,11 +144,11 @@ impl Showable<entry::Entry, EntryFilter> for Entry {
 #[serde(rename_all = "camelCase")]
 pub struct SigningIteratorInput {
   #[graphql(description = "ID of the issuance to which this entry belongs.")]
-  issuance_id: i32,
+  pub issuance_id: i32,
   #[graphql(description = "Number that identifies this entry.")]
-  entry_id: Option<i32>,
+  pub entry_id: Option<i32>,
   #[graphql(description = "Signature applied to the referenced entry.")]
-  signature: Option<String>,
+  pub signature: Option<String>,
 }
 
 impl SigningIteratorInput {

@@ -5,6 +5,7 @@ use crate::{
     UtcDateTime,
     document::*,
     person::*,
+    download_proof_link::*,
     OrgDeletion,
     certos::{request::*, app::*, template::*, template_kind::TemplateKind},
     email_callback::*,
@@ -122,9 +123,13 @@ impl Entry {
     Ok("will_notify")
   }
 
-  pub async fn admin_access_url(&self) -> Result<Option<String>> {
+  pub async fn admin_access_link(&self) -> Result<Option<DownloadProofLink>> {
     let Some(doc) = self.document().await? else { return Ok(None) };
-    let Some(link) = doc.active_download_proof_link().await? else { return Ok(None) };
+    Ok(doc.active_download_proof_link().await?)
+  }
+
+  pub async fn admin_access_url(&self) -> Result<Option<String>> {
+    let Some(link) = self.admin_access_link().await? else { return Ok(None) };
     link.safe_env_url().await.map(|v| Some(v))
   }
 }

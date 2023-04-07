@@ -105,7 +105,7 @@ function IssuanceShow(props){
 
   const onEntryClick = (data) => {
     if(data.storyId && data.state === "completed") {
-      copyToClipboard(data.downloadProofLinkUrl, notify);
+      copyToClipboard(data.adminAccessUrl, notify);
     } else {
       openPreview(dataProvider, data.id)
     }

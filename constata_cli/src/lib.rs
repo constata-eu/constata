@@ -15,6 +15,8 @@
  *  - Account state command should not need an ID, just harcode it in the query.
  *
  *  - assert-issuance-state state --wait [Wait a reasonable time for issuance to be in this state. It's reasonable to expect an Issuance to be created in a few milliseconds, but waits up to 90 minutes for the issuance to be done.]
+ *
+ *  - See how the generated docs look for constata-client as a library.
  */
 
 
@@ -52,6 +54,14 @@ pub enum Error {
   ConfigKeyMismatch,
   #[error("Unexpected error: {0}")]
   Unexpected(String),
+  #[error("Could not find {0}")]
+  NotFound(String),
+}
+
+impl From<base64::DecodeError> for Error {
+  fn from(_err: base64::DecodeError) -> Error {
+    Error::Unexpected("Could not decode base64 value".to_string())
+  }
 }
 
 impl From<ureq::Error> for Error {
@@ -95,19 +105,20 @@ pub struct Config {
 pub struct Client {
   key: PrivateKey,
   api_url: &'static str,
+  network: Network,
 }
 
 impl Client {
   pub fn new(config: &Config, daily_passphrase: &str) -> ClientResult<Client> {
-    let api_url = match config.environment.as_str() {
-      "staging" => "https://api-staging.constata.eu",
-      "production" => "https://api.constata.eu",
-      _ => "http://localhost:8000",
+    let (api_url, network) = match config.environment.as_str() {
+      "staging" => ("https://api-staging.constata.eu", Network::Bitcoin),
+      "production" => ("https://api.constata.eu", Network::Bitcoin),
+      _ => ("http://localhost:8000", Network::Regtest),
     };
     let decrypted = deserialize_and_decrypt(daily_passphrase.as_bytes(), &config.encrypted_key)?;
     let key = PrivateKey::from_wif(&String::from_utf8(decrypted)?)?;
 
-    Ok(Client { key, api_url })
+    Ok(Client { key, api_url, network })
   }
 
   pub fn from_config_file(custom_config: Option<PathBuf>, daily_passphrase: &str) -> ClientResult<Client> {
@@ -125,7 +136,11 @@ impl Client {
       "query_hash": None::<&str>,
     }].to_string();
 
-    Ok(serde_json::to_string(&SignedPayload::create(payload.as_bytes(), &self.key, Network::Regtest))?)
+    Ok(serde_json::to_string(&self.sign(payload.as_bytes()))?)
+  }
+
+  pub fn sign(&self, payload: &[u8]) -> SignedPayload {
+    SignedPayload::create(payload, &self.key, self.network) 
   }
 
   pub fn query<R: for<'a> Deserialize<'a>, V: Serialize>(&self, vars: &V, query: &str) -> ClientResult<R> {
@@ -506,20 +521,20 @@ pub mod all_entries {
     }
   };
 
-  #[derive(serde::Serialize)]
+  #[derive(Debug, Default, serde::Serialize)]
   #[serde(rename_all = "camelCase")]
   #[derive(clap::Args)]
   pub struct Query {
     #[command(flatten)]
-    filter: EntryFilter,
+    pub filter: EntryFilter,
     #[arg(long,help="The page number to fetch")]
-    page: Option<i32>,
+    pub page: Option<i32>,
     #[arg(long,help="How many pages to fetch")]
-    per_page: Option<i32>,
+    pub per_page: Option<i32>,
     #[arg(long,help="Field to use for sorting")]
-    sort_field: Option<String>,
+    pub sort_field: Option<String>,
     #[arg(long,help="Either asc or desc")]
-    sort_order: Option<String>,
+    pub sort_order: Option<String>,
   }
 
   #[derive(Debug, serde::Deserialize, serde::Serialize)]
@@ -783,7 +798,7 @@ pub mod preview {
   #[derive(serde::Serialize)]
   #[serde(rename_all = "camelCase")]
   pub struct Query {
-    /// Id of the entry you want to preview
+    #[arg(help="id of the entry you want preview")]
     pub id: i32,
 
     #[arg(help="Write the HTML file here, you can then open it with your web browser. \
@@ -802,10 +817,210 @@ pub mod preview {
 
       let preview = client.query::<Wrapper, Self>(
         self,
-        r#"query Preview($id: Int!) {
+        r#"query($id: Int!) {
           Preview(id: $id) {
             id
             html
+            __typename
+          }
+        }"#
+      ).map(|x| x.inner )?;
+
+      if let Some(path) = &self.out_file {
+        ex::fs::write(path, &preview.html)?;
+      }
+
+      Ok(preview)
+    }
+  }
+}
+
+pub mod preview_sample_from_issuance {
+  use public_api::controllers::certos::public_graphql::entry_graphql::Preview;
+  use std::path::PathBuf;
+  use super::*;
+
+  #[derive(clap::Args)]
+  #[derive(serde::Serialize)]
+  #[serde(rename_all = "camelCase")]
+  pub struct Query {
+    #[arg(help="id of the entry you want preview")]
+    pub issuance_id: i32,
+
+    #[arg(help="Write the HTML file here, you can then open it with your web browser. \
+      Use --json-pointer=html to extract the HTML and print it to stdout.")]
+    #[serde(skip)]
+    pub out_file: Option<PathBuf>,
+  }
+
+  impl Query {
+    pub fn run(self, client: &super::Client) -> super::ClientResult<Preview> {
+      use super::all_entries as e;
+      let entries = e::Query{
+        filter: e::EntryFilter{ issuance_id_eq: Some(self.issuance_id), ..Default::default() },
+        ..Default::default()
+      }.run(&client)?;
+
+      let id = entries.all.get(0)
+        .ok_or_else(|| Error::NotFound(format!("an entry for issue {}", &self.issuance_id)))?
+        .id;
+
+      super::preview::Query{ id: id, out_file: self.out_file }.run(client)
+    }
+  }
+}
+
+pub mod sign_issuance {
+  use public_api::controllers::certos::public_graphql::entry_graphql::{SigningIteratorInput, Entry};
+  use super::*;
+
+  #[derive(serde::Serialize)]
+  pub struct Iter<'a> {
+    #[serde(skip)]
+    client: &'a Client,
+    input: SigningIteratorInput,
+    #[serde(skip)]
+    current: i32,
+    #[serde(skip)]
+    total: i32,
+  }
+
+  impl<'a> Iter<'a> {
+    pub fn new(client: &'a Client, issuance_id: i32) -> ClientResult<Self> {
+      use all_entries as e;
+
+      let total = e::Query{
+        filter: e::EntryFilter{ issuance_id_eq: Some(issuance_id), ..Default::default() },
+        ..Default::default()
+      }.run(&client)?.meta.count;
+
+      let current = e::Query{
+        filter: e::EntryFilter{
+          issuance_id_eq: Some(issuance_id),
+          state_eq: Some("signed".to_string()),
+          ..Default::default()
+        },
+        ..Default::default()
+      }.run(&client)?.meta.count + 1;
+
+      Ok(Self{
+        client,
+        input: SigningIteratorInput { issuance_id, entry_id: None, signature: None },
+        current,
+        total
+      })
+    }
+
+    pub fn next(&mut self) -> ClientResult<bool> {
+      #[derive(Debug, serde::Deserialize)]
+      struct Wrapper {
+        #[serde(rename="signingIterator")]
+        pub inner: Option<Entry>,
+      }
+
+      let maybe_next = self.client.query::<Wrapper, Self>(
+        self,
+        r#"mutation ($input: SigningIteratorInput!) {
+          signingIterator(input: $input) {
+            id
+            issuanceId
+            issuanceName
+            rowNumber
+            state
+            receivedAt
+            params
+            errors
+            documentId
+            storyId
+            adminVisited
+            publicVisitCount
+            hasEmailCallback
+            emailCallbackSentAt
+            downloadProofLinkUrl
+            payload
+            adminAccessUrl
+            __typename
+          }
+        }"#
+      ).map(|x| x.inner )?;
+
+      if let Some(next) = maybe_next {
+        let Some(payload) = &next.payload else { return Ok(false) };
+        self.input.entry_id = Some(next.id);
+        self.input.signature = Some(self.client.sign(&base64::decode(payload)?).signature.to_base64());
+        Ok(true)
+      } else {
+        Ok(false)
+      }
+    }
+
+    pub fn sign_all<F: Fn(&Self)>(&mut self, before_each: Option<F>) -> ClientResult<i32> {
+      loop {
+        if self.next()? {
+          before_each.as_ref().map(|f| f(&self) );
+        } else {
+          break;
+        }
+        self.current += 1;
+      }
+      Ok(self.total)
+    }
+  }
+
+  #[derive(clap::Args)]
+  #[derive(serde::Serialize)]
+  #[serde(rename_all = "camelCase")]
+  pub struct Query {
+    #[arg(help="id of the issuance whose entries you want to sign")]
+    pub id: i32,
+    #[arg(short, long, help="Do not output progress information to stdout")]
+    pub silent: bool,
+  }
+
+  impl Query {
+    pub fn run(self, client: &Client) -> ClientResult<i32> {
+      let mut iter = Iter::new(client, self.id)?;
+      let callback = if self.silent {
+        None
+      } else {
+        Some(|i: &Iter|{ println!("Signing entry {} of {}", i.current, i.total) })
+      };
+      iter.sign_all(callback)
+    }
+  }
+}
+
+pub mod issuance_export {
+  use public_api::controllers::certos::public_graphql::issuance_graphql::IssuanceExport;
+  use std::path::PathBuf;
+
+  #[derive(clap::Args)]
+  #[derive(serde::Serialize)]
+  #[serde(rename_all = "camelCase")]
+  pub struct Query {
+    #[arg(help="id of the issuance you want to export as CSV")]
+    pub id: i32,
+
+    #[arg(help="Write the CSV file here. \
+      Use --json-pointer=csv to extract the CSV and print it to stdout.")]
+    #[serde(skip)]
+    pub out_file: Option<PathBuf>,
+  }
+
+  impl Query {
+    pub fn run(&self, client: &super::Client) -> super::ClientResult<IssuanceExport> {
+      #[derive(Debug, serde::Deserialize)]
+      struct Wrapper {
+        #[serde(rename="IssuanceExport")]
+        pub inner: IssuanceExport,
+      }
+
+      let preview = client.query::<Wrapper, Self>(
+        self,
+        r#"query($id: Int!) {
+          IssuanceExport(id: $id) {
+            id
+            csv
             __typename
           }
         }"#
