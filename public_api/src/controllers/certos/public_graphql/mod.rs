@@ -275,9 +275,9 @@ trait Showable<Model: SqlxModel<State=Site>, Filter: Send>: Sized {
   }
 }
 
-#[derive(GraphQLObject)]
+#[derive(Debug, GraphQLObject, serde::Serialize, serde::Deserialize)]
 pub struct ListMetadata {
-  count: i32
+  pub count: i32
 }
 
 #[derive(Debug)]

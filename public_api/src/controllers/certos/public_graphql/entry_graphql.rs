@@ -1,7 +1,8 @@
 use super::*;
 use serde::{Serialize, Deserialize};
 
-#[derive(GraphQLObject)]
+#[derive(Debug, GraphQLObject, serde::Deserialize, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
 #[graphql(description = "An Entry represents a single certified Diploma, Proof of Attendance, or Badge, that is part of a larger Issuance. Each entry is certified separately, and has its own state. If you make several Issuances in parallel, you may run out of tokens, and some Entries will be certified while others will remain pending until you purchase the tokens.")]
 pub struct Entry {
   #[graphql(description = "Unique identifier for this Entry, across all Issuances.")]
@@ -39,13 +40,20 @@ pub struct Entry {
   admin_access_url: Option<String>,
 }
 
-#[derive(Clone, GraphQLInputObject, Debug)]
+#[derive(Clone, GraphQLInputObject, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(clap::Args)]
+#[serde(rename_all = "camelCase")]
 pub struct EntryFilter {
+  #[arg(long, help="Fetch a specific list of entries by their ids", action=clap::ArgAction::Append)]
   ids: Option<Vec<i32>>,
+  #[arg(long, help="Fetch a specific entry by id")]
   id_eq: Option<i32>,
+  #[arg(long, help="Filter entries that belong to a specific issuance")]
   issuance_id_eq: Option<i32>,
+  #[arg(long, help="Filter by state: 'received', 'created', 'signed', 'completed', 'failed'")]
   state_eq: Option<String>,
   document_id_eq: Option<String>,
+  #[arg(long, help="Filter entries where the params contain this text")]
   params_like: Option<String>,
 }
 
@@ -174,7 +182,8 @@ impl SigningIteratorInput {
   }
 }
 
-#[derive(GraphQLObject)]
+#[derive(Debug, GraphQLObject, serde::Deserialize, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
 #[graphql(description = "Represents an HTML preview of the contents of an entry.")]
 pub struct Preview{
   #[graphql(description = "The numerical identifier of the entry.")]

@@ -1,5 +1,20 @@
 /*
+ * Allow extracting a specific top level value from a json output to help script writers that don't want jq
+ * This lib should re-export all of public_api as 'gql_types'
+ * Filters and sort fields should be input types not strings.
+ * Refactor "all" queries for Issuances, Entries, Templates, Attestations.
+ * API should validate initial entries on issuance creation. Should be a hard error if template does not match.
  *
+ * Query variants with and without files.
+ *  Lib functions share the same API as the CLI.
+ *  If users want a lower level object oriented API we can have a "build your own query" tutorial. <- Not urgent.
+ *
+ *  - from csv (--csv | --csv-file, --logo-image | --logo-image-file )
+ *  - from json (--json | --json-file, --logo-image | --logo-image-file )
+ *  - from add-entries (--json | --json-file )
+ *  - Account state command should not need an ID, just harcode it in the query.
+ *
+ *  - assert-issuance-state state --wait [Wait a reasonable time for issuance to be in this state. It's reasonable to expect an Issuance to be created in a few milliseconds, but waits up to 90 minutes for the issuance to be done.]
  */
 
 
@@ -35,8 +50,8 @@ pub enum Error {
   DailyKeyEncriptionError,
   #[error("The decrypted signing key does not match the expected one")]
   ConfigKeyMismatch,
-  #[error("Unexpected error {0}")]
-  Unexpected(&'static str),
+  #[error("Unexpected error: {0}")]
+  Unexpected(String),
 }
 
 impl From<ureq::Error> for Error {
@@ -117,8 +132,10 @@ impl Client {
     let body = serde_json::to_string(&serde_json::json![{"query": query, "variables": vars }])?;
     let auth = self.auth_token(chrono::Utc::now().timestamp_millis(), &body)?;
     let endpoint = format!("{}/graphql/", self.api_url);
-    let response: GqlResponse<R> = ureq::post(&endpoint).set("Authentication", &auth).send_string(&body)?.into_json()?;
-    match response {
+    let response = ureq::post(&endpoint).set("Authentication", &auth).send_string(&body)?.into_string()?;
+    let gql: GqlResponse<R> = serde_json::from_str(&response)
+      .map_err(|e| Error::Unexpected(format!("We could not read JSON from response \"{}\" \n\n {}", e, &response)))?;
+    match gql {
       GqlResponse{ data: Some(resource), ..} => Ok(resource),
       GqlResponse{ errors, ..} => Err(Error::ApiError(ApiErrorMessage::Gql(GqlResponse{ data: None, errors }))),
     }
@@ -142,10 +159,10 @@ impl std::fmt::Display for ApiErrorMessage {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     match self {
       ApiErrorMessage::Gql(x) => {
-        write!(f, "GQL, {}", serde_json::to_string_pretty(&x).unwrap_or_else(|_| format!("{:?}", x) ))?;
+        write!(f, "GQL, {}", serde_json::to_string_pretty(&x).unwrap_or_else(|_| format!("{:#?}", x) ))?;
       },
       ApiErrorMessage::Status(a,b) => write!(f, "Status, {} {}", a, b)?,
-      ApiErrorMessage::Transport(a) => write!(f, "Transport, {:?}", a)?,
+      ApiErrorMessage::Transport(a) => write!(f, "Transport, {:#?}", a)?,
     }
     Ok(())
   }
@@ -156,6 +173,7 @@ pub struct GqlErrorMessage {
   pub message: String,
   pub locations: Option<Vec<GqlErrorLocation>>,
   pub path: Option<Vec<String>>,
+  pub extensions: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -177,7 +195,7 @@ pub mod graphql {
   }
 
   fn variables_parser(s: &str) -> Result<serde_json::Value, String> {
-    serde_json::from_str(&s).map_err(|e| format!("Variables are not valid json: {:?}", e) )
+    serde_json::from_str(&s).map_err(|e| format!("Variables are not valid json: {:#?}", e) )
   }
 
   impl Query {
@@ -257,7 +275,7 @@ pub mod create_issuance_from_json {
 
       client.query::<Wrapper, Self>(
         self,
-        r#"mutation CreateIssuanceFromJson($input: CreateIssuanceFromJsonInput!) {
+        r#"mutation($input: CreateIssuanceFromJsonInput!) {
           createIssuanceFromJson(input: $input) {
             id
             templateId
@@ -348,7 +366,7 @@ pub mod create_issuance_from_csv {
 
       client.query::<Wrapper, Vars>(
         &vars,
-        r#"mutation CreateIssuanceFromCsv($input: CreateIssuanceFromCsvInput!) {
+        r#"mutation($input: CreateIssuanceFromCsvInput!) {
           createIssuanceFromCsv(input: $input) {
             id
             templateId
@@ -371,76 +389,29 @@ pub mod create_issuance_from_csv {
 }
 
 pub mod append_entries_to_issuance {
-  use std::path::PathBuf;
   pub use constata_lib::models::{self, TemplateKind};
   pub use public_api::controllers::certos::public_graphql::issuance_graphql::{
     Issuance,
-    CreateIssuanceFromCsvInput,
+    AppendEntriesToIssuanceInput
   };
 
   #[derive(serde::Serialize)]
-  #[serde(rename_all = "camelCase")]
-  #[derive(clap::Args)]
   pub struct Query {
-    #[arg(help="The name of the Issuance to be created")]
-    pub name: String,
-
-    #[arg(help="csv filename to use as input")]
-    pub csv_file_path: PathBuf,
-
-    #[arg(short, long, help="The kind of template to be created if no template_id is given.")]
-    pub template_id: Option<i32>,
-
-    #[arg(long, help="The kind of template to be created if no template_id is given.")]
-    pub new_kind: Option<TemplateKind>,
-
-    #[arg(long, help="The name of the new template to be created, if no template_id is given.")]
-    pub new_name: Option<String>,
-
-    #[arg(long, help="The text to be used as the logo for the new template, if no template_id is given.")]
-    pub new_logo_text: Option<String>,
-
-    #[arg(long, help="Path to a PNG or JPEG image to be used as the logo for the new template.\
-      If you leave it empty your new_logo_text will be displayed instead."
-    )]
-    pub new_logo_image: Option<PathBuf>,
+    pub input: AppendEntriesToIssuanceInput,
   }
 
   impl Query {
-    pub fn run(self, client: &super::Client) -> super::ClientResult<Issuance> {
-      #[derive(serde::Serialize)]
-      pub struct Vars {
-        pub input: CreateIssuanceFromCsvInput,
-      }
-
+    pub fn run(&self, client: &super::Client) -> super::ClientResult<Issuance> {
       #[derive(Debug, serde::Deserialize)]
       struct Wrapper {
-        #[serde(rename="createIssuanceFromCsv")]
+        #[serde(rename="appendEntriesToIssuance")]
         pub inner: Issuance,
       }
 
-      let new_logo_image = if let Some(x) = &self.new_logo_image {
-        Some(base64::encode(ex::fs::read(x)?))
-      } else {
-        None
-      };
-
-      let vars = Vars{
-        input: CreateIssuanceFromCsvInput {
-          name: self.name,
-          template_id: self.template_id,
-          new_kind: self.new_kind,
-          new_name: self.new_name,
-          new_logo_text: self.new_logo_text,
-          new_logo_image,
-          csv: ex::fs::read_to_string(&self.csv_file_path)?,
-        }
-      };
-
-      client.query::<Wrapper, Vars>(
-        &vars,
-        r#"mutation CreateIssuanceFromCsv($input: CreateIssuanceFromCsvInput!) {
-          createIssuanceFromCsv(input: $input) {
+      client.query::<Wrapper, Self>(
+        self,
+        r#"mutation($input: AppendEntriesToIssuanceInput!) {
+          appendEntriesToIssuance(input: $input) {
             id
             templateId
             templateName
@@ -457,6 +428,394 @@ pub mod append_entries_to_issuance {
           }
         }"#
       ).map(|x| x.inner )
+    }
+  }
+}
+
+pub mod all_issuances {
+  pub use constata_lib::models::{self, TemplateKind};
+  pub use public_api::controllers::certos::public_graphql::{
+    ListMetadata,
+    issuance_graphql::{
+      Issuance,
+      IssuanceFilter,
+      CreateIssuanceFromCsvInput,
+    }
+  };
+
+  #[derive(Default, serde::Serialize)]
+  #[serde(rename_all = "camelCase")]
+  #[derive(clap::Args)]
+  pub struct Query {
+    #[command(flatten)]
+    filter: IssuanceFilter,
+    #[arg(long,help="The page number to fetch")]
+    page: Option<i32>,
+    #[arg(long,help="How many pages to fetch")]
+    per_page: Option<i32>,
+    #[arg(long,help="Field to use for sorting")]
+    sort_field: Option<String>,
+    #[arg(long,help="Either asc or desc")]
+    sort_order: Option<String>,
+  }
+
+  #[derive(Debug, serde::Deserialize, serde::Serialize)]
+  pub struct Output {
+    #[serde(rename="allIssuances")]
+    pub all: Vec<Issuance>,
+    #[serde(rename="_allIssuancesMeta")]
+    pub meta: ListMetadata,
+  }
+
+  impl Query {
+    pub fn run(&self, client: &super::Client) -> super::ClientResult<Output> {
+      client.query::<Output, Self>(
+        self,
+        r#"query ($page: Int, $perPage: Int, $sortField: String, $sortOrder: String, $filter: IssuanceFilter) {
+          allIssuances(page: $page, perPage: $perPage, sortField: $sortField, sortOrder: $sortOrder, filter: $filter) {
+            id
+            templateId
+            templateName
+            templateKind
+            state
+            name
+            createdAt
+            errors
+            tokensNeeded
+            entriesCount
+            adminVisitedCount
+            publicVisitCount
+            __typename
+          }
+          _allIssuancesMeta(page: $page, perPage: $perPage, sortField: $sortField, sortOrder: $sortOrder, filter: $filter) {
+            count
+          }
+        }"#
+      )
+    }
+  }
+}
+
+pub mod all_entries {
+  pub use constata_lib::models::{self, TemplateKind};
+  pub use public_api::controllers::certos::public_graphql::{
+    ListMetadata,
+    entry_graphql::{
+      Entry,
+      EntryFilter,
+    }
+  };
+
+  #[derive(serde::Serialize)]
+  #[serde(rename_all = "camelCase")]
+  #[derive(clap::Args)]
+  pub struct Query {
+    #[command(flatten)]
+    filter: EntryFilter,
+    #[arg(long,help="The page number to fetch")]
+    page: Option<i32>,
+    #[arg(long,help="How many pages to fetch")]
+    per_page: Option<i32>,
+    #[arg(long,help="Field to use for sorting")]
+    sort_field: Option<String>,
+    #[arg(long,help="Either asc or desc")]
+    sort_order: Option<String>,
+  }
+
+  #[derive(Debug, serde::Deserialize, serde::Serialize)]
+  pub struct Output {
+    #[serde(rename="allEntries")]
+    pub all: Vec<Entry>,
+    #[serde(rename="_allEntriesMeta")]
+    pub meta: ListMetadata,
+  }
+
+  impl Query {
+    pub fn run(&self, client: &super::Client) -> super::ClientResult<Output> {
+      client.query::<Output, Self>(
+        self,
+        r#"query ($page: Int, $perPage: Int, $sortField: String, $sortOrder: String, $filter: EntryFilter) {
+          allEntries(page: $page, perPage: $perPage, sortField: $sortField, sortOrder: $sortOrder, filter: $filter) {
+            id
+            issuanceId
+            issuanceName
+            rowNumber
+            state
+            receivedAt
+            params
+            errors
+            documentId
+            storyId
+            adminVisited
+            publicVisitCount
+            hasEmailCallback
+            emailCallbackSentAt
+            downloadProofLinkUrl
+            payload
+            adminAccessUrl
+            __typename
+          }
+          _allEntriesMeta(page: $page, perPage: $perPage, sortField: $sortField, sortOrder: $sortOrder, filter: $filter) {
+            count
+          }
+        }"#
+      )
+    }
+  }
+}
+
+pub mod all_templates {
+  pub use constata_lib::models::{self, TemplateKind};
+  pub use public_api::controllers::certos::public_graphql::{
+    ListMetadata,
+    template_graphql::{
+      Template,
+      TemplateFilter,
+    }
+  };
+
+  #[derive(serde::Serialize)]
+  #[serde(rename_all = "camelCase")]
+  #[derive(clap::Args)]
+  pub struct Query {
+    #[command(flatten)]
+    filter: TemplateFilter,
+    #[arg(long,help="The page number to fetch")]
+    page: Option<i32>,
+    #[arg(long,help="How many pages to fetch")]
+    per_page: Option<i32>,
+    #[arg(long,help="Field to use for sorting")]
+    sort_field: Option<String>,
+    #[arg(long,help="Either asc or desc")]
+    sort_order: Option<String>,
+  }
+
+  #[derive(Debug, serde::Deserialize, serde::Serialize)]
+  pub struct Output {
+    #[serde(rename="allTemplates")]
+    pub all: Vec<Template>,
+    #[serde(rename="_allTemplatesMeta")]
+    pub meta: ListMetadata,
+  }
+
+  impl Query {
+    pub fn run(&self, client: &super::Client) -> super::ClientResult<Output> {
+      client.query::<Output, Self>(
+        self,
+        r#"query($page: Int, $perPage: Int, $sortField: String, $sortOrder: String, $filter: TemplateFilter) {
+          allTemplates(page: $page, perPage: $perPage, sortField: $sortField, sortOrder: $sortOrder, filter: $filter) {
+            id
+            name
+            kind
+            createdAt
+            schema {
+              name
+              optional
+              common
+              label
+              help
+              sample
+            }
+            customMessage
+            adminVisitedCount
+            entriesCount
+            publicVisitCount
+            archived
+            __typename
+          }
+          _allTemplatesMeta(page: $page, perPage: $perPage, sortField: $sortField, sortOrder: $sortOrder, filter: $filter) {
+            count
+          }
+        }"#,
+      )
+    }
+  }
+}
+
+pub mod all_attestations {
+  pub use constata_lib::models::{self, TemplateKind};
+  pub use public_api::controllers::certos::public_graphql::{
+    ListMetadata,
+    attestation_graphql::{
+      Attestation,
+      AttestationFilter,
+    }
+  };
+
+  #[derive(serde::Serialize)]
+  #[serde(rename_all = "camelCase")]
+  #[derive(clap::Args)]
+  pub struct Query {
+    #[command(flatten)]
+    filter: AttestationFilter,
+    #[arg(long,help="The page number to fetch")]
+    page: Option<i32>,
+    #[arg(long,help="How many pages to fetch")]
+    per_page: Option<i32>,
+    #[arg(long,help="Field to use for sorting")]
+    sort_field: Option<String>,
+    #[arg(long,help="Either asc or desc")]
+    sort_order: Option<String>,
+  }
+
+  #[derive(Debug, serde::Deserialize, serde::Serialize)]
+  pub struct Output {
+    #[serde(rename="allAttestations")]
+    pub all: Vec<Attestation>,
+    #[serde(rename="_allAttestationsMeta")]
+    pub meta: ListMetadata,
+  }
+
+  impl Query {
+    pub fn run(&self, client: &super::Client) -> super::ClientResult<Output> {
+      client.query::<Output, Self>(
+        self,
+        r#"query($page: Int, $perPage: Int, $sortField: String, $sortOrder: String, $filter: AttestationFilter) {
+          allAttestations(page: $page, perPage: $perPage, sortField: $sortField, sortOrder: $sortOrder, filter: $filter) {
+            id
+            personId
+            orgId
+            markers
+            openUntil
+            state
+            parkingReason
+            doneDocuments
+            parkedDocuments
+            processingDocuments
+            totalDocuments
+            tokensCost
+            tokensPaid
+            tokensOwed
+            buyTokensUrl
+            acceptTycUrl
+            lastDocDate
+            emailAdminAccessUrlTo
+            adminAccessUrl
+            createdAt
+            __typename
+          }
+          _allAttestationsMeta(page: $page, perPage: $perPage, sortField: $sortField, sortOrder: $sortOrder, filter: $filter) {
+            count
+          }
+        }"#,
+      )
+    }
+  }
+}
+
+pub mod is_issuance_created {
+  #[derive(serde::Serialize)]
+  #[serde(rename_all = "camelCase")]
+  #[derive(clap::Args)]
+  pub struct Query {
+    #[arg(help="Id of the issuance we want to check is created")]
+    issuance_id: i32,
+    #[arg(short, long, help="Keep checking and wait this many seconds for issuance to be created.")]
+    wait: Option<i32>,
+  }
+
+  impl Query {
+    pub fn run(&self, client: &super::Client) -> super::ClientResult<bool> {
+      for i in 0..self.wait.map(|x| (x + 1) * 2 ).unwrap_or(1) {
+        let result = client.query::<serde_json::Value, Self>(
+          &self,
+          r#"query Issuance($issuanceId: Int!) {
+            Issuance(id: $issuanceId) { state }
+          }"#
+        )?;
+
+        match result.pointer("/Issuance/state").and_then(|x| x.as_str()) {
+          Some("created") => return Ok(true),
+          Some("failed") => return Ok(false),
+          _ => {},
+        }
+
+        if self.wait.map(|x| x * 10 > i ).unwrap_or(false)  {
+          std::thread::sleep(std::time::Duration::from_millis(500));
+        }
+      }
+      Ok(false)
+    }
+  }
+}
+
+pub mod is_issuance_done {
+  #[derive(serde::Serialize)]
+  #[serde(rename_all = "camelCase")]
+  #[derive(clap::Args)]
+  pub struct Query {
+    #[arg(help="Id of the issuance we want to check is done")]
+    id: i32,
+    #[arg(short, long, help="Keep checking and wait this many minutes for issuance to be done.")]
+    wait: Option<i32>,
+  }
+
+  impl Query {
+    pub fn run(&self, client: &super::Client) -> super::ClientResult<bool> {
+      for i in 0..self.wait.map(|x| x + 1).unwrap_or(1) {
+        let result = client.query::<serde_json::Value, Self>(
+          &self,
+          r#"query Issuance($id: Int!) {
+            Issuance(id: $id) { state }
+          }"#
+        )?;
+
+        match result.pointer("/Issuance/state").and_then(|x| x.as_str()) {
+          Some("done") => return Ok(true),
+          Some("failed") => return Ok(false),
+          _ => {},
+        }
+
+        if self.wait.map(|x| x > i ).unwrap_or(false)  {
+          std::thread::sleep(std::time::Duration::from_secs(60));
+        }
+      }
+      Ok(false)
+    }
+  }
+}
+
+pub mod preview {
+  use public_api::controllers::certos::public_graphql::entry_graphql::Preview;
+  use std::path::PathBuf;
+
+  #[derive(clap::Args)]
+  #[derive(serde::Serialize)]
+  #[serde(rename_all = "camelCase")]
+  pub struct Query {
+    /// Id of the entry you want to preview
+    pub id: i32,
+
+    #[arg(help="Write the HTML file here, you can then open it with your web browser. \
+      Use --json-pointer=html to extract the HTML and print it to stdout.")]
+    #[serde(skip)]
+    pub out_file: Option<PathBuf>,
+  }
+
+  impl Query {
+    pub fn run(&self, client: &super::Client) -> super::ClientResult<Preview> {
+      #[derive(Debug, serde::Deserialize)]
+      struct Wrapper {
+        #[serde(rename="Preview")]
+        pub inner: Preview,
+      }
+
+      let preview = client.query::<Wrapper, Self>(
+        self,
+        r#"query Preview($id: Int!) {
+          Preview(id: $id) {
+            id
+            html
+            __typename
+          }
+        }"#
+      ).map(|x| x.inner )?;
+
+      if let Some(path) = &self.out_file {
+        ex::fs::write(path, &preview.html)?;
+      }
+
+      Ok(preview)
     }
   }
 }

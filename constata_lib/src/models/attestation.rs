@@ -96,7 +96,8 @@ pub mod for_api {
   use rust_decimal_macros::dec;
   use num_traits::ToPrimitive;
 
-  #[derive(GraphQLObject, serde::Serialize)]
+  #[derive(Debug, Clone, GraphQLObject, serde::Serialize, serde::Deserialize)]
+  #[serde(rename_all = "camelCase")]
   #[graphql(description = "An Attestation over several documents")]
   pub struct Attestation {
     id: i32,
