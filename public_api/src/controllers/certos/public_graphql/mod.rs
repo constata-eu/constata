@@ -21,6 +21,7 @@ use juniper::{
 
 use rust_decimal::prelude::ToPrimitive;
 use constata_lib::{
+  graphql::GqlScalar,
   models::{
     self,
     UtcDateTime,
@@ -69,7 +70,7 @@ pub use issuance_graphql::{
   CreateIssuanceFromCsvInput,
   AppendEntriesToIssuanceInput
 };
-pub use entry_graphql::{Entry, EntryFilter, SigningIteratorInput, Preview};
+pub use entry_graphql::{Entry, EntryFilter, SigningIteratorInput, PreviewEntry, EntryHtmlExport, UnsignedEntryPayload};
 pub use account_state_graphql::AccountState;
 pub use endorsement_manifest_graphql::*;
 pub use signup_graphql::{SignupInput, Signup};
@@ -90,7 +91,7 @@ pub fn graphiql() -> rocket::response::content::RawHtml<String> {
 pub async fn in_transaction(
   site: &Site,
   key: &PrivateKey,
-  request: GraphQLRequest,
+  request: GraphQLRequest<GqlScalar>,
   non_tx_current_person: CurrentPerson,
   schema: &Schema,
   lang: i18n::Lang,
@@ -118,7 +119,7 @@ pub async fn in_transaction(
 pub async fn get_graphql_handler(
   state: &State<Site>,
   key: &State<PrivateKey>,
-  request: GraphQLRequest,
+  request: GraphQLRequest<GqlScalar>,
   current_person: CurrentPerson,
   schema: &State<Schema>,
   lang: i18n::Lang,
@@ -130,11 +131,11 @@ pub async fn get_graphql_handler(
 pub async fn post_graphql_handler(
   state: &State<Site>,
   key: &State<PrivateKey>,
-  current: CurrentPersonAndJson<juniper::http::GraphQLBatchRequest>,
+  current: CurrentPersonAndJson<juniper::http::GraphQLBatchRequest<GqlScalar>>,
   schema: &State<Schema>,
   lang: i18n::Lang,
 ) -> GraphQLResponse {
-  let request = juniper_rocket::GraphQLRequest(current.json);
+  let request = juniper_rocket::GraphQLRequest::<GqlScalar>(current.json);
   in_transaction(state.inner(), key.inner(), request, current.person, schema, lang).await
 }
 
@@ -143,30 +144,30 @@ pub async fn introspect(
   site: &State<Site>,
   key: &State<PrivateKey>,
   schema: &State<Schema>,
-) -> JsonResult<juniper::Value> {
-    // Just any pubkey works here, because this is for generating introspection queries only.
-    let person = Person::new(site.inner().clone(), person::PersonAttrs{
-      id: 0,
-      org_id: 0,
-      deletion_id: None,
-      lang: i18n::Lang::En,
-      lang_set_from: "".to_string(),
-      admin: false,
-      billing: false,
-      suspended: false,
-    });
+) -> JsonResult<juniper::Value<GqlScalar>> {
+  // Just any pubkey works here, because this is for generating introspection queries only.
+  let person = Person::new(site.inner().clone(), person::PersonAttrs{
+    id: 0,
+    org_id: 0,
+    deletion_id: None,
+    lang: i18n::Lang::En,
+    lang_set_from: "".to_string(),
+    admin: false,
+    billing: false,
+    suspended: false,
+  });
 
-    let current_person = CurrentPerson { person, method: AuthMethod::Forced };
+  let current_person = CurrentPerson { person, method: AuthMethod::Forced };
 
-    let ctx = Context{
-      current_person,
-      site: site.inner().clone(),
-      key: key.inner().clone(),
-      lang: i18n::Lang::En
-    };
-    let (res, _errors) = juniper::introspect(&*schema, &ctx, IntrospectionFormat::default())
-      .map_err(|_| Error::validation("Invalid GraphQL schema","Invalid GraphQL schema"))?;
-    Ok(Json(res))
+  let ctx = Context{
+    current_person,
+    site: site.inner().clone(),
+    key: key.inner().clone(),
+    lang: i18n::Lang::En
+  };
+  let (res, _errors) = juniper::introspect(&*schema, &ctx, IntrospectionFormat::default())
+    .map_err(|_| Error::validation("Invalid GraphQL schema","Invalid GraphQL schema"))?;
+  Ok(Json(res))
 }
 
 pub struct Context {
@@ -291,7 +292,7 @@ macro_rules! make_graphql_query {
     }
     $($extra:tt)*
   ) => (
-    #[graphql_object(context=Context)]
+    #[graphql_object(context=Context, scalar = GqlScalar)]
     impl Query {
       fn api_version() -> &'static str { $version }
 
@@ -332,14 +333,39 @@ make_graphql_query!{
     [WebCallbackAttempt, allWebCallbackAttempts, allWebCallbackAttemptsMeta, "_allWebCallbackAttemptsMeta", WebCallbackAttemptFilter, i32],
   }
 
-  #[graphql(name="Preview")]
-  async fn preview(context: &Context, id: i32) -> FieldResult<Preview> {
+  #[graphql(name="PreviewEntry")]
+  async fn preview_entry(context: &Context, id: i32) -> FieldResult<PreviewEntry> {
     let entry = context.org().await?.entry_scope().id_eq(&id).one().await?;
     let html = Previewer::create(
       &entry.payload().await?,
       entry.person().await?.kyc_endorsement().await?.is_some(),
     )?.render_html(context.lang)?;
-    Ok(Preview{ id, html })
+    Ok(PreviewEntry{ id, html })
+  }
+
+  #[graphql(name="UnsignedEntryPayload")]
+  async fn unsigned_entry_payload(context: &Context, id: i32) -> FieldResult<UnsignedEntryPayload> {
+    let entry = context.org().await?.entry_scope().id_eq(&id).one().await?;
+    let bytes = entry.payload().await?;
+
+    Ok(UnsignedEntryPayload{
+      id,
+      entry: Entry::db_to_graphql(entry, false).await?,
+      bytes
+    })
+  }
+
+  #[graphql(name="EntryHtmlExport")]
+  async fn entry_html_export(context: &Context, id: i32) -> FieldResult<EntryHtmlExport> {
+    let entry = context.org().await?.entry_scope().id_eq(&id).one().await?;
+    let Some(verifiable_html) = entry.html_proof(&context.key, context.lang).await? else {
+      return Err(field_error("not_ready", "This entry has not even been created yet, let alone verified."))
+    };
+    Ok(EntryHtmlExport{
+      id,
+      entry: Entry::db_to_graphql(entry, false).await?,
+      verifiable_html
+    })
   }
 
   #[graphql(name="AccountState")]
@@ -395,7 +421,7 @@ make_graphql_query!{
 
 pub struct Mutation;
 
-#[graphql_object(context=Context)]
+#[graphql_object(context=Context, scalar = GqlScalar)]
 impl Mutation {
   pub async fn create_signup(context: &Context, input: SignupInput) -> ConstataResult<Signup> {
     input.process(context).await
@@ -474,10 +500,10 @@ impl Mutation {
 
 // A root schema consists of a query and a mutation.
 // Request queries can be executed against a RootNode.
-pub type Schema = juniper::RootNode<'static, Query, Mutation, EmptySubscription<Context>>;
+pub type Schema = juniper::RootNode<'static, Query, Mutation, EmptySubscription<Context>, GqlScalar>;
 
 pub fn new_graphql_schema() -> Schema {
-  Schema::new(Query, Mutation, EmptySubscription::<Context>::new())
+  Schema::new_with_scalar_value(Query, Mutation, EmptySubscription::<Context>::new())
 }
 
 fn into_like_search(i: Option<String>) -> Option<String> {

@@ -223,7 +223,7 @@ pub struct Issuance {
   pub public_visit_count: i32, 
 }
 
-#[derive(Debug, Clone, Default, GraphQLInputObject, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, GraphQLObject, serde::Serialize, serde::Deserialize)]
 #[graphql(description = "An issuance exported as a CSV file. All rows preserve the order of the original CSV file, or the order in which the entries were added through the API. New columns are added with details about each entry.")]
 pub struct IssuanceExport {
   #[graphql(description = "Unique identifier of the issuance.")]

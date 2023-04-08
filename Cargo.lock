@@ -1428,7 +1428,7 @@ dependencies = [
  "sha2 0.9.9",
  "simplestcrypt",
  "thiserror",
- "tokio 1.25.0",
+ "tokio 0.2.25",
  "ureq",
 ]
 
@@ -2137,7 +2137,7 @@ dependencies = [
  "hyper-rustls 0.22.1",
  "i18n",
  "lettre",
- "log 0.4.17",
+ "log 0.3.9",
  "serde",
  "serde_json",
  "sqlx",
@@ -7732,7 +7732,7 @@ dependencies = [
  "dialoguer",
  "email_bot",
  "futures",
- "log 0.4.17",
+ "log 0.3.9",
  "tokio 1.25.0",
 ]
 

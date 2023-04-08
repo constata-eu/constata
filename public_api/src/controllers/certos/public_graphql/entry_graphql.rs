@@ -1,4 +1,6 @@
 use super::*;
+use serde_with::{serde_as, DisplayFromStr};
+use constata_lib::{ Base64Standard, graphql::{GqlScalar, Bytes}};
 use serde::{Serialize, Deserialize};
 
 #[derive(Debug, GraphQLObject, serde::Deserialize, serde::Serialize)]
@@ -176,10 +178,36 @@ impl SigningIteratorInput {
 #[derive(Debug, GraphQLObject, serde::Deserialize, serde::Serialize)]
 #[serde(rename_all = "camelCase")]
 #[graphql(description = "Represents an HTML preview of the contents of an entry.")]
-pub struct Preview{
+pub struct PreviewEntry{
   #[graphql(description = "The numerical identifier of the entry.")]
   pub id: i32,
   #[graphql(description = "The HTML formatted contents of the entry.")]
   pub html: String
+}
+
+#[derive(Debug, GraphQLObject, serde::Deserialize, serde::Serialize)]
+#[serde_as]
+#[serde(rename_all = "camelCase")]
+#[graphql(description = "Contains the verifiable HTML for this certified entry.", scalar=GqlScalar)]
+pub struct UnsignedEntryPayload {
+  #[graphql(description = "The numerical identifier of the entry.")]
+  pub id: i32,
+  #[graphql(description = "The entry itself.")]
+  pub entry: Entry,
+  #[graphql(description = "The base64 encoded contents of this entry. It's always a zip file.")]
+  #[serde(with = "Base64Standard")]
+  pub bytes: Bytes,
+}
+
+#[derive(Debug, GraphQLObject, serde::Deserialize, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+#[graphql(description = "Contains the verifiable HTML for this certified entry.")]
+pub struct EntryHtmlExport{
+  #[graphql(description = "The numerical identifier of the entry.")]
+  pub id: i32,
+  #[graphql(description = "The entry itself.")]
+  pub entry: Entry,
+  #[graphql(description = "The verifiable HTML proof.")]
+  pub verifiable_html: String
 }
 
