@@ -1,5 +1,6 @@
 use crate::{
   models::{
+    blockchain::PrivateKey,
     model,
     Site,
     UtcDateTime,
@@ -131,6 +132,15 @@ impl Entry {
   pub async fn admin_access_url(&self) -> Result<Option<String>> {
     let Some(link) = self.admin_access_link().await? else { return Ok(None) };
     link.safe_env_url().await.map(|v| Some(v))
+  }
+
+  pub async fn html_proof(&self, key: &PrivateKey, lang: i18n::Lang) -> Result<Option<String>> {
+    let Some(doc) = self.document().await? else { return Ok(None) };
+
+    doc.story().await?
+      .proof(self.state.settings.network, &key).await?
+      .render_html(lang)
+      .map(|x| Some(x) )
   }
 }
 

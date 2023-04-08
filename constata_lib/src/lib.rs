@@ -59,9 +59,10 @@ pub use thiserror;
 pub mod error;
 pub mod models;
 pub mod signed_payload;
+pub mod graphql;
 
 pub use error::{Error, Result};
 pub use models::{Db, Site};
 
 use base64_serde::base64_serde_type;
-base64_serde_type!(Base64Standard, base64::STANDARD);
+base64_serde_type!(pub Base64Standard, base64::STANDARD);

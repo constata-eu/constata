@@ -13,12 +13,14 @@
  *  - from json (--json | --json-file, --logo-image | --logo-image-file )
  *  - from add-entries (--json | --json-file )
  *  - Account state command should not need an ID, just harcode it in the query.
- *
+ *  - We're missing all the tests.
  *  - assert-issuance-state state --wait [Wait a reasonable time for issuance to be in this state. It's reasonable to expect an Issuance to be created in a few milliseconds, but waits up to 90 minutes for the issuance to be done.]
  *
+ *  - I should be able to download an issuance entry: certificate, its raw payload, its preview (done), and collections of these.
+ *
  *  - See how the generated docs look for constata-client as a library.
+ *  - Stop sending the entry payload as something optional in the Entry content, have a separate endpoint for it.
  */
-
 
 use constata_lib::{signed_payload::SignedPayload, models::hasher};
 use std::path::PathBuf;
@@ -283,12 +285,12 @@ pub mod create_issuance_from_json {
   impl Query {
     pub fn run(&self, client: &super::Client) -> super::ClientResult<Issuance> {
       #[derive(Debug, serde::Deserialize)]
-      struct Wrapper {
+      struct Output {
         #[serde(rename="createIssuanceFromJson")]
         pub inner: Issuance,
       }
 
-      client.query::<Wrapper, Self>(
+      client.query::<Output, Self>(
         self,
         r#"mutation($input: CreateIssuanceFromJsonInput!) {
           createIssuanceFromJson(input: $input) {
@@ -404,7 +406,6 @@ pub mod create_issuance_from_csv {
 }
 
 pub mod append_entries_to_issuance {
-  pub use constata_lib::models::{self, TemplateKind};
   pub use public_api::controllers::certos::public_graphql::issuance_graphql::{
     Issuance,
     AppendEntriesToIssuanceInput
@@ -448,7 +449,6 @@ pub mod append_entries_to_issuance {
 }
 
 pub mod all_issuances {
-  pub use constata_lib::models::{self, TemplateKind};
   pub use public_api::controllers::certos::public_graphql::{
     ListMetadata,
     issuance_graphql::{
@@ -512,7 +512,6 @@ pub mod all_issuances {
 }
 
 pub mod all_entries {
-  pub use constata_lib::models::{self, TemplateKind};
   pub use public_api::controllers::certos::public_graphql::{
     ListMetadata,
     entry_graphql::{
@@ -565,7 +564,6 @@ pub mod all_entries {
             publicVisitCount
             hasEmailCallback
             emailCallbackSentAt
-            downloadProofLinkUrl
             payload
             adminAccessUrl
             __typename
@@ -790,8 +788,8 @@ pub mod is_issuance_done {
   }
 }
 
-pub mod preview {
-  use public_api::controllers::certos::public_graphql::entry_graphql::Preview;
+pub mod preview_entry {
+  use public_api::controllers::certos::public_graphql::entry_graphql::PreviewEntry;
   use std::path::PathBuf;
 
   #[derive(clap::Args)]
@@ -808,17 +806,17 @@ pub mod preview {
   }
 
   impl Query {
-    pub fn run(&self, client: &super::Client) -> super::ClientResult<Preview> {
+    pub fn run(&self, client: &super::Client) -> super::ClientResult<PreviewEntry> {
       #[derive(Debug, serde::Deserialize)]
       struct Wrapper {
-        #[serde(rename="Preview")]
-        pub inner: Preview,
+        #[serde(rename="PreviewEntry")]
+        pub inner: PreviewEntry,
       }
 
       let preview = client.query::<Wrapper, Self>(
         self,
         r#"query($id: Int!) {
-          Preview(id: $id) {
+          PreviewEntry(id: $id) {
             id
             html
             __typename
@@ -836,7 +834,7 @@ pub mod preview {
 }
 
 pub mod preview_sample_from_issuance {
-  use public_api::controllers::certos::public_graphql::entry_graphql::Preview;
+  use public_api::controllers::certos::public_graphql::entry_graphql::PreviewEntry;
   use std::path::PathBuf;
   use super::*;
 
@@ -854,7 +852,7 @@ pub mod preview_sample_from_issuance {
   }
 
   impl Query {
-    pub fn run(self, client: &super::Client) -> super::ClientResult<Preview> {
+    pub fn run(self, client: &super::Client) -> super::ClientResult<PreviewEntry> {
       use super::all_entries as e;
       let entries = e::Query{
         filter: e::EntryFilter{ issuance_id_eq: Some(self.issuance_id), ..Default::default() },
@@ -865,7 +863,7 @@ pub mod preview_sample_from_issuance {
         .ok_or_else(|| Error::NotFound(format!("an entry for issue {}", &self.issuance_id)))?
         .id;
 
-      super::preview::Query{ id: id, out_file: self.out_file }.run(client)
+      super::preview_entry::Query{ id: id, out_file: self.out_file }.run(client)
     }
   }
 }
@@ -936,7 +934,6 @@ pub mod sign_issuance {
             publicVisitCount
             hasEmailCallback
             emailCallbackSentAt
-            downloadProofLinkUrl
             payload
             adminAccessUrl
             __typename
@@ -1002,7 +999,7 @@ pub mod issuance_export {
     pub id: i32,
 
     #[arg(help="Write the CSV file here. \
-      Use --json-pointer=csv to extract the CSV and print it to stdout.")]
+      Use --json-pointer=csv to extract the CSV and print it to stdout instead")]
     #[serde(skip)]
     pub out_file: Option<PathBuf>,
   }
@@ -1015,7 +1012,7 @@ pub mod issuance_export {
         pub inner: IssuanceExport,
       }
 
-      let preview = client.query::<Wrapper, Self>(
+      let export = client.query::<Wrapper, Self>(
         self,
         r#"query($id: Int!) {
           IssuanceExport(id: $id) {
@@ -1027,10 +1024,359 @@ pub mod issuance_export {
       ).map(|x| x.inner )?;
 
       if let Some(path) = &self.out_file {
-        ex::fs::write(path, &preview.html)?;
+        ex::fs::write(path, &export.csv)?;
       }
 
-      Ok(preview)
+      Ok(export)
     }
   }
 }
+
+pub mod create_attestation {
+  use super::*;
+  pub use constata_lib::models::{self, TemplateKind};
+  pub use public_api::controllers::certos::public_graphql::{
+    ListMetadata,
+    attestation_graphql::{
+      Attestation,
+      AttestationInput,
+      AttestationFilter,
+    }
+  };
+
+  #[derive(serde::Serialize, serde::Deserialize)]
+  pub struct QueryWithAttestationInput {
+    input: AttestationInput,
+  }
+
+  impl From<AttestationInput> for QueryWithAttestationInput {
+    fn from(input: AttestationInput) -> Self {
+      QueryWithAttestationInput{ input }
+    }
+  }
+
+  impl QueryWithAttestationInput {
+    pub fn run(&self, client: &super::Client) -> super::ClientResult<Attestation> {
+      #[derive(Debug, serde::Deserialize)]
+      struct Output {
+        #[serde(rename="createAttestation")]
+        pub inner: Attestation,
+      }
+
+      client.query::<Output, Self>(
+        self,
+        r#"mutation CreateAttestation($input: AttestationInput!) {
+          createAttestation(input: $input) {
+            id
+            personId
+            orgId
+            markers
+            openUntil
+            state
+            parkingReason
+            doneDocuments
+            parkedDocuments
+            processingDocuments
+            totalDocuments
+            tokensCost
+            tokensPaid
+            tokensOwed
+            buyTokensUrl
+            acceptTycUrl
+            lastDocDate
+            emailAdminAccessUrlTo
+            adminAccessUrl
+            createdAt
+            __typename
+          }
+        }"#,
+      ).map(|x| x.inner )
+    }
+
+  }
+
+  #[derive(serde::Serialize)]
+  #[serde(rename_all = "camelCase")]
+  #[derive(clap::Args)]
+  pub struct Query {
+    /// A list of paths to the files to add to your attestation.
+    #[arg(short, long="path", value_name="PATH", action=clap::ArgAction::Append,
+      help="Path to a file you want to include in your attestation. You can repeat this argument to add many.")]
+    pub paths: Vec<PathBuf>,
+
+    /// An attestation allows appending documents up until a certain date. If you don't chose a date, no appending will be allowed.
+    pub open_until: Option<constata_lib::models::UtcDateTime>,
+
+    /// Markers is a text that can be used for searching this attestation later. Markers cannot be updated after creation.
+    pub markers: Option<String>,
+
+    /// A list of email addresses to notify when the documents are attested.
+    /// Constata will email them an administrative access link to view, download or share the document certificate.
+    /// You can pass an empty list if you want to omit Constata's emails, and manage distribution of the attestation on your own.
+    #[arg(short, long, value_name="PATH", action=clap::ArgAction::Append,
+      help="Email an admin access link to view, download and share this attestation to the given addresses.")]
+    pub email_admin_access_url_to: Vec<String>,
+  }
+
+  impl Query {
+    pub fn run(self, client: &Client) -> ClientResult<Attestation> {
+      let documents: Vec<SignedPayload> = self.paths.iter()
+        .map(|f| ex::fs::read(f).map(|x| client.sign(&x) ).into() )
+        .collect::<Result<Vec<_>, ex::io::Error>>()?;
+
+      QueryWithAttestationInput::from(AttestationInput{
+        documents,
+        open_until: self.open_until,
+        markers: self.markers,
+        email_admin_access_url_to: self.email_admin_access_url_to,
+      }).run(client)
+    }
+  }
+}
+
+pub mod attestation_html_export {
+  use std::path::PathBuf;
+  use public_api::controllers::certos::public_graphql::attestation_graphql::AttestationHtmlExport;
+
+  #[derive(clap::Args)]
+  #[derive(serde::Serialize)]
+  #[serde(rename_all = "camelCase")]
+  pub struct Query {
+    #[arg(help="id of the attestation your want to export.")]
+    pub id: i32,
+
+    #[arg(help="Write the HTML file here, you can then open it with your web browser. \
+      Use --json-pointer=html to extract the HTML and print it to stdout.")]
+    #[serde(skip)]
+    pub out_file: Option<PathBuf>,
+  }
+
+  impl Query {
+    pub fn run(&self, client: &super::Client) -> super::ClientResult<AttestationHtmlExport> {
+      #[derive(Debug, serde::Deserialize)]
+      struct Wrapper {
+        #[serde(rename="AttestationHtmlExport")]
+        pub inner: AttestationHtmlExport,
+      }
+
+      let export = client.query::<Wrapper, Self>(
+        self,
+        r#"query AttestationHtmlExport($id: Int!) {
+          AttestationHtmlExport(id: $id) {
+            id
+            attestation {
+              id
+              personId
+              orgId
+              markers
+              openUntil
+              state
+              parkingReason
+              doneDocuments
+              parkedDocuments
+              processingDocuments
+              totalDocuments
+              tokensCost
+              tokensPaid
+              tokensOwed
+              buyTokensUrl
+              acceptTycUrl
+              lastDocDate
+              emailAdminAccessUrlTo
+              adminAccessUrl
+              createdAt
+              __typename
+            }
+            verifiableHtml
+            __typename
+          }
+        }"#
+      ).map(|x| x.inner )?;
+
+      if let Some(path) = &self.out_file {
+        ex::fs::write(path, &export.verifiable_html)?;
+      }
+
+      Ok(export)
+    }
+  }
+}
+
+pub mod attestation_state {
+  use serde::{Serialize, Deserialize};
+
+  #[derive(Serialize)]
+  #[serde(rename_all = "camelCase")]
+  #[derive(clap::Args)]
+  pub struct Query {
+    #[arg(help="Id of the attestation we want to check")]
+    id: i32,
+    #[arg(help="The state we expect the attestation to be in")]
+    state: State,
+    #[arg(short, long, help="Keep checking and wait this many seconds for issuance to be created.")]
+    wait: Option<i32>,
+  }
+
+  #[derive(Debug, Clone, Deserialize, PartialEq, Serialize, clap::ValueEnum)]
+  #[serde(rename_all = "UPPERCASE")]
+  pub enum State {
+    Parked,
+    Processing,
+    UpdatesParked,
+    UpdatesProcessing,
+    Done,
+  }
+
+  impl Query {
+    pub fn run(&self, client: &super::Client) -> super::ClientResult<bool> {
+      for i in 0..self.wait.map(|x| (x + 1) * 2 ).unwrap_or(1) {
+        let result = client.query::<serde_json::Value, Self>(
+          &self,
+          r#"query Attestation($id: Int!) {
+            Attestation(id: $id) { state }
+          }"#
+        )?;
+
+        let expected = serde_json::to_string(&self.state)?;
+
+        if matches!(result.pointer("/Attestation/state").and_then(|x| x.as_str()),  Some(e) if e == expected) {
+          return Ok(true);
+        }
+
+        if self.wait.map(|x| x * 10 > i ).unwrap_or(false)  {
+          std::thread::sleep(std::time::Duration::from_millis(500));
+        }
+      }
+      Ok(false)
+    }
+  }
+}
+
+pub mod entry_html_export {
+  use std::path::PathBuf;
+  use public_api::controllers::certos::public_graphql::entry_graphql::EntryHtmlExport;
+
+  #[derive(clap::Args)]
+  #[derive(serde::Serialize)]
+  #[serde(rename_all = "camelCase")]
+  pub struct Query {
+    #[arg(help="id of the entry your want to export.")]
+    pub id: i32,
+
+    #[arg(help="Write the verifiable HTML file here, you can then open it with your web browser. \
+      Use --json-pointer=html to extract the HTML and print it to stdout.")]
+    #[serde(skip)]
+    pub out_file: Option<PathBuf>,
+  }
+
+  impl Query {
+    pub fn run(&self, client: &super::Client) -> super::ClientResult<EntryHtmlExport> {
+      #[derive(Debug, serde::Deserialize)]
+      struct Wrapper {
+        #[serde(rename="EntryHtmlExport")]
+        pub inner: EntryHtmlExport,
+      }
+
+      let export = client.query::<Wrapper, Self>(
+        self,
+        r#"query EntryHtmlExport($id: Int!) {
+          EntryHtmlExport(id: $id) {
+            id
+            entry {
+              id
+              issuanceId
+              issuanceName
+              rowNumber
+              state
+              receivedAt
+              params
+              errors
+              documentId
+              storyId
+              adminVisited
+              publicVisitCount
+              hasEmailCallback
+              emailCallbackSentAt
+              payload
+              adminAccessUrl
+              __typename
+            }
+            verifiableHtml
+            __typename
+          }
+        }"#
+      ).map(|x| x.inner )?;
+
+      if let Some(path) = &self.out_file {
+        ex::fs::write(path, &export.verifiable_html)?;
+      }
+
+      Ok(export)
+    }
+  }
+}
+
+pub mod unsigned_entry_payload {
+  use std::path::PathBuf;
+  use public_api::controllers::certos::public_graphql::entry_graphql::UnsignedEntryPayload;
+
+  #[derive(clap::Args)]
+  #[derive(serde::Serialize)]
+  #[serde(rename_all = "camelCase")]
+  pub struct Query {
+    #[arg(help="id of the entry your want to export.")]
+    pub id: i32,
+
+    #[arg(help="Write the verifiable HTML file here, you can then open it with your web browser. \
+      Use --json-pointer=html to extract the HTML and print it to stdout.")]
+    #[serde(skip)]
+    pub out_file: Option<PathBuf>,
+  }
+
+  impl Query {
+    pub fn run(&self, client: &super::Client) -> super::ClientResult<UnsignedEntryPayload> {
+      #[derive(Debug, serde::Deserialize)]
+      struct Wrapper {
+        #[serde(rename="UnsignedEntryPayload")]
+        pub inner: UnsignedEntryPayload,
+      }
+
+      let export = client.query::<Wrapper, Self>(
+        self,
+        r#"query UnsignedEntryPayload($id: Int!) {
+          UnsignedEntryPayload(id: $id) {
+            id
+            entry {
+              id
+              issuanceId
+              issuanceName
+              rowNumber
+              state
+              receivedAt
+              params
+              errors
+              documentId
+              storyId
+              adminVisited
+              publicVisitCount
+              hasEmailCallback
+              emailCallbackSentAt
+              payload
+              adminAccessUrl
+              __typename
+            }
+            bytes
+            __typename
+          }
+        }"#
+      ).map(|x| x.inner )?;
+
+      if let Some(path) = &self.out_file {
+        ex::fs::write(path, &export.bytes)?;
+      }
+
+      Ok(export)
+    }
+  }
+}
+

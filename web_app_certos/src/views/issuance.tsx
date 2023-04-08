@@ -90,7 +90,7 @@ function IssuanceList(props) {
 }
 
 export const openPreview = async (dataProvider, id) => {
-  let value = await dataProvider.getOne("Preview", {id});
+  let value = await dataProvider.getOne("PreviewEntry", {id});
   let blob = new Blob([value.data.html], {type : 'text/html'});
   await openBlob(blob);
 }

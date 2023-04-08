@@ -1,4 +1,6 @@
-use crate::{models::hasher::hexdigest, Base64Standard, Result as MyResult};
+use crate::{
+  graphql::*,
+  models::hasher::hexdigest, Base64Standard, Result as MyResult};
 use serde::{Deserialize, Serialize};
 pub use rocket::{ http::Status, request::{FromRequest, Outcome, Request}};
 
@@ -15,13 +17,14 @@ use bitcoin::{
 use serde_with::{serde_as, DisplayFromStr};
 
 #[serde_as]
-#[derive(Debug, PartialEq, Clone, Deserialize, Serialize)]
+#[derive(Debug, PartialEq, Clone, juniper::GraphQLInputObject, Deserialize, Serialize)]
+#[graphql(scalar = GqlScalar)]
 pub struct SignedPayload {
   #[serde(with = "Base64Standard")]
-  pub payload: Vec<u8>,
-  pub signer: Address,
+  pub payload: Bytes,
+  pub signer: Addr,
   #[serde_as(as = "DisplayFromStr")]
-  pub signature: MessageSignature,
+  pub signature: MsgSig,
 }
 
 impl SignedPayload {
@@ -76,7 +79,6 @@ impl SignedPayload {
     )?)
   }
 }
-
 
 #[rocket::async_trait]
 impl<'r> FromRequest<'r> for SignedPayload {
