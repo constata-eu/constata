@@ -1,5 +1,5 @@
 use super::*;
-use serde_with::{serde_as, DisplayFromStr};
+use serde_with::serde_as;
 use constata_lib::{ Base64Standard, graphql::{GqlScalar, Bytes}};
 use serde::{Serialize, Deserialize};
 
@@ -154,7 +154,7 @@ pub struct SigningIteratorInput {
 }
 
 impl SigningIteratorInput {
-  pub async fn sign(self, context: &Context) -> FieldResult<Option<Entry>> {
+  pub async fn sign(self, context: &Context) -> FieldResult<Option<UnsignedEntryPayload>> {
     let db_data = match (self.entry_id, self.signature) {
       (Some(i), Some(s)) => Some(request::EntrySignature::from_base64(i, &s)?),
       _ => None,
@@ -171,7 +171,7 @@ impl SigningIteratorInput {
       .await?
       else { return Ok(None) };
       
-    Ok(Some(Entry::db_to_graphql(next_entry, true).await?))
+    Ok(Some(UnsignedEntryPayload::db_to_graphql(next_entry).await?))
   }
 }
 
@@ -192,11 +192,24 @@ pub struct PreviewEntry{
 pub struct UnsignedEntryPayload {
   #[graphql(description = "The numerical identifier of the entry.")]
   pub id: i32,
+
   #[graphql(description = "The entry itself.")]
   pub entry: Entry,
+
   #[graphql(description = "The base64 encoded contents of this entry. It's always a zip file.")]
   #[serde(with = "Base64Standard")]
   pub bytes: Bytes,
+}
+
+impl UnsignedEntryPayload {
+  pub async fn db_to_graphql(d: entry::Entry) -> MyResult<Self> {
+    let bytes = d.payload().await?;
+    Ok(Self {
+      id: d.attrs.id,
+      entry: Entry::db_to_graphql(d, false).await?,
+      bytes
+    })
+  }
 }
 
 #[derive(Debug, GraphQLObject, serde::Deserialize, serde::Serialize)]
