@@ -740,7 +740,7 @@ const Signing = ({password, ...props}) => {
           counter += 1;
           setSignedCount(counter);
 
-          const signed_payload = getSignedPayload(keyPair, address, Buffer.from(next.data.payload, "base64"));
+          const signed_payload = getSignedPayload(keyPair, address, Buffer.from(next.data.bytes, "base64"));
           entryId = next.data.id;
           signature = signed_payload.signature;
 

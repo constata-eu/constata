@@ -346,13 +346,7 @@ make_graphql_query!{
   #[graphql(name="UnsignedEntryPayload")]
   async fn unsigned_entry_payload(context: &Context, id: i32) -> FieldResult<UnsignedEntryPayload> {
     let entry = context.org().await?.entry_scope().id_eq(&id).one().await?;
-    let bytes = entry.payload().await?;
-
-    Ok(UnsignedEntryPayload{
-      id,
-      entry: Entry::db_to_graphql(entry, false).await?,
-      bytes
-    })
+    Ok(UnsignedEntryPayload::db_to_graphql(entry).await?)
   }
 
   #[graphql(name="EntryHtmlExport")]
@@ -443,7 +437,7 @@ impl Mutation {
     input.create_attestation(context).await
   }
 
-  pub async fn signing_iterator(context: &Context, input: SigningIteratorInput) -> FieldResult<Option<Entry>> {
+  pub async fn signing_iterator(context: &Context, input: SigningIteratorInput) -> FieldResult<Option<UnsignedEntryPayload>> {
     input.sign(context).await
   }
   

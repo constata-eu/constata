@@ -22,7 +22,7 @@ hex = "0.4.3"
 base64-serde = "0.6.1"
 base64 = "0.13.0"
 rocket_cors = { git = "https://github.com/lawliet89/rocket_cors", branch = "master" }
-serde_with = { version = "1.6.4", features = ["hex"]}
+serde_with = { version = "1.6.4", features = ["hex", "base64"]}
 ureq = { version = "*", features = ["json", "charset"] }
 simplestcrypt = "*"
 chrono-tz = "0.6"

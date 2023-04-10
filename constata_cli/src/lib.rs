@@ -1,25 +1,16 @@
+/// This library has one module for each GraphQL query or mutation available in our API.
+/// Each module has its own struct representing the query parameters, and in some cases local parameters as well.
+/// We wanted to make it intuitive to transition from the command line subcommands into the API.
+/// All subcommands in the command line utility are straightforward representations of queries in this library.
+/// For lower level, or more idiomatic access, all types are public and the Client supports arbitrary graphql queries.
+
 /*
- * Allow extracting a specific top level value from a json output to help script writers that don't want jq
- * This lib should re-export all of public_api as 'gql_types'
- * Filters and sort fields should be input types not strings.
- * Refactor "all" queries for Issuances, Entries, Templates, Attestations.
- * API should validate initial entries on issuance creation. Should be a hard error if template does not match.
- *
- * Query variants with and without files.
- *  Lib functions share the same API as the CLI.
- *  If users want a lower level object oriented API we can have a "build your own query" tutorial. <- Not urgent.
- *
- *  - from csv (--csv | --csv-file, --logo-image | --logo-image-file )
- *  - from json (--json | --json-file, --logo-image | --logo-image-file )
- *  - from add-entries (--json | --json-file )
- *  - Account state command should not need an ID, just harcode it in the query.
- *  - We're missing all the tests.
- *  - assert-issuance-state state --wait [Wait a reasonable time for issuance to be in this state. It's reasonable to expect an Issuance to be created in a few milliseconds, but waits up to 90 minutes for the issuance to be done.]
- *
- *  - I should be able to download an issuance entry: certificate, its raw payload, its preview (done), and collections of these.
- *
+ * - Filters, States, and Sort fields should be input types not strings (or they should suggest values in the API at least)
+ * - Refactor "all" queries for Issuances, Entries, Templates, Attestations.
+ * - SigningIteratorInput should base64 encode when serializing signature automatically.
+ * - We're missing all the tests.
+ * - assert-issuance-state state --wait [Wait a reasonable time for issuance to be in this state. It's reasonable to expect an Issuance to be created in a few milliseconds, but waits up to 90 minutes for the issuance to be done.]
  *  - See how the generated docs look for constata-client as a library.
- *  - Stop sending the entry payload as something optional in the Entry content, have a separate endpoint for it.
  */
 
 use constata_lib::{signed_payload::SignedPayload, models::hasher};
@@ -29,6 +20,7 @@ use bitcoin::PublicKey;
 use serde::{Deserialize, Serialize};
 use simplestcrypt::{deserialize_and_decrypt, DecryptError};
 use bitcoin::{ Network, PrivateKey };
+pub use public_api::controllers::certos::public_graphql as gql_types;
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
@@ -56,8 +48,27 @@ pub enum Error {
   ConfigKeyMismatch,
   #[error("Unexpected error: {0}")]
   Unexpected(String),
-  #[error("Could not find {0}")]
+  #[error("You referenced a missing thing: {0}")]
   NotFound(String),
+  #[error("You gave an invalid input: {0}")]
+  InvalidInput(String),
+}
+
+#[macro_export]
+macro_rules! check {
+  ($exp:expr, $err:ident($($args:tt),*)) => (
+    $exp.map_err(|e|{ error!(e, $err($($args),*)) })?
+  )
+}
+
+#[macro_export]
+macro_rules! error {
+  ($e:ident($($args:expr),*)) => (
+    Error::$e(format!($($args),*))
+  );
+  ($base_err:ident, $e:ident($($args:expr),*)) => (
+    Error::$e(format!("{}, context: {:#?}", format!($($args),*), $base_err))
+  );
 }
 
 impl From<base64::DecodeError> for Error {
@@ -125,7 +136,10 @@ impl Client {
 
   pub fn from_config_file(custom_config: Option<PathBuf>, daily_passphrase: &str) -> ClientResult<Client> {
     let config_path = custom_config.unwrap_or_else(|| "constata_conf.json".into() );
-    let config: Config = serde_json::from_str(&ex::fs::read_to_string(config_path)?)?;
+    let config: Config = check!(
+      serde_json::from_str(&ex::fs::read_to_string(config_path)?),
+      InvalidInput("Your config file is not a valid json")
+    );
     Self::new(&config, daily_passphrase)
   }
 
@@ -153,8 +167,11 @@ impl Client {
     let gql: GqlResponse<R> = serde_json::from_str(&response)
       .map_err(|e| Error::Unexpected(format!("We could not read JSON from response \"{}\" \n\n {}", e, &response)))?;
     match gql {
+      GqlResponse{ errors: errors @ Some(_), ..} => {
+        Err(Error::ApiError(ApiErrorMessage::Gql(GqlResponse{ data: None, errors })))
+      },
       GqlResponse{ data: Some(resource), ..} => Ok(resource),
-      GqlResponse{ errors, ..} => Err(Error::ApiError(ApiErrorMessage::Gql(GqlResponse{ data: None, errors }))),
+      _ => Err(error!(Unexpected("Server replied with no data and no errors.")))
     }
   }
 }
@@ -223,15 +240,11 @@ pub mod graphql {
 }
 
 pub mod account_state {
-  use public_api::controllers::certos::public_graphql::account_state_graphql::AccountState;
+  use super::gql_types::account_state_graphql::AccountState;
 
   #[derive(serde::Serialize)]
   #[derive(clap::Args)]
-  pub struct Query {
-    /// Id is ignored for now.
-    #[arg(short, long, default_value_t=1)]
-    pub id: i32,
-  }
+  pub struct Query { }
 
   impl Query {
     pub fn run(&self, client: &super::Client) -> super::ClientResult<AccountState> {
@@ -243,8 +256,8 @@ pub mod account_state {
 
       client.query::<Wrapper, Self>(
         self,
-        r#"query($id: Int!) {
-          AccountState(id: $id) {
+        r#"query{
+          AccountState(id: 1) {
             id
             missing
             tokenBalance
@@ -271,19 +284,41 @@ pub mod account_state {
 }
 
 pub mod create_issuance_from_json {
+  pub use super::*;
   pub use constata_lib::models::{self, TemplateKind};
-  pub use public_api::controllers::certos::public_graphql::issuance_graphql::{
+  pub use super::gql_types::issuance_graphql::{
     Issuance,
     CreateIssuanceFromJsonInput,
   };
 
   #[derive(serde::Serialize)]
+  #[derive(clap::Args)]
   pub struct Query {
+    #[command(flatten)]
     pub input: CreateIssuanceFromJsonInput,
+
+    #[arg(long, help="A path to a PNG or JPEG file to use as logo in your new template")]
+    #[serde(skip)]
+    pub new_logo_image_file: Option<PathBuf>,
+
+    #[arg(long, help="A path to file with the JSON for your entries, an alternative to --entry")]
+    #[serde(skip)]
+    pub json_file: Option<PathBuf>,
   }
 
   impl Query {
-    pub fn run(&self, client: &super::Client) -> super::ClientResult<Issuance> {
+    pub fn run(mut self, client: &super::Client) -> super::ClientResult<Issuance> {
+      if let Some(ref path) = self.new_logo_image_file {
+        self.input.new_logo_image = Some(ex::fs::read(path)?);
+      }
+
+      if let Some(ref path) = self.json_file {
+        self.input.entries = check!(
+          serde_json::from_str(&ex::fs::read_to_string(path)?),
+          InvalidInput("your --json-file could not be parsed")
+        );
+      }
+
       #[derive(Debug, serde::Deserialize)]
       struct Output {
         #[serde(rename="createIssuanceFromJson")]
@@ -291,7 +326,7 @@ pub mod create_issuance_from_json {
       }
 
       client.query::<Output, Self>(
-        self,
+        &self,
         r#"mutation($input: CreateIssuanceFromJsonInput!) {
           createIssuanceFromJson(input: $input) {
             id
@@ -317,72 +352,43 @@ pub mod create_issuance_from_json {
 pub mod create_issuance_from_csv {
   use std::path::PathBuf;
   pub use constata_lib::models::{self, TemplateKind};
-  pub use public_api::controllers::certos::public_graphql::issuance_graphql::{
+  pub use super::gql_types::issuance_graphql::{
     Issuance,
     CreateIssuanceFromCsvInput,
   };
 
-  #[derive(serde::Serialize)]
-  #[serde(rename_all = "camelCase")]
-  #[derive(clap::Args)]
+  #[derive(serde::Serialize, clap::Args)]
   pub struct Query {
-    #[arg(help="The name of the Issuance to be created")]
-    pub name: String,
+    #[command(flatten)]
+    pub input: CreateIssuanceFromCsvInput,
 
-    #[arg(help="csv filename to use as input")]
-    pub csv_file_path: PathBuf,
+    #[arg(long, help="A path to a PNG or JPEG file to use as logo in your new template")]
+    #[serde(skip)]
+    pub new_logo_image_file: Option<PathBuf>,
 
-    #[arg(short, long, help="The kind of template to be created if no template_id is given.")]
-    pub template_id: Option<i32>,
-
-    #[arg(long, help="The kind of template to be created if no template_id is given.")]
-    pub new_kind: Option<TemplateKind>,
-
-    #[arg(long, help="The name of the new template to be created, if no template_id is given.")]
-    pub new_name: Option<String>,
-
-    #[arg(long, help="The text to be used as the logo for the new template, if no template_id is given.")]
-    pub new_logo_text: Option<String>,
-
-    #[arg(long, help="Path to a PNG or JPEG image to be used as the logo for the new template.\
-      If you leave it empty your new_logo_text will be displayed instead."
-    )]
-    pub new_logo_image: Option<PathBuf>,
+    #[arg(long, help="A path to a CSV file you want to use for creating this issuance.")]
+    #[serde(skip)]
+    pub csv_file: Option<PathBuf>,
   }
 
   impl Query {
-    pub fn run(self, client: &super::Client) -> super::ClientResult<Issuance> {
-      #[derive(serde::Serialize)]
-      pub struct Vars {
-        pub input: CreateIssuanceFromCsvInput,
+    pub fn run(mut self, client: &super::Client) -> super::ClientResult<Issuance> {
+      if let Some(ref path) = self.new_logo_image_file {
+        self.input.new_logo_image = Some(ex::fs::read(path)?);
+      }
+
+      if let Some(ref path) = self.csv_file {
+        self.input.csv = ex::fs::read_to_string(path)?;
       }
 
       #[derive(Debug, serde::Deserialize)]
-      struct Wrapper {
+      struct Output {
         #[serde(rename="createIssuanceFromCsv")]
         pub inner: Issuance,
       }
 
-      let new_logo_image = if let Some(x) = &self.new_logo_image {
-        Some(base64::encode(ex::fs::read(x)?))
-      } else {
-        None
-      };
-
-      let vars = Vars{
-        input: CreateIssuanceFromCsvInput {
-          name: self.name,
-          template_id: self.template_id,
-          new_kind: self.new_kind,
-          new_name: self.new_name,
-          new_logo_text: self.new_logo_text,
-          new_logo_image,
-          csv: ex::fs::read_to_string(&self.csv_file_path)?,
-        }
-      };
-
-      client.query::<Wrapper, Vars>(
-        &vars,
+      client.query::<Output, Self>(
+        &self,
         r#"mutation($input: CreateIssuanceFromCsvInput!) {
           createIssuanceFromCsv(input: $input) {
             id
@@ -406,26 +412,39 @@ pub mod create_issuance_from_csv {
 }
 
 pub mod append_entries_to_issuance {
-  pub use public_api::controllers::certos::public_graphql::issuance_graphql::{
+  use super::*;
+  pub use super::gql_types::issuance_graphql::{
     Issuance,
     AppendEntriesToIssuanceInput
   };
 
-  #[derive(serde::Serialize)]
+  #[derive(serde::Serialize, clap::Args)]
   pub struct Query {
+    #[command(flatten)]
     pub input: AppendEntriesToIssuanceInput,
+
+    #[arg(long, help="A path to file with the JSON for your entries, an alternative to --entry")]
+    #[serde(skip)]
+    pub json_file: Option<PathBuf>,
   }
 
   impl Query {
-    pub fn run(&self, client: &super::Client) -> super::ClientResult<Issuance> {
+    pub fn run(mut self, client: &super::Client) -> super::ClientResult<Issuance> {
+      if let Some(ref path) = self.json_file {
+        self.input.entries = check!(
+          serde_json::from_str(&ex::fs::read_to_string(path)?),
+          InvalidInput("your --json-file could not be parsed")
+        );
+      }
+
       #[derive(Debug, serde::Deserialize)]
-      struct Wrapper {
+      struct Output {
         #[serde(rename="appendEntriesToIssuance")]
         pub inner: Issuance,
       }
 
-      client.query::<Wrapper, Self>(
-        self,
+      client.query::<Output, Self>(
+        &self,
         r#"mutation($input: AppendEntriesToIssuanceInput!) {
           appendEntriesToIssuance(input: $input) {
             id
@@ -449,7 +468,7 @@ pub mod append_entries_to_issuance {
 }
 
 pub mod all_issuances {
-  pub use public_api::controllers::certos::public_graphql::{
+  pub use super::gql_types::{
     ListMetadata,
     issuance_graphql::{
       Issuance,
@@ -512,7 +531,7 @@ pub mod all_issuances {
 }
 
 pub mod all_entries {
-  pub use public_api::controllers::certos::public_graphql::{
+  pub use super::gql_types::{
     ListMetadata,
     entry_graphql::{
       Entry,
@@ -577,9 +596,58 @@ pub mod all_entries {
   }
 }
 
+pub mod all_entries_html_export {
+  use super::*;
+
+  #[derive(Debug, Default, serde::Serialize)]
+  #[serde(rename_all = "camelCase")]
+  #[derive(clap::Args)]
+  #[group(id="all_entries_html_export_query")]
+  pub struct Query {
+    #[arg(help="Save the verifiable HTML to the given directory if possible. Will fail if it encounters an entry that has no verifiable html available yet.")]
+    pub path: PathBuf,
+
+    #[arg(short, long, help="Do not fail if we encounter an entry with no verifiable HTML, skip it instead.")]
+    pub dont_fail_on_missing: bool,
+
+    #[command(flatten)]
+    pub all_entries: all_entries::Query,
+  }
+
+  impl Query {
+    pub fn run<F: Fn(i32, i32, &all_entries::Entry)>(&self, client: &super::Client, before_each_save: F) -> super::ClientResult<i32> {
+      if !self.path.is_dir() {
+        return Err(Error::NotFound(format!("a directory called {}", &self.path.display())))
+      }
+
+      let output = self.all_entries.run(client)?;
+      let total = output.meta.count;
+      let mut current = 1;
+      let mut saved = 0;
+
+      for entry in &output.all {
+        before_each_save(current, total, entry);
+
+        let exported = super::entry_html_export::Query{
+          id: entry.id, 
+          out_file: Some(self.path.join(format!("entry_{}.html", entry.id))),
+        }.run(client);
+        current += 1;
+
+        match exported {
+          Ok(_) => saved += 1,
+          Err(e) => if !self.dont_fail_on_missing { return Err(e) }
+        }
+      }
+
+      Ok(saved)
+    }
+  }
+}
+
 pub mod all_templates {
   pub use constata_lib::models::{self, TemplateKind};
-  pub use public_api::controllers::certos::public_graphql::{
+  pub use super::gql_types::{
     ListMetadata,
     template_graphql::{
       Template,
@@ -647,7 +715,7 @@ pub mod all_templates {
 
 pub mod all_attestations {
   pub use constata_lib::models::{self, TemplateKind};
-  pub use public_api::controllers::certos::public_graphql::{
+  pub use super::gql_types::{
     ListMetadata,
     attestation_graphql::{
       Attestation,
@@ -655,9 +723,8 @@ pub mod all_attestations {
     }
   };
 
-  #[derive(serde::Serialize)]
+  #[derive(Debug, serde::Serialize, clap::Args)]
   #[serde(rename_all = "camelCase")]
-  #[derive(clap::Args)]
   pub struct Query {
     #[command(flatten)]
     filter: AttestationFilter,
@@ -789,7 +856,7 @@ pub mod is_issuance_done {
 }
 
 pub mod preview_entry {
-  use public_api::controllers::certos::public_graphql::entry_graphql::PreviewEntry;
+  use super::gql_types::entry_graphql::PreviewEntry;
   use std::path::PathBuf;
 
   #[derive(clap::Args)]
@@ -834,7 +901,7 @@ pub mod preview_entry {
 }
 
 pub mod preview_sample_from_issuance {
-  use public_api::controllers::certos::public_graphql::entry_graphql::PreviewEntry;
+  use super::gql_types::entry_graphql::PreviewEntry;
   use std::path::PathBuf;
   use super::*;
 
@@ -869,18 +936,18 @@ pub mod preview_sample_from_issuance {
 }
 
 pub mod sign_issuance {
-  use public_api::controllers::certos::public_graphql::entry_graphql::{SigningIteratorInput, Entry};
+  use super::gql_types::entry_graphql::{SigningIteratorInput, UnsignedEntryPayload};
   use super::*;
 
   #[derive(serde::Serialize)]
   pub struct Iter<'a> {
+    pub input: SigningIteratorInput,
     #[serde(skip)]
-    client: &'a Client,
-    input: SigningIteratorInput,
+    pub client: &'a Client,
     #[serde(skip)]
-    current: i32,
+    pub current: i32,
     #[serde(skip)]
-    total: i32,
+    pub total: i32,
   }
 
   impl<'a> Iter<'a> {
@@ -911,50 +978,54 @@ pub mod sign_issuance {
 
     pub fn next(&mut self) -> ClientResult<bool> {
       #[derive(Debug, serde::Deserialize)]
-      struct Wrapper {
+      struct Output {
         #[serde(rename="signingIterator")]
-        pub inner: Option<Entry>,
+        pub inner: Option<UnsignedEntryPayload>,
       }
 
-      let maybe_next = self.client.query::<Wrapper, Self>(
+      let maybe_next = self.client.query::<Output, Self>(
         self,
         r#"mutation ($input: SigningIteratorInput!) {
           signingIterator(input: $input) {
             id
-            issuanceId
-            issuanceName
-            rowNumber
-            state
-            receivedAt
-            params
-            errors
-            documentId
-            storyId
-            adminVisited
-            publicVisitCount
-            hasEmailCallback
-            emailCallbackSentAt
-            payload
-            adminAccessUrl
+            entry {
+              id
+              issuanceId
+              issuanceName
+              rowNumber
+              state
+              receivedAt
+              params
+              errors
+              documentId
+              storyId
+              adminVisited
+              publicVisitCount
+              hasEmailCallback
+              emailCallbackSentAt
+              payload
+              adminAccessUrl
+              __typename
+            }
+            bytes
             __typename
           }
         }"#
       ).map(|x| x.inner )?;
 
       if let Some(next) = maybe_next {
-        let Some(payload) = &next.payload else { return Ok(false) };
         self.input.entry_id = Some(next.id);
-        self.input.signature = Some(self.client.sign(&base64::decode(payload)?).signature.to_base64());
+        self.input.signature = Some(self.client.sign(&next.bytes).signature.to_base64());
         Ok(true)
       } else {
         Ok(false)
       }
     }
 
-    pub fn sign_all<F: Fn(&Self)>(&mut self, before_each: Option<F>) -> ClientResult<i32> {
+    pub fn sign_all<F: Fn(&Self)>(&mut self, before_each: F) -> ClientResult<i32> {
       loop {
         if self.next()? {
-          before_each.as_ref().map(|f| f(&self) );
+          before_each(&self);
         } else {
           break;
         }
@@ -971,24 +1042,19 @@ pub mod sign_issuance {
     #[arg(help="id of the issuance whose entries you want to sign")]
     pub id: i32,
     #[arg(short, long, help="Do not output progress information to stdout")]
+    #[serde(skip)]
     pub silent: bool,
   }
 
   impl Query {
-    pub fn run(self, client: &Client) -> ClientResult<i32> {
-      let mut iter = Iter::new(client, self.id)?;
-      let callback = if self.silent {
-        None
-      } else {
-        Some(|i: &Iter|{ println!("Signing entry {} of {}", i.current, i.total) })
-      };
-      iter.sign_all(callback)
+    pub fn run<F: Fn(&Iter)>(self, client: &Client, before_each: F) -> ClientResult<i32> {
+      Iter::new(client, self.id)?.sign_all(before_each)
     }
   }
 }
 
 pub mod issuance_export {
-  use public_api::controllers::certos::public_graphql::issuance_graphql::IssuanceExport;
+  use super::gql_types::issuance_graphql::IssuanceExport;
   use std::path::PathBuf;
 
   #[derive(clap::Args)]
@@ -1035,7 +1101,7 @@ pub mod issuance_export {
 pub mod create_attestation {
   use super::*;
   pub use constata_lib::models::{self, TemplateKind};
-  pub use public_api::controllers::certos::public_graphql::{
+  pub use super::gql_types::{
     ListMetadata,
     attestation_graphql::{
       Attestation,
@@ -1136,7 +1202,7 @@ pub mod create_attestation {
 
 pub mod attestation_html_export {
   use std::path::PathBuf;
-  use public_api::controllers::certos::public_graphql::attestation_graphql::AttestationHtmlExport;
+  use super::gql_types::attestation_graphql::AttestationHtmlExport;
 
   #[derive(clap::Args)]
   #[derive(serde::Serialize)]
@@ -1254,7 +1320,7 @@ pub mod attestation_state {
 
 pub mod entry_html_export {
   use std::path::PathBuf;
-  use public_api::controllers::certos::public_graphql::entry_graphql::EntryHtmlExport;
+  use super::gql_types::entry_graphql::EntryHtmlExport;
 
   #[derive(clap::Args)]
   #[derive(serde::Serialize)]
@@ -1318,7 +1384,7 @@ pub mod entry_html_export {
 
 pub mod unsigned_entry_payload {
   use std::path::PathBuf;
-  use public_api::controllers::certos::public_graphql::entry_graphql::UnsignedEntryPayload;
+  use super::gql_types::entry_graphql::UnsignedEntryPayload;
 
   #[derive(clap::Args)]
   #[derive(serde::Serialize)]
@@ -1380,3 +1446,51 @@ pub mod unsigned_entry_payload {
   }
 }
 
+pub mod all_attestations_html_export {
+  use super::*;
+
+  #[derive(Debug, serde::Serialize)]
+  #[serde(rename_all = "camelCase")]
+  #[derive(clap::Args)]
+  #[group(id="all_attestations_html_export_query")]
+  pub struct Query {
+    #[arg(help="Save the verifiable HTMLs to the given directory if possible. Will fail if it encounters an attestation that has no verifiable html available yet.")]
+    pub path: PathBuf,
+
+    #[arg(short, long, help="Do not fail if we encounter an attestation with no verifiable HTML, skip it instead.")]
+    pub dont_fail_on_missing: bool,
+
+    #[command(flatten)]
+    pub all_attestations: all_attestations::Query,
+  }
+
+  impl Query {
+    pub fn run<F: Fn(i32, i32, &all_attestations::Attestation)>(&self, client: &super::Client, before_each_save: F) -> super::ClientResult<i32> {
+      if !self.path.is_dir() {
+        return Err(Error::NotFound(format!("a directory called {}", &self.path.display())))
+      }
+
+      let output = self.all_attestations.run(client)?;
+      let total = output.meta.count;
+      let mut current = 1;
+      let mut saved = 0;
+
+      for entry in &output.all {
+        before_each_save(current, total, entry);
+
+        let exported = attestation_html_export::Query{
+          id: entry.id, 
+          out_file: Some(self.path.join(format!("attestation_{}.html", entry.id))),
+        }.run(client);
+        current += 1;
+
+        match exported {
+          Ok(_) => saved += 1,
+          Err(e) => if !self.dont_fail_on_missing { return Err(e) }
+        }
+      }
+
+      Ok(saved)
+    }
+  }
+}
