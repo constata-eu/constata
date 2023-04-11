@@ -56,8 +56,7 @@ pub struct AttestationHtmlExport {
   pub verifiable_html: String,
 }
 
-#[derive(Debug, Clone, GraphQLInputObject, Serialize, Deserialize)]
-#[derive(clap::Args)]
+#[derive(Debug, Clone, Default, GraphQLInputObject, Serialize, Deserialize, clap::Args)]
 #[serde(rename_all = "camelCase")]
 pub struct AttestationFilter {
   #[arg(long, help="Fetch a specific list of attestations by their ids", action=clap::ArgAction::Append)]

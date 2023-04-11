@@ -27,8 +27,7 @@ pub struct Template {
   archived: bool,
 }
 
-#[derive(Debug, Clone, GraphQLInputObject, serde::Serialize, serde::Deserialize)]
-#[derive(clap::Args)]
+#[derive(Debug, Clone, Default, GraphQLInputObject, serde::Serialize, serde::Deserialize, clap::Args)]
 #[serde(rename_all = "camelCase")]
 pub struct TemplateFilter {
   #[arg(long, help="Fetch a specific list of templates by their ids", action=clap::ArgAction::Append)]
