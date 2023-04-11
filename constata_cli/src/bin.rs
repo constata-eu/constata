@@ -3,6 +3,13 @@ use std::path::PathBuf;
 use constata_client_lib::*;
 use dialoguer::{theme::ColorfulTheme, Password};
 
+/*
+ * - Sort fields don't seem to work.
+ * - Web callback endpoints.
+ * - Shorten short descriptions.
+ * - We're missing all the tests.
+ */
+
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
 struct Cli {
@@ -28,76 +35,74 @@ struct Cli {
 #[derive(Subcommand)]
 enum Commands {
   /// Start an issuance using a json array of (not nested) objects as initial entries.
-  CreateIssuanceFromJson(create_issuance_from_json::Query),
+  CreateIssuanceFromJson(queries::CreateIssuanceFromJson),
 
   /// Start an issuance using a CSV file as initial entries.
-  CreateIssuanceFromCsv(create_issuance_from_csv::Query),
+  CreateIssuanceFromCsv(queries::CreateIssuanceFromCsv),
 
   /// Append entries to a previously created issuance before signing it. 
-  AppendEntriesToIssuance(append_entries_to_issuance::Query),
+  AppendEntriesToIssuance(queries::AppendEntriesToIssuance),
 
   /// Lists your issuances
-  AllIssuances(all_issuances::Query),
+  AllIssuances(queries::AllIssuances),
 
-  /// Queries an issuance's state to check if it is created
-  IsIssuanceCreated(is_issuance_created::Query),
-
-  /// Queries an issuance's state to check if it is done
-  IsIssuanceDone(is_issuance_done::Query),
+  /// Queries an issuance's state, optionally waiting until the expected state is reached.
+  IssuanceState(queries::IssuanceState),
 
   /// Lists entries across all Issuances
-  AllEntries(all_entries::Query),
+  AllEntries(queries::AllEntries),
   
   /// Gets an HTML preview of a specific entry so you can have a look before signing
-  PreviewEntry(preview_entry::Query),
+  PreviewEntry(queries::PreviewEntry),
 
   /// Exports the verifiable HTML for an entry. Only available for entries in the 'done' state.
-  EntryHtmlExport(entry_html_export::Query),
+  EntryHtmlExport(queries::EntryHtmlExport),
 
   /// Exports all verifiable HTMLs from entries matching the given criteria
-  AllEntriesHtmlExport(all_entries_html_export::Query),
+  AllEntriesHtmlExport(queries::AllEntriesHtmlExport),
 
   /// Exports the unsigned ZIP file with the entry contents, useful for signing.
   /// If you want an approximation of how an entry will look look at the preview-entry command.
-  UnsignedEntryPayload(unsigned_entry_payload::Query),
+  UnsignedEntryPayload(queries::UnsignedEntryPayload),
 
   /// Gets an HTML preview of some entry in the given issue. Use when you don't care about a specific entry.
-  PreviewSampleFromIssuance(preview_sample_from_issuance::Query),
+  PreviewSampleFromIssuance(queries::PreviewSampleFromIssuance),
 
   /// Sign all entries in an issuance.
   /// This will download all entries and digitally sign them locally with your secure digital signature.
-  SignIssuance(sign_issuance::Query),
+  SignIssuance(queries::SignIssuance),
 
   /// Export an issuance as a CSV file at any point.
   /// The exported issuance maintains the row ordering.
-  IssuanceExport(issuance_export::Query),
+  IssuanceExport(queries::IssuanceExport),
 
   /// Lists all the templates you can use for your Issuances
-  AllTemplates(all_templates::Query),
+  AllTemplates(queries::AllTemplates),
 
   /// Creates a new attestation of some files.
-  CreateAttestation(create_attestation::Query),
+  CreateAttestation(queries::CreateAttestation),
 
   /// Lists all your attestations
-  AllAttestations(all_attestations::Query),
+  AllAttestations(queries::AllAttestations),
 
   /// Downloads a verifiable HTML document from an attestation.
-  AttestationHtmlExport(attestation_html_export::Query),
+  AttestationHtmlExport(queries::AttestationHtmlExport),
 
   /// Exports all verifiable HTMLs from attestations matching the given criteria
-  AllAttestationsHtmlExport(all_attestations_html_export::Query),
+  AllAttestationsHtmlExport(queries::AllAttestationsHtmlExport),
 
   /// Checks the state of an attestation, optionally waiting until it reaches that state.
-  AttestationState(attestation_state::Query),
+  AttestationState(queries::AttestationState),
 
   /// Gets your organization's account state
-  AccountState(account_state::Query),
+  AccountState(queries::AccountState),
 
   /// Run a custom graphql query authenticated with your credentials.
   /// Gain access to new API features without a new client.
   /// Improve data transfer size by sending custom optimized queries.
-  Graphql(graphql::Query),
+  CustomGraphql(queries::CustomGraphql),
 }
+
 
 impl Cli {
   fn run(&self) -> ClientResult<()> {
@@ -192,7 +197,7 @@ impl Cli {
       },
       Commands::SignIssuance(query) => {
         use std::io::Write;
-        query.run(&client, |i: &sign_issuance::Iter| {
+        query.run(&client, |i| {
           print!("\rSigning entry {:>5} of {:>5}", i.current, i.total);
           let _ = std::io::stdout().flush();
         })?;
@@ -208,12 +213,7 @@ impl Cli {
         println!("{}", value);
         std::process::exit(if value { 0 } else { 1 })
       },
-      Commands::IsIssuanceCreated(query) => {
-        let value = query.run(&client)?;
-        println!("{}", value);
-        std::process::exit(if value { 0 } else { 1 })
-      },
-      Commands::IsIssuanceDone(query) => {
+      Commands::IssuanceState(query) => {
         let value = query.run(&client)?;
         println!("{}", value);
         std::process::exit(if value { 0 } else { 1 })
@@ -234,7 +234,7 @@ impl Cli {
       Commands::AccountState(query) => {
         self.print_json(&query.run(&client)?)?;
       },
-      Commands::Graphql(query) => {
+      Commands::CustomGraphql(query) => {
         self.print_json(&query.run(&client)?)?;
       },
     }
@@ -265,3 +265,15 @@ fn main() {
     std::process::exit(1);
   }
 }
+
+/*
+ * make_subcommands![
+ *  CreateIssuanceFromJson => print_json,
+ *  EntryHtmlExport => print_json_or_saved_message("Verifiable html for Entry {id} saved to file"),
+ *  EntryHtmlExport => exit_if_false,
+ *  CreateIssuanceFromJson(result) => {
+ *    Do something custom with the query result.
+ *  },
+ * ];
+ */
+
