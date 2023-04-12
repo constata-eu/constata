@@ -23,6 +23,8 @@ ureq = { version = "*", features = ["json"] }
 constata_lib = { path = "../constata_lib" }
 public_api = { path = "../public_api" }
 ex = "0.1.3"
+const_format = "*"
+hex = "*"
 
 # Add openssl-sys as a direct dependency so it can be cross compiled to
 # x86_64-unknown-linux-musl using the "vendored" feature below

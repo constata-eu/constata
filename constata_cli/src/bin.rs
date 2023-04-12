@@ -1,12 +1,13 @@
+mod runner;
+use runner::*;
+
 use clap::{Parser, Subcommand};
 use std::path::PathBuf;
 use constata_client_lib::*;
 use dialoguer::{theme::ColorfulTheme, Password};
 
 /*
- * - Sort fields don't seem to work.
  * - Web callback endpoints.
- * - Shorten short descriptions.
  * - We're missing all the tests.
  */
 
@@ -22,8 +23,11 @@ struct Cli {
   password: Option<String>,
 
   /// Extract a specific attribute from a successful JSON response.
+  ///
   /// The id of your first issuance when calling all-issuances should be --json-pointer=/entries/0/id
+  ///
   /// Exits with an error if the pointer is invalid or not found.
+  ///
   /// See https://www.rfc-editor.org/rfc/rfc6901 for pointer syntax.
   #[arg(short, long)]
   json_pointer: Option<String>,
@@ -32,83 +36,142 @@ struct Cli {
   command: Commands,
 }
 
-#[derive(Subcommand)]
-enum Commands {
-  /// Start an issuance using a json array of (not nested) objects as initial entries.
-  CreateIssuanceFromJson(queries::CreateIssuanceFromJson),
+commands! {
+  /// Start an issuance using a json array of objects as initial entries
+  ///
+  /// Each entry should be a flat object with strings as values, like:
+  /// { 
+  ///   "motive":"Big Data Analyst",
+  ///   "place":"Madrid, Spain",
+  ///   "date":"March 3, 2023",
+  ///   "recipient_identification":"Johnny777",
+  ///   "name":"John Doe",
+  ///   "shared_text":"Thank you for participating",
+  ///   "email":"john@example.com",
+  ///   "custom_text":"Large custom text"
+  /// }
+  CreateIssuanceFromJson => print_json,
 
   /// Start an issuance using a CSV file as initial entries.
-  CreateIssuanceFromCsv(queries::CreateIssuanceFromCsv),
+  CreateIssuanceFromCsv => print_json,
 
   /// Append entries to a previously created issuance before signing it. 
-  AppendEntriesToIssuance(queries::AppendEntriesToIssuance),
+  AppendEntriesToIssuance => print_json,
 
   /// Lists your issuances
-  AllIssuances(queries::AllIssuances),
+  AllIssuances => print_json,
 
   /// Queries an issuance's state, optionally waiting until the expected state is reached.
-  IssuanceState(queries::IssuanceState),
+  IssuanceState => |runner, query| {
+    runner.exit_with_boolean(query.run(&runner.client)?)?;
+  },
 
   /// Lists entries across all Issuances
-  AllEntries(queries::AllEntries),
+  AllEntries => print_json,
   
   /// Gets an HTML preview of a specific entry so you can have a look before signing
-  PreviewEntry(queries::PreviewEntry),
+  PreviewEntry => print_json_or_save("Preview for entry #{} saved to file"),
 
-  /// Exports the verifiable HTML for an entry. Only available for entries in the 'done' state.
-  EntryHtmlExport(queries::EntryHtmlExport),
+  /// Exports the verifiable HTML for an entry.
+  ///
+  /// Only available for entries in the 'done' state.
+  /// See the entry-state to check for the entry status before calling.
+  EntryHtmlExport => print_json_or_save("Verifiable HTML for Entry {} saved to file"),
 
   /// Exports all verifiable HTMLs from entries matching the given criteria
-  AllEntriesHtmlExport(queries::AllEntriesHtmlExport),
+  ///
+  /// Use all-entries to review your query before downloading.
+  AllEntriesHtmlExport => |runner, query| {
+    use std::io::Write;
+    let result = query.run(&runner.client, |current, total, entry| {
+      print!("\rProcessing entry {:>5}, its {:>5}/{:<5}", entry.id, current, total);
+      let _ = std::io::stdout().flush();
+    })?;
+    println!("\nSaved {} verifiable HTMLs", result);
+  },
 
   /// Exports the unsigned ZIP file with the entry contents, useful for signing.
+  /// 
   /// If you want an approximation of how an entry will look look at the preview-entry command.
-  UnsignedEntryPayload(queries::UnsignedEntryPayload),
+  UnsignedEntryPayload => print_json_or_save("ZIP file with raw contents for entry {} was saved"),
 
   /// Gets an HTML preview of some entry in the given issue. Use when you don't care about a specific entry.
-  PreviewSampleFromIssuance(queries::PreviewSampleFromIssuance),
+  PreviewSampleFromIssuance => print_json_or_save("Preview for entry {} saved to file"),
 
   /// Sign all entries in an issuance.
+  ///
   /// This will download all entries and digitally sign them locally with your secure digital signature.
-  SignIssuance(queries::SignIssuance),
+  SignIssuance => |runner, query| {
+    use std::io::Write;
+    query.run(&runner.client, |i| {
+      print!("\rSigning entry {:>5} of {:>5}", i.current, i.total);
+      let _ = std::io::stdout().flush();
+    })?;
+  },
 
   /// Export an issuance as a CSV file at any point.
-  /// The exported issuance maintains the row ordering.
-  IssuanceExport(queries::IssuanceExport),
+  ///
+  /// The exported issuance maintains the row ordering, and adds useful columns for each entry.
+  /// You can use this export file to load up on another system, like mailchimp for campaigns.
+  IssuanceExport => print_json_or_save("Export for Issuance #{} saved to file"),
 
   /// Lists all the templates you can use for your Issuances
-  AllTemplates(queries::AllTemplates),
+  AllTemplates => print_json,
 
   /// Creates a new attestation of some files.
-  CreateAttestation(queries::CreateAttestation),
+  CreateAttestation => print_json,
 
   /// Lists all your attestations
-  AllAttestations(queries::AllAttestations),
+  AllAttestations => print_json,
 
   /// Downloads a verifiable HTML document from an attestation.
-  AttestationHtmlExport(queries::AttestationHtmlExport),
+  AttestationHtmlExport => print_json_or_save("Verifiable HTML for Attestation {} saved to file"),
 
   /// Exports all verifiable HTMLs from attestations matching the given criteria
-  AllAttestationsHtmlExport(queries::AllAttestationsHtmlExport),
+  ///
+  /// Use all-attestations to review your query before downloading.
+  AllAttestationsHtmlExport => |runner, query| {
+    use std::io::Write;
+    let result = query.run(&runner.client, |current, total, attestation| {
+      print!("\rProcessing attestation {:>5}, its {:>5}/{:<5}", attestation.id, current, total);
+      let _ = std::io::stdout().flush();
+    })?;
+    println!("\nSaved {} verifiable HTMLs", result);
+  },
 
   /// Checks the state of an attestation, optionally waiting until it reaches that state.
-  AttestationState(queries::AttestationState),
+  AttestationState => |runner, query| { 
+    runner.exit_with_boolean(query.run(&runner.client)?)?;
+  },
 
   /// Gets your organization's account state
-  AccountState(queries::AccountState),
+  AccountState => print_json,
+
+  /// Sets your web callbacks URL
+  ///
+  /// We will send a web callback to that URL when your attestations change state.
+  /// Call with an empty URL to reset it.
+  UpdateWebCallbacksUrl => print_json,
+
+  /// Lists your web callbacks, for debugging and recovery.
+  ///
+  /// If you think you've missed any web callback, you can check here.
+  /// The whole web callback body is included so you can reprocess it manually.
+  AllWebCallbacks => print_json,
+
+  /// Validate Web Callback, and outputs its contents if valid.
+  ValidateWebCallback => print_json,
 
   /// Run a custom graphql query authenticated with your credentials.
+  ///
   /// Gain access to new API features without a new client.
   /// Improve data transfer size by sending custom optimized queries.
-  CustomGraphql(queries::CustomGraphql),
+  CustomGraphql => print_json,
 }
 
-
 impl Cli {
-  fn run(&self) -> ClientResult<()> {
-    let cli = Cli::parse();
-
-    let daily_pass = cli.password
+  fn run(self) -> ClientResult<()> {
+    let daily_pass = self.password
       .map(|i| i.to_string())
       .unwrap_or_else(|| {
         Password::with_theme(&ColorfulTheme::default())
@@ -117,145 +180,11 @@ impl Cli {
           .unwrap()
       });
 
-    let client = Client::from_config_file(cli.config, &daily_pass)?;
-
-    match cli.command {
-      Commands::CreateIssuanceFromJson(query) => {
-        self.print_json(&query.run(&client)?)?;
-      },
-      Commands::CreateIssuanceFromCsv(query) => {
-        self.print_json(&query.run(&client)?)?;
-      },
-      Commands::AppendEntriesToIssuance(query) => {
-        self.print_json(&query.run(&client)?)?;
-      },
-      Commands::AllIssuances(query) => {
-        self.print_json(&query.run(&client)?)?;
-      },
-      Commands::AllEntries(query) => {
-        self.print_json(&query.run(&client)?)?;
-      },
-      Commands::AllEntriesHtmlExport(query) => {
-        use std::io::Write;
-        let result = query.run(&client, |current, total, entry| {
-          print!("\rProcessing entry {:>5}, its {:>5}/{:<5}", entry.id, current, total);
-          let _ = std::io::stdout().flush();
-        })?;
-        println!("\nSaved {} verifiable HTMLs", result);
-      },
-      Commands::AllAttestationsHtmlExport(query) => {
-        use std::io::Write;
-        let result = query.run(&client, |current, total, entry| {
-          print!("\rProcessing attestation {:>5}, its {:>5}/{:<5}", entry.id, current, total);
-          let _ = std::io::stdout().flush();
-        })?;
-        println!("\nSaved {} verifiable HTMLs", result);
-      },
-      Commands::PreviewEntry(query) => {
-        let result = query.run(&client)?;
-        if query.out_file.is_none() {
-          self.print_json(&result)?;
-        } else {
-          println!("Preview for {} saved to file", result.id);
-        }
-      },
-      Commands::EntryHtmlExport(query) => {
-        let result = query.run(&client)?;
-        if query.out_file.is_none() {
-          self.print_json(&result)?;
-        } else {
-          println!("Verifiable HTML for Entry {} saved to file", result.id);
-        }
-      },
-      Commands::UnsignedEntryPayload(query) => {
-        let result = query.run(&client)?;
-        if query.out_file.is_none() {
-          self.print_json(&result)?;
-        } else {
-          println!("ZIP file with raw contents of entry {} was saved", result.id);
-        }
-      },
-      Commands::PreviewSampleFromIssuance(query) => {
-        let has_out_file = query.out_file.is_none();
-        let result = query.run(&client)?;
-
-        if has_out_file {
-          self.print_json(&result)?;
-        } else {
-          println!("Preview for entry {} saved to file", result.id);
-        }
-      },
-      Commands::IssuanceExport(query) => {
-        let has_out_file = query.out_file.is_none();
-        let result = query.run(&client)?;
-
-        if has_out_file {
-          self.print_json(&result)?;
-        } else {
-          println!("Export for issuance {} saved to file", result.id);
-        }
-      },
-      Commands::SignIssuance(query) => {
-        use std::io::Write;
-        query.run(&client, |i| {
-          print!("\rSigning entry {:>5} of {:>5}", i.current, i.total);
-          let _ = std::io::stdout().flush();
-        })?;
-      },
-      Commands::AllTemplates(query) => {
-        self.print_json(&query.run(&client)?)?;
-      },
-      Commands::AllAttestations(query) => {
-        self.print_json(&query.run(&client)?)?;
-      },
-      Commands::AttestationState(query) => {
-        let value = query.run(&client)?;
-        println!("{}", value);
-        std::process::exit(if value { 0 } else { 1 })
-      },
-      Commands::IssuanceState(query) => {
-        let value = query.run(&client)?;
-        println!("{}", value);
-        std::process::exit(if value { 0 } else { 1 })
-      },
-      Commands::CreateAttestation(query) => {
-        self.print_json(&query.run(&client)?)?;
-      },
-      Commands::AttestationHtmlExport(query) => {
-        let has_out_file = query.out_file.is_none();
-        let result = query.run(&client)?;
-
-        if has_out_file {
-          self.print_json(&result)?;
-        } else {
-          println!("Verifiable HTML for Attestation {} saved to file", result.id);
-        }
-      },
-      Commands::AccountState(query) => {
-        self.print_json(&query.run(&client)?)?;
-      },
-      Commands::CustomGraphql(query) => {
-        self.print_json(&query.run(&client)?)?;
-      },
-    }
-
-    Ok(())
-  }
-
-  fn print_json<T: serde::Serialize>(&self, it: &T) -> ClientResult<()>{
-    let value = serde_json::to_value(&it)?;
-    let as_str = serde_json::to_string(&it)?;
-
-    let json = if let Some(pointer) = &self.json_pointer {
-      value.pointer(&pointer).ok_or_else(||{
-        error![InvalidInput("Could not find pointer {} on response {}", &pointer, as_str)]
-      })?
-    } else {
-      &value
-    };
-    
-    println!("{}", serde_json::to_string_pretty(json)?);
-    Ok(())
+    Runner::run(
+      Client::from_config_file(self.config, &daily_pass)?,
+      self.json_pointer,
+      self.command
+    )
   }
 }
 
@@ -265,15 +194,3 @@ fn main() {
     std::process::exit(1);
   }
 }
-
-/*
- * make_subcommands![
- *  CreateIssuanceFromJson => print_json,
- *  EntryHtmlExport => print_json_or_saved_message("Verifiable html for Entry {id} saved to file"),
- *  EntryHtmlExport => exit_if_false,
- *  CreateIssuanceFromJson(result) => {
- *    Do something custom with the query result.
- *  },
- * ];
- */
-
