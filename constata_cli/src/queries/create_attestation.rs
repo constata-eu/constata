@@ -1,68 +1,13 @@
 use super::*;
-pub use constata_lib::models::{self, TemplateKind};
-pub use super::gql_types::{
-  ListMetadata,
+use gql_types::{
   attestation_graphql::{
     Attestation,
     AttestationInput,
-    AttestationFilter,
   }
 };
 
-#[derive(serde::Serialize, serde::Deserialize)]
-pub struct QueryWithAttestationInput {
-  input: AttestationInput,
-}
-
-impl From<AttestationInput> for QueryWithAttestationInput {
-  fn from(input: AttestationInput) -> Self {
-    QueryWithAttestationInput{ input }
-  }
-}
-
-impl QueryWithAttestationInput {
-  pub fn run(&self, client: &super::Client) -> super::ClientResult<Attestation> {
-    #[derive(Debug, serde::Deserialize)]
-    struct Output {
-      #[serde(rename="createAttestation")]
-      pub inner: Attestation,
-    }
-
-    client.query::<Output, Self>(
-      self,
-      r#"mutation CreateAttestation($input: AttestationInput!) {
-        createAttestation(input: $input) {
-          id
-          personId
-          orgId
-          markers
-          openUntil
-          state
-          parkingReason
-          doneDocuments
-          parkedDocuments
-          processingDocuments
-          totalDocuments
-          tokensCost
-          tokensPaid
-          tokensOwed
-          buyTokensUrl
-          acceptTycUrl
-          lastDocDate
-          emailAdminAccessUrlTo
-          adminAccessUrl
-          createdAt
-          __typename
-        }
-      }"#,
-    ).map(|x| x.inner )
-  }
-
-}
-
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, clap::Args)]
 #[serde(rename_all = "camelCase")]
-#[derive(clap::Args)]
 pub struct CreateAttestation {
   /// A list of paths to the files to add to your attestation.
   #[arg(short, long="path", value_name="PATH", action=clap::ArgAction::Append,
@@ -95,5 +40,22 @@ impl CreateAttestation {
       markers: self.markers,
       email_admin_access_url_to: self.email_admin_access_url_to,
     }).run(client)
+  }
+}
+
+#[derive(serde::Serialize, serde::Deserialize)]
+pub struct QueryWithAttestationInput {
+  input: AttestationInput,
+}
+
+impl From<AttestationInput> for QueryWithAttestationInput {
+  fn from(input: AttestationInput) -> Self {
+    QueryWithAttestationInput{ input }
+  }
+}
+
+impl QueryWithAttestationInput {
+  pub fn run(&self, client: &Client) -> ClientResult<Attestation> {
+    client.mutation(self, "createAttestation", "AttestationInput", gql_fields::ATTESTATION)
   }
 }

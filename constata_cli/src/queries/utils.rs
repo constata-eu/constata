@@ -42,6 +42,68 @@ where
 }
 
 #[macro_export]
+macro_rules! export_verifiable_html_collection_template {
+  (
+    $module_name:ident,
+    $query:ident,
+    $collection_query:ident,
+    $model:path,
+    $single_export_query:ident,
+    $filename_template:literal,
+  ) => (
+    pub mod $module_name {
+      use super::*;
+
+      #[derive(serde::Serialize, clap::Args)]
+      #[serde(rename_all = "camelCase")]
+      pub struct $query {
+        #[arg(help="Save the verifiable HTMLs to the given directory if possible. \
+          Will fail if it encounters any verifiable HTMTL is not available.")]
+        pub path: PathBuf,
+
+        #[arg(short, long, help="Do not fail if a verifiable HTML is not available yet, skip it instead.")]
+        pub dont_fail_on_missing: bool,
+
+        #[command(flatten)]
+        pub subcommand: $collection_query,
+      }
+
+      impl $query {
+        pub fn run<F: Fn(i32, i32, &$model)>(&self, client: &Client, before_each_save: F) -> ClientResult<i32> {
+          if !self.path.is_dir() {
+            return Err(Error::NotFound(format!("a directory called {}", &self.path.display())))
+          }
+
+          let output = self.subcommand.run(client)?;
+          let total = output.meta.count;
+          let mut current = 1;
+          let mut saved = 0;
+
+          for item in &output.all {
+            before_each_save(current, total, item);
+
+            let exported = $single_export_query {
+              id: item.id, 
+              out_file: Some(self.path.join(format!($filename_template, item.id))),
+            }.run(client);
+            current += 1;
+
+            match exported {
+              Ok(_) => saved += 1,
+              Err(e) => if !self.dont_fail_on_missing { return Err(e) }
+            }
+          }
+
+          Ok(saved)
+        }
+      }
+    }
+    pub use $module_name::$query;
+  )
+}
+pub use export_verifiable_html_collection_template;
+
+#[macro_export]
 macro_rules! query_by_id_and_save_file_template {
   (
     $module_name:ident,
@@ -110,8 +172,12 @@ macro_rules! collection_query_template {
         pub per_page: Option<i32>,
         #[arg(long,help="Field to use for sorting")]
         pub sort_field: Option<String>,
-        #[arg(long,help="Either asc or desc")]
+        #[arg(long,help="Either ASC or DESC")]
         pub sort_order: Option<String>,
+      }
+
+      #[derive(Default, serde::Serialize, clap::Args)]
+      pub struct Sort {
       }
 
       #[derive(Debug, serde::Deserialize, serde::Serialize)]

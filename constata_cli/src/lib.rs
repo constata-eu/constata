@@ -14,3 +14,19 @@ pub mod queries;
 pub use queries::*;
 
 pub use public_api::controllers::certos::public_graphql as gql_types;
+
+#[macro_export]
+macro_rules! pub_mods {
+  [ $($mod:ident::$child:ident;)+ ] => (
+    $(
+      pub mod $mod;
+      pub use $mod::$child;
+    )+
+  );
+  [ $($mod:ident::{$($child:ident)+};)+] => (
+    $(
+      pub mod $mod;
+      pub use $mod::{$($child,)+};
+    )+
+  )
+}

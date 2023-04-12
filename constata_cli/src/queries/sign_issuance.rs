@@ -38,41 +38,12 @@ impl<'a> Iter<'a> {
   }
 
   pub fn next(&mut self) -> ClientResult<bool> {
-    #[derive(Debug, serde::Deserialize)]
-    struct Output {
-      #[serde(rename="signingIterator")]
-      pub inner: Option<UnsignedEntryPayload>,
-    }
-
-    let maybe_next = self.client.query::<Output, Self>(
+    let maybe_next: Option<UnsignedEntryPayload> = self.client.mutation(
       self,
-      r#"mutation ($input: SigningIteratorInput!) {
-        signingIterator(input: $input) {
-          id
-          entry {
-            id
-            issuanceId
-            issuanceName
-            rowNumber
-            state
-            receivedAt
-            params
-            errors
-            documentId
-            storyId
-            adminVisited
-            publicVisitCount
-            hasEmailCallback
-            emailCallbackSentAt
-            payload
-            adminAccessUrl
-            __typename
-          }
-          bytes
-          __typename
-        }
-      }"#
-    ).map(|x| x.inner )?;
+      "signingIterator",
+      "SigningIteratorInput",
+      gql_fields::UNSIGNED_ENTRY_PAYLOAD
+    )?;
 
     if let Some(next) = maybe_next {
       self.input.entry_id = Some(next.id);
@@ -96,8 +67,7 @@ impl<'a> Iter<'a> {
   }
 }
 
-#[derive(clap::Args)]
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, clap::Args)]
 #[serde(rename_all = "camelCase")]
 pub struct SignIssuance {
   #[arg(help="id of the issuance whose entries you want to sign")]

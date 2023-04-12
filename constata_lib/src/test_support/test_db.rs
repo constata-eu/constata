@@ -28,7 +28,6 @@ use rust_decimal_macros::dec;
 use chrono::TimeZone;
 use i18n::Lang;
 
-
 #[derive(Clone)]
 pub struct TestDb{
   pub site: Site,

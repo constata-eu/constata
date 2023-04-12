@@ -9,7 +9,7 @@ use simplestcrypt::deserialize_and_decrypt;
 use bitcoin::{ Network, PrivateKey };
 
 #[serde_as]
-#[derive(Serialize, Deserialize)]
+#[derive(Debug,Serialize, Deserialize)]
 pub struct Config {
   public_key: PublicKey,
   #[serde_as(as = "serde_with::hex::Hex")]
@@ -24,13 +24,20 @@ pub struct Client {
 }
 
 impl Client {
-  pub fn new(config: &Config, daily_passphrase: &str) -> ClientResult<Client> {
+  pub fn new(config: Config, daily_passphrase: &str) -> ClientResult<Client> {
     let (api_url, network) = match config.environment.as_str() {
       "staging" => ("https://api-staging.constata.eu", Network::Bitcoin),
       "production" => ("https://api.constata.eu", Network::Bitcoin),
       _ => ("http://localhost:8000", Network::Regtest),
     };
-    let decrypted = deserialize_and_decrypt(daily_passphrase.as_bytes(), &config.encrypted_key)?;
+
+    /* The javascript client generates encrypted private keys,
+     * that are not compatible with rust's bincode,
+     * So we need to inject the ciphertext size in the serialized encrypted key*/
+    let mut fixed_encrypted_key = config.encrypted_key.clone();
+    fixed_encrypted_key[16] = 68;
+
+    let decrypted = deserialize_and_decrypt(daily_passphrase.as_bytes(), &fixed_encrypted_key)?;
     let key = PrivateKey::from_wif(&String::from_utf8(decrypted)?)?;
 
     Ok(Client { key, api_url, network })
@@ -42,7 +49,7 @@ impl Client {
       serde_json::from_str(&ex::fs::read_to_string(config_path)?),
       InvalidInput("Your config file is not a valid json")
     );
-    Self::new(&config, daily_passphrase)
+    Self::new(config, daily_passphrase)
   }
 
   pub fn auth_token<'a>(&'a self, nonce: i64, body: &str) -> ClientResult<String> {

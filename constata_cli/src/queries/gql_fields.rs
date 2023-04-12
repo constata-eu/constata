@@ -1,3 +1,5 @@
+use const_format::formatcp;
+
 pub const ISSUANCE: &'static str = "\
   id
   templateId
@@ -31,6 +33,15 @@ pub const ENTRY: &'static str = "\
   payload
   adminAccessUrl
   __typename";
+
+pub const UNSIGNED_ENTRY_PAYLOAD: &'static str = formatcp!("\
+  id
+  entry {{
+    {ENTRY}
+  }}
+  bytes
+  __typename
+");
 
 pub const TEMPLATE: &'static str = "\
   id
@@ -73,4 +84,35 @@ pub const ATTESTATION: &'static str = "\
   emailAdminAccessUrlTo
   adminAccessUrl
   createdAt
+  __typename";
+
+pub const ACCOUNT_STATE: &'static str = "\
+  id
+  missing
+  tokenBalance
+  pricePerToken
+  maxMonthlyGift
+  monthlyGiftRemainder
+  parkedCount
+  invoices {
+    amount
+    tokens
+    description
+    url
+    __typename
+  }
+  pendingTycUrl
+  pendingInvoiceLinkUrl
+  webCallbacksUrl
+  __typename";
+
+pub const WEB_CALLBACK: &'static str = "\
+  id
+  kind
+  resourceId
+  state
+  lastAttemptId
+  createdAt
+  nextAttemptOn
+  requestBody
   __typename";

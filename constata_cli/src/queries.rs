@@ -1,52 +1,50 @@
-mod utils;
-use utils::{query_by_id_and_save_file_template, collection_query_template};
-
+use crate::pub_mods;
 use std::path::PathBuf;
 use super::{Error, ClientResult, gql_types, Client, check, error};
 use serde::{Deserialize, Serialize};
 use constata_lib::signed_payload::SignedPayload;
 
+mod utils;
+use utils::{
+  query_by_id_and_save_file_template,
+  collection_query_template,
+  export_verifiable_html_collection_template,
+};
+
 pub mod gql_fields;
 
-pub mod create_issuance_from_json;
-pub use create_issuance_from_json::CreateIssuanceFromJson;
+pub_mods!{
+  create_issuance_from_json::CreateIssuanceFromJson;
+  create_issuance_from_csv::CreateIssuanceFromCsv;
+  custom_graphql::CustomGraphql;
+  append_entries_to_issuance::AppendEntriesToIssuance;
+  account_state::AccountState;
+  issuance_state::IssuanceState;
+  attestation_state::AttestationState;
+  sign_issuance::SignIssuance;
+  create_attestation::CreateAttestation;
+  preview_sample_from_issuance::PreviewSampleFromIssuance;
+  update_web_callbacks_url::UpdateWebCallbacksUrl;
+  validate_web_callback::ValidateWebCallback;
+}
 
-pub mod create_issuance_from_csv;
-pub use create_issuance_from_csv::CreateIssuanceFromCsv;
+export_verifiable_html_collection_template! {
+  all_attestations_html_export,
+  AllAttestationsHtmlExport,
+  AllAttestations,
+  gql_types::Attestation,
+  AttestationHtmlExport,
+  "attestation_{}.html",
+}
 
-pub mod custom_graphql;
-pub use custom_graphql::CustomGraphql;
-
-pub mod append_entries_to_issuance;
-pub use append_entries_to_issuance::AppendEntriesToIssuance;
-
-pub mod account_state;
-pub use account_state::AccountState;
-
-pub mod issuance_state;
-pub use issuance_state::IssuanceState;
-
-pub mod attestation_state;
-pub use attestation_state::AttestationState;
-
-/************************/
-/* Review modules below */
-/************************/
-
-pub mod all_entries_html_export;
-pub use all_entries_html_export::AllEntriesHtmlExport;
-
-pub mod all_attestations_html_export;
-pub use all_attestations_html_export::AllAttestationsHtmlExport;
-
-pub mod sign_issuance;
-pub use sign_issuance::SignIssuance;
-
-pub mod create_attestation;
-pub use create_attestation::CreateAttestation;
-
-pub mod preview_sample_from_issuance;
-pub use preview_sample_from_issuance::PreviewSampleFromIssuance;
+export_verifiable_html_collection_template! {
+  all_entries_html_export,
+  AllEntriesHtmlExport,
+  AllEntries,
+  gql_types::Entry,
+  EntryHtmlExport,
+  "entry_{}.html",
+}
 
 query_by_id_and_save_file_template!{
   entry_html_export,
@@ -100,14 +98,7 @@ query_by_id_and_save_file_template!{
     Use --json-pointer=/bytes to extract the HTML and print it to stdout.
   ",
   "UnsignedEntryPayload",
-  &format!("\
-    id
-    entry {{
-      {}
-    }}
-    bytes
-    __typename
-  ", gql_fields::ENTRY),
+  gql_fields::UNSIGNED_ENTRY_PAYLOAD,
   bytes
 }
 
@@ -189,4 +180,15 @@ collection_query_template!{
   "allAttestations",
   "_allAttestationsMeta",
   gql_fields::ATTESTATION
+}
+
+collection_query_template!{
+  all_web_callbacks,
+  AllWebCallbacks,
+  gql_types::web_callback_graphql::WebCallback,
+  gql_types::web_callback_graphql::WebCallbackFilter,
+  "WebCallbackFilter",
+  "allWebCallbacks",
+  "_allWebCallbacksMeta",
+  gql_fields::WEB_CALLBACK
 }

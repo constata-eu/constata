@@ -261,8 +261,7 @@ pub struct IssuanceExport {
   pub csv: String,
 }
 
-#[derive(Debug, Clone, Default, GraphQLInputObject, serde::Serialize, serde::Deserialize)]
-#[derive(clap::Args)]
+#[derive(Debug, Clone, Default, GraphQLInputObject, serde::Serialize, serde::Deserialize, clap::Args)]
 #[serde(rename_all = "camelCase")]
 pub struct IssuanceFilter {
   #[arg(long, help="Fetch a specific list of issuances by their ids", action=clap::ArgAction::Append)]
