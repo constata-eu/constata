@@ -6,11 +6,6 @@ use std::path::PathBuf;
 use constata_client_lib::*;
 use dialoguer::{theme::ColorfulTheme, Password};
 
-/*
- * - Web callback endpoints.
- * - We're missing all the tests.
- */
-
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
 struct Cli {

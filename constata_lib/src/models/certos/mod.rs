@@ -380,7 +380,7 @@ describe!{
     site.request().create_all_received().await?;
     let entries = request.entry_vec().await?;
     assert_eq!(2, entries.len());
-    assert_that!(entries[0].params(), rematch("\"curso\":\"Derecho\""));
+    assert_that!(entries[0].params(), rematch("\"course\":\"Derecho\""));
   }
 
   regtest!{ bad_certos_request_unequal_lengths (_site, c, _chain)
@@ -398,11 +398,18 @@ describe!{
   }
 
   regtest!{ bad_certos_request_incompatible_with_template (site, c, _chain)
-    let mut request = set_up_csv_request_with_custom_template(
-      &c.alice().await,
-      "src/test_support/resources/bad_certos_request_incompatible_with_template.csv"
+    use crate::models::TemplateSchemaField;
+
+    let alice = c.alice().await;
+    let schema = serde_json::to_string(&vec![
+      TemplateSchemaField::new("email", false, false),
+    ])?;
+    let template = alice.try_make_template(read("certos_template.zip"), &schema).await?;
+    let mut request = alice.make_request(
+      *template.id(),
+      read("bad_certos_request_incompatible_with_template.csv")
     ).await?;
-    
+
     site.request().create_all_received().await.unwrap_err(); // Ahora se crean todos los documentos.
 
     request.reload().await?;
