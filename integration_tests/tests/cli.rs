@@ -33,10 +33,16 @@ mod cli {
     */
 
     api_integration_test!{ account_state(db, _chain)
-      db.alice().await.write_signature_json_artifact();
+      let alice = db.alice().await;
+      alice.verify_email("alice@example.com").await;
+      alice.write_signature_json_artifact();
 
-      let json = run_command_json("account-state", &[]);
+      let mut json = run_command_json("account-state", &[]);
       assert_eq!(json.get("id").unwrap(), 1);
+      /*
+      json = run_command_json("account-state", &[]);
+      assert_eq!(json.get("id").unwrap(), 1);
+      */
     }
 
     api_integration_test!{ create_issuance_from_json(db, _chain)
@@ -49,14 +55,13 @@ mod cli {
         "--new-name=my_template",
       ]);
 
-      dbg!(&json);
+      println!("{}", &serde_json::to_string_pretty(&json)?);
 
       assert_eq!(json.get("templateName").unwrap(), "my_template");
       assert_eq!(json.get("templateKind").unwrap(), "BADGE");
     }
 
     fn run_command(command: &str, args: &[&str]) -> String {
-      let conf_arg = format!("--config={config}");
       let params = [
         &["run", "-p", "constata-cli", "--","--config=target/artifacts/signature.json",
            "--password=password", command],
@@ -76,8 +81,8 @@ mod cli {
       String::from_utf8(out.stdout).unwrap()
     }
 
-    fn run_command_json(command: &str, config: &str, args: &[&str]) -> serde_json::Value {
-      serde_json::from_str(&run_command(command, config, args)).unwrap()
+    fn run_command_json(command: &str, args: &[&str]) -> serde_json::Value {
+      serde_json::from_str(&run_command(command, args)).unwrap()
     }
   }
 }
