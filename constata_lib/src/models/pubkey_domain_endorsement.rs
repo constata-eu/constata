@@ -403,8 +403,9 @@ describe! {
   }
 
   dbtest!{ can_list_all_endorsements (site, c)
+    let alice = c.alice().await;
     let alice_row = PubkeyDomainEndorsementForm{
-      signed_payload: c.alice().await.signed_payload(b"https://example.com"),
+      signed_payload: alice.signed_payload(b"https://example.com"),
     }.save(&site).await?;
 
     let bob_row = PubkeyDomainEndorsementForm{
@@ -424,7 +425,7 @@ describe! {
     };
 
     assert_eq!(list_pending(None).await, vec![alice_row.clone(), bob_row.clone()]);
-    assert_eq!(list_pending(Some(c.alice().await.public_key().to_string())).await, vec![alice_row]);
+    assert_eq!(list_pending(Some(alice.public_key().to_string())).await, vec![alice_row]);
   }
 
   dbtest!{ fails_after_many_retries_but_can_be_resubmitted (site, c)
