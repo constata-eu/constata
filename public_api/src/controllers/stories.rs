@@ -94,7 +94,7 @@ constata_lib::describe_one! {
       serde_json::json![{
         "markers": "foo bar baz",
         "open_until": "2030-01-01T00:00:00.000000000Z",
-        "signed_payload": c.alice().await.signed_payload(samples::multipart_email().as_bytes()),
+        "signed_payload": alice_client.signer.signed_payload(samples::multipart_email().as_bytes()),
         "filename": "",
       }].to_string()
     ).await;
@@ -163,7 +163,7 @@ constata_lib::describe_one! {
       serde_json::json![{
         "markers": "foo bar baz",
         "open_until": "2030-01-01T00:00:00.000000000Z",
-        "signed_payload": c.alice().await.signed_payload(&read("json_for_testing.json")),
+        "signed_payload": alice_client.signer.signed_payload(&read("json_for_testing.json")),
         "filename": "json_for_testing.json",
       }].to_string()
     ).await;
@@ -181,7 +181,7 @@ constata_lib::describe_one! {
       serde_json::json![{
         "markers": "foo bar baz",
         "open_until": "2030-01-01T00:00:00.000000000Z",
-        "signed_payload": c.alice().await.signed_payload(&read("json_for_testing.json")),
+        "signed_payload": alice_client.signer.signed_payload(&read("json_for_testing.json")),
       }].to_string()
     ).await;
 

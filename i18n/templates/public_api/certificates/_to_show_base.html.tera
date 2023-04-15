@@ -15,11 +15,11 @@
     {% endif %}
 
     <meta name="twitter:description" content="
-    {%- if template_kind == "Diploma" -%}
+    {%- if template_kind == "DIPLOMA" -%}
       {%- block __diploma_issued_by -%}{%- endblock __diploma_issued_by -%}
-    {%- elif template_kind == "Attendance" -%}
+    {%- elif template_kind == "ATTENDANCE" -%}
       {%- block __attendance_issued_by -%}{%- endblock __attendance_issued_by -%}
-    {%- elif template_kind == "Badge" -%}
+    {%- elif template_kind == "BADGE" -%}
       {%- block __badge_issued_by -%}{%- endblock __badge_issued_by -%}
     {%- else -%}
       {%- block __certification_issued_by -%}{%- endblock __certification_issued_by -%}
@@ -30,10 +30,10 @@
     {%- else -%}
       {{ name_for_on_behalf_of }} via Constata.eu
     {%- endif -%}
-    ">
+    " />
 
-    <meta name="twitter:creator" content="@constataEu">
-    <meta name="twitter:image" content="{{ image }}">
+    <meta name="twitter:creator" content="@constataEu" />
+    <meta name="twitter:image" content="{{ image }}" />
   
     <meta property="og:type" content="website" />
     {% if title %}
@@ -42,11 +42,11 @@
       <meta property="og:title" content="{%- block __default_metadata_title -%}{%- endblock __default_metadata_title -%}">
     {% endif %}
     <meta property="og:description" content="
-    {%- if template_kind == "Diploma" -%}
+    {%- if template_kind == "DIPLOMA" -%}
       {%- block __diploma_issued_by -%}{%- endblock __diploma_issued_by -%}
-    {%- elif template_kind == "Attendance" -%}
+    {%- elif template_kind == "ATTENDANCE" -%}
       {%- block __attendance_issued_by -%}{%- endblock __attendance_issued_by -%}
-    {%- elif template_kind == "Badge" -%}
+    {%- elif template_kind == "BADGE" -%}
       {%- block __badge_issued_by -%}{%- endblock __badge_issued_by -%}
     {%- else -%}
       {%- block __certification_issued_by -%}{%- endblock __certification_issued_by -%}

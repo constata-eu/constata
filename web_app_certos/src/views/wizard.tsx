@@ -72,7 +72,7 @@ const Template = ({handleNext, wizardState, setWizardState}) => {
       const template = await dataProvider.getOne("Template", {id: values.templateId});
       values.templateName = template.data.name;
       values.kind = template.data.kind;
-      values.schema = JSON.parse(template.data.schema);
+      values.schema = template.data.schema;
     }
 
     await setWizardState((s) => ({...s, ...values}));

@@ -90,11 +90,11 @@ constata_lib::describe_one! {
   }
 
   fulltest!{ creates_lists_and_gets_documents (_db, c, alice_client, mut chain)
-    c.alice().await.stories_with_signed_docs(b"alice").await;
+   alice_client.signer.stories_with_signed_docs(b"alice").await;
 
     let created: ApiDocument = alice_client.post("/documents/",
       serde_json::json![{
-        "signed_payload": c.alice().await.signed_payload(samples::multipart_email().as_bytes())
+        "signed_payload": alice_client.signer.signed_payload(samples::multipart_email().as_bytes())
       }].to_string()
     ).await;
 

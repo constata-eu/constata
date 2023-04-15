@@ -577,13 +577,13 @@ impl SignerClient {
   pub async fn make_signed_diplomas_issuance(&self) -> Result<Request> {
     let mut issuance = Wizard{
       person: self.person().await,
-      name: "certos_request.csv".to_string(),
+      name: "default_certos_recipients.csv".to_string(),
       template: WizardTemplate::New {
         kind: TemplateKind::Diploma,
         logo: ImageOrText::Text("sample diploma".to_string()),
         name: "new template".to_string(),
       },
-      csv: read("certos_request.csv"),
+      csv: read("default_certos_recipients.csv"),
     }.process().await?;
     self.db.site.request().create_all_received().await?;
 

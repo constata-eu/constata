@@ -8,7 +8,7 @@ pub struct Selenium{
   child: Child,
 }
 
-const DOWNLOADS: &str = "/tmp/constata_tests_downloads";
+pub const DOWNLOADS: &str = "/tmp/constata_tests_downloads";
 
 impl Selenium {
   pub async fn start() -> Self {

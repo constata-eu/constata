@@ -61,6 +61,7 @@ const DownloadProofLink = () => {
       a.href = URL.createObjectURL(blob);
       a.download = "constata_certificate.html";
       a.click();
+      notify("certos.download_proof_link.downloaded", { type: 'success' });
     } catch (e) { 
       notify("certos.download_proof_link.error_download", { type: 'error' });
     }

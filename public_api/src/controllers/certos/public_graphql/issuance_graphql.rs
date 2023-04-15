@@ -388,7 +388,7 @@ constata_lib::describe_one! {
         new_kind: Some(create::TemplateKind::DIPLOMA),
         new_name: Some("nuevo diploma".to_string()),
         new_logo_text: Some("nuevo texto del logo".to_string()),
-        new_logo_image: None,
+        new_logo_image: None::<String>,
       }
     };
 

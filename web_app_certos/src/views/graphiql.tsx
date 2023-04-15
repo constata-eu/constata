@@ -3,7 +3,6 @@ import { useEffect } from "react";
 import { useSafeSetState } from "react-admin";
 import { Box } from "@mui/material";
 import { GraphiQL } from "graphiql";
-import { createGraphiQLFetcher } from '@graphiql/toolkit';
 import { getRawAuthorization } from "../components/auth_provider";
 import type { GraphQLSchema } from "graphql";
 import { envs } from "../components/cypher";
@@ -13,12 +12,26 @@ import 'graphiql/graphiql.css';
 
 const Graphiql = () => {
   const [schema, setSchema] = useSafeSetState<GraphQLSchema>();
-  const [body, setBody] = useSafeSetState<string | boolean>();
-  const [headers, setHeaders] = useSafeSetState<string>("");
   const origin = envs[localStorage.getItem("environment")].url;
-  const graphqlUrl = `${origin}/graphql`;
-  const fetcher = createGraphiQLFetcher({url: graphqlUrl});
 
+  const fetcher = async (graphQLParams, opts) => {
+    const graphqlUrl = `${origin}/graphql`;
+    const body = JSON.stringify(graphQLParams);
+    const { headers = {} } = opts;
+    headers["Authentication"] = await getRawAuthorization(graphqlUrl, "POST", body);
+
+    const response = await fetch(graphqlUrl, {
+      method: 'post',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        ...headers,
+      },
+      body: body,
+    });
+
+    return response.json();
+  }
 
   useEffect(() => {
     const init = async () => {
@@ -29,28 +42,13 @@ const Graphiql = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-
-  const change = async (s) => {
-    const query = s.tabs[s.activeTabIndex].query;
-    
-
-    const maybeNewBody = JSON.stringify({query});
-    if (body !== maybeNewBody) {
-      setHeaders(JSON.stringify({Authentication: await getRawAuthorization(graphqlUrl, "POST", maybeNewBody)}));
-      setBody(maybeNewBody);
-      
-    }
-  }
-
   if (!schema) return <Loading />;
 
   return(
-    <Box sx={{height: "100vh"}} id={ headers ? "header-set" : "header-not-set"}>
+    <Box sx={{height: "100vh"}}>
       <GraphiQL
         fetcher={fetcher}
-        headers={headers}
         schema={schema}
-        onTabChange={change}
       />
     </Box>
   )

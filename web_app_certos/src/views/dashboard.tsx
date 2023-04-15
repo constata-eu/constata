@@ -1,6 +1,6 @@
-import { Box, Button, Typography, Container } from '@mui/material';
+import { Box, Button, Typography, Container, Skeleton } from '@mui/material';
 import { useEffect } from "react";
-import { useTranslate, useCheckAuth } from 'ra-core';
+import { useTranslate, useCheckAuth, useSafeSetState } from 'ra-core';
 import AccountStateSection from '../components/account_state_section';
 import Balance from '../components/balance_section';
 import IssuancesSection from '../components/issuances_section';
@@ -12,6 +12,7 @@ import { Head1 } from '../theme';
 export default function Dashboard() {
   const translate = useTranslate();
   const checkAuth = useCheckAuth();
+  const [ready, setReady] = useSafeSetState(false);
 
   useEffect(() => {
     async function checkVerification() {
@@ -20,9 +21,16 @@ export default function Dashboard() {
       } catch {
         return;
       }
+      setReady(true);
     }
     checkVerification();
   }, [checkAuth]);
+
+  if (!ready) return <Container maxWidth="md" id="constata_dashboard_loading">
+    <Skeleton/>
+    <Skeleton/>
+    <Skeleton/>
+  </Container>;
 
   return (<Container maxWidth="md" id="constata_dashboard">
     <AccountStateSection />
