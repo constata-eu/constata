@@ -471,6 +471,7 @@
       "copy_to_clipboard": "Copy Link",
       "share_on": "Share on",
       "error_download": "Error: Could not download the file. Reload page and try it again",
+      "downloaded": "Download completed",
       "error_public_certificate_state": "Error: could not change the certificate's state. Reload page and try it again",
       "error_deletion": "Error: Could not delete link. Reload page and try it again",
       "share": {

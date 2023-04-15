@@ -471,6 +471,7 @@
       "copy_to_clipboard": "Copiar Link",
       "share_on": "Compartir en",
       "error_download": "Error: no se pudo descargar el archivo. Recargue la página y vuelva a intentarlo",
+      "downloaded": "Descargado",
       "error_public_certificate_state": "Error: no se pudo cambiar el estado del certificado. Recargue la página y vuelva a intentarlo",
       "error_deletion": "Error: no se pudo borrar el link. Recargue la página y vuelva a intentarlo",
       "share": {

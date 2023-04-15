@@ -34,7 +34,7 @@ export default function EmailAddress() {
       setRecord(_.pick(current, 'address', 'keepPrivate', 'verifiedAt'));
     }
     init();
-  }, [dataProvider, setRecord]);
+  }, []);
 
   const onSubmit = async (values) => {
     let {data} = await dataProvider.create('EmailAddress', { data: { input: _.pick(values, 'address', 'keepPrivate') }});
@@ -54,7 +54,7 @@ export default function EmailAddress() {
   const Edit = () => 
     <RecordContextProvider value={record}>
       { _.isEmpty(record) && <Box my={1}><Typography>{ translate("certos.dashboard.email.no_email_yet") } </Typography></Box> }
-      <Form onSubmit={onSubmit} noValidate>
+      <Form id="section-email-address-edit" onSubmit={onSubmit} noValidate>
         <Grid container spacing={1} alignItems="center" >
           <Grid item xs={12} md={6}>
             <TextInput
@@ -78,7 +78,7 @@ export default function EmailAddress() {
     </RecordContextProvider>;
 
   const Show = () =>
-    <Grid container spacing={1} >
+    <Grid id="section-email-address-show" container spacing={1} >
       <Grid item xs={9}>
         <Typography variant="body1" sx={{ wordBreak: "break-all" }}>
           { record.address }
