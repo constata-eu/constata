@@ -121,7 +121,7 @@ describe! {
     let creds: Credentials = serde_json::from_str(std::str::from_utf8(&bytes)?)?;
     assert_that!(&creds, structure![Credentials {
       address: rematch("mqwpxxvfv3QbM8PU8uBx2jaNt9btQqvQNx"),
-      encrypted_key: rematch("this_is_not"),
+      encrypted_key: rematch("4400000000000000"), //This part of the encoded is for bincode, never changes.
       public_key: rematch("039b6347398505f5ec93826dc61c19f47c66c0283ee9be980e29ce325a0f4679ef"),
       environment: eq(Environment::Development),
     }]);

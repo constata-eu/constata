@@ -1,6 +1,8 @@
 use super::*;
+pub use constata_lib::models::template_schema::TemplateSchema;
 
-#[derive(GraphQLObject)]
+#[derive(Debug, GraphQLObject, serde::Deserialize, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
 #[graphql(description = "A template that serves as a foundation for creating each Issuance Entry.")]
 pub struct Template {
   #[graphql(description = "An identifier for this template")]
@@ -12,7 +14,7 @@ pub struct Template {
   #[graphql(description = "The date when this template was created")]
   created_at: UtcDateTime,
   #[graphql(description = "The schema used to build the issuance entry")]
-  schema: String,
+  schema: TemplateSchema,
   #[graphql(description = "A personalized message that the user can add to the email sent to the student when the entry is certified")]
   custom_message: Option<String>,
   #[graphql(description = "Stats: How many recipients viewed the admin link that was sent to them.")]
@@ -25,11 +27,16 @@ pub struct Template {
   archived: bool,
 }
 
-#[derive(Clone, GraphQLInputObject, Debug)]
+#[derive(Debug, Clone, Default, GraphQLInputObject, serde::Serialize, serde::Deserialize, clap::Args)]
+#[serde(rename_all = "camelCase")]
 pub struct TemplateFilter {
+  #[arg(long, help="Fetch a specific list of templates by their ids", action=clap::ArgAction::Append)]
   ids: Option<Vec<i32>>,
+  #[arg(long, help="Fetch a specific template by id")]
   id_eq: Option<i32>,
+  #[arg(long, help="Filter where name contains this text")]
   name_like: Option<String>,
+  #[arg(long, help="Filter templates that are or aren't archived")]
   archived_eq: Option<bool>,
 }
 
@@ -91,7 +98,7 @@ impl Showable<template::Template, TemplateFilter> for Template {
       name: d.attrs.name,
       kind: d.attrs.kind,
       created_at: d.attrs.created_at,
-      schema: d.attrs.schema,
+      schema: serde_json::from_str(&d.attrs.schema)?,
       custom_message: d.attrs.custom_message,
       admin_visited_count,
       entries_count,

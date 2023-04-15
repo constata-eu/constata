@@ -72,7 +72,7 @@ const Template = ({handleNext, wizardState, setWizardState}) => {
       const template = await dataProvider.getOne("Template", {id: values.templateId});
       values.templateName = template.data.name;
       values.kind = template.data.kind;
-      values.schema = JSON.parse(template.data.schema);
+      values.schema = template.data.schema;
     }
 
     await setWizardState((s) => ({...s, ...values}));
@@ -740,7 +740,7 @@ const Signing = ({password, ...props}) => {
           counter += 1;
           setSignedCount(counter);
 
-          const signed_payload = getSignedPayload(keyPair, address, Buffer.from(next.data.payload, "base64"));
+          const signed_payload = getSignedPayload(keyPair, address, Buffer.from(next.data.bytes, "base64"));
           entryId = next.data.id;
           signature = signed_payload.signature;
 

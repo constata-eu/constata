@@ -55,9 +55,7 @@ constata_lib::describe_one! {
   #[derive(Debug, PartialEq, Clone, serde::Deserialize)]
   struct ApiTermsAcceptance { token: String }
 
-  fulltest!{ can_accept_from_link (_site, c, _client, _chain)
-    let client = crate::test_support::PublicApiClient::new(c.alice().await).await;
-    
+  fulltest!{ can_accept_from_link (_site, c, client, _chain)
     let person = c.make_person().await;
     let tyc = person.clone().get_or_create_terms_acceptance().await?;
     assert_eq!(tyc.is_needed(), true);
@@ -85,7 +83,7 @@ constata_lib::describe_one! {
   }
 
   fulltest!{ has_english_version_for_display (_site, c, _client, _chain)
-    let client = crate::test_support::PublicApiClient::new_with_lang(c.alice().await, i18n::Lang::En).await;
+    let client = crate::test_support::PublicApiClient::new_with_lang(c.bob().await, i18n::Lang::En).await;
     let page = client.get_string("/terms_acceptance").await;
     assert_that!(&page, rematch("GENERAL CONTRACTING CONDITIONS"));
   }

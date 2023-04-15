@@ -10,5 +10,6 @@ members = [
   "integration_tests",
   "admin_cli",
   "i18n",
+  "constata_cli",
 ]
 

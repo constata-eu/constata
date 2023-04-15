@@ -5,6 +5,7 @@ use crate::{
     UtcDateTime,
     entry::{self, Entry, EntryOrderBy, SelectEntryHub, InsertEntry},
     template::*,
+    template_schema::*,
     person::*,
     OrgDeletion,
     Org,
@@ -236,9 +237,15 @@ impl Flow {
 impl Received {
   pub async fn append_entries(&self, rows: &[HashMap<String,String>]) -> Result<Vec<entry::Received>> {
     let inner = self.as_inner();
+    let template_schema = inner.template().await?.parsed_schema()?;
+
     let base_index = inner.entry_scope().count().await? as i32;
     let mut received = vec![];
     for (i, p) in rows.iter().enumerate() {
+      if let Some(field) = Self::maybe_missing_field(&template_schema, p) {
+        return Err(Error::validation( field, &format!("Entry #{} is missing field {}. See your selected template's schema for more information.", i, field)));
+      }
+
       received.push(inner.state.entry().insert(InsertEntry{
         app_id: *inner.app_id(),
         person_id: *inner.person_id(),
@@ -246,10 +253,19 @@ impl Received {
         request_id: *inner.id(),
         row_number: 1 + base_index + i as i32,
         state: "received".to_string(),
-        params: serde_json::to_string(&p)?
+        params: serde_json::to_string(&p)?,
       }).save().await?.in_received()?);
     }
     Ok(received)
+  }
+
+  pub fn maybe_missing_field<'a>(schema: &'a TemplateSchema, params: &'a HashMap<String,String>) -> Option<&'a str> {
+    for field in schema {
+      if !field.optional && !params.contains_key(&field.name) {
+        return Some(&field.name)
+      }
+    }
+    None
   }
 
   pub async fn create(&self) -> Result<Created> {

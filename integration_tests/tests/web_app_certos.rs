@@ -1,3 +1,6 @@
+/*
+ * website::test::uploading_csv_in_wizard
+ */
 mod website {
   constata_lib::describe_one! {
     use integration_tests::*;
@@ -15,7 +18,14 @@ mod website {
     use std::env;
 
     integration_test!{ full_flow_from_signup_until_stamped (c, d)
-      signup_and_verify(&d, &c.site).await;
+      fill_signup_form(&d).await;
+      d.wait_for("#constata_dashboard").await;
+      let path = d.check_downloads_for_file("signature.json").await;
+      std::fs::write("../target/artifacts/signature.json", std::fs::read(&path).unwrap()).unwrap();
+      
+      let email = c.site.email_address().select().one().await.unwrap();
+      c.site.email_address().verify_with_token(&email.access_token().await.unwrap().unwrap()).await.unwrap();
+
       create_wizard(&d, &c.site, 2, "testing-template", true).await;
       d.click("#preview-1").await;
 
@@ -32,7 +42,7 @@ mod website {
     integration_test!{ issues_diplomas_from_csv_and_completes_them (c, d)
       let mut chain = TestBlockchain::new().await;
 
-      signup(&d).await;
+      signup(&c, &d, false).await;
       for _ in 0..4 {
         create_template(&d, "testing-template", "DIPLOMA").await;
         let csv = format!("{}/tests/resources/default_certos_recipients.csv", env::current_dir().unwrap().display());
@@ -53,7 +63,7 @@ mod website {
     }
 
     integration_test!{ sign_previously_created_issuance (c, d)
-      signup_and_verify(&d, &c.site).await;
+      signup(&c, &d, true).await;
       create_wizard(&d, &c.site, 2, "testing-template", true).await;
       reload(&d).await;
       d.click("a[href='#/wizard/1']").await;
@@ -61,7 +71,7 @@ mod website {
     }
 
     integration_test!{ use_previous_template_to_create_issuances (c, d)
-      signup_and_verify(&d, &c.site).await;
+      signup(&c, &d, true).await;
       create_wizard(&d, &c.site, 2, "testing-template", true).await;
       sign_wizard(&d).await;
       d.click("a[href='#/']").await;
@@ -85,7 +95,7 @@ mod website {
 
     integration_test!{ create_custom_template_and_create_issuance (c, d)
       let mut chain = TestBlockchain::new().await;
-      signup_and_verify(&d, &c.site).await;
+      let alice = signup(&c, &d, true).await;
       let payload = std::fs::read("static/custom_template.zip").expect("custom_template.zip");
 
       c.site.template().insert(InsertTemplate{
@@ -129,7 +139,6 @@ mod website {
       chain.fund_signer_wallet();
       chain.simulate_stamping().await;
 
-      let alice = c.alice().await;
       let entry = c.site.entry().find(&1).await?;
       let doc = entry.document().await?.expect("entry's document");
       let token = alice.make_download_proof_link_from_doc(&doc, 30).await.token().await?;
@@ -142,7 +151,7 @@ mod website {
     }
 
     integration_test!{ discards_issuance (c, d)
-      signup_and_verify(&d, &c.site).await;
+      signup(&c, &d, true).await;
       create_wizard(&d, &c.site, 2, "testing-template", true).await;
       d.wait_for("#issuances-menu-item").await;
       d.click("#discard-button").await;
@@ -153,7 +162,7 @@ mod website {
     }
 
     integration_test!{ login_and_logout (c, d)
-      let path = signup_and_verify(&d, &c.site).await;
+      signup(&c, &d, true).await;
       d.click("#logout-menu-item").await;
       d.wait_for_text("h1", "Hello again!").await; 
 
@@ -161,7 +170,7 @@ mod website {
       d.click(".ra-confirm").await;
       d.wait_for_text("h1", "Hello").await; 
 
-      d.fill_in("input[type='file']", &path).await;
+      d.fill_in("input[type='file']", &signature_file()).await;
       d.wait_for_text("h1", "Hello again!").await; 
 
       d.fill_in("#password", "password").await;
@@ -170,14 +179,14 @@ mod website {
       reload(&d).await;
     }
 
-    integration_test!{ notifies_no_emails_will_be_sent_for_unverified_customers (_c, d)
-      signup(&d).await;
+    integration_test!{ notifies_no_emails_will_be_sent_for_unverified_customers (c, d)
+      signup(&c, &d, false).await;
       create_template(&d, "testing-template", "DIPLOMA").await;
       d.wait_for_text(".MuiAlert-message div", "Recipient notifications disabled").await;
     }
 
     integration_test!{ sends_kyc_request_and_accepts_it (c, d)
-      signup_and_verify(&d, &c.site).await;
+      signup(&c, &d, true).await;
       create_kyc_request_and_process_it(&d, &c.site, "accept").await;
       reload(&d).await;
       d.wait_for_text("#section-endorsement-existing h2", r"Verified identity").await;
@@ -185,7 +194,7 @@ mod website {
     }
 
     integration_test!{ rejected_kyc_values_are_autocompleted_next_time (c, d)
-      signup_and_verify(&d, &c.site).await;
+      signup(&c, &d, true).await;
       create_kyc_request_and_process_it(&d, &c.site, "reject").await;
       assert_that!(c.site.kyc_endorsement().find(&1).await.is_err());
       reload(&d).await;
@@ -194,7 +203,8 @@ mod website {
     }
 
     integration_test!{ verify_email_address_and_notify_if_already_in_use (c, d)
-      signup(&d).await;
+      let alice = signup(&c, &d, false).await;
+      alice.make_email("apps.script.testing@constata.eu").await;
 
       let url = c.site.email_address().find(&1).await.expect("to have an email_address")
         .full_url().await.expect("to have a full url to verify email");
@@ -214,8 +224,12 @@ mod website {
     }
 
     integration_test!{ change_email_after_registration_and_verify_it (c, d)
-      signup(&d).await;
-      change_email_address(&d, "otro.email@gmail.com", true).await;
+      signup(&c, &d, false).await;
+      d.wait_for("#section-email-address-edit").await;
+      d.delete_letters_and_send_new_keys("#section-email-address-edit #address", 50, "otro.email@gmail.com").await;
+      d.click("#section-email-address-edit .ra-input-keepPrivate").await;
+      d.click("#section-email-address-edit button").await;
+      d.wait_for_text("#section-email-address-show .MuiTypography-body2", r"Will never show*").await;
       
       let person = c.site.person().find(&1).await?;
       let email = person.email_address().await?.expect("to have an email address at this instance.");
@@ -227,7 +241,13 @@ mod website {
       assert_eq!(person.email_address().await?.expect("to have an email address").address(), "otro.email@gmail.com");
       assert_eq!(person.last_email_address().await?.address(), "otro.email@gmail.com");
 
-      change_email_address(&d, "apps.script.testing@constata.eu", false).await;
+      d.click("#section-email-address-show button").await;
+      d.wait_for("#section-email-address-edit").await;
+      d.delete_letters_and_send_new_keys("#section-email-address-edit #address", 50, "apps.script.testing@constata.eu").await;
+      d.click("#section-email-address-edit .ra-input-keepPrivate").await;
+      d.click("#section-email-address-edit button").await;
+      d.wait_for_text("#section-email-address-show .MuiTypography-body2", r"Will be shown in your issued certificates*").await;
+
       assert_eq!(&person.org().await?.name_for_on_behalf_of().await?, "otro.email@gmail.com");
       assert_eq!(person.verified_email_address().await?.expect("to have a verified email address").address(), "otro.email@gmail.com");
       assert_eq!(person.email_address().await?.expect("to have an email address").address(), "apps.script.testing@constata.eu");
@@ -235,31 +255,31 @@ mod website {
     }
 
     integration_test!{ buy_token_with_invoice_link (c, d)
-      async fn check_i_am_in_buy_tokens_page(d: &Selenium, another_window: bool) {
-        if another_window {
-          d.get_handles_and_go_to_window_one().await;
-        }
+      async fn check_i_am_in_buy_tokens_page(d: &Selenium) {
         d.fill_in("#amount", "4").await;
         d.wait_for_text("#pay-with-credit-card", r"Pay with Credit Card*").await;
         d.wait_for_text("#pay-with-bitcoin", r"Pay with Bitcoin*").await;
         d.wait_for("#invoice-link-buy button").await;
-        if another_window {
-          d.close_window_and_go_to_handle_zero().await;
-        }
       }
       
-      let alice = c.alice().await;
-      let token = alice.make_invoice_link().await.access_token().await?.attrs.token;
+      let bob = c.bob().await;
+      let token = bob.make_invoice_link().await.access_token().await?.attrs.token;
       d.goto(&format!("http://localhost:8000/#/invoice/{}", token)).await;
-      check_i_am_in_buy_tokens_page(&d, false).await;
-      signup_and_verify(&d, &c.site).await;
+      check_i_am_in_buy_tokens_page(&d).await;
+
+      signup(&c, &d, true).await;
       create_wizard(&d, &c.site, 12, "testing-template", true).await;
       sign_wizard(&d).await;
       d.click("#wizard-buy-tokens").await;
-      check_i_am_in_buy_tokens_page(&d, true).await;
+      d.get_handles_and_go_to_window_one().await;
+      check_i_am_in_buy_tokens_page(&d).await;
+      d.close_window_and_go_to_handle_zero().await;
+
       d.click("#dashboard-menu-item").await;
       d.click("#dashboard-buy-tokens").await;
-      check_i_am_in_buy_tokens_page(&d, true).await;
+      d.get_handles_and_go_to_window_one().await;
+      check_i_am_in_buy_tokens_page(&d).await;
+      d.close_window_and_go_to_handle_zero().await;
 
       d.goto("http://localhost:8000/#/invoices/muchas-gracias").await;
       d.wait_for_text("#invoice-link-success > div:nth-child(2) > p:nth-child(1)", r"We have received your payment*").await;
@@ -279,9 +299,11 @@ mod website {
     }
 
     integration_test!{ see_account_state_section_when_out_of_tokens (c, d)
-      signup_and_verify(&d, &c.site).await;
-      create_wizard(&d, &c.site, 12, "testing-template", true).await;
-      sign_wizard(&d).await;
+      let alice = signup(&c, &d, true).await;
+      for _ in 0..12 {
+        alice.make_signed_diplomas_issuance().await?;
+      }
+
       d.click("#dashboard-menu-item").await;
       d.wait_for_text(".MuiAlert-message > div", r"There's a pending payment.*").await;
       d.click(".MuiAlert-message a").await;
@@ -290,7 +312,7 @@ mod website {
     }
 
     integration_test!{ uploading_csv_in_wizard (c, d)
-      signup_and_verify(&d, &c.site).await;
+      signup(&c, &d, true).await;
       let files = vec![
         ("default_certos_recipients.csv", r"Arte con plastilina*"),
         ("default_certos_recipients_special.csv", r"Arte con plastiliña,*"),
@@ -312,9 +334,9 @@ mod website {
     }
 
     integration_test!{ cannot_access_after_org_deletion (c, d)
-      signup_and_verify(&d, &c.site).await;
+      let alice = signup(&c, &d, true).await;
       create_wizard(&d, &c.site, 2, "testing-template", true).await;
-      c.alice().await.make_org_deletion_for(1, b"person deletion").await;
+      alice.make_org_deletion_for(1, b"person deletion").await;
 
       // There's no marker that the  person has been deleted.
       // So we just wait and check that we're still in the login page.
@@ -368,6 +390,8 @@ mod website {
         d.goto(&url).await;
         d.wait_for("#pending_docs_title").await;
         d.click("#safe-button-download").await;
+        d.wait_for(".RaNotification-success").await;
+        d.wait_until_gone(".RaNotification-success").await;
         d.click("#safe-button-view").await;
         check_open_certificate(&d).await;
       }
@@ -378,7 +402,6 @@ mod website {
       d.goto(&format!("http://localhost:8000/#/safe/{token}")).await;
       d.wait_until_gone("#pending_docs_title").await;
     }
-
 
     integration_test!{ public_certificates_metadata (c, d)
       async fn check_social_media(d: &Selenium, selector: &str, domain: &str) {
@@ -434,13 +457,11 @@ mod website {
 
     integration_test!{ public_certificates_according_template_kind (c, d)
       let mut chain = TestBlockchain::new().await;
-      let alice = c.alice().await;
-
-      signup_and_verify(&d, &c.site).await;
-      create_wizard(&d, &c.site, 2, "testing-template", true).await;
-      sign_wizard(&d).await;
+      let alice = signup(&c, &d, true).await;
+      alice.make_signed_diplomas_issuance().await?;
       chain.fund_signer_wallet();
       chain.simulate_stamping().await;
+
       let entry = c.site.entry().find(&1).await?;
       let doc = entry.document().await?.expect("entry's document");
       let token = alice.make_download_proof_link_from_doc(&doc, 30).await.token().await?;
@@ -452,21 +473,21 @@ mod website {
       d.wait_for("#document_0").await;
       d.close_window_and_go_to_handle_zero().await;
 
-      let title = "Web developer Course";
+      let title = "Arte con plastilina";
       let raw_description = "issued by apps.script.testing@constata.eu via Constata.eu";
       let image = "https://constata.eu/assets/images/logo.png";
       check_public_certificate(&d, &title, &format!("Diploma {raw_description}"), &image).await;
 
-      let template = entry.request().await?.template().await?;
-      template.clone().update().kind(TemplateKind::Attendance).save().await?;
+      let template = entry.request().await?.template().await?
+        .update().kind(TemplateKind::Attendance).save().await?;
       check_public_certificate(&d, &title, &format!("Certificate of attendance {raw_description}"), &image).await;
 
-      template.clone().update().kind(TemplateKind::Badge).save().await?;
+      template.update().kind(TemplateKind::Badge).save().await?;
       check_public_certificate(&d, &title, &format!("Badge {raw_description}"), &image).await;
     }
 
     integration_test!{ use_wizard_with_badge (c, d)
-      signup_and_verify(&d, &c.site).await;
+      signup(&c, &d, true).await;
       create_template(&d, "template-show", "BADGE").await;
       add_all_recipients(&d, &c.site, 3).await;
       sign_wizard(&d).await;
@@ -481,6 +502,9 @@ mod website {
     }
 
     integration_test!{ use_graphiql (c, d)
+      let alice = signup(&c, &d, true).await;
+      alice.make_signed_diplomas_issuance().await?;
+
       async fn send_graphql_query(d : &Selenium, query: &str) {
         d.goto("http://localhost:8000/#").await;
         d.click("#graphiql").await;
@@ -488,14 +512,10 @@ mod website {
         d.click(".graphiql-tab-add").await;
         d.click(".graphiql-query-editor").await;
         d.fill_in(".graphiql-query-editor textarea", query).await;
-        d.wait_for("#header-set").await;
         d.click(".graphiql-execute-button").await;
         d.wait_for(".cm-def").await;
-        d.wait_for_text(".result-window .CodeMirror-scroll .cm-def", r"data*").await;
+        d.wait_for_text(".result-window .CodeMirror-scroll .cm-def", "data").await;
       }
-      signup_and_verify(&d, &c.site).await;
-      create_wizard(&d, &c.site, 1, "testing-template", true).await;
-      sign_wizard(&d).await;
 
       send_graphql_query(&d, "{Entry(id: 1) { id }}").await;
       d.wait_for_text(".result-window .CodeMirror-scroll .cm-property", r"Entry*").await;
@@ -535,10 +555,9 @@ mod website {
         d.click("#dashboard-menu-item").await;
       }
 
-      signup_and_verify(&d, &c.site).await;
+      signup(&c, &d, true).await;
       create_wizard(&d, &c.site, 2, "template-show", true).await;
       sign_wizard(&d).await;
-
       d.click("a[href='#/']").await;
       d.click("#templates").await;
 
@@ -629,7 +648,7 @@ mod website {
       }
 
       let mut chain = TestBlockchain::new().await;
-      signup_and_verify(&d, &c.site).await;
+      signup(&c, &d, true).await;
       create_wizard(&d, &c.site, 5, "testing-template", true).await;
       sign_wizard(&d).await;
       chain.fund_signer_wallet();
@@ -685,6 +704,7 @@ mod website {
       let source_code = d.driver.source().await.expect("the source code");
       assert!(source_code.rfind(tag).is_some(), "Could not find {}", tag);
     }
+
     async fn check_public_certificate(d: &Selenium, title: &str, description: &str, image: &str) {
       d.click("#go-to-public-certificate").await;
       d.get_handles_and_go_to_window_one().await;
@@ -702,16 +722,6 @@ mod website {
       d.close_window_and_go_to_handle_zero().await;
     }
 
-    async fn change_email_address(d: &Selenium, new_email: &str, change_keep_private: bool) {
-      d.click("#section-email-address button").await;
-      d.delete_letters_and_send_new_keys("#address", 31, new_email).await;
-      if change_keep_private {
-        d.click(".ra-input-keepPrivate").await;
-      }
-      d.click("#section-email-address button").await;
-      d.wait_for_text("#section-email-address .MuiTypography-body2", r"Will be shown in your issued certificates*").await;
-    }
-
     async fn reload(d: &Selenium) {
       d.goto("http://localhost:8000/not_found").await;
       d.goto("http://localhost:8000").await;
@@ -726,9 +736,8 @@ mod website {
       d.fill_in("input[type='file']", &csv).await;
       d.click("#continue").await;
       d.wait_for("span[role='progressbar']").await;
-
       site.request().create_all_received().await.expect("to successfully create the entries");
-      d.wait_for_text("h2", "Review and sign").await;
+      d.wait_for_text("#preview_container h2", "Review and sign").await;
     }
 
     async fn fill_signup_form(d: &Selenium) {
@@ -759,19 +768,31 @@ mod website {
       d.click("button[type='submit']").await;
     }
 
-    async fn signup(d: &Selenium) -> String {
-      fill_signup_form(d).await;
-      d.wait_for("#constata_dashboard").await;
-      let path = d.check_downloads_for_file("signature.json").await;
-      std::fs::write("../target/artifacts/signature.json", std::fs::read(&path).unwrap()).unwrap();
-      path
+    fn signature_file() -> String {
+      format!("{}/{}", selenium::DOWNLOADS, "signature.json")
     }
 
-    async fn signup_and_verify(d: &Selenium, s: &Site) -> String {
-      let path = signup(d).await;
-      let email = s.email_address().select().one().await.unwrap();
-      s.email_address().verify_with_token(&email.access_token().await.unwrap().unwrap()).await.unwrap();
-      path
+    async fn signup(c: &TestDb, d: &Selenium, verify: bool) -> SignerClient {
+      let alice = c.alice().await;
+      if verify {
+        alice.verify_email("apps.script.testing@constata.eu").await;
+      }
+      alice.write_signature_json_artifact();
+      std::fs::write(&signature_file(),std::fs::read("../target/artifacts/signature.json").unwrap()).unwrap();
+      login(&d).await;
+      alice
+    }
+
+    async fn login(d: &Selenium) {
+      d.goto("http://localhost:8000").await;
+      d.wait_for_text("h1", "Hello").await;
+
+      d.fill_in("input[type='file']", &signature_file()).await;
+      d.wait_for_text("h1", "Hello again!").await;
+
+      d.fill_in("#password", "password").await;
+      d.click("button[type='submit']").await;
+      d.wait_for("#constata_dashboard").await;
     }
 
     async fn add_recipient(d: &Selenium, name: &str, email: &str, id: &str, n: i32) {

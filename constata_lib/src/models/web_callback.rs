@@ -64,7 +64,7 @@ model!{
   },
 }
 
-#[derive(sqlx::Type, Copy, Clone, Debug, Deserialize, PartialEq, Serialize, GraphQLEnum)]
+#[derive(sqlx::Type, Copy, Clone, Debug, Deserialize, PartialEq, Serialize, GraphQLEnum, clap::ValueEnum)]
 #[sqlx(type_name = "web_callback_state", rename_all = "lowercase")]
 pub enum WebCallbackState {
   Pending,
@@ -78,7 +78,7 @@ impl sqlx::postgres::PgHasArrayType for WebCallbackState {
   }
 }
 
-#[derive(sqlx::Type, Copy, Clone, Debug, Deserialize, PartialEq, Serialize, GraphQLEnum)]
+#[derive(sqlx::Type, Copy, Clone, Debug, Deserialize, PartialEq, Serialize, GraphQLEnum, clap::ValueEnum)]
 #[sqlx(type_name = "web_callback_kind", rename_all = "snake_case")]
 pub enum WebCallbackKind {
   AttestationDone,
@@ -251,12 +251,12 @@ impl WebCallbackHub {
   }
 }
 
-#[derive(Serialize)]
-struct WebCallbackContent {
+#[derive(Serialize, Deserialize)]
+pub struct WebCallbackContent {
   kind: WebCallbackKind,
   resource: WebCallbackResource,
 }
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 enum WebCallbackResource {
   AttestationDone(super::attestation::for_api::Attestation),
 }

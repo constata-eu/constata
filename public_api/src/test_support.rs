@@ -7,6 +7,7 @@ use rocket::{
   local::asynchronous::{Client, LocalResponse},
 };
 pub use serde::{de::DeserializeOwned, Deserialize};
+use graphql_client;
 
 #[derive(Debug, PartialEq, Clone, Deserialize, Serialize)]
 struct Payload {
@@ -240,6 +241,9 @@ macro_rules! make_graphql_queries {
 pub mod gql {
   type DateTime = chrono::DateTime<chrono::Utc>;
   type EntryParams = String;
+  type Addr = String;
+  type Bytes = String;
+  type MsgSig = String;
 
   make_graphql_queries![
     CreateAttestation,

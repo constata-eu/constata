@@ -96,29 +96,30 @@ pub mod for_api {
   use rust_decimal_macros::dec;
   use num_traits::ToPrimitive;
 
-  #[derive(GraphQLObject, serde::Serialize)]
+  #[derive(Debug, Clone, GraphQLObject, serde::Serialize, serde::Deserialize)]
+  #[serde(rename_all = "camelCase")]
   #[graphql(description = "An Attestation over several documents")]
   pub struct Attestation {
-    id: i32,
-    person_id: i32,
-    org_id: i32,
-    markers: String,
-    open_until: Option<UtcDateTime>,
-    state: String,
-    parking_reason: Option<String>,
-    done_documents: i32,
-    parked_documents: i32,
-    processing_documents: i32,
-    total_documents: i32,
-    tokens_cost: f64,
-    tokens_paid: f64,
-    tokens_owed: f64,
-    buy_tokens_url: Option<String>,
-    accept_tyc_url: Option<String>,
-    last_doc_date: Option<UtcDateTime>,
-    email_admin_access_url_to: Vec<String>,
-    admin_access_url: Option<String>,
-    created_at: UtcDateTime,
+    pub id: i32,
+    pub person_id: i32,
+    pub org_id: i32,
+    pub markers: String,
+    pub open_until: Option<UtcDateTime>,
+    pub state: String,
+    pub parking_reason: Option<String>,
+    pub done_documents: i32,
+    pub parked_documents: i32,
+    pub processing_documents: i32,
+    pub total_documents: i32,
+    pub tokens_cost: f64,
+    pub tokens_paid: f64,
+    pub tokens_owed: f64,
+    pub buy_tokens_url: Option<String>,
+    pub accept_tyc_url: Option<String>,
+    pub last_doc_date: Option<UtcDateTime>,
+    pub email_admin_access_url_to: Vec<String>,
+    pub admin_access_url: Option<String>,
+    pub created_at: UtcDateTime,
   }
 
   pub async fn from_model(d: super::Attestation) -> ConstataResult<Attestation> {

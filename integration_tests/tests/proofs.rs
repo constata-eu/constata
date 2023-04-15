@@ -14,7 +14,7 @@ mod proof_integration {
       alice.make_pubkey_domain_endorsement().await;
       alice.make_kyc_endorsement().await;
 
-      let story = c.alice().await.add_funds().await
+      let story = alice.add_funds().await
         .story_with_signed_doc(&read("document.zip"), None, "").await;
 
       chain.fund_signer_wallet();

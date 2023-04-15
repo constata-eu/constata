@@ -5590,7 +5590,7 @@
 										<name>fields</name>
 										<children>
 											<concept_node>
-												<name>downloadProofLink</name>
+												<name>adminAccessUrl</name>
 												<description/>
 												<comment/>
 												<default_text/>

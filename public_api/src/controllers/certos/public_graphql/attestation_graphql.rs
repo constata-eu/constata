@@ -1,32 +1,32 @@
 use super::*;
-use constata_lib::models::attestation::for_api::from_model;
+use constata_lib::{graphql::GqlScalar, models::attestation::for_api::from_model};
 pub use constata_lib::models::attestation::for_api::Attestation;
 use constata_lib::signed_payload;
 use serde::{Deserialize, Serialize};
 
 #[derive(GraphQLInputObject, Serialize, Deserialize)]
-#[graphql(description = "An AttestationInput has all parameters required to create an Attestation on several of documents.")]
+#[graphql(
+  description = "An AttestationInput has all parameters required to create an Attestation on several of documents."
+  scalar=GqlScalar
+)]
 #[serde(rename_all = "camelCase")]
 pub struct AttestationInput {
   #[graphql(description = "An array of SignedPayloads containing all the documents to attest. See the tutorial for more info on signing payloads.")]
-  documents: Vec<SignedPayload>,
+  pub documents: Vec<signed_payload::SignedPayload>,
   #[graphql(description = "An attestation allows appending documents up until a certain date. If you don't chose a date, no appending will be allowed.")]
-  open_until: Option<UtcDateTime>,
+  pub open_until: Option<UtcDateTime>,
   #[graphql(description = "Markers is a text that can be used for searching this attestation later. Markers cannot be updated after creation.")]
-  markers: Option<String>,
+  pub markers: Option<String>,
   #[graphql(description = "A list of email addresses to notify when the documents are attested. Constata will email them an administrative access link to view, download or share the document certificate. You can pass an empty list if you want to omit Constata's emails, and manage distribution of the attestation in any other way.")]
-  email_admin_access_url_to: Vec<String>,
+  pub email_admin_access_url_to: Vec<String>,
 }
 
 impl AttestationInput {
   pub async fn create_attestation(self, context: &Context) -> FieldResult<Attestation> {
     let person = context.person();
-    let payloads = self.documents.iter()
-      .map(|d| d.decode() )
-      .collect::<MyResult<Vec<signed_payload::SignedPayload>>>()?;
 
     let att = context.site.attestation()
-      .create(&person, &payloads, self.open_until, self.markers, Some(context.lang), self.email_admin_access_url_to)
+      .create(&person, &self.documents, self.open_until, self.markers, Some(context.lang), self.email_admin_access_url_to)
       .await?;
 
     Ok(Attestation::db_to_graphql(att, false).await?)
@@ -47,19 +47,24 @@ impl SignedPayload {
   }
 }
 
-#[derive(GraphQLObject)]
+#[derive(Debug, Clone, GraphQLObject, Serialize, Deserialize)]
 #[graphql(description = "You can get an attestation as a verifiable HTML, embedding all documents and verifiable in any default browser.")]
 pub struct AttestationHtmlExport {
   pub id: i32,
   pub attestation: Attestation,
+  #[graphql(description = "The verifiable HTML proof.")]
   pub verifiable_html: String,
 }
 
-#[derive(Clone, GraphQLInputObject, Debug)]
+#[derive(Debug, Clone, Default, GraphQLInputObject, Serialize, Deserialize, clap::Args)]
+#[serde(rename_all = "camelCase")]
 pub struct AttestationFilter {
+  #[arg(long, help="Fetch a specific list of attestations by their ids", action=clap::ArgAction::Append)]
   ids: Option<Vec<i32>>,
+  #[arg(long, help="Fetch a specific attestation by id")]
   id_eq: Option<i32>,
   person_id_eq: Option<i32>,
+  #[arg(long, help="Filter attestations that have this text in their markers")]
   markers_like: Option<String>,
 }
 
