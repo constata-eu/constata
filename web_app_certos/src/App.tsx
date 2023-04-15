@@ -55,7 +55,7 @@ function App() {
             if(data.data.data == null ){
               return { data: { done: true, id: true } };
             } else {
-              return buildQuery(introspection)('GET_ONE', 'Entry', params).parseResponse(data);
+              return buildQuery(introspection)('GET_ONE', 'UnsignedEntryPayload', params).parseResponse(data);
             }
           }
 
@@ -65,7 +65,7 @@ function App() {
             query: gql`mutation($input: SigningIteratorInput!){
               data: signingIterator(input: $input) {
                 id,
-                payload,
+                bytes,
               }
             }`
           };

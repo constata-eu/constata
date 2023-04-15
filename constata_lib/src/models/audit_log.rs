@@ -104,7 +104,7 @@ impl Marker {
 
 describe! {
   test!{ creates_an_audit_log_and_captures_some_of_it
-    let _ = std::process::Command::new("rm").args(&["-rf", "full.log.*"]).output();
+    let _ = std::process::Command::new("rm").args(&["-rf", "/tmp/full.log.*"]).output();
 
     let log = AuditLog::new("/tmp/full.log".to_string(), 1200);
     log.start();

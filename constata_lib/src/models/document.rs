@@ -792,7 +792,7 @@ describe! {
   dbtest!{ fails_to_create_from_signed_payload_if_signature_is_wrong (site, c)
     let alice = c.alice().await;
     let story = alice.make_story().await;
-    let payload = c.alice().await.wrong_signed_payload(&b"Hello Everyone"[..]);
+    let payload = alice.wrong_signed_payload(&b"Hello Everyone"[..]);
     assert_that!(
       &site.document().create_from_signed_payload(&story, &payload, None).await.unwrap_err(),
       structure!{ Error::Validation{ message: eq("wrong_signature".to_string()) } }

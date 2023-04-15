@@ -8,7 +8,7 @@ pub struct Selenium{
   child: Child,
 }
 
-const DOWNLOADS: &str = "/tmp/constata_tests_downloads";
+pub const DOWNLOADS: &str = "/tmp/constata_tests_downloads";
 
 impl Selenium {
   pub async fn start() -> Self {
@@ -151,11 +151,14 @@ impl Selenium {
   }
 
   pub async fn delete_letters_and_send_new_keys(&self, selector: &str, times: i32, new_keys: &str) {
-    let element = self.driver.find(By::Css(selector)).await.expect("to find {selector}");
+    let element = self.driver.find(By::Css(selector)).await.expect("to find {selector} for deletion");
     for _ in 0..times {
-      element.send_keys(Key::Backspace.to_string()).await.expect("to delete in {selector}");
+      let _ = element.send_keys(Key::Backspace.to_string()).await;
     }
-    element.send_keys(new_keys).await.expect("to fill in {selector}"); 
+    self.driver.find(By::Css(selector)).await
+      .expect("to find {selector} after deletion and possible redraw.")
+      .send_keys(new_keys).await
+      .expect(&format!("to fill in {selector}")); 
   }
 
   pub async fn get_handles_and_go_to_window_one(&self) -> Vec<WindowHandle> {

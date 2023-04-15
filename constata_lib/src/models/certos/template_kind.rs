@@ -1,8 +1,9 @@
 use crate::models::*;
 use juniper::GraphQLEnum;
 
-#[derive(sqlx::Type, Copy, Clone, Debug, Deserialize, PartialEq, Serialize, GraphQLEnum)]
+#[derive(sqlx::Type, Copy, Clone, Debug, Deserialize, PartialEq, Serialize, GraphQLEnum, clap::ValueEnum)]
 #[sqlx(type_name = "template_kind", rename_all = "lowercase")]
+#[serde(rename_all = "UPPERCASE")]
 pub enum TemplateKind {
   Diploma,
   Attendance,

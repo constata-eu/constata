@@ -83,22 +83,26 @@ mutation CreateAttestation($input: AttestationInput!) {
 mutation SigningIterator($input: SigningIteratorInput!) {
   signingIterator(input: $input) {
     id
-    issuanceId
-    issuanceName
-    rowNumber
-    state
-    receivedAt
-    params
-    errors
-    documentId
-    storyId
-    adminVisited
-    publicVisitCount
-    hasEmailCallback
-    emailCallbackSentAt
-    downloadProofLinkUrl
-    payload
-    adminAccessUrl
+    entry {
+      id
+      issuanceId
+      issuanceName
+      rowNumber
+      state
+      receivedAt
+      params
+      errors
+      documentId
+      storyId
+      adminVisited
+      publicVisitCount
+      hasEmailCallback
+      emailCallbackSentAt
+      payload
+      adminAccessUrl
+      __typename
+    }
+    bytes
     __typename
   }
 }
@@ -202,8 +206,19 @@ mutation UpdateTemplate($input: TemplateInput!) {
     name
     kind
     createdAt
-    schema
+    schema {
+      name
+      optional
+      common
+      label
+      help
+      sample
+      __typename
+    }
     customMessage
+    adminVisitedCount
+    entriesCount
+    publicVisitCount
     archived
     __typename
   }
@@ -246,7 +261,6 @@ query Entry($id: Int!) {
     publicVisitCount
     hasEmailCallback
     emailCallbackSentAt
-    downloadProofLinkUrl
     payload
     adminAccessUrl
     __typename
@@ -268,7 +282,6 @@ query AllEntries($page: Int, $perPage: Int, $sortField: String, $sortOrder: Stri
     publicVisitCount
     hasEmailCallback
     emailCallbackSentAt
-    downloadProofLinkUrl
     payload
     adminAccessUrl
     __typename
@@ -326,8 +339,19 @@ query Template($id: Int!) {
     name
     kind
     createdAt
-    schema
+    schema {
+      name
+      optional
+      common
+      label
+      help
+      sample
+      __typename
+    }
     customMessage
+    adminVisitedCount
+    entriesCount
+    publicVisitCount
     archived
     __typename
   }
@@ -338,8 +362,19 @@ query AllTemplates($page: Int, $perPage: Int, $sortField: String, $sortOrder: St
     name
     kind
     createdAt
-    schema
+    schema {
+      name
+      optional
+      common
+      label
+      help
+      sample
+      __typename
+    }
     customMessage
+    adminVisitedCount
+    entriesCount
+    publicVisitCount
     archived
     __typename
   }
@@ -564,10 +599,62 @@ query AllWebCallbackAttemptsMeta($page: Int, $perPage: Int, $sortField: String, 
     __typename
   }
 }
-query Preview($id: Int!) {
-  Preview(id: $id) {
+query PreviewEntry($id: Int!) {
+  PreviewEntry(id: $id) {
     id
     html
+    __typename
+  }
+}
+query UnsignedEntryPayload($id: Int!) {
+  UnsignedEntryPayload(id: $id) {
+    id
+    entry {
+      id
+      issuanceId
+      issuanceName
+      rowNumber
+      state
+      receivedAt
+      params
+      errors
+      documentId
+      storyId
+      adminVisited
+      publicVisitCount
+      hasEmailCallback
+      emailCallbackSentAt
+      payload
+      adminAccessUrl
+      __typename
+    }
+    bytes
+    __typename
+  }
+}
+query EntryHtmlExport($id: Int!) {
+  EntryHtmlExport(id: $id) {
+    id
+    entry {
+      id
+      issuanceId
+      issuanceName
+      rowNumber
+      state
+      receivedAt
+      params
+      errors
+      documentId
+      storyId
+      adminVisited
+      publicVisitCount
+      hasEmailCallback
+      emailCallbackSentAt
+      payload
+      adminAccessUrl
+      __typename
+    }
+    verifiableHtml
     __typename
   }
 }

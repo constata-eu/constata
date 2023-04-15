@@ -4,34 +4,40 @@ use constata_lib::models::web_callback::{self,
   SelectWebCallbackAttempt, WebCallbackAttemptOrderBy, WebCallbackResultCode,
 };
 
-#[derive(GraphQLObject)]
+#[derive(Debug, GraphQLObject, serde::Deserialize, serde::Serialize)]
 #[graphql(description = "A list of WebCallbacks we've sent you or are working on sending you, to help you debug your web callbacks integration.")]
 pub struct WebCallback {
   #[graphql(description = "Unique identifier for this Entry, across all Issuances.")]
-  id: i32,
+  pub id: i32,
   #[graphql(description = "The kind of callback, relates to the event that triggered this callback, for example, an attestation being done.")]
-  kind: WebCallbackKind,
+  pub kind: WebCallbackKind,
   #[graphql(description = "The related resource ID, has a different meaning depending on the web callback kind. If its about an attestation, the it's the attestation's id.")]
-  resource_id: i32,
+  pub resource_id: i32,
   #[graphql(description = "The state of this callback. Pending, Done or Failed. Callbacks are retried 10 times with exponential backoff. The first attempt is done immediately, the second one 5 minutes later, then at 10 minutes, 20, and so on. All attempts are WebCallbackAttempt.")]
-  state: WebCallbackState,
+  pub state: WebCallbackState,
   #[graphql(description = "The most recent attempt, if any.")]
-  last_attempt_id: Option<i32>,
+  pub last_attempt_id: Option<i32>,
   #[graphql(description = "The date on which this web callback was scheduled. It's around to the time of the event that triggered it, but may be a few seconds later.")]
-  created_at: UtcDateTime,
+  pub created_at: UtcDateTime,
   #[graphql(description = "Date in which this WebCallback will be attempted. When the WebCallback is Done or Failed it will remain set to the date of the last attempt.")]
-  next_attempt_on: UtcDateTime,
+  pub next_attempt_on: UtcDateTime,
   #[graphql(description = "The body of the request we will be sending via POST to your web_callbacks_endpoint")]
-  request_body: String,
+  pub request_body: String,
 }
 
-#[derive(Clone, GraphQLInputObject, Debug)]
+#[derive(Debug, Clone, Default, GraphQLInputObject, serde::Serialize, serde::Deserialize, clap::Args)]
+#[serde(rename_all = "camelCase")]
 pub struct WebCallbackFilter {
-  ids: Option<Vec<i32>>,
-  id_eq: Option<i32>,
-  state_eq: Option<WebCallbackState>,
-  resource_id_eq: Option<i32>,
-  kind_eq: Option<WebCallbackKind>,
+  #[arg(long, help="Fetch a specific list of web callbacks by their ids", action=clap::ArgAction::Append)]
+  pub ids: Option<Vec<i32>>,
+  #[arg(long, help="Fetch a specific web callback by id")]
+  pub id_eq: Option<i32>,
+  #[arg(long, help="Filter by state")]
+  pub state_eq: Option<WebCallbackState>,
+  #[arg(long, help="Filter by the associated resource, ie: the attestation id. Use together with kind-eq")]
+  pub resource_id_eq: Option<i32>,
+  #[arg(long, help="Filter by callback kind.")]
+  pub kind_eq: Option<WebCallbackKind>,
 }
 
 #[rocket::async_trait]

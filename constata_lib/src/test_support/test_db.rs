@@ -28,7 +28,6 @@ use rust_decimal_macros::dec;
 use chrono::TimeZone;
 use i18n::Lang;
 
-
 #[derive(Clone)]
 pub struct TestDb{
   pub site: Site,
@@ -205,13 +204,36 @@ impl SignerClient {
   }
 
   pub async fn signup_person(self, person: Person) -> Self {
-    let _pubkey = self.db.site.pubkey().create_from_signed_payload_with_backup(
+    let (encrypted_key, public_key) = self.get_client_signature_keys();
+    self.db.site.pubkey().create_from_signed_payload_with_backup(
       person.attrs.id,
       &self.signed_payload(b"Hello Constata.eu"),
-      "this_is_not_te_encrypted_key_though",
-      &self.key.public_key(&secp256k1::Secp256k1::new()).to_string(),
-    ).await;
+      &encrypted_key,
+      &public_key,
+    ).await.unwrap();
     Self{ person_id: Some(person.attrs.id), ..self }
+  }
+
+  pub fn write_signature_json_artifact(&self) -> &'static str {
+    let path = "target/artifacts/signature.json";
+    let (encrypted_key, public_key) = self.get_client_signature_keys();
+
+    std::fs::write(&format!("../{path}"),
+      serde_json::to_string(&serde_json::json![{
+        "public_key": public_key,
+        "encrypted_key": encrypted_key,
+        "environment": "development"
+      }]).unwrap(),
+    ).unwrap();
+
+    path
+  }
+
+  pub fn get_client_signature_keys(&self) -> (String, String) {
+    let encrypted_key = simplestcrypt::encrypt_and_serialize(b"password", self.key.to_wif().as_bytes()).unwrap();
+    let public_key = self.key.public_key(&secp256k1::Secp256k1::new()).to_string();
+
+    (hex::encode(&encrypted_key), public_key)
   }
 
   pub async fn accept_terms_and_conditions(self) -> Self {
@@ -555,13 +577,13 @@ impl SignerClient {
   pub async fn make_signed_diplomas_issuance(&self) -> Result<Request> {
     let mut issuance = Wizard{
       person: self.person().await,
-      name: "certos_request.csv".to_string(),
+      name: "default_certos_recipients.csv".to_string(),
       template: WizardTemplate::New {
         kind: TemplateKind::Diploma,
         logo: ImageOrText::Text("sample diploma".to_string()),
         name: "new template".to_string(),
       },
-      csv: read("certos_request.csv"),
+      csv: read("default_certos_recipients.csv"),
     }.process().await?;
     self.db.site.request().create_all_received().await?;
 

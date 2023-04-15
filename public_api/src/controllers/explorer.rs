@@ -17,7 +17,7 @@ pub async fn show(
 
 constata_lib::describe_one! {
   fulltest!{ gets_transaction_info_from_blockchain (site, c, client, mut chain)
-    c.alice().await.signed_documents(b"alice").await;
+    client.signer.signed_documents(b"alice").await;
 
     client.assert_get_error(
       "/explorer/733f3905dd51be1baa55539f8f7d19672998357268e78633f38231bb2143fdaf",

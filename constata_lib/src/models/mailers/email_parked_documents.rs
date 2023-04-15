@@ -52,32 +52,29 @@ impl EmailParkedDocuments {
 describe! {
   use chrono::{Utc, TimeZone, Duration};
   dbtest!{ sends_email_parked_documents (site, c)
-    let signers = vec![c.bob().await, c.robert().await, c.enterprise().await, c.alice_no_money_no_tyc().await];
-    let mut counter = 0;
+    let signers = vec![c.robert().await, c.enterprise().await, c.alice_no_money_no_tyc().await];
     let mut docs = vec![];
-    for signer in signers.iter() {
-      let email = format!("example_{counter}@gmail.com");
+
+    for (i, signer) in signers.iter().enumerate() {
+      let email = format!("example_{i}@gmail.com");
       signer.make_email(&email).await;
       docs.push(signer.signed_document(&vec![1; 1024 * 1024 * 10]).await);
-      counter += 1;
     }
     let date = Utc.with_ymd_and_hms(2022, 8, 1, 13, 0, 0).unwrap();
-    signers[3].stories_with_signed_docs(&vec![1; 1024 * 1024 * 10]).await;
+    signers[2].stories_with_signed_docs(&vec![1; 1024 * 1024 * 10]).await;
+    docs[1].clone().update().created_at(date - Duration::days(3)).save().await?;
     docs[2].clone().update().created_at(date - Duration::days(3)).save().await?;
-    docs[3].clone().update().created_at(date - Duration::days(3)).save().await?;
 
     site.parked_reminder().create_new_reminders(date).await?;
     let persons_ready_to_be_reminded_about_parked = site.parked_reminder().not_sent().await?;
     assert_eq!(persons_ready_to_be_reminded_about_parked.len(), 2);
 
-    counter = 0;
-    for person in &persons_ready_to_be_reminded_about_parked {
+    for (i, person) in persons_ready_to_be_reminded_about_parked.iter().enumerate() {
       let mail = EmailParkedDocuments::new(&person).await?;
       let content = mail.render_html()?;
-      let path = format!("../target/artifacts/email_parked_documents_{}.html", counter);
+      let path = format!("../target/artifacts/email_parked_documents_{}.html", i);
       std::fs::write(&path, &content)?;
       assert_that!(&content, rematch("¡Hola! Te recordamos que tienes"));
-      counter += 1;
     }
 
     let reminder = &persons_ready_to_be_reminded_about_parked[0];

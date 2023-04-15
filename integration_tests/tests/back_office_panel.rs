@@ -249,45 +249,39 @@ mod back_office_panel {
     }
 
     integration_test_private!{ admin_panel_missing_tokens_and_terms_acceptance (c, d)
-      let bob = c.bob().await;
       let alice = c.alice_no_money_no_tyc().await;
-      let enterprise = c.enterprise().await;
-      let eve = c.eve().await.signup().await;
       let robert = c.robert().await;
-      let persons = [bob, alice.clone(), enterprise, eve, robert];
+      let persons = [alice.clone(), robert];
       for n in 0..persons.len() {
         let counter = format!("number_{}", n);
         persons[n].stories_with_signed_docs(counter.as_bytes()).await;
       }
       alice.make_invoice().await;
 
+      let enterprise = c.enterprise().await;
       for _ in 0..20 {
-        c.enterprise().await.signed_document(b"prueba").await.in_parked()?;
+        enterprise.signed_document(b"prueba").await.in_parked()?;
       }
 
       login(&d, &c).await?;
 
       click_menu(&d, "Person").await;
-      d.click("button[aria-label='Go to next page']").await;
-      d.wait_for_text(".MuiTablePagination-displayedRows", r"21-25 of 25*").await;
-      wait_until_loaded(&d).await;
       d.wait_for(".column-isTermsAccepted [data-testid=true]").await;
       d.wait_for(".column-isTermsAccepted [data-testid=false]").await;
       click_menu(&d, "MissingToken").await;
-      d.wait_for_text(".MuiTablePagination-displayedRows", r"1-20 of 21*").await;
-      d.click("button[aria-label='Go to next page']").await;
-      d.wait_for_text(".MuiTablePagination-displayedRows", r"21-21 of 21*").await;
+      wait_until_loaded(&d).await;
+      d.wait_for_text(".MuiTablePagination-displayedRows", r"1-1 of 1*").await;
       click_menu(&d, "TermsAcceptance").await;
+      wait_until_loaded(&d).await;
       d.wait_for_text("#acceptedIsSet", r"Only not accepted*").await;
-      d.wait_for_text(".MuiTablePagination-displayedRows", r"1-3 of 3*").await;
+      d.wait_for_text(".MuiTablePagination-displayedRows", r"1-2 of 2*").await;
     }
 
     integration_test_private!{ admin_panel_check_reference_field (c, d)
       let alice = c.alice().await;
-      let bob = c.bob().await;
       let robert = c.robert().await;
       let enterprise = c.enterprise().await;
-      let users = vec![alice, bob, robert, enterprise];
+      let users = vec![alice, robert, enterprise];
       for i in users {
         c.make_bulletin().await;
         i.make_signed_document(&i.make_story().await, "prueba".as_bytes(), None).await;
@@ -309,6 +303,10 @@ mod back_office_panel {
     integration_test_private!{ admin_panel_check_all_sortable_fields (c, d)
       create_resources(&c, &c.alice().await, b"https://alice.com","alice@gmail.com").await?;
       create_resources(&c, &c.robert().await, b"https://robert.com","robert@gmail.com").await?;
+      let b2b = c.enterprise().await;
+      b2b.signed_document(b"prueba").await.in_parked()?;
+      b2b.signed_document(b"prueba").await.in_parked()?;
+
       login(&d, &c).await?;
 
       let sortable_resources = vec![
@@ -347,7 +345,6 @@ mod back_office_panel {
       signer.make_org_deletion(b"deletion").await;
       c.creates_admin_user(email, "password").await;
       c.add_funds_to_all_clients().await;
-      c.enterprise().await.signed_document(b"prueba").await.in_parked()?;
 
       Ok(())
     }

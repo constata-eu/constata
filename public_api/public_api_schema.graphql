@@ -1,3 +1,13 @@
+"Contains the verifiable HTML for this certified entry."
+type EntryHtmlExport {
+  "The numerical identifier of the entry."
+  id: Int!
+  "The entry itself."
+  entry: Entry!
+  "The verifiable HTML proof."
+  verifiableHtml: String!
+}
+
 "Represents a batch generation and certification of diplomas, proofs of attendance, and badges from a template. Can be started from a CSV file using CreateIssuanceFromCsv, or from json directly using CreateIssuanceFromJson."
 type Issuance {
   "Unique identifier for the issuance."
@@ -169,12 +179,7 @@ type AccountState {
   webCallbacksUrl: String
 }
 
-"SigningIteratorInput Object"
-input SigningIteratorInput {
-  "ID of the issuance to which this entry belongs." issuanceId: Int!
-  "Number that identifies this entry." entryId: Int
-  "Signature applied to the referenced entry." signature: String
-}
+scalar Addr
 
 "Your email account, as verified by Constata's email robot."
 type EmailEndorsementManifest {
@@ -201,11 +206,18 @@ type EmailAddress {
 input CreateIssuanceFromJsonInput {
   "An array of JSON objects corresponding to each recipient for whom you want to create a diploma, certificate of attendance or badge" entries: [EntryParams!]!
   "The name of the Issuance to be created." name: String!
-  "The ID of an existing template to use, if any. See the Templates resource." templateId: Int
+  "The ID of an existing template to use, if any. See the allTemplates query." templateId: Int
   "The kind of template to be created if no template_id is given." newKind: TemplateKind
   "The name of the new template to be created, if no template_id is given." newName: String
   "The text to be used as the logo for the new template, if no template_id is given." newLogoText: String
-  "The base64 encoded image to be used as the logo for the new template, if no template_id is given. If you leave it empty your new_logo_text will be displayed." newLogoImage: String
+  "The base64 encoded image to be used as the logo for the new template, if no template_id is given. If you leave it empty your new_logo_text will be displayed." newLogoImage: Bytes
+}
+
+"SigningIteratorInput Object"
+input SigningIteratorInput {
+  "ID of the issuance to which this entry belongs." issuanceId: Int!
+  "Number that identifies this entry." entryId: Int
+  "Signature applied to the referenced entry." signature: String
 }
 
 "This object show the id of the newly created person in reply to a signup. Remember signup can only be done through the website as some spam filtering checks are performed there."
@@ -231,8 +243,8 @@ input KycRequestFilter {
 
 "This is the best way to compose an Issuance incrementally. You can add new entries at any time before signing the Issuance. Entries will be validated as they are recevied, and then will be 'created' by our workers. In the unlikely case an entry passes validation and is received, but then an error when our worker tries to create it, the request will be marked as failed, as well as all other entries. "
 input AppendEntriesToIssuanceInput {
-  "The ID of the Issuance to which the entries are to be added." issuanceId: Int!
-  "An array of JSON objects corresponding to each recipient for whom you want to create a diploma, certificate of attendance or badge" entries: [EntryParams!]!
+  "The ID of the Issuance to which the entries are to be appended." issuanceId: Int!
+  "An array of JSON objects corresponding to each recipient for whom you want to create a diploma, certificate of attendance or badge. ie: '[{\"name\":\"Alice\",\"motive\":\"Cream of the crop\"},{\"name\":\"Bob\",\"motive\":\"Accredited Expert\"}]'" entries: [EntryParams!]!
 }
 
 input WebCallbackFilter {
@@ -241,6 +253,25 @@ input WebCallbackFilter {
   stateEq: WebCallbackState
   resourceIdEq: Int
   kindEq: WebCallbackKind
+}
+
+"Represents an HTML preview of the contents of an entry."
+type PreviewEntry {
+  "The numerical identifier of the entry."
+  id: Int!
+  "The HTML formatted contents of the entry."
+  html: String!
+}
+
+scalar MsgSig
+
+type TemplateSchemaField {
+  name: String!
+  optional: Boolean!
+  common: Boolean!
+  label: String
+  help: String
+  sample: String
 }
 
 "This object represents the link received by a user when requested to choose a payment method to buy tokens."
@@ -283,15 +314,17 @@ type Attestation {
   createdAt: DateTime!
 }
 
-scalar EntryParams
-
-"Represents an HTML preview of the contents of an entry."
-type Preview {
+"Contains the verifiable HTML for this certified entry."
+type UnsignedEntryPayload {
   "The numerical identifier of the entry."
   id: Int!
-  "The HTML formatted contents of the entry."
-  html: String!
+  "The entry itself."
+  entry: Entry!
+  "The base64 encoded contents of this entry. It's always a zip file."
+  bytes: Bytes!
 }
+
+scalar EntryParams
 
 "This input object allows changing the public_certificate_is_active flag, to enable and disable sharing publicly."
 input DownloadProofLinkInput {
@@ -321,13 +354,13 @@ type DownloadProofLink {
 
 "A CreateIssuanceFromCsvInput configures a new Issuance, with at least one recipient, where more new entries may be added later. Once all desired entries have been added, the issuance may be signed and will be certified and optionally distributed by Constata. If you want to create an Issuance all at once from a single CSV file we suggest you use the Wizard endpoint."
 input CreateIssuanceFromCsvInput {
-  "The CSV file to be used for creating the entries." csv: String!
+  "The CSV string to be used for creating the issuance" csv: String!
   "The name of the Issuance to be created." name: String!
   "The ID of an existing template to use, if any. See the Templates resource." templateId: Int
   "The kind of template to be created if no template_id is given." newKind: TemplateKind
   "The name of the new template to be created, if no template_id is given." newName: String
   "The text to be used as the logo for the new template, if no template_id is given." newLogoText: String
-  "The base64 encoded image to be used as the logo for the new template, if no template_id is given. If you leave it empty your new_logo_text will be displayed." newLogoImage: String
+  "The base64 encoded image to be used as the logo for the new template, if no template_id is given. If you leave it empty your new_logo_text will be displayed." newLogoImage: Bytes
 }
 
 "A template that serves as a foundation for creating each Issuance Entry."
@@ -341,9 +374,16 @@ type Template {
   "The date when this template was created"
   createdAt: DateTime!
   "The schema used to build the issuance entry"
-  schema: String!
+  schema: [TemplateSchemaField!]!
   "A personalized message that the user can add to the email sent to the student when the entry is certified"
   customMessage: String
+  "Stats: How many recipients viewed the admin link that was sent to them."
+  adminVisitedCount: Int!
+  "Entry count for all issuances that used this template."
+  entriesCount: Int!
+  "Stats: How many visits did the published entries in this Template get, collectively."
+  publicVisitCount: Int!
+  "Whether this template was archived by the user."
   archived: Boolean!
 }
 
@@ -367,6 +407,7 @@ scalar DateTime
 type AttestationHtmlExport {
   id: Int!
   attestation: Attestation!
+  "The verifiable HTML proof."
   verifiableHtml: String!
 }
 
@@ -390,6 +431,8 @@ enum WebCallbackKind {
   ATTESTATION_DONE
 }
 
+scalar Bytes
+
 "This object retrieves a certificate in verifiable HTML format authenticating with a special token, generated by our backend. This links can be sent to anyone and they will download the verifiable HTML. NOTICE If you need to download the verifiable HTML for any certificate authenticating to our API with your credentials, use the Issuances or Attestations endpoints instead."
 type Proof {
   "Id of the certification "
@@ -410,7 +453,7 @@ type Mutation {
   createIssuanceFromJson(input: CreateIssuanceFromJsonInput!): Issuance!
   appendEntriesToIssuance(input: AppendEntriesToIssuanceInput!): Issuance!
   createAttestation(input: AttestationInput!): Attestation!
-  signingIterator(input: SigningIteratorInput!): Entry
+  signingIterator(input: SigningIteratorInput!): UnsignedEntryPayload
   createKycRequest(input: KycRequestInput!): KycRequest!
   createEmailAddress(input: EmailAddressInput!): EmailAddress!
   createInvoiceLink(input: InvoiceLinkInput!): InvoiceLink!
@@ -479,7 +522,9 @@ type Query {
   WebCallbackAttempt(id: Int!): WebCallbackAttempt!
   allWebCallbackAttempts(page: Int, perPage: Int, sortField: String, sortOrder: String, filter: WebCallbackAttemptFilter): [WebCallbackAttempt!]!
   _allWebCallbackAttemptsMeta(page: Int, perPage: Int, sortField: String, sortOrder: String, filter: WebCallbackAttemptFilter): ListMetadata!
-  Preview(id: Int!): Preview!
+  PreviewEntry(id: Int!): PreviewEntry!
+  UnsignedEntryPayload(id: Int!): UnsignedEntryPayload!
+  EntryHtmlExport(id: Int!): EntryHtmlExport!
   AccountState(id: Int!): AccountState!
   EndorsementManifest(id: Int!): EndorsementManifest!
   EmailAddressVerification(id: Int!): EmailAddressVerification!
@@ -559,7 +604,6 @@ type Entry {
   hasEmailCallback: Boolean!
   "Date when the email was sent, if it has already been sent."
   emailCallbackSentAt: DateTime
-  downloadProofLinkUrl: String
   "The data payload for this entry."
   payload: String
   "The administrative access url for the direct recipient of this entry. They can use it to download, view or share the document."
@@ -619,12 +663,6 @@ type IssuanceExport {
   csv: String!
 }
 
-"Input data object to register a new email address or change the visibility of a current one. "
-input EmailAddressInput {
-  "email to be registered by the person" address: String!
-  "boolean pointing out whether the email should be registered as private or could be public" keepPrivate: Boolean!
-}
-
 input AttestationFilter {
   ids: [Int!]
   idEq: Int
@@ -632,11 +670,16 @@ input AttestationFilter {
   markersLike: String
 }
 
-"An AttestationInput has all parameters required to create an Attestation on several of documents."
+"Input data object to register a new email address or change the visibility of a current one. "
+input EmailAddressInput {
+  "email to be registered by the person" address: String!
+  "boolean pointing out whether the email should be registered as private or could be public" keepPrivate: Boolean!
+}
+
 input SignedPayload {
-  payload: String!
-  signer: String!
-  signature: String!
+  payload: Bytes!
+  signer: Addr!
+  signature: MsgSig!
 }
 
 schema {
