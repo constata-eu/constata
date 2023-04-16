@@ -5,11 +5,14 @@ orbs:
   browser-tools: circleci/browser-tools@1.2.4
 
 workflows:
+  version: 2
   full_test_suite:  # This is the name of the workflow, feel free to change it to better match your workflow.
     jobs:
       - models_and_api
       - integration_tests
       - back_office_panel_tests
+      - build_macos_client:
+          requires: [models_and_api, integration_tests, back_office_panel_tests]
 
 jobs:
   integration_tests:
@@ -121,3 +124,16 @@ jobs:
 
       - store_artifacts:
           path: target/artifacts
+
+  build_macos_client: 
+    macos:
+      xcode: 13.0.0 # indicate our selected version of Xcode
+    environment:
+      SQLX_OFFLINE: true
+    steps: 
+      - run: git clone https://github.com/constata-eu/constata-client
+      - run: curl https://sh.rustup.rs -sSf | sh -s -- -y
+      - run: cd constata-client && cargo build --release
+      - store_artifacts: # store this build output. Read more: https://circleci.com/docs/2.0/artifacts/
+          path: /Users/distiller/project/constata-client/target/release/constata-cli
+          destination: constata-cli-macos

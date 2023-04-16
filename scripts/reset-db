@@ -1,2 +1,2 @@
 #!/bin/bash
-cd constata_lib && cd db && sqlx database reset -y
+cd constata_lib && cd db && sqlx database reset -y && cd .. && cargo sqlx prepare -- --workspace

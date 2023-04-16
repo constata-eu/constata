@@ -1,4 +1,5 @@
 target/release
+target/x86_64-unknown-linux-musl
 target/.future-incompat-report.json
 target/artifacts/signature.json
 target/debug
