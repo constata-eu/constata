@@ -169,22 +169,12 @@ jobs:
       - run:
           command: curl https://win.rustup.rs/x86_64 > rustup-init.exe
           shell: bash.exe
-      - run:
-          command: ./rustup-init.exe -y
-          shell: bash.exe
+      - run: ./rustup-init.exe -y
       - run: git clone https://github.com/microsoft/vcpkg
-      - run:
-          command: ./vcpkg/bootstrap-vcpkg.bat
-          shell: bash.exe
-      - run:
-          command: ./vcpkg/vcpkg install openssl --triplet=x64-windows-static-md
-          shell: bash.exe
-      - run:
-          command: "export VCPKG_ROOT=`pwd`/vcpkg"
-          shell: bash.exe
-      - run:
-          command: ./vcpkg/vcpkg integrate install
-          shell: bash.exe
+      - run: ./vcpkg/bootstrap-vcpkg.bat
+      - run: 'set VCPKG_ROOT=c:\Users\circleci.PACKER-6400C91A\project\vcpkg'
+      - run: './vcpkg/vcpkg.exe install openssl --triplet=x64-windows-static-md'
+      - run: './vcpkg/vcpkg.exe integrate install'
       - run:
           command: cd ~/project/constata_cli && ~/.cargo/bin/cargo.exe --config net.git-fetch-with-cli=true build --release
           shell: bash.exe
