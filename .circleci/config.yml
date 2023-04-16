@@ -162,7 +162,7 @@ jobs:
             wget https://github.com/tcnksm/ghr/releases/download/v0.16.0/ghr_v0.16.0_linux_amd64.tar.gz
             tar xvzf ghr_v0.16.0_linux_amd64.tar.gz
             cd ghr_v0.16.0_linux_amd64
-            cp /home/nubis/circleci/target/x86_64-unknown-linux-musl/release/constata-cli constata-cli-linux
+            cp /home/circleci/project/target/x86_64-unknown-linux-musl/release/constata-cli constata-cli-linux
             ./ghr -u constata-eu -r constata latest constata-cli-linux
 
   build_windows_client:
