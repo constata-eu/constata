@@ -144,7 +144,7 @@ jobs:
 
   build_linux_client: 
     docker:
-      - image: circleci/rust
+      - image: constata/test:latest
     environment:
       SQLX_OFFLINE: true
     steps:
@@ -176,7 +176,7 @@ jobs:
           command: ./vcpkg/vcpkg install openssl --triplet=x64-windows-static-md
           shell: bash.exe
       - run:
-          command: cd ~/project/constata_cli && ~/.cargo/bin/cargo.exe build --release
+          command: cd ~/project/constata_cli && ~/.cargo/bin/cargo.exe --config net.git-fetch-with-cli=true build --release
           shell: bash.exe
       - store_artifacts: # store this build output. Read more: https://circleci.com/docs/2.0/artifacts/
           path: C:/Users/circleci/project/constata/target/release/constata-cli.exe
