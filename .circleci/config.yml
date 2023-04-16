@@ -137,7 +137,7 @@ jobs:
     steps: 
       - checkout
       - run: curl https://sh.rustup.rs -sSf | sh -s -- -y
-      - run: cd constata/constata_cli && cargo build --release
+      - run: cd constata_cli && cargo build --release
       - store_artifacts: # store this build output. Read more: https://circleci.com/docs/2.0/artifacts/
           path: /Users/distiller/project/constata-client/target/release/constata-cli
           destination: constata-cli-macos
@@ -145,17 +145,21 @@ jobs:
   build_linux_client: 
     docker:
       - image: circleci/rust
+    environment:
+      SQLX_OFFLINE: true
     steps:
       - checkout
       - run: rustup target add x86_64-unknown-linux-musl
       - run: rustc --version; cargo --version; rustup --version
-      - run: cd constata/constata_cli && cargo build --target=x86_64-unknown-linux-musl --features vendored --release
+      - run: cd constata_cli && cargo build --target=x86_64-unknown-linux-musl --features vendored --release
       - store_artifacts: # store this build output. Read more: https://circleci.com/docs/2.0/artifacts/
           path: /home/circleci/project/constata/target/x86_64-unknown-linux-musl/release/constata-cli
           destination: constata-cli-linux
 
   build_windows_client:
     executor: win/default
+    environment:
+      SQLX_OFFLINE: true
     steps:
       - checkout
       - run:
@@ -175,7 +179,7 @@ jobs:
           command: ./vcpkg/vcpkg integrate install
           shell: bash.exe
       - run:
-          command: cd ~/project/constata/constata_cli && ~/.cargo/bin/cargo.exe build --release
+          command: cd ~/project/constata_cli && ~/.cargo/bin/cargo.exe build --release
           shell: bash.exe
       - store_artifacts: # store this build output. Read more: https://circleci.com/docs/2.0/artifacts/
           path: C:/Users/circleci/project/constata/target/release/constata-cli.exe
