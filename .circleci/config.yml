@@ -171,15 +171,15 @@ jobs:
           shell: bash.exe
       - run: ./rustup-init.exe -y
       - run: git clone https://github.com/microsoft/vcpkg
-      - run: '|
-        .\vcpkg\bootstrap-vcpkg.bat
-        $env:VCPKG_ROOT="c:\Users\circleci.PACKER-6400C91A\project\vcpkg"
-        .\vcpkg\vcpkg.exe install openssl --triplet=x64-windows-static-md
-        .\vcpkg\vcpkg.exe integrate install'
+      - run: .\vcpkg\bootstrap-vcpkg.bat
+      - run: [System.Environment]::SetEnvironmentVariable('VCPKG_root', 'C:\Users\circleci.PACKER-6400C91A\project\vcpkg')
+      - run: .\vcpkg\vcpkg.exe install openssl --triplet=x64-windows-static-md
+      # Big WTF: vcpkg integrate install must run twice, because the first time around it fails.
+      - run: .\vcpkg\vcpkg.exe integrate install
+      - run: .\vcpkg\vcpkg.exe integrate install
       - run:
           command: cd ~/project/constata_cli && ~/.cargo/bin/cargo.exe --config net.git-fetch-with-cli=true build --release
           shell: bash.exe
       - store_artifacts: 
           path: C:/Users/circleci.PACKER-6400C91A/project/target/release/constata-cli.exe
           destination: constata-cli-win.exe
-
