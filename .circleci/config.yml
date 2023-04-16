@@ -9,11 +9,11 @@ workflows:
   version: 2
   full_test_suite:  # This is the name of the workflow, feel free to change it to better match your workflow.
     jobs:
+      - build_linux_client
       #      - models_and_api
       # - integration_tests
       # - back_office_panel_tests
       # - build_macos_client
-      - build_linux_client
       #- build_windows_client
         #    requires: [models_and_api, integration_tests, back_office_panel_tests]
 
@@ -157,13 +157,13 @@ jobs:
           path: /home/circleci/project/target/x86_64-unknown-linux-musl/release/constata-cli
           destination: constata-cli-linux
       - run: 
-        name: Add file to release
-        command: |
-          wget https://github.com/tcnksm/ghr/releases/download/v0.16.0/ghr_v0.16.0_linux_amd64.tar.gz
-          tar xvzf ghr_v0.16.0_linux_amd64.tar.gz
-          cd ghr_v0.16.0_linux_amd64
-          cp /home/nubis/circleci/target/x86_64-unknown-linux-musl/release/constata-cli constata-cli-linux
-          ./ghr -u constata-eu -r constata latest constata-cli-linux
+          name: Add file to release
+          command: |
+            wget https://github.com/tcnksm/ghr/releases/download/v0.16.0/ghr_v0.16.0_linux_amd64.tar.gz
+            tar xvzf ghr_v0.16.0_linux_amd64.tar.gz
+            cd ghr_v0.16.0_linux_amd64
+            cp /home/nubis/circleci/target/x86_64-unknown-linux-musl/release/constata-cli constata-cli-linux
+            ./ghr -u constata-eu -r constata latest constata-cli-linux
 
   build_windows_client:
     executor: 
