@@ -178,7 +178,7 @@ jobs:
       - run:
           command: cd ~/project/constata_cli && ~/.cargo/bin/cargo.exe --config net.git-fetch-with-cli=true build --release
           shell: bash.exe
-      - store_artifacts: # store this build output. Read more: https://circleci.com/docs/2.0/artifacts/
-          path: C:/Users/circleci/project/target/release/constata-cli.exe
+      - store_artifacts: 
+          path: C:/Users/circleci.PACKER-6400C91A/project/target/release/constata-cli.exe
           destination: constata-cli-win.exe
 
