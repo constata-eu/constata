@@ -12,7 +12,7 @@ workflows:
       #      - models_and_api
       # - integration_tests
       # - back_office_panel_tests
-      - build_macos_client
+      # - build_macos_client
       - build_linux_client
       - build_windows_client
         #    requires: [models_and_api, integration_tests, back_office_panel_tests]
@@ -149,6 +149,7 @@ jobs:
       SQLX_OFFLINE: true
     steps:
       - checkout
+      - run: apt install musl-tools -y
       - run: rustup target add x86_64-unknown-linux-musl
       - run: rustc --version; cargo --version; rustup --version
       - run: cd constata_cli && cargo build --target=x86_64-unknown-linux-musl --features vendored --release
