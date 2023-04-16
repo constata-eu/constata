@@ -13,7 +13,7 @@ workflows:
       # - integration_tests
       # - back_office_panel_tests
       # - build_macos_client
-      - build_linux_client
+      # - build_linux_client
       - build_windows_client
         #    requires: [models_and_api, integration_tests, back_office_panel_tests]
 
@@ -158,7 +158,10 @@ jobs:
           destination: constata-cli-linux
 
   build_windows_client:
-    executor: win/default
+    executor: 
+      name: win/default
+      size: xlarge # can be medium, large, xlarge, 2xlarge
+
     environment:
       SQLX_OFFLINE: true
     steps:
@@ -177,12 +180,15 @@ jobs:
           command: ./vcpkg/vcpkg install openssl --triplet=x64-windows-static-md
           shell: bash.exe
       - run:
+          command: "export VCPKG_ROOT=`pwd`/vcpkg"
+          shell: bash.exe
+      - run:
           command: ./vcpkg/vcpkg integrate install
           shell: bash.exe
       - run:
           command: cd ~/project/constata_cli && ~/.cargo/bin/cargo.exe --config net.git-fetch-with-cli=true build --release
           shell: bash.exe
       - store_artifacts: # store this build output. Read more: https://circleci.com/docs/2.0/artifacts/
-          path: C:/Users/circleci/project/constata/target/release/constata-cli.exe
+          path: C:/Users/circleci/project/target/release/constata-cli.exe
           destination: constata-cli-win.exe
 
