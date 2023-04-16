@@ -172,7 +172,6 @@ jobs:
       - run: ./rustup-init.exe -y
       - run: git clone https://github.com/microsoft/vcpkg
       - run: .\vcpkg\bootstrap-vcpkg.bat
-      - run: [System.Environment]::SetEnvironmentVariable('VCPKG_root', 'C:\Users\circleci.PACKER-6400C91A\project\vcpkg')
       - run: .\vcpkg\vcpkg.exe install openssl --triplet=x64-windows-static-md
       # Big WTF: vcpkg integrate install must run twice, because the first time around it fails.
       - run: .\vcpkg\vcpkg.exe integrate install
