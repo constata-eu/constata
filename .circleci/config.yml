@@ -149,7 +149,7 @@ jobs:
       SQLX_OFFLINE: true
     steps:
       - checkout
-      - run: apt install musl-tools -y
+      - run: sudo apt install musl-tools
       - run: rustup target add x86_64-unknown-linux-musl
       - run: rustc --version; cargo --version; rustup --version
       - run: cd constata_cli && cargo build --target=x86_64-unknown-linux-musl --features vendored --release
@@ -175,6 +175,9 @@ jobs:
           shell: bash.exe
       - run:
           command: ./vcpkg/vcpkg install openssl --triplet=x64-windows-static-md
+          shell: bash.exe
+      - run:
+          command: ./vcpkg/vcpkg integrate install
           shell: bash.exe
       - run:
           command: cd ~/project/constata_cli && ~/.cargo/bin/cargo.exe --config net.git-fetch-with-cli=true build --release
