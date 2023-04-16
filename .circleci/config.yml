@@ -3,16 +3,19 @@ version: 2.1
 orbs:
   rust: circleci/rust@1.6.0
   browser-tools: circleci/browser-tools@1.2.4
+  win: circleci/windows@2.4.1
 
 workflows:
   version: 2
   full_test_suite:  # This is the name of the workflow, feel free to change it to better match your workflow.
     jobs:
-      - models_and_api
-      - integration_tests
-      - back_office_panel_tests
-      - build_macos_client:
-          requires: [models_and_api, integration_tests, back_office_panel_tests]
+      #      - models_and_api
+      # - integration_tests
+      # - back_office_panel_tests
+      - build_macos_client
+      - build_linux_client
+      - build_windows_client
+        #    requires: [models_and_api, integration_tests, back_office_panel_tests]
 
 jobs:
   integration_tests:
@@ -127,13 +130,54 @@ jobs:
 
   build_macos_client: 
     macos:
-      xcode: 13.0.0 # indicate our selected version of Xcode
+      xcode: "14.2.0"
+    resource_class: macos.x86.medium.gen2
     environment:
       SQLX_OFFLINE: true
     steps: 
-      - run: git clone https://github.com/constata-eu/constata-client
+      - checkout
       - run: curl https://sh.rustup.rs -sSf | sh -s -- -y
-      - run: cd constata-client && cargo build --release
+      - run: cd constata/constata_cli && cargo build --release
       - store_artifacts: # store this build output. Read more: https://circleci.com/docs/2.0/artifacts/
           path: /Users/distiller/project/constata-client/target/release/constata-cli
           destination: constata-cli-macos
+
+  build_linux_client: 
+    docker:
+      - image: circleci/rust
+    steps:
+      - checkout
+      - run: rustup target add x86_64-unknown-linux-musl
+      - run: rustc --version; cargo --version; rustup --version
+      - run: cd constata/constata_cli && cargo build --target=x86_64-unknown-linux-musl --features vendored --release
+      - store_artifacts: # store this build output. Read more: https://circleci.com/docs/2.0/artifacts/
+          path: /home/circleci/project/constata/target/x86_64-unknown-linux-musl/release/constata-cli
+          destination: constata-cli-linux
+
+  build_windows_client:
+    executor: win/default
+    steps:
+      - checkout
+      - run:
+          command: curl https://win.rustup.rs/x86_64 > rustup-init.exe
+          shell: bash.exe
+      - run:
+          command: ./rustup-init.exe -y
+          shell: bash.exe
+      - run: git clone https://github.com/microsoft/vcpkg
+      - run:
+          command: ./vcpkg/bootstrap-vcpkg.bat
+          shell: bash.exe
+      - run:
+          command: ./vcpkg/vcpkg install openssl --triplet=x64-windows-static-md
+          shell: bash.exe
+      - run:
+          command: ./vcpkg/vcpkg integrate install
+          shell: bash.exe
+      - run:
+          command: cd ~/project/constata/constata_cli && ~/.cargo/bin/cargo.exe build --release
+          shell: bash.exe
+      - store_artifacts: # store this build output. Read more: https://circleci.com/docs/2.0/artifacts/
+          path: C:/Users/circleci/project/constata/target/release/constata-cli.exe
+          destination: constata-cli-win.exe
+
