@@ -144,9 +144,9 @@ jobs:
       - run: 
           name: Add file to release
           command: |
-            wget https://github.com/tcnksm/ghr/releases/download/v0.16.0/ghr_v0.16.0_linux_amd64.tar.gz
-            tar xvzf ghr_v0.16.0_linux_amd64.tar.gz
-            cd ghr_v0.16.0_linux_amd64
+            wget https://github.com/tcnksm/ghr/releases/download/v0.16.0/ghr_v0.16.0_darwin_amd64.zip
+            unzip ghr_v0.16.0_darwin_amd64
+            cd ghr_v0.16.0_darwin_amd64
             echo "placeholder" > constata-cli-mac
             ./ghr -u constata-eu -r constata latest constata-cli-mac
             #cp /home/circleci/project/target/x86_64-unknown-linux-musl/release/constata-cli constata-cli-linux
@@ -202,9 +202,9 @@ jobs:
       - run: 
           name: Add file to release
           command: |
-            wget https://github.com/tcnksm/ghr/releases/download/v0.16.0/ghr_v0.16.0_linux_amd64.tar.gz
-            tar xvzf ghr_v0.16.0_linux_amd64.tar.gz
-            cd ghr_v0.16.0_linux_amd64
+            wget https://github.com/tcnksm/ghr/releases/download/v0.16.0/ghr_v0.16.0_windows_amd64.zip
+            unzip ghr_v0.16.0_windows_amd64.zip
+            cd ghr_v0.16.0_windows_amd64
             echo "placeholder" > constata-cli-windows
             ./ghr -u constata-eu -r constata latest constata-cli-windows
             #cp /home/circleci/project/target/x86_64-unknown-linux-musl/release/constata-cli constata-cli-linux
