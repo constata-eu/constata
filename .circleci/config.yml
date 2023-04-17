@@ -12,19 +12,19 @@ workflows:
       - models_and_api
       - integration_tests
       - back_office_panel_tests
-      - build_macos_client
+      - build_macos_client:
           requires: [models_and_api, integration_tests, back_office_panel_tests]
           filters:
             branches:
               only:
                 - master
-      - build_windows_client
+      - build_windows_client:
           requires: [models_and_api, integration_tests, back_office_panel_tests]
           filters:
             branches:
               only:
                 - master
-      - build_linux_client
+      - build_linux_client:
           requires: [models_and_api, integration_tests, back_office_panel_tests]
           filters:
             branches:
