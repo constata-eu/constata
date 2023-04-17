@@ -190,7 +190,7 @@ jobs:
   build_windows_client:
     executor: 
       name: win/default
-      size: xlarge # can be medium, large, xlarge, 2xlarge
+      size: medium # can be medium, large, xlarge, 2xlarge
 
     environment:
       SQLX_OFFLINE: true
