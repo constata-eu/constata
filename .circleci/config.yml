@@ -9,13 +9,27 @@ workflows:
   version: 2
   full_test_suite:  # This is the name of the workflow, feel free to change it to better match your workflow.
     jobs:
-      # - models_and_api
-      # - integration_tests
-      # - back_office_panel_tests
+      - models_and_api
+      - integration_tests
+      - back_office_panel_tests
       - build_macos_client
+          requires: [models_and_api, integration_tests, back_office_panel_tests]
+          filters:
+            branches:
+              only:
+                - master
       - build_windows_client
+          requires: [models_and_api, integration_tests, back_office_panel_tests]
+          filters:
+            branches:
+              only:
+                - master
       - build_linux_client
-        #    requires: [models_and_api, integration_tests, back_office_panel_tests]
+          requires: [models_and_api, integration_tests, back_office_panel_tests]
+          filters:
+            branches:
+              only:
+                - master
 
 jobs:
   integration_tests:
