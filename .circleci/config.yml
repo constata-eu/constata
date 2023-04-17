@@ -3,13 +3,33 @@ version: 2.1
 orbs:
   rust: circleci/rust@1.6.0
   browser-tools: circleci/browser-tools@1.2.4
+  win: circleci/windows@5.0
 
 workflows:
+  version: 2
   full_test_suite:  # This is the name of the workflow, feel free to change it to better match your workflow.
     jobs:
       - models_and_api
       - integration_tests
       - back_office_panel_tests
+      - build_macos_client:
+          requires: [models_and_api, integration_tests, back_office_panel_tests]
+          filters:
+            branches:
+              only:
+                - master
+      - build_windows_client:
+          requires: [models_and_api, integration_tests, back_office_panel_tests]
+          filters:
+            branches:
+              only:
+                - master
+      - build_linux_client:
+          requires: [models_and_api, integration_tests, back_office_panel_tests]
+          filters:
+            branches:
+              only:
+                - master
 
 jobs:
   integration_tests:
@@ -121,3 +141,84 @@ jobs:
 
       - store_artifacts:
           path: target/artifacts
+
+  build_macos_client: 
+    macos:
+      xcode: "14.2.0"
+    resource_class: macos.x86.medium.gen2
+    environment:
+      SQLX_OFFLINE: true
+    steps: 
+      - checkout
+      - run: curl https://sh.rustup.rs -sSf | sh -s -- -y
+      - run: cd constata_cli && cargo build --release
+      - store_artifacts: # store this build output. Read more: https://circleci.com/docs/2.0/artifacts/
+          path: /Users/distiller/project/target/release/constata-cli
+          destination: constata-cli-macos
+      - run: 
+          name: Add file to release
+          command: |
+            wget https://github.com/tcnksm/ghr/releases/download/v0.16.0/ghr_v0.16.0_darwin_amd64.zip
+            unzip ghr_v0.16.0_darwin_amd64
+            cd ghr_v0.16.0_darwin_amd64
+            cp /Users/distiller/project/target/release/constata-cli constata-cli-mac
+            ./ghr -u constata-eu -r constata -replace latest constata-cli-mac
+
+  build_linux_client: 
+    docker:
+      - image: constata/test:latest
+    environment:
+      SQLX_OFFLINE: true
+    steps:
+      - checkout
+      - run: sudo apt install musl-tools wget
+      - run: rustup target add x86_64-unknown-linux-musl
+      - run: rustc --version; cargo --version; rustup --version
+      - run: cd constata_cli && cargo build --target=x86_64-unknown-linux-musl --features vendored --release
+      - store_artifacts: # store this build output. Read more: https://circleci.com/docs/2.0/artifacts/
+          path: /home/circleci/project/target/x86_64-unknown-linux-musl/release/constata-cli
+          destination: constata-cli-linux
+      - run: 
+          name: Add file to release
+          command: |
+            wget https://github.com/tcnksm/ghr/releases/download/v0.16.0/ghr_v0.16.0_linux_amd64.tar.gz
+            tar xvzf ghr_v0.16.0_linux_amd64.tar.gz
+            cd ghr_v0.16.0_linux_amd64
+            cp /home/circleci/project/target/x86_64-unknown-linux-musl/release/constata-cli constata-cli-linux
+            ./ghr -u constata-eu -r constata -replace latest constata-cli-linux
+
+  build_windows_client:
+    executor: 
+      name: win/default
+      size: xlarge # can be medium, large, xlarge, 2xlarge
+
+    environment:
+      SQLX_OFFLINE: true
+    steps:
+      - checkout
+      - run:
+          command: curl https://win.rustup.rs/x86_64 > rustup-init.exe
+          shell: bash.exe
+      - run: ./rustup-init.exe -y
+      - run: git clone https://github.com/microsoft/vcpkg
+      - run: .\vcpkg\bootstrap-vcpkg.bat
+      - run: .\vcpkg\vcpkg.exe install openssl --triplet=x64-windows-static-md
+      # Big WTF: vcpkg integrate install must run twice, because the first time around it fails.
+      - run: .\vcpkg\vcpkg.exe integrate install; .\vcpkg\vcpkg.exe integrate install
+      - run:
+          command: cd ~/project/constata_cli && ~/.cargo/bin/cargo.exe --config net.git-fetch-with-cli=true build --release
+          shell: bash.exe
+      - store_artifacts: 
+          path: C:/Users/circleci.PACKER-6400C91A/project/target/release/constata-cli.exe
+          destination: constata-cli-win.exe
+      - run: 
+          name: Add file to release
+          command: |
+            choco install wget -y
+            wget https://github.com/tcnksm/ghr/releases/download/v0.16.0/ghr_v0.16.0_windows_amd64.zip
+            unzip ghr_v0.16.0_windows_amd64.zip
+            cd ghr_v0.16.0_windows_amd64
+            echo "placeholder" > constata-cli-windows
+            cp /c/Users/circleci.PACKER-6400C91A/project/target/release/constata-cli.exe constata-cli-win.exe
+            ./ghr -u constata-eu -r constata -replace latest constata-cli-win.exe
+          shell: bash.exe
