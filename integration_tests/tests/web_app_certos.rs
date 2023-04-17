@@ -88,7 +88,7 @@ mod website {
       d.wait_for("span[role='progressbar']").await;
 
       c.site.request().create_all_received().await.expect("to create sucessfully the entries");
-      d.wait_for_text("h2", "Review and sign").await;
+      d.wait_for_text("#preview_container h2", "Review and sign").await;
       sign_wizard(&d).await;
       d.click("a[href='#/']").await;
     }
@@ -132,7 +132,7 @@ mod website {
       d.wait_for("span[role='progressbar']").await;
 
       c.site.request().create_all_received().await.expect("to create sucessfully the entries");
-      d.wait_for_text("h2", "Review and sign").await;
+      d.wait_for_text("#preview_container h2", "Review and sign").await;
       sign_wizard(&d).await;
       d.click("a[href='#/']").await;
 
@@ -831,7 +831,7 @@ mod website {
       d.wait_for("span[role='progressbar']").await;
 
       site.request().create_all_received().await.expect("to create sucessfully the entries");
-      d.wait_for_text("h2", "Review and sign").await;
+      d.wait_for_text("#preview_container h2", "Review and sign").await;
     }
 
     async fn create_wizard(d: &Selenium, site: &Site, recipient_count: i32, template_name: &str, new_template: bool) {
@@ -844,7 +844,7 @@ mod website {
     }
 
     async fn sign_wizard(d: &Selenium) {
-      d.wait_for_text("h2", "Review and sign").await;
+      d.wait_for_text("#preview_container h2", "Review and sign").await;
       d.fill_in("#password", "password").await;
       d.click("button[type='submit']").await;
       d.wait_for("span[role='progressbar']").await;
