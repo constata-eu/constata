@@ -125,10 +125,26 @@ export default createTheme(
     RaList: {
       styleOverrides: {
         root: {
+          "overflow": "auto",
           "& .RaList-content": {
             borderRadius: "0 !important",
             borderWidth: "0",
             boxShadow: "none !important",
+          }
+        },
+      }
+    },
+    RaSimpleShowLayout: {
+      styleOverrides: {
+        root: {
+          "& .RaSimpleShowLayout-stack": {
+            flexDirection: "row",
+          },
+          "& .RaSimpleShowLayout-row": {
+            borderRadius: "4px",
+            background: "#f0f0f0",
+            padding: "0.5em",
+            margin: "0.5em 0.5em 0 0",
           }
         },
       }
