@@ -139,6 +139,7 @@ export default createTheme(
         root: {
           "& .RaSimpleShowLayout-stack": {
             flexDirection: "row",
+            flexWrap: "wrap",
           },
           "& .RaSimpleShowLayout-row": {
             borderRadius: "4px",
