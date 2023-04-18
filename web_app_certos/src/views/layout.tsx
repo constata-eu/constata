@@ -8,7 +8,6 @@ import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import logo from '../assets/logo_denim.png';
 
-
 const ResponsiveAppBar = ({loggedIn}) => {
   const [menuOpen, setMenuOpen] = useSafeSetState(false);
   const logout = useLogout();
@@ -106,11 +105,10 @@ const AppFrame = styled("div")(() => ({
 }));
 
 const Content = styled("div")(({ theme }) => ({
-  maxWidth: theme.breakpoints.values.md,
+  width: "100%",
   display: "flex",
   flexDirection: "column",
   overflowX: "auto",
-  width: "100%",
   paddingTop: "2em",
 }));
 
