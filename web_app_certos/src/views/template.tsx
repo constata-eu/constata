@@ -23,7 +23,7 @@ function TemplateList(props) {
   ];
 
   return (
-    <Container maxWidth="md" sx={{mb:3}}>
+    <Container maxWidth={false} sx={{mb:3}}>
       <Card>
         <CardTitle text={<>
           <Link href="#/Issuance"> { translate("resources.Issuance.admin_title") } </Link>
@@ -69,7 +69,6 @@ function TemplateList(props) {
   );
 }
 
-
 function TemplateShow(props){
   const templateId = useGetRecordId();
   const notify = useNotify();
@@ -83,7 +82,7 @@ function TemplateShow(props){
 
   return (
     <ShowBase {...props}>
-      <Container maxWidth="md" sx={{mb:3}}>
+      <Container maxWidth={false} sx={{mb:3}}>
         <Card sx={{ mb: 3 }}>
           <CardTitle text={<>
             <Link href="#/Issuance"> { translate("resources.Issuance.admin_title") } </Link>
