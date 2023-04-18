@@ -15,5 +15,5 @@ serde = "1.0"
 serde_json = "1.0"
 include_dir = { version="*", features= ["glob"]}
 whatlang = { version = "0.16.1" }
-sqlx = "0.6.0"
 formatx = "0.2.0"
+sqlx = { version = "0.6.0", features = [ "postgres", "runtime-tokio-native-tls", "offline", "chrono", "json" ] }

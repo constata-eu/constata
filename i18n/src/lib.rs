@@ -1,7 +1,10 @@
+pub mod renderer;
 pub mod translations;
-pub use tera::{self, Context, Tera};
-use include_dir::{include_dir, Dir, DirEntry};
+pub use tera::{self, Context, Tera, Result as TeraResult};
+pub use grass;
+pub use include_dir::{include_dir, Dir, DirEntry};
 pub use formatx;
+pub use renderer::Renderer;
 
 use rocket::{
   self,
@@ -48,15 +51,15 @@ impl Lang {
     }
   }
 
-  pub fn html(self, template_name: &str, ctx: &Context) -> tera::Result<HtmlWithLocale> {
+  pub fn html(self, template_name: &str, ctx: &Context) -> TeraResult<HtmlWithLocale> {
     Ok(HtmlWithLocale{ lang: self, content: render(self, template_name, ctx)? })
   }
 
-  pub fn html_from_serialize<S: serde::Serialize>(self, template_name: &str, o: &S) -> tera::Result<HtmlWithLocale> {
+  pub fn html_from_serialize<S: serde::Serialize>(self, template_name: &str, o: &S) -> TeraResult<HtmlWithLocale> {
     Ok(HtmlWithLocale{ lang: self, content: render_from_serialize(self, template_name, o)? })
   }
 
-  pub fn html_bare(self, template_name: &str) -> tera::Result<HtmlWithLocale> {
+  pub fn html_bare(self, template_name: &str) -> TeraResult<HtmlWithLocale> {
     Ok(HtmlWithLocale{
       lang: self,
       content: render_from_serialize(self, template_name, &serde_json::json!({}))?,
@@ -141,19 +144,33 @@ lazy_static::lazy_static! {
   pub static ref TEMPLATE_NAMES: Vec<&'static str> = TEMPLATES.get_template_names().collect();
 }
 
-pub fn render(lang: Lang, template_name: &str, ctx: &Context) -> tera::Result<String> {
+pub fn render(lang: Lang, template_name: &str, ctx: &Context) -> TeraResult<String> {
   let local_template = format!("{}.{}", template_name, lang.code());
   let template = if TEMPLATE_NAMES.contains(&local_template.as_str()) { &local_template } else { template_name };
   TEMPLATES.render(template, &ctx)
 }
 
-pub fn render_from_serialize<S: serde::Serialize>(lang: Lang, template_name: &str, o: &S) -> tera::Result<String> {
+pub fn render_from_serialize<S: serde::Serialize>(lang: Lang, template_name: &str, o: &S) -> TeraResult<String> {
   render(lang, template_name, &Context::from_serialize(o)?)
 }
 
 pub struct HtmlWithLocale {
   pub content: String,
   pub lang: Lang,
+}
+
+impl HtmlWithLocale {
+  pub fn from_context(renderer: &Renderer, lang: Lang, template_name: &str, ctx: &Context) -> TeraResult<Self> {
+    Ok(Self{ lang, content: renderer.from_context(lang, template_name, ctx)? })
+  }
+
+  pub fn from_serialize<S: serde::Serialize>(renderer: &Renderer, lang: Lang, template_name: &str, s: &S) -> TeraResult<Self> {
+    Ok(Self{ lang, content: renderer.from_serialize(lang, template_name, s)? })
+  }
+
+  pub fn no_context(renderer: &Renderer, lang: Lang, template_name: &str) -> TeraResult<Self> {
+    Ok(Self{ lang, content: renderer.no_context(lang, template_name)? })
+  }
 }
 
 impl<'r> response::Responder<'r, 'static> for HtmlWithLocale {
@@ -187,5 +204,4 @@ impl<'r> FromRequest<'r> for MaybeLang {
     Outcome::Success(MaybeLang{ value: Lang::find_in_request_headers(&req) })
   }
 }
-
 

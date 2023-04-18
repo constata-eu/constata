@@ -1,0 +1,5 @@
+{% extends "_base_layout.html" %}
+
+{% block body %}
+<h1>Hello Worldo</h1>
+{% endblock body %}
