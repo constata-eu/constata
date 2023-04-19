@@ -217,6 +217,7 @@ function IssuanceShow(props){
           <WithRecord render={ issuance => 
             <ReferenceManyField reference="Entry" target="issuanceIdEq" label=""
               pagination={<Pagination rowsPerPageOptions={[25]} />}
+              sort={{ field: 'id', order: 'ASC' }}
               filter={ entryFilters }
               perPage={25}
             >
