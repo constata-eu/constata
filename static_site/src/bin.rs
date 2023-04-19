@@ -20,7 +20,13 @@ static ASSETS: include_dir::Dir<'_> = include_dir::include_dir!("$CARGO_MANIFEST
 
 #[get("/<page..>")]
 pub fn page(lang: Lang, page: PathBuf) -> SiteResult<HtmlWithLocale> {
-  Ok(HtmlWithLocale::no_context(&RENDERER, lang, &format!("pages/{}", page.display()))?)
+  let template = if page.to_str().map(|s| s.len() == 0).unwrap_or(true) {
+    format!("pages/index.html")
+  } else {
+    format!("pages/{}", page.display())
+  };
+
+  Ok(HtmlWithLocale::no_context(&RENDERER, lang, &template));
 }
 
 #[get("/styles/<style..>")]

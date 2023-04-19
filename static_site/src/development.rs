@@ -11,48 +11,39 @@ pub use rocket::{
   State
 };
 use i18n::{Context, Tera, grass};
+use std::path::Path;
 
 mod error;
 pub use error::{Error, SiteResult};
 
-#[get("/<page..>")]
-pub fn page(page: PathBuf) -> SiteResult<(ContentType, String)> {
-  let template = if page.to_str().map(|s| s.len() == 0).unwrap_or(true) {
-    format!("pages/index.html")
+#[get("/<path..>", rank=2)]
+pub fn public(path: PathBuf) -> SiteResult<Option<(ContentType, String)>> {
+  let asset = if path.to_str().map(|s| s.len() == 0).unwrap_or(true) {
+    format!("/index.html")
   } else {
-    format!("pages/{}", page.display())
+    path.display().to_string()
   };
 
-  Ok(( ContentType::HTML, make_tera().render(&template, &Context::new())? ))
-}
+  let Some(ext) = path.extension().and_then(|x| x.to_str() ) else { return Ok(None); };
 
-#[get("/style/<style..>")]
-pub fn style(style: PathBuf) -> SiteResult<(ContentType, String)> {
-  Ok((
-    ContentType::HTML,
-    make_tera().render(&format!("styles/{}", style.display()), &Context::new())?
-  ))
-}
-
-#[get("/static/<file..>")]
-pub fn asset(file: PathBuf) -> Option<(ContentType, Vec<u8>)> {
-  let path = file.as_path();
-
-  let mime = match path.extension()?.to_str()? {
+  let mime = match ext {
     "wasm" => ContentType::WASM,
     "ttf"  => ContentType::TTF,
     "png"  => ContentType::PNG,
     "js"   => ContentType::JavaScript,
     "css"  => ContentType::CSS,
-    _ => return None,
+    "scss"  => ContentType::CSS,
+    "svg"  => ContentType::SVG,
+    "html"  => ContentType::HTML,
+    _ => return Ok(None),
   };
 
-  Some((mime, ex::fs::read(format!("assets/{}", file.display())).ok()?))
+  Ok(Some((mime, make_tera().render(&format!("public/{asset}"), &Context::new())? )))
 }
 
 #[rocket::launch]
 async fn rocket() -> rocket::Rocket<rocket::Build> {
-  rocket::build().mount("/", routes![ style, asset, page ])
+  rocket::build().mount("/", routes![ public ])
 }
 
 pub fn make_tera() -> Tera {
@@ -60,7 +51,7 @@ pub fn make_tera() -> Tera {
 
   let mut templates = Tera::default();
 
-  let mut entries: Vec<PathBuf> = glob("templates/**/[!.]*")
+  let mut entries: Vec<PathBuf> = glob("src/assets/**/[!.]*")
     .expect("Autoreload glob pattern was invalid")
     .map(|result|{
       result
@@ -86,24 +77,24 @@ pub fn make_tera() -> Tera {
       continue;
     }
     let pathname = entry
-      .strip_prefix("templates")
-      .expect("template/ prefix could not be stripped")
+      .strip_prefix("src/assets")
+      .expect("src/assets prefix could not be stripped")
       .display()
       .to_string();
 
     let contents = ex::fs::read_to_string(&entry).unwrap();
 
-    if entry.ends_with(".scss") {
+    if pathname.ends_with(".css") {
       let style = grass::from_string(
         contents,
-        &grass::Options::default(),
+        &grass::Options::default().load_path(Path::new("./src/scss/")),
       ).expect(&format!("Failed to compile SCSS: {}", pathname));
       templates.add_raw_template(&pathname, &style).expect("could not add template");
     } else {
       templates.add_raw_template(&pathname, &contents).expect("could not add template");
     }
   }
-  println!("Templates {:#?}", templates.get_template_names().map(|x| x.to_string() ).collect::<Vec<String>>());
+  println!("Assets {:#?}", templates.get_template_names().map(|x| x.to_string() ).collect::<Vec<String>>());
   
   templates
 }

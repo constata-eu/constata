@@ -1,0 +1,55 @@
+@import "_variables.scss";
+@import "_reset.scss";
+@import "_header.scss";
+@import "_footer.scss";
+
+html, body {
+  height: 100%;
+}
+body {
+  background: #FAFAFA;
+  font-size: 16px;
+  line-height: 24px;
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+.main {
+  display: flex;
+  flex: 1;
+}
+
+
+h1, h2, h3, h4, h5 {
+  font-family: "Manrope", sans-serif;
+}
+
+.container {
+  max-width: 1140px;
+  margin: auto;
+  padding: 0 1em;
+}
+
+.btn {
+  padding: 0.6em 1em;
+  margin: 0.5em 0.5em;
+  border-radius: 5em;
+  align-items: center;
+
+  &.btn-link {
+    color: $dark-blue;
+  }
+
+  &.btn-filled {
+    border: 2px solid $dark-blue;
+    background-color: $dark-blue;
+    color: #fafafa;
+  }
+
+  &.btn-outlined {
+    border: 2px solid $dark-blue;
+    color: $dark-blue;
+  }
+}
+
