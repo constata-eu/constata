@@ -126,7 +126,7 @@ impl Entry {
 
   pub async fn admin_access_link(&self) -> Result<Option<DownloadProofLink>> {
     let Some(doc) = self.document().await? else { return Ok(None) };
-    Ok(doc.active_download_proof_link().await?)
+    Ok(Some(doc.get_or_create_download_proof_link(30).await?))
   }
 
   pub async fn admin_access_url(&self) -> Result<Option<String>> {
