@@ -16,8 +16,15 @@ use std::path::Path;
 mod error;
 pub use error::{Error, SiteResult};
 
-#[get("/<path..>", rank=2)]
+#[get("/")]
+pub fn index() -> SiteResult<Option<(ContentType, String)>> {
+  public(PathBuf::from("en/index.html"))
+}
+
+#[get("/<path..>")]
 pub fn public(path: PathBuf) -> SiteResult<Option<(ContentType, String)>> {
+  let tera = make_tera();
+
   let asset = if path.to_str().map(|s| s.len() == 0).unwrap_or(true) {
     format!("/index.html")
   } else {
@@ -43,7 +50,7 @@ pub fn public(path: PathBuf) -> SiteResult<Option<(ContentType, String)>> {
 
 #[rocket::launch]
 async fn rocket() -> rocket::Rocket<rocket::Build> {
-  rocket::build().mount("/", routes![ public ])
+  rocket::build().mount("/", routes![ index, public ])
 }
 
 pub fn make_tera() -> Tera {

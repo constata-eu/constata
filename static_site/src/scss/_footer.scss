@@ -12,7 +12,7 @@ footer {
   }
 
   h2 {
-    font-size: calc(1.625rem + 4.5vw);
+    font-size: calc(1.625rem + 3.5vw);
     font-weight: 700;
     line-height: 1.1;
     letter-spacing: -0.05em;
@@ -56,6 +56,11 @@ footer {
   }
 
   @media (max-width: 768px) {
+    & div { flex-direction: column; }
     padding: 2.2em 0.5em;
+
+    .legal .right {
+      align-items: flex-start;
+    }
   }
 }
