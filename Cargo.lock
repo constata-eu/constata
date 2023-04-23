@@ -1518,6 +1518,7 @@ dependencies = [
  "hex 0.4.3",
  "hmac 0.11.0",
  "i18n",
+ "include_dir",
  "itertools 0.10.5",
  "juniper",
  "lazy_static",

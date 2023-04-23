@@ -1,15 +1,19 @@
+pub mod error;
 pub mod renderer;
 pub mod translations;
+
 pub use tera::{self, Context, Tera, Result as TeraResult};
 pub use grass;
-pub use include_dir::{include_dir, Dir, DirEntry};
+pub use include_dir::{self, Dir, DirEntry};
 pub use formatx;
 pub use renderer::Renderer;
+use std::borrow::Cow;
+pub use lazy_static;
 
 use rocket::{
   self,
-  http::{Header, ContentType, hyper::header},
-  response::{self, Responder},
+  response,
+  http::{ContentType, hyper::header},
   request::{self, FromRequest, Outcome, Request},
 };
 
@@ -74,80 +78,19 @@ impl Lang {
       Self::En
     }
   }
-
-  pub fn find_in_request_headers(r: &Request) -> Option<Lang> {
-    r.headers()
-      .get_one("Accept-Language")
-      .unwrap_or("en")
-      .split(",")
-      // Get the locale, not the country code
-      .filter_map(|l| l.split(|c| c == '-' || c == ';').nth(0))
-      // Get the first requested locale we support
-      .find(|l| *l == "en" || *l == "es" )
-      .map(|l| if l == "es" { Lang::Es } else { Lang::En })
-  }
 }
 
-static TEMPLATES_DIR: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/templates");
-
-fn file_name<'a>(e: &'a DirEntry) -> &'a str {
-  e.path().file_name().unwrap().to_str().unwrap()
-}
-
-fn path_name<'a>(e: &'a DirEntry) -> &'a str {
-  e.path().to_str().unwrap()
-}
-
+static TEMPLATES_DIR: include_dir::Dir<'_> = include_dir::include_dir!("$CARGO_MANIFEST_DIR/templates");
 lazy_static::lazy_static! {
-  pub static ref TEMPLATES: tera::Tera = {
-    let mut tera = tera::Tera::default();
-
-    let mut entries: Vec<DirEntry> = TEMPLATES_DIR
-      .find("*").unwrap()
-      .filter(|e| !file_name(e).starts_with('.') )
-      .cloned().collect();
-    entries.sort_by(|a,b|{
-      let a_depth = path_name(a).matches("/").count();
-      let b_depth = path_name(b).matches("/").count();
-      let a_priority = file_name(a).starts_with("_");
-      let b_priority = file_name(b).starts_with("_");
-
-      if a_priority == b_priority {
-        a_depth.cmp(&b_depth)
-      } else {
-        b_priority.cmp(&a_priority)
-      }
-    });
-
-    for entry in entries {
-      if let Some(file) = entry.as_file() {
-        let pathname = path_name(&entry);
-
-        if pathname.ends_with(".scss") {
-          let style = grass::from_string(
-            file.contents_utf8().expect(&format!("File is not utf-8: {}", pathname)).to_string(),
-            &grass::Options::default().style(grass::OutputStyle::Compressed),
-          ).expect(&format!("Failed to compile SCSS: {}", pathname));
-          tera.add_raw_template(pathname, &style).expect("could not add template");
-        } else {
-          tera.add_raw_template(
-            pathname,
-            file.contents_utf8().expect(&format!("File is not utf-8: {}", pathname))
-          ).expect("Could not add template");
-        }
-      }
-    }
-
-    tera
-  };
-
-  pub static ref TEMPLATE_NAMES: Vec<&'static str> = TEMPLATES.get_template_names().collect();
+  static ref RENDERER: Renderer<&'static Dir<'static>> = Renderer::new(&TEMPLATES_DIR).unwrap();
 }
+
 
 pub fn render(lang: Lang, template_name: &str, ctx: &Context) -> TeraResult<String> {
   let local_template = format!("{}.{}", template_name, lang.code());
-  let template = if TEMPLATE_NAMES.contains(&local_template.as_str()) { &local_template } else { template_name };
-  TEMPLATES.render(template, &ctx)
+  let template_names: Vec<&str> = RENDERER.htmls.get_template_names().collect();
+  let template = if template_names.contains(&local_template.as_str()) { &local_template } else { template_name };
+  RENDERER.htmls.render(template, &ctx)
 }
 
 pub fn render_from_serialize<S: serde::Serialize>(lang: Lang, template_name: &str, o: &S) -> TeraResult<String> {
@@ -169,20 +112,37 @@ impl<'r> response::Responder<'r, 'static> for HtmlWithLocale {
   }
 }
 
-#[derive(Responder)]
-pub struct LocalizedResponse {
-  pub inner: Vec<u8>,
+pub struct LocalizedResponse<'a> {
+  pub inner: Cow<'a, [u8]>,
   pub content_type: ContentType,
-  pub content_language: Header<'static>,
+  pub content_language: Lang,
 }
 
-impl LocalizedResponse {
-  pub fn new(inner: Vec<u8>, content_type: ContentType, lang: Lang) -> Self {
-    Self {
-      inner,
-      content_type,
-      content_language: Header::new(header::CONTENT_LANGUAGE.as_str(), lang.code())
+impl<'a> LocalizedResponse<'a> {
+  pub fn new(inner: Cow<'a, [u8]>, content_type: ContentType, content_language: Lang) -> LocalizedResponse {
+    Self { inner, content_type, content_language }
+  }
+
+  pub fn inner_to_utf8(self) -> Result<String, std::string::FromUtf8Error> {
+    String::from_utf8(self.inner.into_owned())
+  }
+
+  pub fn into_owned<'b>(&'a self) -> LocalizedResponse<'b> {
+    LocalizedResponse {
+      inner: Cow::Owned(self.inner.clone().into_owned()),
+      content_type: self.content_type.clone(),
+      content_language: self.content_language
     }
+  }
+}
+
+impl<'r> response::Responder<'r, 'r> for LocalizedResponse<'r> {
+  fn respond_to(self, _: &'r Request<'_>) -> response::Result<'r> {
+    response::Response::build()
+      .sized_body(self.inner.len(), std::io::Cursor::new(self.inner))
+      .raw_header(header::CONTENT_LANGUAGE.as_str(), self.content_language.code())
+      .header(self.content_type)
+      .ok()
   }
 }
 
@@ -191,7 +151,7 @@ impl<'r> FromRequest<'r> for Lang {
   type Error = ();
 
   async fn from_request(req: &'r Request<'_>) -> request::Outcome<Self, Self::Error> {
-    Outcome::Success(Lang::find_in_request_headers(&req).unwrap_or(Lang::En) )
+    Outcome::Success(MaybeLang::from_request_base(&req).value.unwrap_or(Lang::En) )
   }
 }
 
@@ -199,12 +159,28 @@ pub struct MaybeLang {
   pub value: Option<Lang> 
 }
 
+impl MaybeLang {
+  pub fn from_request_base(r: &Request) -> Self {
+    let value = r.headers()
+      .get_one("Accept-Language")
+      .unwrap_or("en")
+      .split(",")
+      // Get the locale, not the country code
+      .filter_map(|l| l.split(|c| c == '-' || c == ';').nth(0))
+      // Get the first requested locale we support
+      .find(|l| *l == "en" || *l == "es" )
+      .map(|l| if l == "es" { Lang::Es } else { Lang::En });
+
+    Self { value }
+  }
+}
+
 #[rocket::async_trait]
 impl<'r> FromRequest<'r> for MaybeLang {
   type Error = ();
 
   async fn from_request(req: &'r Request<'_>) -> request::Outcome<Self, Self::Error> {
-    Outcome::Success(MaybeLang{ value: Lang::find_in_request_headers(&req) })
+    Outcome::Success(Self::from_request_base(&req))
   }
 }
 

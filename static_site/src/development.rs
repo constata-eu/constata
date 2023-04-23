@@ -1,33 +1,24 @@
-use std::path::PathBuf;
-pub use rocket::{
-  self,
-  get,
-  routes,
-  serde::json::Json,
-  http::ContentType,
-  request::Request,
-  http::Status,
-  response::{self, Responder},
-  State
-};
-use std::path::Path;
-
-use i18n::{make_static_renderer, Renderer, Lang, HtmlWithLocale, LocalizedResponse, Context, Dir};
-
 mod error;
-pub use error::{Error, SiteResult};
+use rocket::*;
+use std::path::{Path, PathBuf};
+use i18n::{Renderer, Lang, LocalizedResponse};
+use error::SiteResult;
 
 #[get("/")]
-pub fn index(lang: Lang) -> SiteResult<LocalizedResponse> {
+fn index(lang: Lang) -> SiteResult<LocalizedResponse<'static>> {
   public(lang, PathBuf::from("index.html"))
 }
 
 #[get("/<path..>")]
-pub fn public(lang: Lang, path: PathBuf) -> SiteResult<LocalizedResponse> {
-  Ok(Renderer::new(Path::new("src/assets/"))?.render_localized("public", &path, lang, Lang::En)?)
+fn public(lang: Lang, path: PathBuf) -> SiteResult<LocalizedResponse<'static>> {
+  Ok(
+    Renderer::new(Path::new("src/assets/"))?
+      .render_localized("public", &path, lang, Lang::En)?
+      .into_owned()
+  )
 }
 
-#[rocket::launch]
-async fn rocket() -> rocket::Rocket<rocket::Build> {
-  rocket::build().mount("/", routes![ index, public ])
+#[launch]
+async fn rocket() -> Rocket<Build> {
+  build().mount("/", routes![ index, public ])
 }

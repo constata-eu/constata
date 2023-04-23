@@ -83,6 +83,12 @@ pub enum Error {
   Base64(#[from] base64::DecodeError),
 }
 
+impl From<i18n::error::Error> for Error {
+  fn from(err: i18n::error::Error) -> Error {
+    Error::Internal(format!("Error in i18n: {}", err))
+  }
+}
+
 impl From<stripe::Error> for Error {
   fn from(err: stripe::Error) -> Error {
     Error::Stripe(format!("{}", err))
