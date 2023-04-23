@@ -2,11 +2,11 @@
 
 {% block body %}
 <div class="container">
-  <p class="lead-text">// Developer Guide &ndash; march 2023 &ndash; by nubis //</p>
+  <p class="lead-text">// Developer Guide &ndash; april 2023 &ndash; by nubis //</p>
 
   <h1>From &empty; &#8614; issuing diplomas.</h1>
 
-  <p class="sub-title"/>certificates of attendance &amp; badges too</p>
+  <p class="sub-title"/>certificates of attendance &amp; badges too.</p>
 
   <div class="in-columns">
     <p>
@@ -44,7 +44,7 @@
 
     <p>
       If you need help, find an error, or juts find it confusing, email us at 
-      <a href="mailto:devops@constata.eu">devops@constata.eu</a>
+      <a href="mailto:devops@constata.eu">devops@constata.eu</a>.
     </p>
 
     <p>
@@ -62,310 +62,366 @@
 
   <h2>Steps</h2>
 
-  <ol>
-    <li>Generate your <strong>constata digital signature</strong> to authenticate.</li>
-    <li>Get the command line utility.</li>
-    <li>List the students in a CSV file.</li>
-    <li>Submit your CSV to create an Issuance.</li>
-    <li>Sign the diplomas &mdash; after optionally reviewing them.</li>
-    <li>Wait until they're certified and emailed to students.</li>
+  <ol start="0">
+    <li>
+      <a href="#step-0">
+        Generate your digital signature.
+      </a>
+    </li>
+    <li>
+      <a href="#step-1">
+        Get the command line utility.
+      </a>
+    </li>
+    <li>
+      <a href="#step-2">
+        List the students in a CSV file.
+      </a>
+    </li>
+    <li>
+      <a href="#step-3">
+        Submit your CSV to create an Issuance.
+      </a>
+    </li>
+    <li>
+      <a href="#step-4">
+        Sign the diplomas.
+      </a>
+    </li>
+    <li>
+      <a href="#step-5">
+        Relax while we do our magic.
+      </a>
+    </li>
   </ol>
 
-  <ol>
-    <li>You'll start by signing up to Constata to get your credentials file.</li>
-    <li>After that, you'll download Constata's command line utility.</li>
-    <li>Then you'll make a CSV file with all your diploma recipients, with one recipient per row.</li>
-    <li>You'll feed the CSV file to the command line utility, creating a new template and generating the diplomas from it, which will result in what we call an "Issuance".</li>
-    <li>Once you create an "Issuance" you'll have a chance to review and sign its diplomas, which we also reffer to as "Entries".</li>
-    <li>Signed Issuances are queued to be timestamped by Constata, and all entries are optionally sent to each recipient via email.</li>
-    <li>You can always query or export the Issuance to know its state and to revisit its Entries.</li>
-  </ol>
-
-  # About our API, GraphQL, Authentication and Client tool.
-
-  Constata's API uses a custom authentication mechanism where each request must be signed using a Secp256k1 Private Key
-  (as seen in Bitcoin), following the "Bitcoin Sign Message" protocol.
-
-  The signature is applied to the path, method, body and query of the HTTP request, and it also includes a nonce value to prevent replays.
-
-  The API format is GraphQL, which builds on top of HTTP to query and transmit structured, machine readable, relational data.
-
-  Constata provides a command line tool whose commands perform these authenticated GraphQL requests.
-
-  The command line tool is open source and also available as pre-compiled statically linked binaries (that is, no dependencies) for Linux, Mac and Windows.
-
-  # Summary
-
-  We'll show a short and a longer way to create your Issuance.
-  In the short version, you'll send a CSV and just wait until we tell you it's done.
-
-  In the longer version you'll be able to build an Issuance incrementally, and review the
-  diplomas before you sign them.
-
-  You'll start by signing up to Constata to get your credentials file.
-  After that, you'll download Constata's command line utility.
-  Then you'll make a CSV file with all your diploma recipients, with one recipient per row.
-  You'll feed the CSV file to the command line utility, creating a new template and generating the diplomas from it, which will result in what we call an "Issuance".
-  Once you create an "Issuance" you'll have a chance to review and sign its diplomas, which we also reffer to as "Entries".
-  Signed Issuances are queued to be timestamped by Constata, and all entries are optionally sent to each recipient via email.
-  You can always query or export the Issuance to know its state and to revisit its Entries.
-
-  ## 0. Signup to constata.
-  Just visit https://api.constata.eu and follow the steps to "Create a signature".
-  You will get a "credentials.json" file with an encrypted private key, generated in your browser.
-  You'll use that same file to authenticate using the command line utility.
-
-  ## 1. Download the CLI.
-  Get our pre-compiled command line utility here.
-  ```curl latest github release
-  ```
-
-  If you want to build it yourself, check out the repository for instructions:
-  This guide is for Linux, but MacOs and Windows binaries are also available at: ...
-
-  ## 2. Make a CSV file with your diploma recipients.
-  You can use any spreadsheet software for it, using "," or ";" as separator.
-
-  ```
-  echo "..." > recipients.csv
-  ```
-
-  ** Constata can also build custom templates for you, which may have a different schema and column names. An example CSV will be provided to you in those cases. You can also see all your templates and schemas in ..templates.. **
-
-  ## 3. Submit a new Issuance with a new template.
-
-  All diplomas, certificates of attendance and badges are generated from a template.
-
-  Since you don't have any templates yet, we'll create a new one for your diplomas, and the diplomas, in a single command.
-
-  ```
-  constata-cli issuance submit --new-template-issuer="Big Data School" --csv=recipients.csv
-
-  >>> 393
-  ```
-  The command outputs the newly submitted issuance id.
-
-  *** You can re-use a template, or use custom template provided by Constata
-  constata-cli issuance submit --template-id=<template-id> --csv=recipients.csv
-
-  *** This example will create a basic template with the text "Big Data School" as the logo, but you can use your own png or jpeg image instead.
-    constata-cli issuance create --new-template-logo=/tmp/logo.png --csv=recipients.csv
-    You can also create templates for certificates of attendance or invitations, or use a custom one, check the command line utility's help for more info.
-
-    ```constata-cli help issuance```
-
-  ## 4. Wait until the CSV is processed and the Issuance entries are created.
-
-  Your CSV file will be processed asyncronously, errors may ocurr if the CSV file was invalid, or if it was missing required columns.
-
-  This command blocks until the issuance and its entries have been created, or until the processing fails. Exit code 0 means the issuance was created.
-
-  ```
-  constata-cli issuance is_created <issuance-id>
-  ```
-
-  If the issuance could not be created, you can export and download it as a csv.
-  You'll get the original data along with extra columns for error messages.
-  ```
-  constata-cli issuance export <issuance-id>
-  ```
-
-  You can also query the issuance as a JSON document, we suggest using the jq command to parse it.
-  ```
-  constata-cli issuance show <issuance-id>
-  ```
-
-  ## 4. Review and Sign
-
-  Reviewing the generated diplomas is an interactive and optional step, you can get a sample of what your diplomas look like with:
-  constata-cli issuance sample-preview issuance-id
-
-  You can also get a preview for a specific entry, we suggest you read ```constata-cli entry preview entry-id```
-
-  To sign them, you just run:
-  ```
-  constata-cli issuance sign <issuance-id>
-  ```
-  Each diploma is downloaded and signed locally on your device, which may take some time. If the process is interrupted, it can be resumed by re-running the command.
-
-  *** About payment ***
-  Timestamping will use your Constata tokens.
-  For the purpose of this guide we assume you're just signed up to the freemium plan, which entitles you to 10 tokens a month, free of charge.
-  When you create an Issuance, and before you sign it, you may want to check if you would need to buy tokens to process all its entries:
-  constata-cli issuance tokens-needed <issuance-id>
-  You can still sign even if you don't have the tokens yet, Constata will timestamp as many Entries as possible and email you a payment link to buy tokens and continue with the rest.
-
-
-  ## 5. Wait for your certified diplomas.
-
-  Once signed, the diplomas are queued to be timestamped internally by Constata and in Bitcoin's blockchain. This process may take up to two hours depending on blockchain conditions.
-  We suggest you poll the state of your Issuance with a frequency of one minute or more, until its "state" is "completed", this command checks for the issuance to be completed, and exits immediately. Exit code 0 means the issuance is complete and all recipients have been notified.
-
-  ```
-  constata-cli issuance is_complete <issuance-id>
-  ```
-
-  You can export the Issuance for further processing. You will get the original CSV with extra columns appended to it, such as "constata_entry_admin_access_url", which is a special link created for each entry where the recipient canview or download their diploma, and configure sharing in social networks.
-
-  ```
-  constata-cli issuance export <issuance-id>
-  ```
-
-  # Putting it all together.
-
-  Here's an example script with all steps summarized.
-
-  CREDENTIALS="" # Change to path from your credentials.
-  CSV_TO_PROCESS="example.csv" # Comment the line below if you change this.
-  echo "id,name,test\nfoo,bar,baz" > $CSV_TO_PROCESS
-
-  ISSUANCE_ID_FILE=CSV_TO_PROCESS.issuance_id
-  CONSTATA_PASSWORD=$1
-
-  if [ !stat $ISSUANCE_ID_FILE ]; then do
-
-
-  fi;
-
-
-  # Further comments and limitations
-
-  ## There's a lot more to the command line utility.
-    You can list and show your Issuances and their entries as JSON (we suggest using a custom command like jq to parse the results). You can also see your Constata token balance and your outstanding payment links.
-    Explore the command line usage and documentation with
-    ```constata-cli help```
-
-  ## Max CSV size is 50mb.
-
-  ## Recipient email notifications are rate limited in the freemium plan.
-
-  ## Conclusion.
-
-  ########
-
-  ** Toda la command line está exportada como funciones.
-  ** Documentamos con RDOC.
-  ** Workflow como en el test de issuances.
-  ** Buscar el .constata-conf en home, home/.config/, $XDG_HOME, etc.
-
-  constata-cli issuance wizard-from-csv <csv_file> --conf -pass --template-values...
-
-
-  - Use this shortcut if you DO NOT need to preview your issuance before signing.
-  - Outputs the issuance id, always.
-  - Exit code 1 means there was an error, outputs error message to stderr.
-  - Exit code 1 outputs the issuance id to stdout.
-
-  This will take up to one hour.
-
-  You can check if its done with:
-  constata-cli issuance is_done <issuance_id>
-
-  Or, if you want to keep polling in a long running process, use the convenience method
-  constata-cli issuance wait_until_done <issuance_id> [timeout_in_hours]
-
-  You can also get notified by updates using a web callback:
-
-  First you have to configure your web callbacks URL:
-  constata-cli configure-callbacks-url "https://global-callbacks-url"
-
-  Then on your server, the constata-cli can also help you parse the web callback, validating its signed by constata and that the event received:
-
-  constata-cli process-issuance-done-web-callback <raw_callback_body>
-
-  Will output: <issuance_id>
-
-  An error exit code means either the callback did not come from constata, or it was some other type of callback sent by constata that was about an issuance being done. In Either case it's safe to ignore the callback.
-
-  You can always export your issuance back to CSV with:
-  constata-cli issuance export-to-csv <issuance_id>
-
-
-  ## Longer version: Creating Issuances incrementally, and reviewing before signing.
-  /*
-
-    constata create-issuance-from-csv --input-name="some name" --input-template-kind="template kind"
-
-    createIssuanceFromCsv(input: CreateIssuanceFromCsvInput!): Issuance!
-    createIssuanceFromJson(input: CreateIssuanceFromJsonInput!): Issuance!
-    appendEntriesToIssuance(input: AppendEntriesToIssuanceInput!): Issuance!
-    updateIssuance(id: Int!): Issuance!
-
-    updateWebCallbacksUrl(url: String): AccountState!
-
-    createAttestation(input: AttestationInput!): Attestation!
-    signingIterator(input: SigningIteratorInput!): Entry
-    createKycRequest(input: KycRequestInput!): KycRequest!
-    createEmailAddress(input: EmailAddressInput!): EmailAddress!
-    createInvoiceLink(input: InvoiceLinkInput!): InvoiceLink!
-
-    updateDownloadProofLink(input: DownloadProofLinkInput!): DownloadProofLink!
-    deleteDownloadProofLink: DownloadProofLink!
-
-
-    createEmailAddressVerification: EmailAddressVerification!
-    updateTemplate(input: TemplateInput!): Template!
-  */
-
-  constata-cli create-issuance-from-json --template-values
-    alternatively: constata-cli create-issuance-from-csv CSV_FILE ...template options...
-
-  constata-cli issuance append-entries <id> [json data]
-
-  constata-cli wait-until-issuance-is-created <id> [timeout]
-  constata-cli issuance-is-created <id>
-  constata-cli wait-until-issuance-is-created <id>
-  constata-cli issuance-is-created <id>
-
-  constata-cli get-sample-entry-preview <issuance_id>
-
-      or if you want to be specific:
-
-      constata-cli all-entries --filter
-
-      constata-cli issuance get-entry-preview <entry_id>
-
-  then you can sign all entries:
-
-  constata-cli sign-issuance sign <id>
-
-  /* And there's more */
-
-  constata-cli issuance list ...
-
-  constata-cli entries list ...
-
-  constata-cli issuance export <issuance_id>
-
-  constata-cli graphql "{ example account state graphql query }"
-
-  ### Templates
-
-  constata-cli templates list
-
-  constata-cli templates create ...template options...
-
-  ### Attestations
-
-  ### Graphql
-
-  constata-cli graphql --variables='{"first": 11}' 'mutation($input: CreateIssuanceFromJsonInput!) {
-    createIssuanceFromJson(input: $input) {
-      id
-      templateId
-      templateName
-      templateKind
-      state
-      name
-      createdAt
-      errors
-      tokensNeeded
-      entriesCount
-      adminVisitedCount
-      publicVisitCount
-      __typename
+  <h3 id="step-0">Generate your digital signature.</h3>
+
+  <div class="in-columns">
+    <p>
+      You can do this by <a href="https://api.constata.eu/" target="_blank">signing up for constata</a>.
+      It's quick, and providing your email address is optional &mdash;
+      we only require it if you want to us to send diplomas via email.
+    </p>
+    <p>
+      The signup process will create a <strong>password protected private key</strong> in your device,
+      and will offer to save a <strong>signature.json</strong> file
+      which you will use to authenticate in the command line utility.
+    </p>
+    <p>
+      Constata never knows your private key, you should <a href="mailto:devops@constata.eu"/>contact us</a>
+      if you think it has been compromised.
+    </p>
+    <p>
+      Each request to our website and API is signed on your device 
+      following the <a href="https://en.bitcoin.it/wiki/Message_signing" target="_blank">Bitcoin sign message protocol</a>,
+      using the generated key.
+    </p>
+    <p>
+      You can also <a href="https://api-staging.constata.eu/#/login" target="_blank">signup on our staging environment</a>,
+      which mimics the production service.
+      Email us to <a href="mailto:devops@constata.eu"/>request unlimited credit</a> for issuing diplomas on staging.
+    </p>
+    <p class="warning-text">
+      Documents generated on staging are for testing purposes only, they are not covered by
+      our terms and conditions, and will be timestamped on the insecure <strong>bitcoin testnet</strong> network.
+    </p>
+  </div>
+
+  <h3 id="step-1">Get the command line utility.</h3>
+
+  <div class="terminal card">
+    <div class="crt"></div>
+    <div class="content"><span class="ps">$ </span>wget -q https://github.com/constata-eu/constata/releases/download/latest/constata-cli-linux
+      <span class="ps">$ </span>chmod +x constata-cli-linux
+      <span class="ps">$ </span>./constata-cli-linux help help
+      Print this message or the help of the given subcommand(s)
+
+      Usage: constata-cli-linux help [COMMAND]...
+
+      Arguments:
+        [COMMAND]...  Print help for the subcommand(s)
+    </div>
+  </div>
+
+  <div class="in-columns">
+    <p>
+      The Constata API is built on <strong>GraphQL</strong> and requires signing each request for authentication, so we built this utility
+      to perform authenticated requests and parse the results from the command line.
+    </p>
+    <p>
+      These are the download links to the precompiled binaries for
+      <a href="https://github.com/constata-eu/constata/releases/download/latest/constata-cli-linux">Linux</a>,
+      <a href="https://github.com/constata-eu/constata/releases/download/latest/constata-cli-win.exe">Windows</a> and
+      <a href="https://github.com/constata-eu/constata/releases/download/latest/constata-cli-mac">Mac OS</a>.
+      They're always available with release notes in the <a href="https://github.com/constata-eu/constata/releases/tag/latest">latest release page</a>
+    </p>
+    <p>
+      We statically link the binaries for your convenience, but our code is open source, you can
+      <a href="https://github.com/constata-eu/constata/tree/master/constata_cli">fork the client</a> and build your own.
+    </p>
+  </div>
+
+  <h3 id="step-2">List the students in a CSV file.</h3>
+
+  <div class="terminal card">
+    <div class="crt"></div>
+    <div class="content"><span class="ps">$ </span>cat &lt;&lt;EOF &gt; students.csv
+      name;email;custom_text;motive;date;place
+      Alice Doe;alice@example.com;Blockchain Expert;XXI Blockchain Masterclass;May 30, 2023;The Metaverse
+      Bob Bobson;bob@example.com;Blockchain Expert;XXI Blockchain Masterclass;May 30, 2023;The Metaverse
+      EOF
+    </div>
+  </div>
+
+  <div class="in-columns">
+    <p>
+      If you verify your email address with constata you'll gain access to our emailing features &mdash;
+      then you can change Alice's email and have the diploma delivered there.
+    </p>
+    <p>
+      You can use either <strong>, [colon]</strong> or <strong>; [semi-colon]</strong> as column separators.
+      The maximum size allowed for a CSV file is <strong>50 megabytes</strong>.
+    </p>
+    <p>
+      This CSV has columns that are compatible with the default template, we call this column definition a <strong>schema</strong>.
+    </p>
+    <p>
+      When you <strong>hire us to make your custom template</strong> we will give you an example CSV file to go with its schema.
+    </p>
+    <p>
+      You can also query your existing templates to see their schemas and which fields are required.
+      <div class="terminal one-line">
+        <div class="crt"></div>
+        <div class="content"><span class="ps">$ </span>./constata-cli-linux all-templates </div>
+      </div>
+    </p>
+  </div>
+
+  <h3 id="step-3">Submit your CSV to create an Issuance.</h3>
+  <div class="terminal card">
+    <div class="crt"></div>
+    <div class="content"><span class="ps">$ </span> ./constata-cli-linux create-issuance-from-csv "Test issuance name" --csv-file=students.csv \
+      --new-kind=diploma --new-name="My Template" --new-logo-text="Widgets Inc." 
+      {
+        "id": 265,
+        "templateId": 164,
+        "templateName": "My Template",
+        "templateKind": "DIPLOMA",
+        "state": "received",
+        "name": "Test issuance name",
+        "createdAt": "2023-04-20T19:27:01.355285Z",
+        "errors": null,
+        "tokensNeeded": null,
+        "entriesCount": 2,
+        "adminVisitedCount": 0,
+        "publicVisitCount": 0
     }
-  }'
+    </div>
+  </div>
 
+  <div class="in-columns">
+    <p>
+      This command will produce a new <strong>Issuance</strong> with 2 <strong>Entries</strong> &mdash; one for each student &mdash;
+      but the actual diplomas are rendered asynchronously, this means your issuance starts out in a state of <strong>received</strong>,
+      and will transition to <strong>created</strong> after a few seconds.
+    </p>
+    <p>
+      You can wait until this issuance, with id 265, is created to make sure we're ready to review and sign.
+    </p>
+    <div class="terminal one-line">
+      <div class="crt"></div>
+      <div class="content"><span class="ps">$ </span> ./constata-cli-linux issuance-state 265 created --wait </div>
+    </div>
+
+    <p>
+      We're also creating a clone of our default template in the same command with the <em>--new-kind</em>,
+      <em>--new-name</em> and <em>--new-logo-text</em> options. See the command's help for more options.
+    </p>
+    <div class="terminal one-line"> <div class="crt"></div>
+      <div class="content"><span class="ps">$ </span> ./constata-cli-linux help create-issuance-from-csv</div>
+    </div>
+    <p>
+      The only customization allowed for the default template is adding either your company name or company logo image.
+      We suggest <strong>you hire us to make you a custom template</strong> if that's not enough.
+    </p>
+  </div>
+
+  <h4>Or submit each entry using JSON.</h4>
+  <div class="terminal card">
+    <div class="crt"></div>
+    <div class="content"><span class="ps">$ </span> ./constata-cli-linux --json-pointer=/id create-issuance-from-json "Another Test" --template-id 164
+      266
+      <span class="ps">$ </span> ./constata-cli-linux append-entries-to-issuance 266 --entry='{"name":"Bob","motive":"Accredited Expert"}'
+      {
+        "id": 266,
+        "templateId": 164,
+        "templateName": "My Template",
+        "templateKind": "DIPLOMA",
+        "state": "received",
+        "name": "Another Test",
+        "createdAt": "2023-04-20T19:27:01.355285Z",
+        "errors": null,
+        "tokensNeeded": null,
+        "entriesCount": 1,
+        "adminVisitedCount": 0,
+        "publicVisitCount": 0
+    }
+    </div>
+  </div>
+
+  <div class="in-columns">
+    <p>
+      The example above starts a new <strong>Issuance</strong> with no entries. It also uses the <em>--json-pointer</em>
+      argument to only output the new issuance's id instead of the full JSON.
+      The second command adds a single <strong>Entry</strong> as JSON.
+    </p>
+    <p>
+      There are many options and variations to both commands, such as sending several entries at once, or using a JSON file.
+      Each command's help will tell you more.
+    </p>
+    <p>
+      Entries can be added freely up until you start sigining. No new entries are allowed after that point.
+    </p>
+  </div>
+
+  <h3 id="step-4">Sign the diplomas.</h3>
+  <div class="terminal card">
+    <div class="crt"></div>
+    <div class="content"><span class="ps">$ </span> ./constata-cli-linux preview-sample-from-issuance 265 preview.html &amp;&amp; open preview.html
+      Preview for entry 265 saved to file
+      Opening in browser window
+      <span class="ps">$ </span> ./constata-cli-linux sign-issuance 265
+      Signing entry     1 of     2
+      Signing entry     2 of     2
+    </div>
+  </div>
+
+  <div class="in-columns">
+    <p>
+      That last command downloads and signs each entry, moving the issuance from state <strong>createad</strong> to state <strong>signed</strong>.
+      It may take some time to sign all entries, but the process can be safely interrupted and resumed.
+    </p>
+    <p>
+      It's generally a good idea to read before you sign &mdash;
+      so the first command grabs a preview from one of the issuance entries and opens it up in your browser.
+    </p>
+    <p>
+      You can also list all the issuance entries and preview specific ones with these two commands below.
+    </p>
+    <div class="terminal one-line">
+      <div class="crt"></div>
+      <div class="content"><span class="ps">$ </span> ./constata-cli-linux all-entries --issuance-id-eq=265
+        <span class="ps">$ </span> ./constata-cli-linux preview-entry &lt;entry_id&gt; preview.html
+      </div>
+    </div>
+  </div>
+
+  <h4>Some charges apply.</h4>
+  <div class="terminal card">
+    <div class="crt"></div>
+    <div class="content"><span class="ps">$ </span>./constata-cli-linux --json-pointer=/missing account-state
+      2
+      <span class="ps">$ </span>./constata-cli-linux --json-pointer=/pendingInvoiceLinkUrl account-state
+      https://api.constata.eu/#/invoice/note+computer+beach+music+train
+    </div>
+  </div>
+  <div class="in-columns">
+    <p>
+      You pay for your issuance right after signing it, using <strong>constata tokens</strong>
+      &mdash; do check your account-state to make sure you are not missing any.
+    </p>
+    <p>
+      If you are missing tokens your entries may be put on hold and we will contact you, but you can also
+      buy them visiting pendingInvoiceLinkUrl.
+    </p>
+    <p>
+      Premium customers may have credit up to an agreed amount, or a flat fee, and never run out of tokens.
+    </p>
+    <p>
+      For the purposes of this guide we will assume you're recently signed up to the free tier,
+      which gives away up to 10 tokens a month for issuing diplomas.
+    </p>
+    <p>
+      For staging, you must <a href="mailto:devops@constata.eu">contact us</a> to give you unlimited credit.
+    </p>
+  </div>
+
+  <h3 id="step-5">Relax while we do our magic.</h3>
+  <div class="terminal card">
+    <div class="crt"></div>
+    <div class="content"><span class="ps">$ </span>./constata-cli-linux --json-pointer=/allIssuances/0/state all-issuances --id-eq 265
+      "completed"
+      <span class="ps">$ </span>if ./constata-cli-linux issuance-state 265 completed; then
+        ./constata-cli-linux issuance-export 265 issuance_exported.csv
+      fi
+      Export for Issuance #265 saved to file
+    </div>
+  </div>
+
+  <div class="in-columns">
+    <p>
+      We will process your signed issuance and move it to state <strong>completed</strong>, this usually takes less than one hour.
+      You should poll every couple of minutes to check if its ready as shown in the example above.
+    </p>
+    <p>
+      If you are ok with a long running process, this variant will block until the issuance is completed.
+    </p>
+    <div class="terminal one-line">
+      <div class="crt"></div>
+      <div class="content"><span class="ps">$ </span> ./constata-cli-linux issuance-state 265 completed --wait</div>
+    </div>
+    <p class="warning-text">
+      The certification process may take longer due to blockchain network conditions out of our control,
+      but we're always monitoring and actively accelerating the process.
+    </p>
+
+    <p>
+      Each entry will have a special <strong>administrative access url</strong> you can share with the students,
+      where they can view or download their diploma,
+      as well as share it online and manage their data protection rights.
+    </p>
+
+    <p>
+      This link is emailed to them immediately if you provide their email address &mdash;
+      remember to verify your own email to enable this feature.
+    </p>
+
+    <p>
+      You can also export your issuance back to CSV, the exported CSV will include the original columns and
+      will maintain their ordering, but it will also have new columns like
+      the constata_admin_access_url. You could feed it
+      to mass mailing tools like mailchimp or sendinblue if you rather manage your own mailing.
+    </p>
+
+    <p>
+      Query your issuance and its entries like this.
+    </p>
+    <div class="terminal one-line">
+      <div class="crt"></div>
+      <div class="content"><span class="ps">$ </span> ./constata-cli-linux --json-pointer=/allIssuances/0 all-issuances --id-eq=265
+      <span class="ps">$ </span> ./constata-cli-linux all-entries --issuance-id-eq=265
+      </div>
+    </div>
+  </div>
+
+  <h3 id="step-5">That's it!</h3>
+  <div class="in-columns">
+    <p>
+      You've just issued your first verifiable diplomas with Constata.
+    </p>
+    <p>
+      For brevity &mdash; which by now you now I struggled to achieve &mdash; most of the options on the command line utility were left out,
+      I suggest you check the subcommands help.
+    </p>
+    <p>
+      If you have any comments you can reach out to us via email, github, or on our other social networks, find the links in the footer.
+    </p>
+    <p>
+      This guide itself is available
+      <a href="https://github.com/constata-eu/constata/tree/master/static_site/src/assets/public/en/index.html">in our github repo</a> and
+      pull requests are welcome.
+    </p>
+  </div>
 </div>
 {% endblock body %}

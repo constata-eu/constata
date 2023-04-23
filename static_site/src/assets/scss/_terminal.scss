@@ -1,0 +1,102 @@
+.terminal {
+  position: relative;
+  background: #20190d;
+  text-shadow: 0px 0px 10px #f5ab4da1;
+  overflow: hidden;
+
+  * {
+    font-family: 'VT323', monospace;
+    font-size: 1.4em;
+    line-height: 1em;
+    margin: 0;
+    color: orange;
+  }
+
+  &.one-line {
+    border-radius: 0.5em;
+    .content {
+      padding: 0.5em;
+    }
+  }
+
+  .content {
+    white-space: pre-line;
+    .ps {
+      font-size: 1em;
+      user-select: none;
+    }
+  }
+
+  .big-title {
+    font-size: 3em;
+  }
+
+  h1 {
+    text-transform: uppercase;
+    font-weight: bold;
+  }
+
+  ::-moz-selection { /* Code for Firefox */
+    color: #20190d;
+    background: orange;
+  }
+
+  ::selection {
+    color: #20190d;
+    background: orange;
+    text-shadow: 0px 0px 10px #f5ab4da1 inset;
+  }
+
+  .inverted, .inverted > * {
+    background: orange !important;
+    color: #20190d;
+  }
+
+  .inverted h1 {
+    background-color: black;
+    color: transparent;
+    text-shadow: 0px 2px 3px #f5ab4da1;
+    -webkit-background-clip: text;
+    -moz-background-clip: text;
+    background-clip: text;
+  }
+
+  .padded {
+    margin: 1em 0.8em;
+  }
+
+  .outlined {
+    margin: 0.5em 0.3em;
+    padding: 0.5em 0.4em;
+    border: 0.1em solid orange;
+  }
+
+  .double-outlined {
+    margin: 0.5em 0.2em;
+    padding: 0.5em 0.3em;
+    border: 0.3em double orange;
+  }
+
+  .thick-outlined {
+    margin: 0.5em 0.2em;
+    padding: 0.5em 0.6em;
+    border-bottom: 1em solid orange;
+    border-top: 1em solid orange;
+    border-left: 0.8em solid orange;
+    border-right: 0.8em solid orange;
+  }
+
+  .crt {
+    position: absolute;
+    content: " ";
+    display: block;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    z-index: 2;
+    background-size: 100% 2px, 3px 100%;
+    pointer-events: none;
+  }
+}

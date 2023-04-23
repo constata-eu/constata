@@ -157,11 +157,9 @@ impl Wizard {
   }
 
   pub async fn read_csv_from_payload(reader_buffer: &[u8]) -> csv::Reader<&[u8]> {
-    let separator = if String::from_utf8_lossy(reader_buffer).contains(",") {
-      b','
-    } else {
-      b';'
-    };
+    let has_colon = String::from_utf8_lossy(reader_buffer)
+      .lines().next().and_then(|l| l.find(',') ).is_some();
+    let separator = if has_colon { b',' } else { b';' };
     csv::ReaderBuilder::new().delimiter(separator).from_reader(reader_buffer)
   }
 }

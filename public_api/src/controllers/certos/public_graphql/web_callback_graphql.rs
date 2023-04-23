@@ -6,6 +6,7 @@ use constata_lib::models::web_callback::{self,
 
 #[derive(Debug, GraphQLObject, serde::Deserialize, serde::Serialize)]
 #[graphql(description = "A list of WebCallbacks we've sent you or are working on sending you, to help you debug your web callbacks integration.")]
+#[serde(rename_all = "camelCase")]
 pub struct WebCallback {
   #[graphql(description = "Unique identifier for this Entry, across all Issuances.")]
   pub id: i32,

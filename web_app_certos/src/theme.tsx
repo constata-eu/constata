@@ -70,7 +70,7 @@ export default createTheme(
           borderRadius: "0.9375rem !important",
           borderWidth: "2px",
           borderStyle: "solid",
-          borderColor: "highlight.main",
+          borderColor: "#1f4668",
         },
       }
     },

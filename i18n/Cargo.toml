@@ -10,10 +10,13 @@ edition = "2021"
 rocket = { version = "0.5.0-rc.1", features = ["json"] }
 lazy_static = "1.4.0"
 tera = "1"
-grass = "0.11"
+grass = "0.12.3"
 serde = "1.0"
 serde_json = "1.0"
 include_dir = { version="*", features= ["glob"]}
 whatlang = { version = "0.16.1" }
 formatx = "0.2.0"
+thiserror = "1.0"
+glob = "*"
+ex = "0.1.3"
 sqlx = { version = "0.6.0", features = [ "postgres", "runtime-tokio-native-tls", "offline", "chrono", "json" ] }

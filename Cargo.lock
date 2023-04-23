@@ -811,12 +811,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d86b93f97252c47b41663388e6d155714a9d0c398b99f1005cbc5f978b29f445"
 
 [[package]]
-name = "beef"
-version = "0.5.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3a8241f3ebb85c056b509d4327ad0358fbbba6ffb340bf388f26350aeda225b1"
-
-[[package]]
 name = "binascii"
 version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1480,7 +1474,7 @@ dependencies = [
  "ex",
  "fantoccini 0.17.7",
  "futures",
- "hex 0.3.2",
+ "hex 0.4.3",
  "openssl-sys",
  "public_api",
  "serde",
@@ -1490,7 +1484,7 @@ dependencies = [
  "sha2 0.9.9",
  "simplestcrypt",
  "thiserror",
- "tokio 0.2.25",
+ "tokio 1.25.0",
  "ureq",
 ]
 
@@ -2205,7 +2199,7 @@ dependencies = [
  "hyper-rustls 0.22.1",
  "i18n",
  "lettre",
- "log 0.3.9",
+ "log 0.4.17",
  "serde",
  "serde_json",
  "sqlx",
@@ -2930,20 +2924,25 @@ dependencies = [
 
 [[package]]
 name = "grass"
-version = "0.11.2"
+version = "0.12.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bc5bedc3dbd71dcdd41900e1f58e4d431fa69dd67c04ae1f86ae1a0339edd849"
+checksum = "f4bfa010e6f9fe2f40727b4aedf67aa54e0439c57f855458efb1f43d730a028f"
 dependencies = [
- "beef",
  "clap 2.34.0",
+ "grass_compiler",
+]
+
+[[package]]
+name = "grass_compiler"
+version = "0.12.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "abe05b48c9c96f5ec64ad9af20c9016a8d57ec8b979e0f6dbdd9747f32b16df3"
+dependencies = [
  "codemap",
  "indexmap",
  "lasso",
- "num-bigint",
- "num-rational",
- "num-traits",
  "once_cell",
- "phf 0.9.0",
+ "phf 0.10.1",
  "rand 0.8.5",
 ]
 
@@ -3253,7 +3252,9 @@ dependencies = [
 name = "i18n"
 version = "0.1.0"
 dependencies = [
+ "ex",
  "formatx",
+ "glob",
  "grass",
  "include_dir",
  "lazy_static",
@@ -3262,6 +3263,7 @@ dependencies = [
  "serde_json",
  "sqlx",
  "tera",
+ "thiserror",
  "whatlang",
 ]
 
@@ -3606,9 +3608,9 @@ checksum = "a91d884b6667cd606bb5a69aa0c99ba811a115fc68915e7056ec08a46e93199a"
 
 [[package]]
 name = "lasso"
-version = "0.5.1"
+version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e8647c8a01e5f7878eacb2c323c4c949fdb63773110f0686c7810769874b7e0a"
+checksum = "aeb7b21a526375c5ca55f1a6dfd4e1fad9fa4edd750f530252a718a44b2608f0"
 dependencies = [
  "hashbrown 0.11.2",
 ]
@@ -4105,18 +4107,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "num-rational"
-version = "0.4.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0638a1c9d0a3c0914158145bc76cff373a75a627e6ecbfb71cbe6f453a5a19b0"
-dependencies = [
- "autocfg 1.1.0",
- "num-bigint",
- "num-integer",
- "num-traits",
-]
-
-[[package]]
 name = "num-traits"
 version = "0.2.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4402,12 +4392,12 @@ dependencies = [
 
 [[package]]
 name = "phf"
-version = "0.9.0"
+version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b2ac8b67553a7ca9457ce0e526948cad581819238f4a9d1ea74545851fa24f37"
+checksum = "fabbf1ead8a5bcbc20f5f8b939ee3f5b0f6f281b6ad3468b84656b658b455259"
 dependencies = [
  "phf_macros",
- "phf_shared 0.9.0",
+ "phf_shared 0.10.0",
  "proc-macro-hack",
 ]
 
@@ -4432,11 +4422,11 @@ dependencies = [
 
 [[package]]
 name = "phf_generator"
-version = "0.9.1"
+version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d43f3220d96e0080cc9ea234978ccd80d904eafb17be31bb0f76daaea6493082"
+checksum = "5d5285893bb5eb82e6aaf5d59ee909a06a16737a8970984dd7746ba9283498d6"
 dependencies = [
- "phf_shared 0.9.0",
+ "phf_shared 0.10.0",
  "rand 0.8.5",
 ]
 
@@ -4452,12 +4442,12 @@ dependencies = [
 
 [[package]]
 name = "phf_macros"
-version = "0.9.0"
+version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b706f5936eb50ed880ae3009395b43ed19db5bff2ebd459c95e7bf013a89ab86"
+checksum = "58fdf3184dd560f160dd73922bea2d5cd6e8f064bf4b13110abd81b03697b4e0"
 dependencies = [
- "phf_generator 0.9.1",
- "phf_shared 0.9.0",
+ "phf_generator 0.10.0",
+ "phf_shared 0.10.0",
  "proc-macro-hack",
  "proc-macro2",
  "quote",
@@ -4466,9 +4456,9 @@ dependencies = [
 
 [[package]]
 name = "phf_shared"
-version = "0.9.0"
+version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a68318426de33640f02be62b4ae8eb1261be2efbc337b60c54d845bf4484e0d9"
+checksum = "b6796ad771acdc0123d2a88dc428b5e38ef24456743ddb1744ed628f9815c096"
 dependencies = [
  "siphasher",
 ]
@@ -6282,7 +6272,6 @@ dependencies = [
  "chrono",
  "chrono-tz",
  "ex",
- "glob",
  "i18n",
  "include_dir",
  "lazy_static",
@@ -7905,7 +7894,7 @@ dependencies = [
  "dialoguer",
  "email_bot",
  "futures",
- "log 0.3.9",
+ "log 0.4.17",
  "tokio 1.25.0",
 ]
 

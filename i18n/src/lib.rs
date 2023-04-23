@@ -8,8 +8,8 @@ pub use renderer::Renderer;
 
 use rocket::{
   self,
-  http::ContentType,
-  response,
+  http::{Header, ContentType, hyper::header},
+  response::{self, Responder},
   request::{self, FromRequest, Outcome, Request},
 };
 
@@ -126,7 +126,7 @@ lazy_static::lazy_static! {
         if pathname.ends_with(".scss") {
           let style = grass::from_string(
             file.contents_utf8().expect(&format!("File is not utf-8: {}", pathname)).to_string(),
-            &grass::Options::default().style(grass::OutputStyle::Compressed)
+            &grass::Options::default().style(grass::OutputStyle::Compressed),
           ).expect(&format!("Failed to compile SCSS: {}", pathname));
           tera.add_raw_template(pathname, &style).expect("could not add template");
         } else {
@@ -159,20 +159,6 @@ pub struct HtmlWithLocale {
   pub lang: Lang,
 }
 
-impl HtmlWithLocale {
-  pub fn from_context(renderer: &Renderer, lang: Lang, template_name: &str, ctx: &Context) -> TeraResult<Self> {
-    Ok(Self{ lang, content: renderer.from_context(lang, template_name, ctx)? })
-  }
-
-  pub fn from_serialize<S: serde::Serialize>(renderer: &Renderer, lang: Lang, template_name: &str, s: &S) -> TeraResult<Self> {
-    Ok(Self{ lang, content: renderer.from_serialize(lang, template_name, s)? })
-  }
-
-  pub fn no_context(renderer: &Renderer, lang: Lang, template_name: &str) -> TeraResult<Self> {
-    Ok(Self{ lang, content: renderer.no_context(lang, template_name)? })
-  }
-}
-
 impl<'r> response::Responder<'r, 'static> for HtmlWithLocale {
   fn respond_to(self, _: &'r Request<'_>) -> response::Result<'static> {
     response::Response::build()
@@ -180,6 +166,23 @@ impl<'r> response::Responder<'r, 'static> for HtmlWithLocale {
       .raw_header("Content-Language", self.lang.code())
       .header(ContentType::new("text", "html"))
       .ok()
+  }
+}
+
+#[derive(Responder)]
+pub struct LocalizedResponse {
+  pub inner: Vec<u8>,
+  pub content_type: ContentType,
+  pub content_language: Header<'static>,
+}
+
+impl LocalizedResponse {
+  pub fn new(inner: Vec<u8>, content_type: ContentType, lang: Lang) -> Self {
+    Self {
+      inner,
+      content_type,
+      content_language: Header::new(header::CONTENT_LANGUAGE.as_str(), lang.code())
+    }
   }
 }
 

@@ -1,7 +1,9 @@
-@import "_variables.scss";
-@import "_reset.scss";
-@import "_header.scss";
-@import "_footer.scss";
+@import "scss/_variables.scss";
+@import "scss/_reset.scss";
+@import "scss/_header.scss";
+@import "scss/_footer.scss";
+@import "scss/_terminal.scss";
+@import "scss/_main.scss";
 
 html, body {
   height: 100%;
@@ -14,75 +16,6 @@ body {
   display: flex;
   flex-direction: column;
   letter-spacing: -0.03em;
-}
-
-.main {
-  .container {
-    padding: 2em;
-  }
-
-  h1 {
-    font-size: calc(1.625rem + 4vw);
-  }
-
-  h2 {
-    font-size: calc(1.425rem + 2vw);
-  }
-
-  h3 {
-    font-size: calc(1.3rem + 0.6vw);
-  }
-
-  p {
-    line-height: 1.6;
-
-    strong, a {
-      text-transform: uppercase;
-      font-size: 0.8em;
-      letter-spacing: 0;
-    }
-
-    a {
-      font-weight: bold;
-      color: $bright-blue;
-      text-decoration: underline;
-    }
-  }
-
-  .sub-title {
-    margin: 0 0 3em 0;
-    color: #888;
-    text-transform: uppercase;
-    font-weight: 500;
-  }
-
-  .lead-text {
-    font-size: 1.1em;
-    font-family: "Manrope";
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: #888;
-  }
-
-  .in-columns {
-    column-count: 2;
-    column-gap: 4em;
-    column-rule: 1px solid #eee;
-    margin: 2em 0;
-
-
-    p {
-      margin: 0 0 1em 0;
-      break-inside: avoid-column;
-      page-break-inside: avoid;
-    }
-  }
-
-  @media (max-width: 768px) {
-    .in-columns {
-      column-count: 1;
-    }
-  }
 }
 
 

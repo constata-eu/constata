@@ -1,36 +1,176 @@
 use tera::{self, Context};
-use include_dir::{Dir, DirEntry};
-use super::Lang;
+pub use include_dir::{Dir, DirEntry};
+use std::collections::HashMap;
+use super::{Lang, LocalizedResponse};
+use std::path::{Path, PathBuf};
+use std::io;
+pub use rocket::http::ContentType;
+use glob::*;
+
+#[derive(Debug, thiserror::Error)]
+pub enum Error {
+  #[error("File not found {0}")]
+  NotFound(String),
+  #[error("Unexpected error {0}")]
+  Internal(String),
+  #[error("An error ocurred while rendering error {0}")]
+  Rendering(String),
+}
+
+impl From<glob::PatternError> for Error {
+  fn from(_err: glob::PatternError) -> Error {
+    Error::Internal("Invalid glob pattern".to_string())
+  }
+}
+
+impl From<glob::GlobError> for Error {
+  fn from(_err: glob::GlobError) -> Error {
+    Error::Internal("Invalid glob operation".to_string())
+  }
+}
+
+impl From<ex::io::Error> for Error {
+  fn from(err: ex::io::Error) -> Error {
+    Error::NotFound(format!("IO Error: {err:?}"))
+  }
+}
+
+impl From<Box<grass::Error>> for Error {
+  fn from(err: Box<grass::Error>) -> Error {
+    Error::Rendering(format!("Error rendering stylesheet: {err:?}"))
+  }
+}
+
+pub type RendererResult<T> = Result<T, Error>;
 
 #[macro_export]
 macro_rules! make_static_renderer {
   ($(#[$attr:meta])* static ref $N:ident : $T:ty, $templates_dir:tt) => (
     static TEMPLATES_DIR: include_dir::Dir<'_> = include_dir::include_dir!($templates_dir);
     lazy_static::lazy_static! {
-      $(#[$attr])* static ref $N:$T = { Renderer::new(&TEMPLATES_DIR) };
+      $(#[$attr])* static ref $N:$T = { Renderer::new(&TEMPLATES_DIR).unwrap() };
     }
   )
 }
 
-pub struct Renderer {
-  pub templates: tera::Tera,
-  pub template_names: Vec<String>,
+pub trait RendererFs: std::fmt::Debug {
+  fn all_files(&self) -> RendererResult<Vec<PathBuf>>;
+  fn is_file(&self, path: &Path) -> bool;
+  fn read(&self, path: &Path) -> RendererResult<Vec<u8>>;
+  fn read_to_string(&self, path: &Path) -> RendererResult<String>;
+  fn render_style(&self, path: &Path) -> RendererResult<String>;
 }
 
-impl Renderer {
-  pub fn new(static_dir: &'static Dir<'static>) -> Self {
-    let mut templates = tera::Tera::default();
+impl RendererFs for &'static Dir<'static> {
+  fn all_files(&self) -> RendererResult<Vec<PathBuf>> {
+    Ok(self.find("*")?.map(|e| e.path().to_owned() ).collect())
+  }
 
-    let mut entries: Vec<DirEntry> = static_dir
-      .find("*").unwrap()
-      .filter(|e| !file_name(e).starts_with('.') )
-      .cloned().collect();
+  fn is_file(&self, path: &Path) -> bool {
+    self.get_file(path).is_some()
+  }
+
+  fn read(&self, path: &Path) -> RendererResult<Vec<u8>> {
+    self.get_file(path).map(|f| f.contents().to_vec() )
+      .ok_or_else(|| Error::NotFound(path.display().to_string()))
+  }
+
+  fn read_to_string(&self, path: &Path) -> RendererResult<String> {
+    self.get_file(path).and_then(|f| f.contents_utf8().map(|x| x.to_string()) )
+      .ok_or_else(|| Error::NotFound(path.display().to_string()))
+  }
+
+  fn render_style(&self, path: &Path) -> RendererResult<String> {
+    Ok(grass::from_string(
+      self.read_to_string(path)?,
+      &grass::Options::default().fs(&StaticGrassFs(self))
+    )?)
+  }
+}
+
+#[derive(Debug)]
+pub struct StaticGrassFs(&'static Dir<'static>);
+
+impl grass::Fs for StaticGrassFs {
+  fn is_dir(&self, path: &Path) -> bool {
+    self.0.get_dir(path).is_some()
+  }
+
+  fn is_file(&self, path: &Path) -> bool {
+    self.0.is_file(path)
+  }
+
+  fn read(&self, path: &Path) -> Result<Vec<u8>, io::Error> {
+    self.0.read(path).map_err(|_| io::Error::new(io::ErrorKind::NotFound, path.display().to_string()))
+  }
+}
+
+impl RendererFs for &Path {
+  fn all_files(&self) -> RendererResult<Vec<PathBuf>> {
+    glob(&format!("{}/**/[!.]*", self.display()))?.map(|result|{
+      result
+        .map_err(|e| Error::Internal(format!("Glob result error on &str renderer")) )
+        .and_then(|p|
+          p.strip_prefix(self)
+            .map(|p| p.to_path_buf())
+            .map_err(|e| Error::Internal(format!("Could not strip prefix {}", self.display())))
+        )
+    }).collect::<Result<Vec<_>,_>>()
+  }
+
+  fn is_file(&self, path: &Path) -> bool {
+    Path::is_file(&self.join(path))
+  }
+
+  fn read(&self, path: &Path) -> RendererResult<Vec<u8>> {
+    Ok(ex::fs::read(self.join(path))?)
+  }
+
+  fn read_to_string(&self, path: &Path) -> RendererResult<String> {
+    Ok(ex::fs::read_to_string(self.join(path))?)
+  }
+
+  fn render_style(&self, path: &Path) -> RendererResult<String> {
+    Ok(grass::from_string(
+      self.read_to_string(path)?,
+      &grass::Options::default().fs(&DynamicGrassFs(self))
+    )?)
+  }
+}
+#[derive(Debug)]
+pub struct DynamicGrassFs<'a>(&'a Path);
+
+impl grass::Fs for DynamicGrassFs<'_> {
+  fn is_dir(&self, path: &Path) -> bool {
+    self.0.join(path).is_dir()
+  }
+  fn is_file(&self, path: &Path) -> bool {
+    Path::is_file(&self.0.join(path))
+  }
+
+  fn read(&self, path: &Path) -> Result<Vec<u8>, io::Error> {
+    std::fs::read(self.0.join(path))
+  }
+}
+
+pub struct Renderer<FS> {
+  pub htmls: tera::Tera,
+  pub styles: HashMap<String, Vec<u8>>,
+  pub fs: FS
+}
+
+impl<FS: RendererFs> Renderer<FS> {
+  pub fn new(fs: FS) -> RendererResult<Self> {
+    let mut htmls = tera::Tera::default();
+    let mut styles = HashMap::new();
+
+    let mut entries = fs.all_files()?;
 
     entries.sort_by(|a,b|{
-      let a_depth = path_name(a).matches("/").count();
-      let b_depth = path_name(b).matches("/").count();
-      let a_priority = file_name(a).starts_with("_");
-      let b_priority = file_name(b).starts_with("_");
+      let a_depth = a.ancestors().count();
+      let b_depth = b.ancestors().count();
+      let a_priority = a.starts_with("_");
+      let b_priority = b.starts_with("_");
 
       if a_priority == b_priority {
         a_depth.cmp(&b_depth)
@@ -39,52 +179,71 @@ impl Renderer {
       }
     });
 
-    for entry in entries {
-      if let Some(file) = entry.as_file() {
-        let pathname = path_name(&entry);
+    for entry in &entries {
+      if !fs.is_file(entry) {
+        continue;
+      }
 
-        if pathname.ends_with(".scss") {
-          let style = grass::from_string(
-            file.contents_utf8().expect(&format!("File is not utf-8: {}", pathname)).to_string(),
-            &grass::Options::default().style(grass::OutputStyle::Compressed)
-          ).expect(&format!("Failed to compile SCSS: {}", pathname));
-          templates.add_raw_template(pathname, &style).expect("could not add template");
-        } else {
-          templates.add_raw_template(
-            pathname,
-            file.contents_utf8().expect(&format!("File is not utf-8: {}", pathname))
-          ).expect("Could not add template");
-        }
+      let pathname = entry.display().to_string();
+
+      if pathname.ends_with(".css") {
+        let style = fs.render_style(entry)?;
+        styles.insert(pathname, style.into_bytes());
+      } else if pathname.ends_with(".html") {
+        htmls.add_raw_template( &pathname, &fs.read_to_string(entry)?).expect("Could not add template");
       }
     }
 
-    let template_names = templates.get_template_names().map(|x| x.to_string() ).collect();
-    Self { templates, template_names }
+    Ok(Self { htmls, styles, fs })
   }
 
-  pub fn from_context(&self, lang: Lang, template_name: &str, ctx: &Context) -> tera::Result<String> {
-    let local_template = format!("{}.{}", template_name, lang.code());
-    let template = if self.template_names.contains(&local_template) { &local_template } else { template_name };
-    self.templates.render(template, &ctx)
+  /* Try to serve a Vec or &[u8] here */
+  pub fn render(&self, path: &str, ctx: &Context) -> Result<Vec<u8>, Error> {
+    if path.ends_with(".html") {
+      return self.htmls.render(path, ctx)
+        .map(|t| t.into_bytes() )
+        .map_err(|e| Error::Rendering(format!("Error rendering template {e:?}")) );
+    }
+
+    if path.ends_with(".css") {
+      return self.styles.get(path).map(|x| x.to_owned() )
+        .ok_or_else(|| Error::Rendering(format!("No style {path} found")) );
+    }
+
+    self.fs.read(Path::new(path))
   }
 
-  pub fn from_serialize<S: serde::Serialize>(&self, lang: Lang, template_name: &str, o: &S) -> tera::Result<String> {
-    self.from_context(lang, template_name, &Context::from_serialize(o)?)
+  pub fn render_localized(&self, prefix: &str, path: &PathBuf, lang: Lang, default_lang: Lang) -> Result<LocalizedResponse, Error> {
+    let Some(ext) = path.extension().and_then(|x| x.to_str() ) else {
+      return Err(Error::NotFound("Should have extension".to_string()))
+    };
+
+    let mime = match ext {
+      "wasm" => ContentType::WASM,
+      "ttf"  => ContentType::TTF,
+      "png"  => ContentType::PNG,
+      "js"   => ContentType::JavaScript,
+      "css"  => ContentType::CSS,
+      "scss"  => ContentType::CSS,
+      "svg"  => ContentType::SVG,
+      "html"  => ContentType::HTML,
+      _ => return Err(Error::NotFound("No file found with that extension".to_string())),
+    };
+
+    let prefixed = Path::new(prefix);
+    let lang_path = prefixed.join(lang.code()).join(path);
+    let default_lang_path = prefixed.join(default_lang.code()).join(path);
+
+    let (resolved_lang, resolved_path) = if self.fs.is_file(&lang_path) {
+      (lang, lang_path)
+    } else if self.fs.is_file(&default_lang_path) {
+      (default_lang, default_lang_path)
+    } else {
+      (lang, prefixed.join(path))
+    };
+
+    let bytes = self.render(&resolved_path.display().to_string(), &Context::new())?;
+
+    Ok(LocalizedResponse::new(bytes, mime, resolved_lang))
   }
-
-  pub fn no_context(&self, lang: Lang, template_name: &str) -> tera::Result<String> {
-    self.from_context(lang, template_name, &Context::new())
-  }
-
-  pub fn static_file(&self, template_name: &str) -> tera::Result<String> {
-    self.templates.render(template_name, &Context::new())
-  }
-}
-
-fn file_name<'a>(e: &'a DirEntry) -> &'a str {
-  e.path().file_name().unwrap().to_str().unwrap()
-}
-
-fn path_name<'a>(e: &'a DirEntry) -> &'a str {
-  e.path().to_str().unwrap()
 }

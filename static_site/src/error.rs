@@ -18,6 +18,8 @@ pub enum Error {
   Rendering(#[from] i18n::tera::Error),
   #[error(transparent)]
   Io(#[from] ex::io::Error),
+  #[error(transparent)]
+  Renderer(#[from] i18n::renderer::Error),
 }
 
 pub type SiteResult<T> = Result<T, Error>;
