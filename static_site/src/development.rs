@@ -11,11 +11,7 @@ fn index(lang: Lang) -> SiteResult<LocalizedResponse<'static>> {
 
 #[get("/<path..>")]
 fn public(lang: Lang, path: PathBuf) -> SiteResult<LocalizedResponse<'static>> {
-  Ok(
-    Renderer::new(Path::new("src/assets/"))?
-      .render_localized("public", &path, lang, Lang::En)?
-      .into_owned()
-  )
+  Ok(Renderer::new(Path::new("src/assets/"))?.i18n("public", lang, &path)?.into_owned())
 }
 
 #[launch]

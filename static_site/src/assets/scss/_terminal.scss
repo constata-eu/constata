@@ -10,6 +10,7 @@
     line-height: 1em;
     margin: 0;
     color: orange;
+    letter-spacing: 0;
   }
 
   &.one-line {
@@ -63,6 +64,10 @@
 
   .padded {
     margin: 1em 0.8em;
+  }
+
+  .outlined, .double-outlined, .thick-outlined {
+    display: inline-block;
   }
 
   .outlined {

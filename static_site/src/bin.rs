@@ -13,7 +13,7 @@ fn index(lang: Lang) -> SiteResult<LocalizedResponse<'static>> {
 
 #[get("/<path..>")]
 fn public(lang: Lang, path: PathBuf) -> SiteResult<LocalizedResponse<'static>> {
-  Ok(RENDERER.render_localized("public", &path, lang, Lang::En)?)
+  Ok(RENDERER.i18n("public", lang, &path)?)
 }
 
 #[launch]

@@ -103,6 +103,7 @@ impl RendererFs for &Path {
     )?)
   }
 }
+
 #[derive(Debug)]
 pub struct DynamicGrassFs<'a>(&'a Path);
 
@@ -122,13 +123,14 @@ impl grass::Fs for DynamicGrassFs<'_> {
 pub struct Renderer<FS> {
   pub htmls: tera::Tera,
   pub styles: HashMap<String, Vec<u8>>,
-  pub fs: FS
+  pub fs: FS,
+  pub default_lang: Lang,
 }
 
 impl<FS: RendererFs> Renderer<FS> {
   pub fn new(fs: FS) -> RendererResult<Self> {
     let mut htmls = tera::Tera::default();
-    htmls.autoescape_on(vec![]);
+    htmls.autoescape_on(vec!["safe.html"]);
 
     let mut styles = HashMap::new();
 
@@ -160,53 +162,49 @@ impl<FS: RendererFs> Renderer<FS> {
         htmls.add_raw_template( &pathname, &fs.read_to_string(entry)?).expect("Could not add template");
       }
     }
+    let default_lang = Lang::En;
 
-
-    Ok(Self { htmls, styles, fs })
+    Ok(Self { htmls, styles, fs, default_lang })
   }
 
   fn priority(path: &Path) -> bool {
     path.file_name().and_then(|f| f.to_str()).map(|f| f.starts_with("_") ).unwrap_or(false)
   }
   
-  pub fn render(&self, path: &str, ctx: &Context) -> RendererResult<Cow<[u8]>> {
+  pub fn render<P: AsRef<Path>>(&self, as_path: P, ctx: &Context) -> RendererResult<Cow<[u8]>> {
+    let path = as_path.as_ref().to_string_lossy().into_owned();
+
     if path.ends_with(".html") {
-      return Ok(self.htmls.render(path, ctx).map(|t| Cow::Owned(t.into_bytes()) )?);
+      return Ok(self.htmls.render(&path, ctx).map(|t| Cow::Owned(t.into_bytes()) )?);
     }
 
     if path.ends_with(".css") {
-      return self.styles.get(path).map(|x| Cow::Borrowed(x.as_slice()) )
+      return self.styles.get(&path).map(|x| Cow::Borrowed(x.as_slice()) )
         .ok_or_else(|| Error::NotFound(format!("No style {path} found")) );
     }
 
-    self.fs.read(Path::new(path))
+    self.fs.read(Path::new(&path))
   }
 
-  pub fn render_localized_context(&self, prefix: &str, path: &PathBuf, lang: Lang, default: Lang, c: &Context) -> RendererResult<LocalizedResponse> {
-    let Some(ext) = path.extension().and_then(|x| x.to_str() ) else {
+  pub fn i18n_and_context<A: AsRef<Path>, B: AsRef<Path>>(&self, prefix: A, lang: Lang, path: B, c: &Context)
+    -> RendererResult<LocalizedResponse> 
+  {
+    let Some(ext) = path.as_ref().extension().and_then(|x| x.to_str() ) else {
       return Err(Error::NotFound("Should have extension".to_string()))
     };
 
-    let mime = match ext {
-      "wasm" => ContentType::WASM,
-      "ttf"  => ContentType::TTF,
-      "png"  => ContentType::PNG,
-      "js"   => ContentType::JavaScript,
-      "css"  => ContentType::CSS,
-      "scss"  => ContentType::CSS,
-      "svg"  => ContentType::SVG,
-      "html"  => ContentType::HTML,
-      _ => return Err(Error::NotFound("No file found with that extension".to_string())),
+    let Some(mime) = ContentType::from_extension(ext) else { 
+      return Err(Error::NotFound("No file found with that extension".to_string()))
     };
 
-    let prefixed = Path::new(prefix);
-    let lang_path = prefixed.join(lang.code()).join(path);
-    let default_lang_path = prefixed.join(default.code()).join(path);
+    let prefixed: &Path = prefix.as_ref();
+    let lang_path = prefixed.join(lang.code()).join(&path);
+    let default_lang_path = prefixed.join(self.default_lang.code()).join(&path);
 
     let (resolved_lang, resolved_path) = if self.fs.is_file(&lang_path) {
       (lang, lang_path)
     } else if self.fs.is_file(&default_lang_path) {
-      (default, default_lang_path)
+      (self.default_lang, default_lang_path)
     } else {
       (lang, prefixed.join(path))
     };
@@ -216,13 +214,13 @@ impl<FS: RendererFs> Renderer<FS> {
     Ok(LocalizedResponse::new(bytes, mime, resolved_lang))
   }
 
-  pub fn render_localized_and_serialized<S: serde::Serialize>(&self, prefix: &str, path: &PathBuf, lang: Lang, default: Lang, c: S) 
+  pub fn i18n_and_serialize<A: AsRef<Path>, B: AsRef<Path>, S: serde::Serialize>(&self, prefix: A, lang: Lang, path: B, c: S) 
     -> RendererResult<LocalizedResponse>
   {
-    self.render_localized_context(prefix, path, lang, default, &Context::from_serialize(&c)?)
+    self.i18n_and_context(prefix, lang, path, &Context::from_serialize(&c)?)
   }
 
-  pub fn render_localized(&self, prefix: &str, path: &PathBuf, lang: Lang, default: Lang) -> RendererResult<LocalizedResponse> {
-    self.render_localized_context(prefix, path, lang, default, &Context::new())
+  pub fn i18n<A: AsRef<Path>, B: AsRef<Path>>(&self, prefix: A, lang: Lang, path: B) -> RendererResult<LocalizedResponse> {
+    self.i18n_and_context(prefix, lang, path, &Context::new())
   }
 }

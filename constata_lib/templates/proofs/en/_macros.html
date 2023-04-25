@@ -1,0 +1,39 @@
+{%- macro person_endorsements(person_id, endorsements) -%}
+  {%- for endorsement in endorsements -%}
+    {%- if endorsement.type == "Kyc" -%}
+      {%- set a = endorsement.attrs -%}
+
+      {% if a.name or a.last_name %} {{ a.name }} {{ a.last_name }} {% else %} Pseudonymous person {% endif %}
+      {%- if a.birthdate -%}
+        {% if a.name or a.last_name %} del {% else %} Nacido el {% endif %}
+        {{- a.birthdate | date(format="%d-%m-%Y") -}}
+      {%- endif -%}
+      {%- if a.name or a.last_name or a.birthdate -%}, {% endif %}
+
+      {{- a.id_type }} {{ a.id_number -}}
+      {%- if a.id_type or a.id_number %}, {% endif %}
+
+      {%- if a.nationality -%} {{ a.nationality }}, {% endif %}
+      {%- if a.country -%} lives in {{ a.country }}, {% endif %}
+      {{- a.job_title -}}
+      {%- if a.legal_entity_name -%}
+        {% if a.job_title %} at {% else %} on behalf of {% endif %}
+        {{- a.legal_entity_name }}
+        {%- if a.legal_entity_country %}, company {{ a.legal_entity_country }} {%- endif -%}
+        {%- if a.legal_entity_registration -%}, registry {{ a.legal_entity_registration }} {%-endif -%}
+        {%- if a.legal_entity_tax_id %}, tax id {{ a.legal_entity_tax_id }} {%- endif -%}
+      {%- endif -%}.
+    {%- endif -%}
+    {% if endorsement.type == "EmailAddress" and not endorsement.keep_private %}
+      Email address <a href="mailto:{{endorsement.address}}">{{endorsement.address}}</a>.
+    {%- endif -%}
+    {% if endorsement.type == "Website" %}
+      Manager of the website <a target="_blank" href="{{endorsement.url}}">{{- endorsement.url -}}</a>.
+    {%- endif -%}
+    {% if endorsement.type == "Telegram" %}
+      {%- set a = endorsement.attrs -%}
+      Telegram user {{ a.first_name }} {{ a.username }} {{ a.last_name }} (#{{ a.id }})
+    {%- endif -%}
+  {% endfor %}
+  Constata User #{{ person_id }}.
+{%- endmacro person_endorsements -%}

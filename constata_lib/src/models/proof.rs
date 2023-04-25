@@ -201,16 +201,11 @@ impl<'a> Proof<'a> {
   }
 
   pub fn render_signed_html(&self, context: &i18n::Context, lang: i18n::Lang) -> Result<String> {
-    let mut html = RENDERER.render_localized_context(
-      "proofs",
-      &std::path::PathBuf::from("proof.html"), lang, i18n::Lang::En, context
-    )?.inner_to_utf8()?;
+    let mut html = RENDERER.i18n_and_context("proofs", lang, "proof.html", context)?.to_utf8()?;
     let signature = SignedPayload::sign_with_key(&html.as_bytes(), &self.key);
     let mut sign_context = i18n::Context::new();
     sign_context.insert("signature", &signature.to_base64());
-    html.push_str(
-      &RENDERER.render_localized_context("proofs", &std::path::PathBuf::from("signature.html"), lang, i18n::Lang::En, &sign_context)?.inner_to_utf8()?
-    );
+    html.push_str( &RENDERER.i18n_and_context("proofs", lang, "signature.html", &sign_context)?.to_utf8()? );
     Ok(html)
   }
 
@@ -236,7 +231,7 @@ impl<'a> Proof<'a> {
     let mut context = i18n::Context::new();
     context.insert("person_id", person.id());
     context.insert("endorsements", &person.endorsements().await?);
-    Ok(RENDERER.render_localized_context("proofs", &std::path::PathBuf::from("endorsements.html"), lang, i18n::Lang::En, &context)?.inner_to_utf8()?)
+    Ok(RENDERER.i18n_and_context("proofs", lang, "endorsements.html", &context)?.to_utf8()?)
   }
 }
 

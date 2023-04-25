@@ -3,7 +3,7 @@ use constata_lib::models::terms_acceptance::TermsAcceptance;
 use rocket::data::{Data, ToByteUnit};
 
 #[get("/<token>")]
-pub async fn show(token: Option<String>, site: &State<Site>, l: Lang) -> MyResult<HtmlWithLocale> {
+pub async fn show(token: Option<String>, site: &State<Site>, l: Lang) -> MyResult<i18n::LocalizedResponse<'_>> {
   if let Some(t) = token {
     let needed = site.terms_acceptance()
       .select().token_eq(&t).optional().await?
@@ -11,16 +11,16 @@ pub async fn show(token: Option<String>, site: &State<Site>, l: Lang) -> MyResul
       .unwrap_or(false);
     
     if needed {
-      return Ok(l.html_bare("public_api/terms_acceptance/for_acceptance.html.tera")?)
+      return Ok(crate::RENDERER.i18n("terms_acceptance/", l, "for_acceptance.html")?)
     }
   }
 
-  return Ok(l.html_bare("public_api/terms_acceptance/for_display.html.tera")?)
+  return Ok(crate::RENDERER.i18n("terms_acceptance/", l, "for_display.html")?)
 }
 
 #[get("/")]
-pub async fn show_bare(l: Lang) -> MyResult<HtmlWithLocale> {
-  return Ok(l.html_bare("public_api/terms_acceptance/for_display.html.tera")?)
+pub async fn show_bare(l: Lang) -> MyResult<i18n::LocalizedResponse<'_>> {
+  return Ok(crate::RENDERER.i18n("terms_acceptance/", l, "for_display.html")?)
 }
 
 #[post("/<token>/accept", data="<data>")]

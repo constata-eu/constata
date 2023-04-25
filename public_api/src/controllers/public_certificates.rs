@@ -6,7 +6,7 @@ use crate::RENDERER;
 #[get("/<token>?<show_content>")]
 pub async fn show(site: &State<Site>, token: String, key: &State<PrivateKey>, l: Lang, show_content: bool) -> Result<i18n::LocalizedResponse<'static>> {
   let response = match site.download_proof_link().public_certificate_active(token).one().await {
-    Err(_e) => RENDERER.render_localized("public_api/certificates/", &std::path::PathBuf::from("not_found.html"), l, Lang::En)?,
+    Err(_e) => RENDERER.i18n("certificates/", l, "not_found.html")?,
     Ok(download_proof_link) => {
       if show_content {
         i18n::LocalizedResponse::new(
@@ -24,7 +24,7 @@ pub async fn show(site: &State<Site>, token: String, key: &State<PrivateKey>, l:
           "name_for_on_behalf_of": org.name_for_on_behalf_of().await?,
           "image": download_proof_link.image_url().await?,
         });
-        RENDERER.render_localized_and_serialized("public_api/certificates/", &std::path::PathBuf::from("to_show.html"), l, Lang::En, &context)?
+        RENDERER.i18n_and_serialize("certificates/", l, "to_show.html", &context)?
       }
     }
   };

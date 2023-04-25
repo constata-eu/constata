@@ -96,6 +96,6 @@ impl Previewer {
   }
 
   pub fn render_html(&self, lang: i18n::Lang) -> Result<String> {
-    Ok(crate::RENDERER.render_localized_and_serialized("previewer", &std::path::PathBuf::from("preview.html"), lang, i18n::Lang::En, &self)?.inner_to_utf8()?)
+    Ok(crate::RENDERER.i18n_and_serialize("previewer", lang, "preview.html", &self)?.to_utf8()?)
   }
 }
