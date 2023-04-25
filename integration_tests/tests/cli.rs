@@ -35,18 +35,18 @@ mod cli {
     api_integration_test!{ create_issuance_from_json(db, _chain)
       db.alice().await.write_signature_json_artifact();
 
-      let json1 = run_command_json("create-issuance-from-json", &[
+      let issuance_1 = run_command_json("create-issuance-from-json", &[
         "name_of_the_issuance",
         "--new-logo-text=testing",
         "--new-kind=badge",
         "--new-name=my_template",
       ]);
 
-      let json2 = run_command_json("create-issuance-from-json", &[
-        "name_of_the_issuance_2",
+      let issuance_2 = run_command_json("create-issuance-from-json", &[
+        "2nd_name_of_the_issuance",
         "--new-logo-text=second",
         "--new-kind=diploma",
-        "--new-name=my_template2",
+        "--new-name=2nd_template",
       ]);
 
       let all_issuances = run_command_json("all-issuances", &[]);
@@ -55,7 +55,13 @@ mod cli {
 
       let all_issuances_id = run_command_json("all-issuances", &["--ids", "2"]);
 
-      println!("{}", &serde_json::to_string_pretty(&json1)?);
+      let chain_output = _chain.fund_signer_wallet();
+
+      //run_command("sign-issuance", &["2"]);
+
+      let all_issuances_id_founded = run_command_json("all-issuances", &["--ids", "2"]);
+      
+      println!("{}", &serde_json::to_string_pretty(&issuance_1)?);
 
       println!("{}", &serde_json::to_string_pretty(&all_issuances)?);
 
@@ -63,12 +69,15 @@ mod cli {
 
       //println!("{}", &serde_json::to_string_pretty(&issuance_state)?);
       println!("{}", &serde_json::to_string_pretty(&all_issuances_id)?);
+      println!("{}", &serde_json::to_string_pretty(&all_issuances_id_founded)?);
+      println!("this is the CHAIN: {:?}", (&chain_output));
 
 
-      assert_eq!(json1.get("templateName").unwrap(), "my_template");
-      assert_eq!(json2.get("templateKind").unwrap(), "DIPLOMA");
+      assert_eq!(issuance_1.get("templateName").unwrap(), "my_template");
+      assert_eq!(issuance_2.get("templateKind").unwrap(), "DIPLOMA");
       assert_eq!((&all_issuances_id["allIssuances"][0]["templateId"]), 2);
       assert_eq!(issuance_state, "true\n");
+      
     }
 
     api_integration_test!{ account_state(db, _chain)
