@@ -32,7 +32,7 @@ mod cli {
     }
     */
 
-    api_integration_test!{ create_issuance_from_json(db, _chain)
+    api_integration_test!{ create_issuance_from_json(db, mut _chain)
       db.alice().await.write_signature_json_artifact();
 
       let issuance_1 = run_command_json("create-issuance-from-json", &[
@@ -49,17 +49,36 @@ mod cli {
         "--new-name=2nd_template",
       ]);
 
+      let create_issuance_from_csv  = run_command_json("create-issuance-from-csv", &["--csv-file", "integration_tests/static/cli_test_issuances_from_csv.csv", "first_csv_test", "-t", "2"]);
+
       let all_issuances = run_command_json("all-issuances", &[]);
 
       let issuance_state = run_command("issuance-state", &["1", "received"]);
 
-      let all_issuances_id = run_command_json("all-issuances", &["--ids", "2"]);
+      let all_issuances_id_2 = run_command_json("all-issuances", &["--ids", "2"]);
+            
+      db.site.request().create_all_received().await?; // Ahora se crean todos los documentos.
 
-      let chain_output = _chain.fund_signer_wallet();
+      let all_issuances_id_3 = run_command_json("all-issuances", &["--ids", "3"]);
 
-      //run_command("sign-issuance", &["2"]);
+      run_command("sign-issuance", &["2"]);
 
-      let all_issuances_id_founded = run_command_json("all-issuances", &["--ids", "2"]);
+      run_command("sign-issuance", &["3"]);
+
+      let all_issuances_id_2_founded = run_command_json("all-issuances", &["--ids", "2"]);
+
+      _chain.fund_signer_wallet();
+      _chain.simulate_stamping().await;
+  
+      db.site.request().try_complete().await?;
+
+      let all_issuances_id_2_completed = run_command_json("all-issuances", &["--ids", "2"]);
+
+      let all_issuances_after_sign_and_stamping = run_command_json("all-issuances", &[]);
+
+      let preview_entry = run_command("preview-entry", &["3", "target/artifacts/cli_preview.html"]);
+
+      //let all_templates = run_command_json("all-templates", &[]);
       
       println!("{}", &serde_json::to_string_pretty(&issuance_1)?);
 
@@ -68,14 +87,23 @@ mod cli {
       println!("{}", (&issuance_state));
 
       //println!("{}", &serde_json::to_string_pretty(&issuance_state)?);
-      println!("{}", &serde_json::to_string_pretty(&all_issuances_id)?);
-      println!("{}", &serde_json::to_string_pretty(&all_issuances_id_founded)?);
-      println!("this is the CHAIN: {:?}", (&chain_output));
+      println!("{}", &serde_json::to_string_pretty(&all_issuances_id_2)?);
+      println!("{}", &serde_json::to_string_pretty(&all_issuances_id_2_founded)?);
+      println!("{}", &serde_json::to_string_pretty(&all_issuances_id_2_completed)?);
+      println!("{}", &serde_json::to_string_pretty(&create_issuance_from_csv)?);
+      println!("{}", &serde_json::to_string_pretty(&all_issuances_after_sign_and_stamping)?);
+      //println!("{}", &serde_json::to_string_pretty(&all_templates)?);
+      //println!("this is the CHAIN: {:?}", (&chain_output));
 
 
-      assert_eq!(issuance_1.get("templateName").unwrap(), "my_template");
-      assert_eq!(issuance_2.get("templateKind").unwrap(), "DIPLOMA");
-      assert_eq!((&all_issuances_id["allIssuances"][0]["templateId"]), 2);
+      assert_eq!((&issuance_1["templateName"]), "my_template");
+      assert_eq!((issuance_2["templateKind"]), "DIPLOMA");
+      assert_eq!((&all_issuances_id_2["allIssuances"][0]["templateId"]), 2);
+      assert_eq!((&all_issuances_id_2["allIssuances"][0]["state"]), "received");
+      assert_eq!((&all_issuances_id_3["allIssuances"][0]["state"]), "created");
+      assert_eq!((&all_issuances_id_2_founded["allIssuances"][0]["state"]), "signed");
+      assert_eq!((&all_issuances_id_2_completed["allIssuances"][0]["state"]), "completed");
+      assert_eq!((create_issuance_from_csv["entriesCount"]), 10);
       assert_eq!(issuance_state, "true\n");
       
     }
