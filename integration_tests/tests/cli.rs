@@ -61,6 +61,8 @@ mod cli {
 
       let all_issuances_id_3 = run_command_json("all-issuances", &["--ids", "3"]);
 
+      run_command("preview-entry", &["9", "target/artifacts/cli_preview.html"]);
+
       run_command("sign-issuance", &["2"]);
 
       run_command("sign-issuance", &["3"]);
@@ -71,12 +73,14 @@ mod cli {
       _chain.simulate_stamping().await;
   
       db.site.request().try_complete().await?;
+      
+      run_command("issuance-export", &["3", "target/artifacts/cli_issuance_export.csv"]);
 
       let all_issuances_id_2_completed = run_command_json("all-issuances", &["--ids", "2"]);
 
       let all_issuances_after_sign_and_stamping = run_command_json("all-issuances", &[]);
 
-      let preview_entry = run_command("preview-entry", &["3", "target/artifacts/cli_preview.html"]);
+      
 
       //let all_templates = run_command_json("all-templates", &[]);
       
