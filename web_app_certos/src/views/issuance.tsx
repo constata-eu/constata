@@ -1,8 +1,9 @@
 import { useEffect, useState, useCallback } from "react";
 import { List, Datagrid, TextField, ShowButton, useDataProvider, useTranslate, FunctionField,
          SimpleShowLayout, ShowBase, useNotify, Button, ReferenceManyField, Pagination,
-         FilterForm, SimpleList, WithRecord, useGetRecordId } from 'react-admin'
-import { Typography, Container, Box, Card, Link, useMediaQuery } from '@mui/material';
+         FilterForm, SimpleList, WithRecord, useGetRecordId, useRecordContext } from 'react-admin'
+import { Typography, Container, Box, Card, Link, useMediaQuery,
+         Alert, AlertTitle } from '@mui/material';
 import CardTitle from '../components/card_title';
 import { PaginationDefault, formatJsonInline,
          copyToClipboard, parseDate, openBlob, defaultSort } from '../components/utils'
@@ -34,7 +35,7 @@ function IssuanceList(props) {
   }, [hasNoTemplates]);
 
   return (
-    <Container maxWidth="md" sx={{mb:3}}>
+    <Container maxWidth={false} sx={{mb:3}}>
       <Card>
         <CardTitle text="resources.Issuance.admin_title"/>
         <List {...props}
@@ -95,6 +96,16 @@ export const openPreview = async (dataProvider, id) => {
   await openBlob(blob);
 }
 
+const IssuanceErrors = () => {
+  const translate = useTranslate();
+  const record = useRecordContext();
+  if (!record || !record.errors) return null;
+  return <Alert sx={{ mb: 2 }} severity="error" variant="outlined" icon={false}>
+    <AlertTitle>{ translate("certos.states.failed") }</AlertTitle>
+    <TranslatedTextField source="errors" translation="certos.issuance.errors" />
+  </Alert>;
+};
+
 function IssuanceShow(props){
   const translate = useTranslate();
   const issuanceId = useGetRecordId();
@@ -102,6 +113,7 @@ function IssuanceShow(props){
   const notify = useNotify();
   const [entryFilters, setEntryFilters] = useState({});
   const isSmall = useMediaQuery((theme: any) => theme.breakpoints.down('md'));
+  const record = useRecordContext();
 
   const onEntryClick = (data) => {
     if(data.storyId && data.state === "completed") {
@@ -148,10 +160,9 @@ function IssuanceShow(props){
     )
   }
 
-
   return (
     <ShowBase {...props} actions={false}>
-      <Container maxWidth="md" sx={{mb:3}}>
+      <Container maxWidth={false} sx={{mb:3}}>
         <Card sx={{ mb: 3 }}>
           <CardTitle text={<>
             <Link href="#/Issuance"> { translate("resources.Issuance.admin_title") } </Link>
@@ -160,18 +171,19 @@ function IssuanceShow(props){
           </>} />
           <Box py={1}>
             <SimpleShowLayout>
-              <TranslatedTextField source="state" translation="certos.issuance.states" />
-              <WithRecord render={ record => {
-                if (record.state !== "completed" && record.state !== "failed") {
-                  return (<TranslatedTextField
-                    source="state"
-                    label="resources.Issuance.fields.nextStep"
-                    translation="resources.Issuance.fields.nextSteps"
-                  />);
-                } else {
-                  return <></>;
-                }
-              }}/>
+              <FunctionField source="state" render={ record => 
+                <>
+                  <TranslatedTextField source="state" translation="certos.issuance.states" />
+                  <br/>
+                  { (record.state !== "completed" && record.state !== "failed") && 
+                    <TranslatedTextField
+                      source="state"
+                      label="resources.Issuance.fields.nextStep"
+                      translation="resources.Issuance.fields.nextSteps"
+                    />
+                  } 
+                </>
+              }/>
               <FunctionField source="name"
                 render={record => `${record.id} - ${record.name}` }
               />
@@ -189,13 +201,10 @@ function IssuanceShow(props){
                   {translate("resources.Issuance.fields.download")}
                 </a>
               }/>
-
-              <WithRecord render={ record => 
-                record.errors && <TranslatedTextField source="errors" translation="certos.issuance.errors" />
-              } />
             </SimpleShowLayout>
           </Box>
         </Card>
+        <IssuanceErrors />
         <Card>
           <Box mt={2}>
             <FilterForm
@@ -208,6 +217,7 @@ function IssuanceShow(props){
           <WithRecord render={ issuance => 
             <ReferenceManyField reference="Entry" target="issuanceIdEq" label=""
               pagination={<Pagination rowsPerPageOptions={[25]} />}
+              sort={{ field: 'id', order: 'ASC' }}
               filter={ entryFilters }
               perPage={25}
             >
