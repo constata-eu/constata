@@ -648,7 +648,7 @@
             "motive": {
               "help": "ej: Bachelors degree in data mining.",
               "label": "Completed the course of",
-              "sample": "Bachelors degree in data mining (opcional)"
+              "sample": "Bachelors degree in data mining"
             },
             "name": {
               "help": "ej: Doctor Jane Doe, Mr. John Smith.",

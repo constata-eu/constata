@@ -1,0 +1,70 @@
+@import "_variables.scss";
+
+footer {
+  & div { display: flex; }
+
+  background: rgb(19, 18, 18);
+  color: white;
+  padding: 1.5em 1em;
+
+  .container {
+    flex-direction: column;
+  }
+
+  h2 {
+    font-size: calc(1.625rem + 3.5vw);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.05em;
+  }
+
+  .many-rows {
+    flex-direction: column;
+    > * {
+      display: flex;
+    }
+  }
+
+  .social {
+    min-width: 50%;
+    justify-content: center;
+    a {
+      margin: 1em 0;
+    }
+  }
+
+  .validity-notice {
+    display: inline;
+    font-size: 0.85em;
+    letter-spacing: -0.03em;
+    line-height: 1.5;
+    margin-bottom: 1em;
+    
+    a {
+      text-decoration: underline;
+    }
+  }
+
+  .legal {
+    a, .no-cookies {
+      margin: 0.5em 0;
+    }
+
+    .left {
+      flex: 1
+    }
+
+    .right {
+      align-items: flex-end;
+    }
+  }
+
+  @media (max-width: 768px) {
+    & div { flex-direction: column; }
+    padding: 2.2em 0.5em;
+
+    .legal .right {
+      align-items: flex-start;
+    }
+  }
+}

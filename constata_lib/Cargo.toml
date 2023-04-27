@@ -65,6 +65,7 @@ gettext-macros = "*"
 i18n = { path = "../i18n" }
 byte-unit = "*"
 clap = { version = "4.2.1", features = ["derive"] }
+include_dir = { version="*", features= ["glob"]}
 
 [dependencies.bitcoin]
 version = "0.26.0"

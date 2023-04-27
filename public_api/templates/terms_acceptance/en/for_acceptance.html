@@ -1,0 +1,51 @@
+{% extends "terms_acceptance/_for_acceptance_base.html" %}
+
+{% block title %}Constata.eu | Terms and Conditions{% endblock title %}
+
+{% block __confirm_text %}
+I confirm to have read and I accept this terms and conditions.
+{% endblock __confirm_text %}
+
+{% block __confirm %}
+Confirm
+{% endblock __confirm %}
+
+{% block __reject %}
+Reject
+{% endblock __reject %}
+
+{% block __reject_footer %}
+Rechazar
+{% endblock __reject_footer %}
+
+{% block __accept %}
+Accept
+{% endblock __accept %}
+
+{% block __cannot_use %}
+You wont be able to use our services until you accept these Terms and Conditions.
+{% endblock __cannot_use %}
+
+{% block __back %}
+Back
+{% endblock __back %}
+
+{% block __back_from_error %}
+Back
+{% endblock __back_from_error %}
+
+{% block __loading %}
+Loading...
+{% endblock __loading %}
+
+{% block __an_error_ocurred %}
+An error ocurred, please reload the page and try again.
+{% endblock __an_error_ocurred %}
+
+{% block __include_terms %}
+{% include "terms_acceptance/en/_index.html" %}
+{% endblock __include_terms %}
+
+{% block __terms_were_accepted %}
+You have accepted our Terms and Conditions, you may close the page now.
+{% endblock __terms_were_accepted %}

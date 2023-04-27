@@ -1,5 +1,6 @@
 use super::*;
 use constata_lib::models::web_callback::WebCallbackContent;
+use bitcoin::network::constants::Network;
 
 #[derive(serde::Serialize, clap::Args)]
 pub struct ValidateWebCallback {
@@ -28,19 +29,20 @@ impl ValidateWebCallback {
       return Err(error!(InvalidInput("You need to provide a web callback to validate")));
     };
 
-    let expected = match self.environment {
-      Environment::Development => "bcrt1qsj2h8ernt4amc674l60vu925flvn57ff9lyry2",
-      Environment::Staging => "tb1qurghvhp8g6he5hsv0en6n59rextfw8kw0wxyun",
-      Environment::Production => "bc1qw3ca5pgepg6hqqle2eq8qakejl5wdafs7up0jd",
+    let (expected, network) = match self.environment {
+      Environment::Development => ("bcrt1qsj2h8ernt4amc674l60vu925flvn57ff9lyry2", Network::Regtest),
+      Environment::Staging => ("tb1qurghvhp8g6he5hsv0en6n59rextfw8kw0wxyun", Network::Testnet),
+      Environment::Production => ("bc1qw3ca5pgepg6hqqle2eq8qakejl5wdafs7up0jd", Network::Bitcoin),
     };
 
     let signed: SignedPayload = serde_json::from_str(&content)?;
     let good_signature = check!(signed.signed_ok(), Unexpected("Could not validate signature"));
+    let signer = check!(signed.signer_as_p2wpkh(network), Unexpected("Could not obtain signer address"));
 
-    if good_signature && &signed.signer.to_string() == expected {
+    if good_signature && signer == expected {
       Ok(serde_json::from_slice(&signed.payload)?)
     } else {
-      Err(error!(InvalidInput("The web callback signature was wrong.")))
+      Err(error!(InvalidInput("The web callback signature was wrong, expected signer to be {} but was {}", expected, signer)))
     }
   }
 }

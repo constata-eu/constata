@@ -1,0 +1,34 @@
+{% extends "partials/_base_layout.html" %}
+{%- block layout_init -%}
+  {% set default_title = "Inicio" %}
+  {% set default_description = "Dale más valor y difusión a tus alumnos con diplomas electrónicos verificables. Pruébalo gratis hasta 10 diplomas al mes." %}
+  {% set default_short_desc = "Diplomas verificables con tecnología web3" %}
+
+  {% set lang = "es" %}
+  {% set menu_label_product = "Producto" %}
+  {% set menu_label_prices = "Precios" %}
+  {% set menu_label_api = "API" %}
+  {% set menu_label_contact_us = "Contáctenos" %}
+  {% set menu_label_access_app = "Acceder al APP" %}
+  {% set menu_mailto_link = "mailto:hola@constata.eu?subject=Hola, quisiera saber más del producto&body=Pueden escribirme a este correo." %}
+  {% set footer_tagline = "Más que confiables &mdash; verificables." %}
+  {% set footer_terms_and_conditions = "Términos y condiciones" %}
+  {% set footer_statement_of_contracting_practices= "Declaración de prácticas de contratación" %}
+  {% set footer_no_cookies = "Esta web no usa cookies." %}
+  {% set footer_privacy_policy = "Política de privacidad" %}
+  {% set footer_code_of_conduct = "Código de conducta" %}
+  {% set footer_validity_notice = "
+      El único diminio oficial de constata es <strong>constata.eu</strong>
+      nuestra clave PGP es 
+      1EC2 87E1 1969 46A9 8652 4E83 283A D4D8 7409 2824
+      Para el servicio de Time Stamping, constata genera boletines
+      que agrupan hashes (sha256) de múltiples documentos, y luego
+      publica el hash del boletín en la blockchain de Bitcoin realizando
+      transacciones desde esta dirección:
+      bc1qw3ca5pgepg6hqqqle2eq8qakejl5wdafs7up0jd
+      Todos los algoritmos de validación son de código abierto y están disponibles
+      en <a href='https://github.com/constata-eu/constata'> nuestro repositorio de github.  </a>
+  " %}
+{%- endblock -%}
+
+{%- block layout_overrides -%}{%- endblock -%}

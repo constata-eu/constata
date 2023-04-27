@@ -648,7 +648,7 @@
             "motive": {
               "help": "ej: Diplomatura terciaria en análisis de datos.",
               "label": "Completó la currícula de",
-              "sample": "Doctorado en sistemas de la información (opcional)"
+              "sample": "Doctorado en sistemas de la información"
             },
             "name": {
               "help": "ej: Doctora Juana Perez, Sr. Jose Soto.",

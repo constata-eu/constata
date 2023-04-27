@@ -1,0 +1,17 @@
+{% extends "emails/in_layout/_layout.html" %}
+{% import "emails/en/_macros.html" as macros %}
+
+{% block main %}
+  We have received your request to verify your identity.
+  <br/><br/>
+  We will review your request and get back to you momentarily.
+  <br/><br/>
+  If you have any questions about the process you can reply to this email.
+  <br/><br/>
+  {{ macros::email_verification(url_to_verify_email = url_to_verify_email, keep_private = keep_private) }}
+  {{ macros::accept_tyc(url_to_tyc = url_to_tyc) }}
+{% endblock main %}
+
+{% block footer %}
+  {% include "emails/en/_footer_outgoing.html" %}
+{% endblock footer %}
