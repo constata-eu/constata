@@ -57,7 +57,7 @@ mkdir -p templates &&
 echo "Changing ownership" &&
 chown -R www-data.www-data deploy-files &&
 echo "Stopping servers" &&
-systemctl stop constata_public_api constata_private_api worker signer &&
+systemctl stop constata_public_api constata_private_api worker signer constata_static_site &&
 echo "Backing up old files, moving in new ones" &&
 for f in "public_api" "admin_cli" "private_api" "migrator" "worker" "signer" "static_site";
   do mv $f $f.old;
