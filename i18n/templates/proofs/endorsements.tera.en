@@ -1,2 +1,0 @@
-{% import "proofs/_macros_en.tera" as macros_en %}
-{{ macros_en::person_endorsements(person_id=person_id, endorsements=endorsements) }}

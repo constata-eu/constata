@@ -30,13 +30,13 @@ fi
 if [[ $1 == "staging" ]]
 then
   echo "Cleaning up for release build going to staging. This won't happen on production." &&
-  sudo rm -rf target/release/.fingerprint/i18n-* target/release/.fingerprint/private_api-* target/release/.fingerprint/public_api-*
+  sudo rm -rf target/release/.fingerprint/i18n-* target/release/.fingerprint/private_api-* target/release/.fingerprint/public_api-* target/release/.fingerprint/static_site-*
 fi
 
 cd scripts/deploy &&
 docker build -t constata-rust-builder:1.0 . &&
 cd - &&
-docker run --net=host --rm -v $PWD:/user/constata-rust-builder/src constata-rust-builder:1.0 cargo build --release --bin migrator --bin public_api --bin admin_cli --bin private_api --bin worker --bin signer
+docker run --net=host --rm -v $PWD:/user/constata-rust-builder/src constata-rust-builder:1.0 cargo build --release --bin migrator --bin public_api --bin admin_cli --bin private_api --bin worker --bin signer --bin static_site
 
 until [[ -n $password ]]
 do
@@ -48,7 +48,7 @@ echo Got password
 
 rm -rf /tmp/deploy-files &&
 mkdir /tmp/deploy-files &&
-cp target/release/{migrator,public_api,admin_cli,private_api,worker,signer} /tmp/deploy-files &&
+cp target/release/{migrator,public_api,admin_cli,private_api,worker,signer,static_site} /tmp/deploy-files &&
 echo "Copying deploy files" &&
 scp -r /tmp/deploy-files root@$1:/var/www/ &&
 ssh root@$1 '
@@ -59,17 +59,17 @@ chown -R www-data.www-data deploy-files &&
 echo "Stopping servers" &&
 systemctl stop constata_public_api constata_private_api worker signer &&
 echo "Backing up old files, moving in new ones" &&
-for f in "public_api" "admin_cli" "private_api" "migrator" "worker" "signer";
+for f in "public_api" "admin_cli" "private_api" "migrator" "worker" "signer" "static_site";
   do mv $f $f.old;
   mv deploy-files/$f .;
 done &&
 echo "Running migrations" &&
 echo "'$password'" | ./migrator &&
 echo "Start new servers" &&
-systemctl start worker constata_public_api constata_private_api signer &&
+systemctl start worker constata_public_api constata_private_api signer constata_static_site &&
 echo Wait a moment for password sync &&
 sleep 3 &&
 for s in `ls /run/systemd/ask-password/sck.*`;
   do echo -n "+'"$password"'" | nc -uU -q0 $s;
 done &&
-systemctl status constata_public_api constata_private_api worker signer'
+systemctl status constata_public_api constata_private_api worker signer constata_static_site'

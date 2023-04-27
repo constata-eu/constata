@@ -66,6 +66,7 @@ model!{
 
 #[derive(sqlx::Type, Copy, Clone, Debug, Deserialize, PartialEq, Serialize, GraphQLEnum, clap::ValueEnum)]
 #[sqlx(type_name = "web_callback_state", rename_all = "lowercase")]
+#[serde(rename_all= "SCREAMING_SNAKE_CASE")]
 pub enum WebCallbackState {
   Pending,
   Done,
@@ -80,6 +81,7 @@ impl sqlx::postgres::PgHasArrayType for WebCallbackState {
 
 #[derive(sqlx::Type, Copy, Clone, Debug, Deserialize, PartialEq, Serialize, GraphQLEnum, clap::ValueEnum)]
 #[sqlx(type_name = "web_callback_kind", rename_all = "snake_case")]
+#[serde(rename_all= "SCREAMING_SNAKE_CASE")]
 pub enum WebCallbackKind {
   AttestationDone,
 }
@@ -92,6 +94,7 @@ impl sqlx::postgres::PgHasArrayType for WebCallbackKind {
 
 #[derive(sqlx::Type, Copy, Clone, Debug, Deserialize, PartialEq, Serialize, GraphQLEnum)]
 #[sqlx(type_name = "web_callback_result_code", rename_all = "snake_case")]
+#[serde(rename_all= "SCREAMING_SNAKE_CASE")]
 pub enum WebCallbackResultCode {
   Ok,
   NetworkError,

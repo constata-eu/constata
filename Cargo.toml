@@ -11,5 +11,6 @@ members = [
   "admin_cli",
   "i18n",
   "constata_cli",
+  "static_site",
 ]
 

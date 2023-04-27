@@ -45,7 +45,7 @@ impl EmailParkedDocuments {
   }
 
   pub fn render_html(&self) -> Result<String> {
-    Ok(i18n::render_from_serialize(self.lang, "emails/in_layout/email_parked_documents.html", &self)?)
+    Ok(crate::RENDERER.i18n_and_serialize("emails/in_layout", self.lang, "email_parked_documents.html", &self)?.to_utf8()?)
   }
 }
 

@@ -1,0 +1,32 @@
+@import "scss/_variables.scss";
+@import "scss/_reset.scss";
+@import "scss/_header.scss";
+@import "scss/_footer.scss";
+@import "scss/_terminal.scss";
+@import "scss/_main.scss";
+
+html, body {
+  height: 100%;
+}
+body {
+  background: #FAFAFA;
+  font-size: 16px;
+  line-height: 1.1;
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+  display: flex;
+  flex-direction: column;
+  letter-spacing: -0.03em;
+}
+
+
+h1, h2, h3, h4, h5 {
+  font-family: "Manrope", sans-serif;
+  letter-spacing: -0.05em;
+}
+
+.container {
+  max-width: 1140px;
+  margin: auto;
+  padding: 0 1em;
+}
+

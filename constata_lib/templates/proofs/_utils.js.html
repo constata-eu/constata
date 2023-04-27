@@ -1,0 +1,96 @@
+{% include "proofs/_generate_previews.js.html" %}
+
+function showErrorMessage(text){
+  let msg = document.getElementById("message");
+  msg.innerHTML = text;
+  msg.classList.remove("hidden");
+  document.getElementById("loader_detail").style.display = "none";
+  document.getElementById("loader_spin").style.display = "none";
+}
+
+function writeLoadingDetails(text){
+  document.getElementById("loader_spin").classList.remove("hidden");
+  document.getElementById("loader_detail").innerHTML = text;
+}
+
+function expandAuditLog(){
+  document.getElementById("audit_log").style.display = "flex";
+}
+
+function save_locally(blob, filename){
+  if (/CriOS/i.test(navigator.userAgent) && /iphone|ipod|ipad/i.test(navigator.userAgent)) {
+    const reader = new FileReader()
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        window.location.href = reader.result
+      }
+    }
+    reader.onloadend = () => setTimeout(() => setLoading(false), 250)
+    reader.readAsDataURL(blob)
+  } else { 
+    if (window.navigator.msSaveOrOpenBlob) {
+      window.navigator.msSaveOrOpenBlob(blob, filename);
+    } else {
+      const a = document.createElement('a');
+      document.body.appendChild(a);
+      const url = window.URL.createObjectURL(blob);
+      a.href = url;
+      a.download = filename;
+      a.click();
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      }, 0)
+    }
+  }
+}
+
+function extractDocumentPart(doc_index, part_index) {
+  const part = document.getElementById(`document_part_${doc_index}_${part_index}`);
+  const filename = `${doc_index + 1}_${part.dataset.friendlyName}`;
+  const blob = new Blob(
+    [base64ToBytes(part.querySelector('.payload').innerHTML)],
+    { type: part.dataset.contentType }
+  );
+
+  save_locally(blob, filename)
+}
+
+function download_bulletin (prefix, bulletin_id){
+  const bulletin = document.getElementById(`bulletin_${bulletin_id}`);
+  const filename = `${prefix}_${bulletin_id}.txt`;
+  const blob = new Blob([bulletin.innerHTML], { type: 'text/plain'} );
+  
+  save_locally(blob, filename)
+}
+
+function openSource() {
+  const link = document.createElement('a');
+  link.target = "_blank";
+  link.href = window.URL.createObjectURL(
+    new Blob([document.documentElement.innerHTML], { type: "text/plain; charset=utf-8;" })
+  );
+  link.click();
+}
+
+async function sha256sum(msgUint8) {
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8); 
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// Para detectar firefox. /FxiOS/i.test(navigator.userAgent)
+function isIOS() {
+  return [
+    'iPad Simulator',
+    'iPhone Simulator',
+    'iPod Simulator',
+    'iPad',
+    'iPhone',
+    'iPod'
+  ].includes(navigator.platform)
+  // iPad on iOS 13 detection
+  || (navigator.userAgent.includes("Mac") && "ontouchend" in document)
+}
+
+{% include "proofs/_verify_signature_js.html" %}

@@ -70,7 +70,7 @@ impl OutgoingEmailMessage {
     let credentials = self.person().await?.pubkey().await?.and_then(|o| o.into_credentials());
     let mut context = Context::new();
     context.insert("has_credentials", &credentials.is_some());
-    let html = self.render( "emails/in_layout/welcome.html", Some(context)).await?;
+    let html = self.render("welcome.html", Some(context)).await?;
 
     let attach = if let Some(c) = credentials {
       vec![("constata_credentials.json".into(), serde_json::to_string(&c)?.into_bytes(), "application/json".into())]
@@ -82,11 +82,11 @@ impl OutgoingEmailMessage {
   }
 
   pub async fn render_kyc_request_received(&self) -> Result<HtmlAndAttachments> {
-    Ok((self.render("emails/in_layout/kyc_request_received.html", None).await?, vec![]))
+    Ok((self.render("kyc_request_received.html", None).await?, vec![]))
   }
 
   pub async fn render_email_verification(&self) -> Result<HtmlAndAttachments> {
-    Ok((self.render("emails/in_layout/email_verification.html", None).await?, vec![]))
+    Ok((self.render("email_verification.html", None).await?, vec![]))
   }
 
   pub async fn render(&self, template: &str, extra_context: Option<Context>) -> Result<String> {
@@ -99,7 +99,7 @@ impl OutgoingEmailMessage {
     context.insert("url_to_verify_email", &address.link_to_verify().await);
     context.insert("keep_private", &address.attrs.keep_private);
 
-    Ok(i18n::render(person.attrs.lang, template, &context)?)
+    Ok(crate::RENDERER.i18n_and_context("emails/in_layout", person.attrs.lang, template, &context)?.to_utf8()?)
   }
 }
 

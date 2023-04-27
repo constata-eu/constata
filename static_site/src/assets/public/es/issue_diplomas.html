@@ -1,0 +1,419 @@
+{% extends "partials/es/_base_layout.html" %}
+
+{% block body %}
+<div class="container">
+  <p class="lead-text">// Guía del desarrollador &ndash; abril 2023 &ndash; por nubis //</p>
+
+  <h1>Desde &empty; &#8614; emisión de diplomas.</h1>
+
+  <p class="sub-title"/>certificados de asistencia y también insignias.</p>
+
+  <div class="in-columns">
+    <p>
+      Puede utilizar <strong>CONSTATA</strong> para emitir documentos certificados en formato HTML <strong>verificable</strong>, firmados digitalmente por usted y con sello de tiempo en la <strong>blockchain de Bitcoin</strong>.
+    </p>
+
+    <p>
+      Un <strong>documento HTML verificable</strong> es un diploma, certificado de asistencia o insignia que puede ser compartido en línea o descargado y almacenado. Cualquier persona puede verlo y verificarlo utilizando solo su navegador web predeterminado, para siempre.
+    </p>
+
+    <p>
+      Estos documentos se generan a partir de una plantilla. Esta guía le mostrará cómo emitir un lote de diplomas desde la plantilla predeterminada, interactuando con nuestra API de GraphQL desde la línea de comandos.
+    </p>
+
+    <p>
+      Debería <strong>contratarnos eventualmente</strong> para hacerle una plantilla con un aspecto personalizado que también pueda incluir información adicional, como una foto del estudiante, calificaciones y transcripciones.
+    </p>
+  </div>
+
+  <h2>¿Para quién es esta guía? ¿Cómo se utiliza?</h2>
+
+  <div class="in-columns">
+    <p>
+      Esta guía es para <strong>administradores de sistemas</strong> que escriben scripts de shell que utilizan Constata y <strong>personas técnicas</strong> que exploran las capacidades de la API de emisiones.
+    </p>
+
+    <p>
+      Se debe seguir paso a paso en BASH para Linux, pero debería funcionar en Windows y Mac con cambios mínimos.
+    </p>
+
+    <p>
+      Nuestro API y documentación están originalmente en inglés, puede <a href="/en/issue_diplomas.html">ver esta guía en inglés</a>.
+    </p>
+
+    <p>
+      Si necesita ayuda, encuentra un error o simplemente lo encuentra confuso, envíenos un correo electrónico a <a href="mailto:devops@constata.eu">devops@constata.eu</a>.
+    </p>
+
+    <p>
+      ¿Es usted un <strong>desarrollador</strong> que integra nuestra API? Después de leer esto, consulte nuestro <a href="https://api.constata.eu/#/graphiql">explorador de API de GraphQL</a> y nuestro repositorio de <a href="https://github.com/constata-eu">GitHub</a>, especialmente la librería de clientes en Rust en la que se basa la herramienta de línea de comandos y la biblioteca de clientes en C#.
+    </p>
+
+    <p>
+      <strong>¿No es técnico?</strong>
+      No se preocupe, tenemos una aplicación <strong>WEB3</strong> para hacer esto directamente desde su navegador, <a href="https://constata.eu">simplemente vaya aquí</a>.
+    </p>
+
+  </div>
+
+  <h2>Pasos</h2>
+
+  <ol start="0">
+    <li>
+      <a href="#step-0">
+        Genere su firma digital.
+      </a>
+    </li>
+    <li>
+      <a href="#step-1">
+        Obtenga la utilidad de línea de comando.
+      </a>
+    </li>
+    <li>
+      <a href="#step-2">
+        Liste los estudiantes en un archivo CSV.
+      </a>
+    </li>
+    <li>
+      <a href="#step-3">
+        Envíe su CSV para crear una Emisión.
+      </a>
+    </li>
+    <li>
+      <a href="#step-4">
+        Firme los diplomas.
+      </a>
+    </li>
+    <li>
+      <a href="#step-5">
+        Relájese mientras hacemos nuestra magia.
+      </a>
+    </li>
+  </ol>
+
+  <h3 id="step-0">Genere su firma digital.</h3>
+
+  <div class="in-columns">
+    <p>
+      Usted puede hacer esto registrándose en <a href="https://api.constata.eu/" target="_blank">constata</a>.
+      Es rápido y proporcionar su dirección de correo electrónico es opcional,
+      solamente lo requerimos si desea que le enviemos diplomas por correo electrónico.
+    </p>
+    <p>
+      El proceso de registro creará una <strong>clave privada protegida por contraseña</strong> en su dispositivo,
+      y ofrecerá guardar un archivo <strong>signature.json</strong>
+      que utilizará para autenticarse en la utilidad de línea de comando.
+    </p>
+    <p>
+      Constata nunca conoce su clave privada, usted debe <a href="mailto:devops@constata.eu"/>contactarnos</a>
+      si cree que ha sido comprometida.
+    </p>
+    <p>
+      Cada solicitud a nuestro sitio web y API se firma en su dispositivo
+      siguiendo el <a href="https://en.bitcoin.it/wiki/Message_signing" target="_blank">protocolo de firma de mensaje de Bitcoin</a>,
+      utilizando la clave generada.
+    </p>
+    <p>
+      También puede <a href="https://api-staging.constata.eu/#/login" target="_blank">registrarse en nuestro entorno de prueba</a>,
+      que imita el servicio de producción.
+      Envíenos un correo electrónico para <a href="mailto:devops@constata.eu"/>solicitar crédito ilimitado</a> para emitir diplomas en el entorno de prueba.
+    </p>
+    <p class="warning-text">
+      Los documentos generados en el entorno de prueba son solo para fines de prueba, no están cubiertos por nuestros términos y condiciones,
+      y se registrarán en la red <strong>testnet de Bitcoin insegura</strong>.
+    </p>
+  </div>
+
+  <h3 id="step-1">Obtenga la utilidad de línea de comando.</h3>
+
+  <div class="terminal card">
+    <div class="crt"></div>
+    <div class="content"><span class="ps">$ </span>wget -q https://github.com/constata-eu/constata/releases/download/latest/constata-cli-linux
+      <span class="ps">$ </span>chmod +x constata-cli-linux
+      <span class="ps">$ </span>./constata-cli-linux help help
+      Print this message or the help of the given subcommand(s)
+
+      Usage: constata-cli-linux help [COMMAND]...
+
+      Arguments:
+        [COMMAND]...  Print help for the subcommand(s)
+    </div>
+  </div>
+
+  <div class="in-columns">
+    <p>
+      La API de Constata se construye en <strong>GraphQL</strong> y requiere firmar cada solicitud para autenticación, por lo que construimos esta utilidad para realizar solicitudes autenticadas y analizar los resultados desde la línea de comando.
+    </p>
+    <p>
+      Estos son los enlaces de descarga de los binarios precompilados para
+      <a href="https://github.com/constata-eu/constata/releases/download/latest/constata-cli-linux">Linux</a>,
+      <a href="https://github.com/constata-eu/constata/releases/download/latest/constata-cli-win.exe">Windows</a> y
+      <a href="https://github.com/constata-eu/constata/releases/download/latest/constata-cli-mac">Mac OS</a>.
+      Siempre están disponibles con notas de lanzamiento en la <a href="https://github.com/constata-eu/constata/releases/tag/latest">página de lanzamiento más reciente</a>.
+    </p>
+    <p>
+      Estamos vinculando los binarios de manera estática para su conveniencia, pero nuestro código es de código abierto, usted puede
+      <a href="https://github.com/constata-eu/constata/tree/master/constata_cli">bifurcar el cliente</a> y construir el suyo propio.
+    </p>
+  </div>
+
+  <h3 id="step-2">Liste los estudiantes en un archivo CSV.</h3>
+
+  <div class="terminal card">
+    <div class="crt"></div>
+    <div class="content"><span class="ps">$ </span>cat &lt;&lt;EOF &gt; students.csv
+      name;email;custom_text;motive;date;place
+      Alice Doe;alice@example.com;Experta en Blockchain;XXI Masterclass de Blockchain;30 de mayo de 2023;El Metaverso
+      Bob Bobson;bob@example.com;Experto en Blockchain;XXI Masterclass de Blockchain;30 de mayo de 2023;El Metaverso
+      EOF
+    </div>
+  </div>
+
+  <div class="in-columns">
+    <p>
+      Si verifica su dirección de correo electrónico con Constata, tendrá acceso a nuestras funciones de correo electrónico; así podrá cambiar el correo electrónico de Alice y hacer que el diploma se entregue allí.
+    </p>
+    <p>
+      Puede usar <strong>,</strong>, <strong>:</strong> o <strong>;</strong> como separadores de columna. El tamaño máximo permitido para un archivo CSV es de <strong>50 megabytes</strong>.
+    </p>
+    <p>
+      Este CSV tiene columnas compatibles con la plantilla predeterminada, llamamos a esta definición de columna un <strong>esquema</strong>.
+    </p>
+    <p>
+      Cuando <strong>nos contrata para hacer su plantilla personalizada</strong>, le daremos un archivo CSV de ejemplo para que lo use con su esquema.
+    </p>
+    <p>
+      También puede consultar tus plantillas existentes para ver sus esquemas y los campos que son obligatorios.
+      <div class="terminal one-line">
+        <div class="crt"></div>
+        <div class="content"><span class="ps">$ </span>./constata-cli-linux all-templates </div>
+      </div>
+    </p>
+  </div>
+
+  <h3 id="step-3">Envíe su CSV para crear una Emisión.</h3>
+  <div class="terminal card">
+    <div class="crt"></div>
+    <div class="content"><span class="ps">$ </span> ./constata-cli-linux create-issuance-from-csv "Test issuance name" --csv-file=students.csv \
+      --new-kind=diploma --new-name="My Template" --new-logo-text="Widgets Inc." 
+      {
+        "id": 265,
+        "templateId": 164,
+        "templateName": "My Template",
+        "templateKind": "DIPLOMA",
+        "state": "received",
+        "name": "Test issuance name",
+        "createdAt": "2023-04-20T19:27:01.355285Z",
+        "errors": null,
+        "tokensNeeded": null,
+        "entriesCount": 2,
+        "adminVisitedCount": 0,
+        "publicVisitCount": 0
+    }
+    </div>
+  </div>
+
+  <div class="in-columns">
+    <p>
+      Este comando producirá una nueva <strong>Emisión</strong> con 2 <strong>Entradas</strong> &mdash; una para cada estudiante &mdash;
+      pero los diplomas reales se generan de manera asíncrona, esto significa que su emisión comienza en un estado de <strong>recibido</strong>,
+      y cambiará a <strong>creado</strong> después de unos segundos.
+    </p>
+    <p>
+      Usted puede esperar hasta que esta emisión, con id 265, sea creada para asegurarse de que estamos listos para revisar y firmar.
+    </p>
+    <div class="terminal one-line">
+      <div class="crt"></div>
+      <div class="content"><span class="ps">$ </span> ./constata-cli-linux estado-emision 265 creado --wait </div>
+    </div>
+
+    <p>
+      También estamos creando una copia de nuestra plantilla predeterminada en el mismo comando con las opciones <em>--new-kind</em>,
+      <em>--new-name</em> y <em>--new-logo-text</em>. Consulte la ayuda del comando para más opciones.
+    </p>
+    <div class="terminal one-line"> <div class="crt"></div>
+      <div class="content"><span class="ps">$ </span> ./constata-cli-linux ayuda crear-emision-desde-csv</div>
+    </div>
+    <p>
+      La única personalización permitida para la plantilla predeterminada es agregar el nombre de su empresa o la imagen de su logo de la empresa.
+      Sugerimos que <strong>usted nos contrate para hacer una plantilla personalizada</strong> si eso no es suficiente.
+    </p>
+  </div>
+
+  <h4>O envie cada entrada usando JSON.</h4>
+  <div class="terminal card">
+    <div class="crt"></div>
+    <div class="content"><span class="ps">$ </span> ./constata-cli-linux --json-pointer=/id create-issuance-from-json "Another Test" --template-id 164
+      266
+      <span class="ps">$ </span> ./constata-cli-linux append-entries-to-issuance 266 --entry='{"name":"Bob","motive":"Accredited Expert"}'
+      {
+        "id": 266,
+        "templateId": 164,
+        "templateName": "My Template",
+        "templateKind": "DIPLOMA",
+        "state": "received",
+        "name": "Another Test",
+        "createdAt": "2023-04-20T19:27:01.355285Z",
+        "errors": null,
+        "tokensNeeded": null,
+        "entriesCount": 1,
+        "adminVisitedCount": 0,
+        "publicVisitCount": 0
+    }
+    </div>
+  </div>
+
+  <div class="in-columns">
+    <p>
+      El ejemplo anterior inicia una nueva <strong>Emisión</strong> sin entradas. También utiliza el argumento <em>--json-pointer</em> para imprimir solo el identificador de la nueva emisión en lugar de todo el JSON.
+      El segundo comando agrega una sola <strong>Entrada</strong> en formato JSON.
+    </p>
+    <p>
+      Hay muchas opciones y variaciones en ambos comandos, como enviar varias entradas a la vez, o usar un archivo JSON.
+      La ayuda de cada comando le proporcionará más información.
+    </p>
+    <p>
+      Las entradas se pueden agregar libremente hasta que comience la firma. Después de ese punto, no se permiten nuevas entradas.
+    </p>
+  </div>
+
+  <h3 id="step-4">Firme los diplomas.</h3>
+  <div class="terminal card">
+    <div class="crt"></div>
+    <div class="content"><span class="ps">$ </span> ./constata-cli-linux preview-sample-from-issuance 265 preview.html &amp;&amp; open preview.html
+      Preview for entry 265 saved to file
+      Opening in browser window
+      <span class="ps">$ </span> ./constata-cli-linux sign-issuance 265
+      Signing entry     1 of     2
+      Signing entry     2 of     2
+    </div>
+  </div>
+
+  <div class="in-columns">
+    <p>
+      Ese último comando descarga y firma cada entrada, moviendo la emisión del estado <strong>created [creado]</strong> al estado <strong>signed [firmado]</strong>.
+      Puede tomar algún tiempo firmar todas las entradas, pero el proceso puede interrumpirse y reanudarse de manera segura.
+    </p>
+    <p>
+      En general, es buena idea leer antes de firmar &mdash;
+      por lo que el primer comando obtiene una vista previa de una de las entradas de la emisión y la abre en su navegador.
+    </p>
+    <p>
+      También puede listar todas las entradas de la emisión y obtener una vista previa de entradas específicas con estos dos comandos a continuación.
+    </p>
+    <div class="terminal one-line">
+      <div class="crt"></div>
+      <div class="content"><span class="ps">$ </span> ./constata-cli-linux all-entries --issuance-id-eq=265
+        <span class="ps">$ </span> ./constata-cli-linux preview-entry &lt;entry_id&gt; preview.html
+      </div>
+    </div>
+  </div>
+
+  <h4>Se aplican algunos cargos.</h4>
+  <div class="terminal card">
+    <div class="crt"></div>
+    <div class="content"><span class="ps">$ </span>./constata-cli-linux --json-pointer=/missing account-state
+      2
+      <span class="ps">$ </span>./constata-cli-linux --json-pointer=/pendingInvoiceLinkUrl account-state
+      https://api.constata.eu/#/invoice/note+computer+beach+music+train
+    </div>
+  </div>
+  <div class="in-columns">
+    <p>
+      Usted paga por su emisión justo después de firmarla, utilizando <strong>tókens de constata</strong>
+      &mdash; revise su estado de cuenta para asegurarse de que no le falten.
+    </p>
+    <p>
+      Si le faltan tókens, sus entradas pueden ser puestas en espera y nos pondremos en contacto con usted, pero también puede
+      comprarlos visitando pendingInvoiceLinkUrl.
+    </p>
+    <p>
+      Los clientes Premium pueden tener crédito hasta una cantidad acordada, o una tarifa plana, y nunca quedarse sin tókens.
+    </p>
+    <p>
+      Para fines de esta guía, asumiremos que se acaba de registrar en el nivel gratuito,
+      que regala hasta 10 tókens al mes para la emisión de diplomas.
+    </p>
+    <p>
+      Para el entorno de pruebas, debe <a href="mailto:devops@constata.eu">contactarnos</a> para que le demos un crédito ilimitado.
+    </p>
+  </div>
+
+  <h3 id="step-5">Relájese mientras hacemos nuestra magia.</h3>
+  <div class="terminal card">
+    <div class="crt"></div>
+    <div class="content"><span class="ps">$ </span>./constata-cli-linux --json-pointer=/allIssuances/0/state all-issuances --id-eq 265
+      "completed"
+      <span class="ps">$ </span>if ./constata-cli-linux issuance-state 265 completed; then
+        ./constata-cli-linux issuance-export 265 issuance_exported.csv
+      fi
+      Export for Issuance #265 saved to file
+    </div>
+  </div>
+
+  <div class="in-columns">
+    <p>
+      Procesaremos su emisión firmada y la moveremos al estado <strong>completed [completado]</strong>, esto generalmente tarda menos de una hora.
+      Debería hacer una consulta cada par de minutos para verificar si está listo, como se muestra en el ejemplo anterior.
+    </p>
+    <p>
+      Si está bien con un proceso de larga duración, esta variante bloqueará hasta que la emisión esté completada.
+    </p>
+    <div class="terminal one-line">
+      <div class="crt"></div>
+      <div class="content"><span class="ps">$ </span> ./constata-cli-linux issuance-state 265 completed --wait</div>
+    </div>
+    <p class="warning-text">
+      El proceso de certificación puede tardar más debido a las condiciones de la red blockchain fuera de nuestro control,
+      pero siempre estamos monitoreando y acelerando activamente el proceso.
+    </p>
+
+    <p>
+      Cada entrada tendrá una <strong>URL de acceso administrativo especial</strong> que puede compartir con los estudiantes,
+      donde pueden ver o descargar su diploma,
+      así como compartirlo en línea y administrar sus derechos de protección de datos.
+    </p>
+
+    <p>
+      Esta URL se les envía por correo electrónico de inmediato si proporciona su dirección de correo electrónico &mdash;
+      recuerde verificar su propio correo electrónico para habilitar esta función.
+    </p>
+
+    <p>
+      También puede exportar su emisión de vuelta a CSV, el CSV exportado incluirá las columnas originales y
+      mantendrá su orden, pero también tendrá nuevas columnas como
+      la constata_admin_access_url. Podría utilizarla
+      en herramientas de correo masivo como Mailchimp o Sendinblue si prefiere administrar su propio correo.
+    </p>
+
+    <p>
+      Consulte su emisión y sus entradas de la siguiente manera.
+    </p>
+    <div class="terminal one-line">
+      <div class="crt"></div>
+      <div class="content"><span class="ps">$ </span> ./constata-cli-linux --json-pointer=/allIssuances/0 all-issuances --id-eq=265
+      <span class="ps">$ </span> ./constata-cli-linux all-entries --issuance-id-eq=265
+      </div>
+    </div>
+  </div>
+
+  <h3 id="step-5">¡Listo!</h3>
+  <div class="in-columns">
+    <p>
+      Acaba de emitir sus primeros diplomas verificables con Constata.
+    </p>
+    <p>
+      Para ser breve &mdash; como ya sabe, ha sido difícil &mdash; se han omitido la mayoría de las opciones en la utilidad de línea de comandos,
+      le sugiero que consulte la ayuda de los subcomandos.
+    </p>
+    <p>
+      Si tiene algún comentario, puede comunicarse con nosotros por correo electrónico, GitHub o en nuestras otras redes sociales, encuentre los enlaces en el pie de página.
+    </p>
+    <p>
+      Esta guía en sí misma está disponible
+      <a href="https://github.com/constata-eu/constata/tree/master/static_site/src/assets/public/es/issue_diplomas.html">en nuestro repositorio de GitHub</a> y
+      se aceptan "pull requests".
+    </p>
+  </div>
+</div>
+{% endblock body %}
