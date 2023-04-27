@@ -5,7 +5,7 @@ pub use constata_lib::{
   serde::{self, Deserialize, Serialize},
   signed_payload::SignedPayload,
 };
-pub use i18n::{HtmlWithLocale, Lang};
+pub use i18n::{Lang};
 
 pub use rocket::{
   self,

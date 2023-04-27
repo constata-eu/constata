@@ -1,17 +1,17 @@
-{% extends "public_api/terms_acceptance/_for_acceptance_base.html.tera" %}
+{% extends "terms_acceptance/_for_acceptance_base.html" %}
 
-{% block title %}Constata.eu | Terms and Conditions{% endblock title %}
+{% block title %}Constata.eu | Términos y Condiciones{% endblock title %}
 
 {% block __confirm_text %}
-I confirm to have read and I accept this terms and conditions.
+Confirmo que he leído y acepto los Términos y Condiciones de uso.
 {% endblock __confirm_text %}
 
 {% block __confirm %}
-Confirm
+Confirmar
 {% endblock __confirm %}
 
 {% block __reject %}
-Reject
+Rechazar
 {% endblock __reject %}
 
 {% block __reject_footer %}
@@ -19,33 +19,34 @@ Rechazar
 {% endblock __reject_footer %}
 
 {% block __accept %}
-Accept
+Aceptar
 {% endblock __accept %}
 
 {% block __cannot_use %}
-You wont be able to use our services until you accept these Terms and Conditions.
+No podrá utilizar nuestros servicios hasta que acepte los Términos y Condiciones.
 {% endblock __cannot_use %}
 
 {% block __back %}
-Back
+Volver
 {% endblock __back %}
 
 {% block __back_from_error %}
-Back
+Volver
 {% endblock __back_from_error %}
 
 {% block __loading %}
-Loading...
+Cargando...
 {% endblock __loading %}
 
 {% block __an_error_ocurred %}
-An error ocurred, please reload the page and try again.
+Ha ocurrido un error, recargue la página y vuelva a intentarlo.
 {% endblock __an_error_ocurred %}
 
 {% block __include_terms %}
-{% include "public_api/terms_acceptance/_index.html.tera.en" %}
+{% include "terms_acceptance/es/_index.html" %}
 {% endblock __include_terms %}
 
 {% block __terms_were_accepted %}
-You have accepted our Terms and Conditions, you may close the page now.
+Ha aceptado nuestros Términos y Condiciones,
+puede cerrar la página.
 {% endblock __terms_were_accepted %}

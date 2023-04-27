@@ -12,6 +12,8 @@ pub enum Error {
   #[error(transparent)]
   Io(#[from] ex::io::Error),
   #[error(transparent)]
+  Config(#[from] rocket::figment::Error),
+  #[error(transparent)]
   Renderer(#[from] i18n::error::Error),
 }
 

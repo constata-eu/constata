@@ -1,20 +1,26 @@
 {% extends "partials/en/_base_layout.html" %}
 
+{% block layout_overrides %}{% endblock %}
+
 {% block body %}
-<div class="container">
+{% set request_demo_url = "mailto:hola@constata.eu?subject=Hi, I'd like to book a demo&body=You can reply to this email to schedule it." %}
+{% set enquiry_about_plans = "mailto:hola@constata.eu?subject=I have some questions about pricing and features&body=You can reply to this email to schedule a meeting." %}
+{% set enquiry_about_integration = "mailto:hola@constata.eu?subject=I have a technical question about an integration&body=You can reply to this email to schedule a meeting.c" %}
+
+<div id="product" class="container">
   <div class="text-and-image first">
     <div class="main-text">
-      <h1>Digitalizamos la emisión de títulos académicos.</h1>
+      <h1>We digitize the issuance of academic degrees.</h1>
       <p>
-        Convertimos los diplomas en <strong>credenciales electrónicas verificables</strong> con tecnología <strong>blockchain de Bitcoin</strong>
-        &mdash; y hacemos de ellos una <strong>herramienta de difusión</strong>.
+        We turn diplomas into <strong>verifiable electronic credentials</strong> with <strong>Bitcoin blockchain</strong> technology
+        &mdash; and we make a <strong>marketing tool</strong> out of them.
       </p>
       <div class="button-row">
-        <a href="#" class="btn btn-filled">
-          Hacer una emisión
+        <a href="{{ url }}" class="btn btn-filled">
+          Start issuing
         </a>
-        <a href="#" class="btn btn-outlined">
-          Request Demo
+        <a href="{{ request_demo_url }}" class="btn btn-outlined">
+          Book a demo
         </a>
       </div>
     </div>
@@ -26,7 +32,7 @@
             <div class="phone-camera"></div>
             <span class="bat">93%</span>
           </div>
-          <img src="/images/diploma_mobile_es.png" alt="responsive verifiable diploma" />
+          <img src="/images/diploma_mobile_en.png" alt="responsive verifiable diploma" />
         </div>
         <div class="phone-button top"></div>
         <div class="phone-button bottom"></div>
@@ -36,25 +42,25 @@
 
   <div class="text-and-image image-first">
     <div class="main-image">
-      <img src="/images/admin_es.png" alt="responsive verifiable diploma" />
+      <img src="/images/admin_en.png" alt="responsive verifiable diploma" />
     </div>
     <div class="main-text">
-      <h2>La herramienta que necesita para gestionar diplomas.</h2>
+      <h2>The tool you need to manage diplomas.</h2>
       <p>
         <ul>
-          <li>Emita y <strong>distribuya por email</strong> cargando un fichero CSV.</li>
-          <li>Consulte emisiones pasadas &mdash; vea métricas de recepción y difusión.</li>
-          <li>Múltiples opciones de almacenamiento a largo plazo.</li>
-          <li><strong>Verificación pública</strong>, libre y gratuita de por vida.</li>
-          <li>Tanto en ordenador o móvil, su firma nunca abandona su dispositivo.</li>
+          <li>Issue and <strong>deliver via email</strong> from a CSV file.</li>
+          <li>Look up your previous issuances &mdash; get reception notifications and visitor metrics.</li>
+          <li>Multiple long term storage options.</li>
+          <li><strong>Public verification</strong>, free and forever.</li>
+          <li>Whether you use a mobile or laptop, your signature never leaves your device.</li>
         </ul>
       </p>
       <div class="button-row">
-        <a href="#" class="btn btn-filled">
-          Ir a la herramienta
+        <a href="{{ url }}" class="btn btn-filled">
+          Go to the tool
         </a>
-        <a href="#" class="btn btn-outlined">
-          Request Demo
+        <a href="{{ request_demo_url }}" class="btn btn-outlined">
+          Book a demo
         </a>
       </div>
     </div>
@@ -62,28 +68,26 @@
 
   <div class="text-and-image">
     <div class="main-text">
-      <h2>Un formato novedoso.</h2>
+      <h2>A novel format.</h2>
       <p>
-        Nuestros diplomas son emitidos en formato <strong>HTML verificable</strong> que
-        puede visualizarse y verificarse desde cualquier navegador, sin instalar nada.
+        Our diplomas are issued in a <strong>verifiable HTML format</strong>
+        that can be viewed and verified from any browser, without installing anything.
       </p>
       <p>
-        Están <strong>sellados de tiempo</strong> en blockchain de Bitcoin
-        y <strong>firmados electrónicamente</strong> por su empresa &mdash; son más seguros y versátiles que los diplomas en papel.
+        They are <strong>timestamped</strong> on the Bitcoin blockchain and <strong>electronically signed</strong> by your company — they are more secure and versatile than paper diplomas.
       </p>
       <p>
-        Nuestros diseños a medida <strong>cuidan su marca</strong> en todos los tamaños de pantalla,
-        y permiten <strong>anexar otros documentos</strong> como la historia académica, audio, video y fotos.
+        Our custom designs <strong>protect your brand</strong> on all screen sizes and allow you to <strong>attach other documents</strong> such as academic history, audio, video, and photos.
       </p>
       <p>
-        Y no son solo diplomas &mdash; pueden ser <strong>certificados de asistencia</strong> o <strong>insígnias</strong>.
+        And they are not just diplomas — they can be <strong>attendance certificates</strong> or <strong>badges</strong>.
       </p>
       <div class="button-row">
-        <a href="#" class="btn btn-outlined" target="_blank">
-          Ver un diploma
+        <a href="https://api.constata.eu/certificate/sheep+voting+alias+subplot+impurity" class="btn btn-outlined" target="_blank">
+          See diploma
         </a>
-        <a href="#" class="btn btn-outlined" target="_blank">
-          Ver un certificado de asistencia
+        <a href="https://api.constata.eu/certificate/predefine+bauble+snooper+obnoxious+barometer" class="btn btn-outlined" target="_blank">
+          See attendance certificate.
         </a>
       </div>
     </div>
@@ -99,13 +103,13 @@
       </div>
     </div>
   </div>
-  
+
   <div class="text-and-image image-first">
     <div class="main-image">
       <div class="laptop">
         <div class="laptop-screen">
           <div class="laptop-screen-inner">
-            <img src="/images/share_spanish.png" />
+            <img src="/images/share_english.png" />
             <div class="laptop-brand-bar">ConsPad X1</div>
           </div>
         </div>
@@ -116,22 +120,22 @@
       </div>
     </div>
     <div class="main-text">
-      <h2>Los alumnos difunden.</h2>
+      <h2>Students share online.</h2>
       <p>
-        Cada diploma tiene un <strong>acceso administrativo de autogestión</strong> donde el alumno puede elegir compartirlo en redes sociales o por canales privados.
+        Each diploma has a <strong>self-management administrative access</strong> where the student can choose to share it on social networks or through private channels.
       </p>
       <p>
-        El diploma puede despublicarse y descargarse localmente &mdash; dando máxima <strong>protección y soberanía</strong> sobre los datos.
+        The diploma can be unpublished and downloaded locally, giving maximum <strong>protection and sovereignty</strong> over the data.
       </p>
       <p>
-        Cualquier receptor puede verificarlo gratis para siempre.
+        Any recipient can verify it for free forever.
       </p>
       <div class="button-row">
-        <a href="#" class="btn btn-filled">
-          Comienza a usarlo
+        <a href="{{ url }}" class="btn btn-filled">
+          Start using it
         </a>
-        <a href="#" class="btn btn-outlined">
-          Request Demo
+        <a href="{{ request_demo_url }}" class="btn btn-outlined">
+          Book a Demo
         </a>
       </div>
     </div>
@@ -141,74 +145,74 @@
 <div class="bg-blue">
   <div class="container">
     <div id="pricing" class="pricing section">
-      <h2>Podemos empezar hoy.</h2>
+      <h2>We can start today.</h2>
       <div class="in-columns">
         <p>
-          Tenemos planes que permiten una contratación progresiva &mdash;
-          inicie la prueba gratuita y <a href="#">contáctenos</a> para que podamos orientarle.
+          We have plans that allow for gradual hiring &mdash;
+          start the free trial and <a href="{{ enquiry_about_plans }}">contact us</a> so we can guide you.
         </p>
         <p>
-          <a href="#">Aquí puede ver</a>
-          nuestros términos y condiciones, además de las políticas de privacidad y protección de datos.
+          <a href="https://api.constata.eu/terms_acceptance/show">Here</a> you can see
+          our terms and conditions, as well as our privacy and data protection policies.
         </p>
       </div>
       <div class="plan-cards">
         <div class="card">
-          <h3>Prueba Gratuita</h3>
+          <h3>Free Trial</h3>
           <hr/>
-          <p>Acceso a la aplicación web.</p>
-          <p>Plantilla Standard con su logo.</p>
-          <p>Sin verificación de datos del emisor.</p>
-          <p>Hasta 10 diplomas gratis por mes.</p>
-          <p>Acceso vía API.</p>
-          <p>Sin costo inicial ni mantenimiento.</p>
+          <p>Access to the web application.</p>
+          <p>Standard template with your logo.</p>
+          <p>No issuer data verification.</p>
+          <p>Up to 10 free diplomas per month.</p>
+          <p>Access via API.</p>
+          <p>No initial or maintenance cost.</p>
           <br/>
-          <a class="btn btn-filled buttons" href="#">Registrarse</a>
+          <a class="btn btn-filled buttons" href="{{ url }}">Sign up</a>
         </div>
         <div class="card">
-          <h3>Plan Básico</h3>
+          <h3>Basic Plan</h3>
           <hr/>
-          <p>Acceso a la aplicación web.</p>
+          <p>Access to the web application.</p>
           <p>
-            Plantilla de diploma a medida.
+            Custom diploma template.
             <br/>
-            <sub>Y posibilidad de anexos.</sub>
+            <sub>And possibility of annexes.</sub>
           </p>
-          <p>Verificación de datos del emisor.</p>
+          <p>Issuer data verification.</p>
           <p>
-            Bonificación en la primera emisión.
+            Bonus on the first issuance.
             <br/>
-            <sub>Hasta 200 diplomas.</sub>
+            <sub>Up to 200 diplomas.</sub>
           </p>
-          <p>Asesoramiento en su integración via API.</p>
+          <p>Advice on integration via API.</p>
           <p>
-            1200 EUR por única vez.
+            1200 EUR one-time payment.
             <br/>
-            <sub>Fraccionable en 6 pagos mensuales.</sub>
+            <sub>Divided into 6 monthly payments.</sub>
           </p>
           <p>
-            1EUR por MB emitido.
+            1EUR per MB issued.
             <br/>
-            <sub>Aproximadamente 1EUR por diploma.</sub>
+            <sub>Approximately 1EUR per diploma.</sub>
           </p>
           <br/>
-          <a class="btn btn-filled buttons" href="#">Registrarse</a>
+          <a class="btn btn-filled buttons" href="{{ url }}">Sign up</a>
         </div>
         <div class="card">
-          <h3>Plan Avanzado</h3>
+          <h3>Advanced Plan</h3>
           <hr/>
-          <p>Acceso a la aplicación web.</p>
-          <p>Múltiples plantillas de diplomas.</p>
-          <p>Verificación de datos del emisor.</p>
-          <p>Tarifa plana con descuento por cantidad.</p>
-          <p>Desarrollo de integración a medida.</p>
+          <p>Access to the web application.</p>
+          <p>Multiple diploma templates.</p>
+          <p>Issuer data verification.</p>
+          <p>Flat rate with quantity discount.</p>
+          <p>Custom integration development.</p>
           <p>
-            Precio a su medida.
+            Price tailored to your needs.
           </p>
           <br/>
           <div class="buttons">
-            <a class="btn btn-outlined" href="#">Contactarnos</a>
-            <a class="btn btn-filled" href="#">Registrarse</a>
+            <a class="btn btn-outlined" href="{{ enquiry_about_plans }}">Contact us</a>
+            <a class="btn btn-filled" href="{{ url }}">Sign up</a>
           </div>
         </div>
       </div>
@@ -219,21 +223,21 @@
 <div class="container">
   <div class="title-and-text">
     <div>
-      <h2>Sabemos cuidar los datos y el prestigio de su empresa.</h2>
+      <h2>We know how to take care of your company's data and reputation.</h2>
     </div>
     <div class="main-text">
       <p>
-        Somos prestador de servicios de confianza según <strong>reglamento EIDAS</strong> y 
-        usamos la blockchain con mayor cantidad de nodos independientes &mdash; <strong>la de bitcoin</strong>.
+        We are a trusted service provider under the <strong>EIDAS regulation</strong> and
+        use the blockchain with the largest number of independent nodes &mdash; <strong>bitcoin's</strong>.
       </p>
       <p>
-        Las interacciones en nuestra web están firmadas digitalmente en su dispositivo.
+        Interactions on our website are digitally signed on your device.
       </p>
       <p>
-        Guardamos los datos por al menos 5 años, y puede descargarlos a su infraestructura.
+        We store data for at least 5 years, and you can download it to your infrastructure.
       </p>
       <p>
-        Los diplomas se mantienen verificables por terceros incluso si constata dejase de existir.
+        Diplomas remain verifiable by third parties even if CONSTATA ceases to exist.
       </p>
     </div>
   </div>
@@ -241,40 +245,41 @@
   <div class="terminal card section">
     <div class="crt"></div>
     <div class="content">
-      <h2>SOFTWARE ABIERTO Y FLEXIBLE</h2>
-      0. Creamos un estilo único y multi-dispositivo para sus diplomas.
+      <h2>OPEN AND FLEXIBLE SOFTWARE</h2>
+      0. We create a unique and multi-device style for your diplomas.
 
-      1. Los datos de cada emisión son exportables a .CSV desde la web.
+      1. Data from each issuance is exportable to .CSV from the web.
 
-      2. Puede utilizar otros servicios de envío de correo como Mailchimp.
+      2. You can use other email delivery services like Mailchimp.
 
-      3. Tenemos un API COMPLETO para integrar el proceso en su software.
+      3. We have a FULL API to integrate the process into your software.
 
-      4. Hacemos integraciones a medida.
+      4. We do custom integrations.
 
-      5. El código de CONSTATA está disponible en github.
+      5. The code for CONSTATA is available on Github.
 
     </div>
     <div>
-      <a class="outlined inverted" href="/issue_diplomas.html">VER DOCUMENTACIÓN</a> <a class="outlined" href="#">HABLAR CON NUESTRO EQUIPO</a>
+      <a class="outlined inverted" href="/issue_diplomas.html">SEE DOCUMENTATION</a> <a class="outlined" href="{{ enquiry_about_integration }}">TALK TO OUR TEAM</a>
     </div>
   </div>
 
   <div class="we-work-with section">
     <div class="title">
-      <h2>Queremos trabajar con usted como lo hacemos con ellos:</h2>
+      <h2>We want to work with you
+        as we do with them:</h2>
       <div class="action">
-        <a href="#" class="btn btn-filled">
-          Contáctenos
+        <a href="{{ request_demo_url }}" class="btn btn-filled">
+          Contact us
         </a>
       </div>
     </div>
     <div class="logos">
       <a href="https://www.camaramadrid.es/" target="_blank" rel="noopener">
-        <img src="/images/camara_madrid.svg" alt="Cámara de Comercio de Madrid" />
+        <img src="/images/camara_madrid.svg" alt="Madrid Chamber of Commerce" />
       </a>
       <a href="https://camarafintech.org/" target="_blank" rel="noopener">
-        <img src="/images/camara_fintech.png" alt="Cámara Fintech Argentina" />
+        <img src="/images/camara_fintech.png" alt="Fintech Chamber Argentina" />
       </a>
       <a href="https://www.plataforma5.la/" target="_blank" rel="noreferrer noopener">
         <img alt="P5 Logo" src="/images/plataforma_5.svg" />
@@ -285,76 +290,82 @@
     </div>
   </div>
 </div>
+
 <div class="bg-blue">
   <div class="container">
-    <h2>Más sobre Constata</h2>
+    <h2>More about Constata</h2>
     <div class="in-columns more-about-constata">
       <div>
-        <h4>Tambien aporta valor a los títulos oficiales.</h4>
+        <h4>Also adds value to official titles.</h4>
         <p>
-          Los títulos de educación reglada son emitidos solo por una <strong>entidad oficial</strong>.
+          Official education degrees are only issued by an <strong>official entity</strong>.
         </p>
         <p>
-          Son exigibles al alumno por la administración pública y otros organismos oficiales del mismo país &mdash;
-          pero muchas veces <strong>no son fáciles de presentar y verificar en el sector privado</strong>, especialmente a otros países.
+          They are required from the student by the public administration and other official bodies of the same country &mdash;
+          but often <strong>they are not easy to present and verify in the private sector</strong>, especially in other countries.
         <p>
         <p>
-          Un título oficial homologado <strong>puede ser anexado al diploma emitido por constata</strong>,
-          dotándolo de las ventajas de gestión, difusión y verificación rápida, sin perder la posibilidad de la verificación oficial.
-        </p>
-      </div>
-
-      <div>
-        <h4>No nos publicitamos en sus diplomas.</h4>
-        <p>
-          La emisión de diplomas puede lograr mucha difusión, puede usarlos para publicitar su empresa &mdash; en tanto sus 
-          alumnos lo aprueben.
-        </p>
-        <p>
-          Constata solo aparece como tercero de confianza para facilitar la verificación.
-          No vendemos los datos ni la atención de sus alumnos. Nunca les haremos llegar ofertas comerciales de ningún tipo.
+          An approved official title <strong>can be attached to the diploma issued by Constata</strong>,
+          providing it with the advantages of management, dissemination, and quick verification, without losing the possibility of official verification.
         </p>
       </div>
 
       <div>
-        <h4>Trabajamos en Europa y América Latina.</h4>
-        <p>Nuestro equipo está distribuido en varias ciudades de España y Argentina.</p>
+        <h4>We don't advertise on your diplomas.</h4>
         <p>
-          Por afinidad geográfica y política hacemos nuestra solución observando las regulaciones Europeas y
-          la idiosincrasia de América Latina.
+          The issuance of diplomas can achieve a lot of publicity, you can use them to advertise your company &mdash; as long as your students approve it.
+        </p>
+        <p>
+          Constata only appears as a third-party to facilitate verification.  We do not sell your students' data or attention. We will never send them any kind of commercial offers.
         </p>
       </div>
 
       <div>
-        <h4>La firma generada solo sirve en constata.</h4>
+        <h4>We work in Europe and Latin America.</h4>
+        <p>Our team is distributed in several cities in Spain and Argentina.</p>
         <p>
-          Puede llevar su firma digital de constata a otro dispositivo, solo copiando el fichero <strong>firma.json</strong> que se genera al registrarse y empezar
-          a usar la aplicación web desde ahí &mdash;
-          sin instalar o configurar nada.
+          Due to geographical and political affinity, we develop our solution by observing European regulations and the idiosyncrasies of Latin America.
         </p>
-        <p>Esto también quiere decir que <strong>no puede usar otra firma digital</strong> de otro proveedor para emitir diplomas.</p>
-        <p>Esta limitación no es tan mala como suena, es buena idea usar distintas firmas para distintos ámbitos.</p>
       </div>
 
       <div>
-        <h4>Somos técnicos informáticos y abogados.</h4>
-        <p>Tenemos experiencia como educadores, en regulación tecnológica y de datos, y usamos bitcoin desde 2011.</p>
-        <p>Esta fusión de experiencias y capacidades nos dan una perspectiva única en integridad de datos y validez legal.</p>
+        <h4>The generated signature only works on Constata.</h4>
+        <p>
+          You can take your Constata digital signature to another device, just by copying the
+          <strong>firma.json</strong> file that is generated when you register and start
+          using the web application from there &mdash; without installing or configuring anything.
+        </p>
+        <p>
+          This also means that <strong>you cannot use another digital signature</strong>
+          from another provider to issue diplomas.
+        </p>
+        <p>
+          This limitation is not as bad as it sounds, it is a good idea to use
+          different signatures for different areas.
+        </p>
       </div>
 
       <div>
-        <h4>No ofrecemos un editor visual de diplomas.</h4>
+        <h4>We are computer technicians and lawyers.</h4>
+        <p>We have experience as educators, in technology and data regulation, and have been using bitcoin since 2011.</p>
+        <p>This fusion of experiences and abilities gives us a unique perspective on data integrity and legal validity.</p>
+      </div>
+
+      <div>
+        <h4>We do not offer a visual diploma editor.</h4>
         <p>
-          Plasmar la identidad de una institución en un diploma funcional es un arte.
+          Capturing the identity of an institution in a functional diploma is an art.
         </p>
         <p>
-          Los editores visuales son inflexibles, o cargan de trabajo a su equipo, con resultados regulares.
+          Visual editors are inflexible, or burden your team with work, with below average results.
         </p>
         <p>
-          Nosotros ofrecemos una solución completa &mdash; y si en su equipo hay artistas digitales, podemos trabajar con ellos.
+          We offer a complete solution &mdash; and if there are digital artists on your team, we can work with them.
         </p>
       </div>
     </div>
   </div>
 </div>
 {% endblock body %}
+
+

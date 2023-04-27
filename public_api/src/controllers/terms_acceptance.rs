@@ -19,7 +19,7 @@ pub async fn show(token: Option<String>, site: &State<Site>, l: Lang) -> MyResul
 }
 
 #[get("/")]
-pub async fn show_bare(l: Lang) -> MyResult<i18n::LocalizedResponse<'_>> {
+pub async fn show_bare(l: Lang) -> MyResult<i18n::LocalizedResponse<'static>> {
   return Ok(crate::RENDERER.i18n("terms_acceptance/", l, "for_display.html")?)
 }
 
