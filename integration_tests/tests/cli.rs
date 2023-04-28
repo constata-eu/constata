@@ -92,6 +92,16 @@ mod cli {
       assert_eq!((all_issuances_name_like["allIssuances"][0]["name"]), "first_csv_test_simpson");
     }
 
+    api_integration_test!{ create_attestations(db, mut _chain)
+      db.alice().await.write_signature_json_artifact();
+
+      let create_attestation  = run_command_json("create-attestation", &["-p", "integration_tests/static/id_example.jpg"]);
+
+      println!("{}", &serde_json::to_string_pretty(&create_attestation)?);
+      //println!("{}", (&create_attestation));
+      
+    }
+
     api_integration_test!{ account_state(db, _chain)
       let alice = db.alice().await;
       alice.verify_email("alice@example.com").await;
@@ -120,9 +130,8 @@ mod cli {
     api_integration_test!{ help(db, _chain)
       db.alice().await.write_signature_json_artifact();
 
-      let no_json = run_command("--help", &[]);
-
-      println!("{}", (&no_json));
+      run_command("--help", &[]);
+     
     }
 
     fn run_command(command: &str, args: &[&str]) -> String {
