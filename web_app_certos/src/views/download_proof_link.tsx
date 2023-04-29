@@ -13,10 +13,11 @@ import ConstataSkeleton from '../components/skeleton';
 import { parseDate } from '../components/utils';
 import { ShareToLinkedin, ShareToTwitter, ShareCertificateInLinkedin } from '../components/share_to_social_media';
 import LinkIcon from '@mui/icons-material/Link';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import LaunchIcon from '@mui/icons-material/Launch';
 import { StopCircle } from '@mui/icons-material';
 import DeleteDownloadProofLink from '../components/delete_download_proof_link_modal';
-
+import { Confirm } from 'react-admin';
 
 interface IDownloadProofLink {
   id?: number,
@@ -26,6 +27,14 @@ interface IDownloadProofLink {
   publicCertificateUrl?: string,
   sharedText?: string,
 }
+
+const ConfirmUnpublishModal = ({open, handleConfirm, handleCancel}) => <Confirm
+  isOpen={open}
+  title="certos.download_proof_link.share.confirm_unpublish_title"
+  onConfirm={handleConfirm}
+  onClose={handleCancel}
+  content="certos.download_proof_link.share.confirm_unpublish"
+/>
   
 const DownloadProofLink = () => {
   const { access_token } = useParams();
@@ -53,6 +62,7 @@ const DownloadProofLink = () => {
   }, []);
 
   const handleDownload = async () => {
+    notify("certos.download_proof_link.download_starting", { type: 'info' });
     setAccessToken(access_token);
     try {
       const {data} = await dataProvider.getOne('Proof', { id: 1 });
@@ -68,6 +78,23 @@ const DownloadProofLink = () => {
     clearAccessToken();
   }
 
+  const handleDownloadAbridgedPdfs = async () => {
+    notify("certos.download_proof_link.download_starting", { type: 'info' });
+    setAccessToken(access_token);
+    try {
+      const {data} = await dataProvider.getOne('AbridgedProofZip', { id: 1 });
+      const payload = Buffer.from(data.bytes, "base64");
+      const blob = new Blob([payload], { type: 'application/zip' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `${data.filename}.zip`;
+      a.click();
+      notify("certos.download_proof_link.downloaded", { type: 'success' });
+    } catch (e) { 
+      notify("certos.download_proof_link.error_download", { type: 'error' });
+    }
+    clearAccessToken();
+  }
 
   const handleChangePublicCertificateState = async (action: string) => {
     setAccessToken(access_token);
@@ -85,6 +112,7 @@ const DownloadProofLink = () => {
     handleDownload,
     downloadProofLink,
     handleChangePublicCertificateState,
+    handleDownloadAbridgedPdfs,
     setState,
   }
 
@@ -155,15 +183,16 @@ const DownloadOrView = ({downloadProofLink, handleDownload, handleView}) => {
 };
 
 
-const Share = ({downloadProofLink, handleChangePublicCertificateState}) => {
+const Share = ({downloadProofLink, handleChangePublicCertificateState, handleDownloadAbridgedPdfs}) => {
   const translate = useTranslate();
   const notify = useNotify();
+  const [confirmUnpublishOpen, setConfirmUnpublishOpen] = useSafeSetState(false);
 
   const copyToClipboard = (toCopy) => {
     navigator.clipboard.writeText(toCopy);
     notify("certos.actions.copy_to_clipboard");
   }
-  
+
   return <Card sx={{ mb: 5 }}>
     <CardTitle text={translate("certos.download_proof_link.share.title")} />
     <CardContent >
@@ -194,17 +223,16 @@ const Share = ({downloadProofLink, handleChangePublicCertificateState}) => {
           </Button>
           <Button
             sx={{mx: 0.5, my: 1}}
-            href={downloadProofLink.publicCertificateUrl}
-            target="_blank"
-            startIcon={<LaunchIcon/>}
-            variant="outlined"
-            id="go-to-public-certificate"
+            startIcon={<PictureAsPdfIcon />}
+            onClick={handleDownloadAbridgedPdfs}
+            variant="contained"
+            id="abridged-pdf"
             >
-            {translate("certos.download_proof_link.link_to_public_certificate")}
+            {translate("certos.download_proof_link.share.abridged_pdfs")}
           </Button>
           <Button
             sx={{mx: 0.5, my: 1}}
-            onClick={() => handleChangePublicCertificateState("unpublish")}
+            onClick={() => setConfirmUnpublishOpen(true) }
             variant="outlined"
             id="safe-button-change-public-certificate-state"
             startIcon={<StopCircle />}
@@ -222,13 +250,21 @@ const Share = ({downloadProofLink, handleChangePublicCertificateState}) => {
           fullWidth
           size="large"
           variant="contained"
-          onClick={() => handleChangePublicCertificateState("publish")}
+          onClick={() =>  handleChangePublicCertificateState("publish") }
         >
           { translate("certos.download_proof_link.button_activate_public_certificate") }
         </Button>
       </Box>
       }
     </CardContent>
+    <ConfirmUnpublishModal
+      open={confirmUnpublishOpen}
+      handleConfirm={ () => {
+        handleChangePublicCertificateState("unpublish");
+        setConfirmUnpublishOpen(false);
+      }}
+      handleCancel={ () => setConfirmUnpublishOpen(false)  }
+    />
   </Card>
 };
 

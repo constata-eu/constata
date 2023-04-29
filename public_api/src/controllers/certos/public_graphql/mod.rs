@@ -78,7 +78,7 @@ pub use pubkey_graphql::{Pubkey, PubkeyFilter};
 pub use kyc_request_graphql::{KycRequest, KycRequestInput, KycRequestFilter};
 pub use email_address_graphql::{EmailAddress, EmailAddressInput, EmailAddressFilter, EmailAddressVerification};
 pub use invoice_link_graphql::{InvoiceLink, InvoiceLinkInput};
-pub use download_proof_link_graphql::{DownloadProofLink, DownloadProofLinkInput};
+pub use download_proof_link_graphql::{DownloadProofLink, DownloadProofLinkInput, AbridgedProofZip};
 pub use proof_graphql::Proof;
 pub use attestation_graphql::*;
 pub use web_callback_graphql::*;
@@ -385,6 +385,11 @@ make_graphql_query!{
   #[graphql(name="DownloadProofLink")]
   async fn download_proof_link(context: &Context, _id: String) -> FieldResult<DownloadProofLink> {
     DownloadProofLink::download_proof_link(context).await
+  }
+
+  #[graphql(name="AbridgedProofZip")]
+  async fn abridged_proof_zip(context: &Context, _id: String) -> FieldResult<AbridgedProofZip> {
+    DownloadProofLink::abridged_pdfs_zip(context).await
   }
 
   #[graphql(name="Proof")]

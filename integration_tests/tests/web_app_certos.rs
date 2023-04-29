@@ -486,6 +486,24 @@ mod website {
       check_public_certificate(&d, &title, &format!("Badge {raw_description}"), &image).await;
     }
 
+    integration_test!{ downloads_abridged_pdf (c, d)
+      let mut chain = TestBlockchain::new().await;
+      let alice = signup(&c, &d, true).await;
+      alice.make_signed_diplomas_issuance().await?;
+      chain.fund_signer_wallet();
+      chain.simulate_stamping().await;
+
+      let entry = c.site.entry().find(&1).await?;
+      let doc = entry.document().await?.expect("entry's document");
+      let token = alice.make_download_proof_link_from_doc(&doc, 30).await.token().await?;
+      d.goto(&format!("http://localhost:8000/#/safe/{token}")).await;
+      d.click("#safe-button-change-public-certificate-state").await;
+      d.click("#abridged-pdf").await;
+      d.wait_for(".RaNotification-success").await;
+      d.wait_until_gone(".RaNotification-success").await;
+      d.check_downloads_for_file("Summarized diploma in english and spanish.zip").await;
+    }
+
     integration_test!{ use_wizard_with_badge (c, d)
       signup(&c, &d, true).await;
       create_template(&d, "template-show", "BADGE").await;
