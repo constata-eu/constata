@@ -99,7 +99,13 @@ impl From<printpdf::Error> for Error {
 
 impl From<printpdf::svg::SvgParseError> for Error {
   fn from(err: printpdf::svg::SvgParseError) -> Error {
-    Error::Internal(format!("Error rendering pdf. Obviously unexpected: {}", err))
+    Error::Internal(format!("Error rendering pdf: {}", err))
+  }
+}
+
+impl From<qrcode_generator::QRCodeError> for Error {
+  fn from(err: qrcode_generator::QRCodeError) -> Error {
+    Error::Internal(format!("Error rendering QR code: {}", err))
   }
 }
 

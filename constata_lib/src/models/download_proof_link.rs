@@ -1,7 +1,5 @@
-/* ToDo:
- *  Refactor template kind macro usage.
- *  Refactor PDF generation.
-*/
+mod abridged_pdf_generator;
+use abridged_pdf_generator::AbridgedPdfGenerator;
 
 use super::{*, blockchain::PrivateKey};
 use crate::{
@@ -12,7 +10,6 @@ use crate::{
   Result,
 };
 use chrono::Utc;
-
 
 model!{
   state: Site,
@@ -161,10 +158,10 @@ impl DownloadProofLink {
     {
       let mut destination = zip::ZipWriter::new(std::io::Cursor::new(&mut destination_buffer));
       destination.start_file("español.pdf", FileOptions::default())?;
-      destination.write_all(&self.abridged_pdf(i18n::Lang::Es).await?)?;
+      destination.write_all(&AbridgedPdfGenerator::generate(&self, i18n::Lang::Es).await?)?;
       destination.flush()?;
       destination.start_file("english.pdf", FileOptions::default())?;
-      destination.write_all(&self.abridged_pdf(i18n::Lang::En).await?)?;
+      destination.write_all(&AbridgedPdfGenerator::generate(&self, i18n::Lang::En).await?)?;
       destination.flush()?;
       destination.finish()?;
     }
@@ -182,228 +179,6 @@ impl DownloadProofLink {
 
 
     Ok((filename, destination_buffer))
-  }
-
-  pub async fn abridged_pdf(&self, l: i18n::Lang) -> Result<Vec<u8>> {
-    use i18n::renderer::RendererFs;
-    use std::io::BufWriter;
-
-    use printpdf::{
-      *,
-      lopdf::{
-        StringFormat::Literal,
-        Dictionary,
-        Object
-      }
-    };
-    use std::path::Path;
-    use qrcode_generator::QrCodeEcc;
-
-    let document = self.document().await?;
-
-    let bulletin = document.in_accepted()?.bulletin().await?.in_published()?;
-
-    let url = self.public_certificate_url();
-
-    /* Agregar fecha de sellado de tiempo */
-
-    let (title, verify_text, fields) = match document.entry_optional().await? {
-      Some(entry) => {
-        let (t, v) = match entry.template_kind().await? {
-          TemplateKind::Diploma => (
-            i18n::t!(l, abridged_title_diploma),
-            i18n::t!(l, abridged_verify_diploma),
-          ),
-          TemplateKind::Attendance => (
-            i18n::t!(l, abridged_title_attendance),
-            i18n::t!(l, abridged_verify_attendance),
-          ),
-          TemplateKind::Badge => (
-            i18n::t!(l, abridged_title_badge),
-            i18n::t!(l, abridged_verify_badge),
-          ),
-        };
-
-        let schema = entry.request().await?.template().await?.parsed_schema()?;
-        let params = entry.parsed_params()?;
-
-        let mut f = vec![];
-
-        for field in &schema {
-          if field.name == "email" { continue; }
-          let Some(value) = params.get(&field.name) else { continue };
-          if value.is_empty() { continue; }
-          f.push(( field.i18n_label(l).unwrap_or(&field.name).to_string(), value.to_string() ));
-        }
-
-        (t, v, f)
-      },
-      None => (
-        i18n::t!(l, abridged_title_default),
-        i18n::t!(l, abridged_verify_default),
-        vec![],
-      )
-    };
-
-    let mut signers: Vec<String> = vec![];
-    for part in document.document_part_vec().await?.into_iter() {
-      for sig in &part.document_part_signature_vec().await? {
-        if let Some(endorsement) = sig.pubkey().await?.person().await?.endorsement_string(l, false).await? {
-          signers.push(endorsement);
-        }
-      }
-    }
-
-    let calc_height = (65 + (25 * signers.len()) + (21 * fields.len()) + 20) as f64;
-
-    let height = Mm(f64::max(calc_height, 300.0));
-
-    let (doc, page1, layer1) = PdfDocument::new(&title, Mm(215.0), height, "Main");
-
-    let page = doc.get_page(page1);
-    let current_layer = page.get_layer(layer1);
-    let inter = doc.add_external_font(&*crate::RENDERER.fs.read(Path::new("fonts/InterTight-Light.ttf"))?)?;
-    let manrope = doc.add_external_font(&*crate::RENDERER.fs.read(Path::new("fonts/Manrope-ExtraBold.ttf"))?)?;
-
-    let action = Dictionary::from_iter(vec![
-      ("Type", "Action".into()),
-      ("S", Object::Name(b"URI".to_vec())),
-      ("URI", Object::String(url.clone().into_bytes(), Literal)),
-    ]);
-
-    let annotation = Dictionary::from_iter(vec![
-        ("Type", "Annot".into()),
-        ("Subtype", Object::Name(b"Link".to_vec())),
-        ("Rect", vec![
-          20.into(), // Left
-          (height.into_pt().0 - 123.0).into(), // Top
-          500.into(), // Right
-          (height.into_pt().0 - 145.0).into() // Bottom
-        ].into()),
-        ("C", vec![].into()),
-        ("Contents", Object::String(url.clone().into_bytes(), Literal)),
-        ("A", action.into()),
-    ]);
-
-    let annotations = Dictionary::from_iter(vec![
-        ("Annots", Object::Array(vec![annotation.into()]))
-    ]);
-
-    page.extend_with(annotations);
-
-    let qrcode_string: String = qrcode_generator::to_svg_to_string(&url, QrCodeEcc::Low, 300, None::<&str>).unwrap();
-    let qr_svg = Svg::parse(&qrcode_string)?;
-    let qr_transform = SvgTransform {
-      translate_x: Some(Mm(182.5).into()),
-      translate_y: Some(Pt(height.into_pt().0 - 148.0)),
-      ..Default::default()
-    };
-    let reference_two = qr_svg.into_xobject(&current_layer);
-    reference_two.add_to_layer(&current_layer, qr_transform);
-
-    current_layer.begin_text_section();
-    /* Title */
-    current_layer.set_fill_color(Color::Rgb(Rgb::new(0.0,0.0,0.0, None)));
-    current_layer.set_font(&manrope, 27.0);
-    current_layer.set_text_cursor(Mm(10.0), height - Mm(20.0));
-    current_layer.set_character_spacing(-2.0);
-    current_layer.write_text(&title, &manrope);
-
-    current_layer.set_line_height(40.0);
-    current_layer.add_line_break();
-
-    /* Presentation label */
-    current_layer.set_character_spacing(0.3);
-    current_layer.set_line_height(20.0);
-    current_layer.set_font(&inter, 13.0);
-    current_layer.write_text(i18n::t!(l, abridged_lead_text), &inter);
-    current_layer.add_line_break();
-    current_layer.write_text(verify_text, &inter);
-    current_layer.add_line_break();
-    current_layer.set_font(&inter, 11.0);
-    current_layer.set_fill_color(Color::Rgb(Rgb::new(0.0,0.0,255.0, None)));
-    current_layer.write_text(&url, &inter);
-    current_layer.set_fill_color(Color::Rgb(Rgb::new(0.0,0.0,0.0, None)));
-
-    let wrap = |s: &str, size: usize| {
-      let nospace = s.trim()
-        .split(' ')
-        .filter(|s| !s.is_empty())
-        .collect::<Vec<_>>()
-        .join(" ");
-      let no_newline = nospace.trim()
-        .split('\n')
-        .filter(|s| !s.is_empty())
-        .collect::<Vec<_>>()
-        .join(" ");
-      let mut options = textwrap::Options::new(size);
-      options.word_splitter = textwrap::WordSplitter::NoHyphenation;
-      textwrap::wrap(&no_newline, options).iter().map(|i| i.to_string() ).collect::<Vec<String>>()
-    };
-
-    /* Signers */
-    for signer in signers {
-      current_layer.set_line_height(40.0);
-      current_layer.add_line_break();
-
-      /* Field label */
-      current_layer.set_character_spacing(-0.5);
-      current_layer.set_line_height(11.0);
-      current_layer.set_font(&manrope, 11.0);
-      current_layer.write_text(format!("{}:", i18n::t!(l, abridged_signed_by)), &manrope);
-
-      /* Field value */
-      current_layer.set_character_spacing(0.3);
-      current_layer.set_font(&inter, 11.0);
-      current_layer.set_line_height(15.0);
-      for line in wrap(&signer, 95) {
-        current_layer.add_line_break();
-        current_layer.write_text(line, &inter);
-      }
-    }
-
-    current_layer.set_line_height(30.0);
-    current_layer.add_line_break();
-
-    /* Published */
-    /* Field label */
-    current_layer.set_character_spacing(-0.5);
-    current_layer.set_line_height(11.0);
-    current_layer.set_font(&manrope, 11.0);
-    current_layer.write_text(format!("{}:", i18n::t!(l, abridged_stamped_on)), &manrope);
-
-    /* Field value */
-    current_layer.set_character_spacing(0.3);
-    current_layer.set_font(&inter, 11.0);
-    current_layer.set_line_height(15.0);
-    current_layer.add_line_break();
-    current_layer.write_text(bulletin.block_time().to_rfc2822(), &inter);
-
-    for (label, value) in fields {
-      current_layer.set_line_height(30.0);
-      current_layer.add_line_break();
-
-      /* Field label */
-      current_layer.set_character_spacing(-0.5);
-      current_layer.set_line_height(11.0);
-      current_layer.set_font(&manrope, 11.0);
-      current_layer.write_text(format!("{}:", label), &manrope);
-
-      /* Field value */
-      current_layer.set_character_spacing(0.0);
-      current_layer.set_font(&inter, 20.0);
-      current_layer.set_line_height(22.0);
-      for line in wrap(&value, 55) {
-        current_layer.add_line_break();
-        current_layer.write_text(line, &inter);
-      }
-    }
-
-    current_layer.end_text_section();
-
-    let mut writer = BufWriter::new(vec![]);
-    doc.save(&mut writer)?;
-    Ok(writer.into_inner()?)
   }
 }
 
@@ -474,8 +249,8 @@ describe! {
     let download_proof_link = alice.make_download_proof_link_from_doc(&doc, 30).await;
     download_proof_link.publish().await?;
 
-    std::fs::write("../target/artifacts/test_es.pdf", &download_proof_link.abridged_pdf(i18n::Lang::Es).await?)?;
-    std::fs::write("../target/artifacts/test_en.pdf", &download_proof_link.abridged_pdf(i18n::Lang::En).await?)?;
+    std::fs::write("../target/artifacts/test_es.pdf", &AbridgedPdfGenerator::generate(&download_proof_link, i18n::Lang::Es).await?)?;
+    std::fs::write("../target/artifacts/test_en.pdf", &AbridgedPdfGenerator::generate(&download_proof_link, i18n::Lang::En).await?)?;
     let (filename, bytes) = &download_proof_link.abridged_pdfs_zip(i18n::Lang::Es).await?;
     std::fs::write(&format!("../target/artifacts/{}.zip", filename), bytes)?;
     assert_eq!(filename, "Diploma abreviado en inglés y español"); 
