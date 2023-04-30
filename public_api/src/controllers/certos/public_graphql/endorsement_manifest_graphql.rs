@@ -59,7 +59,7 @@ pub struct KycEndorsementManifest {
 impl EndorsementManifest {
   pub async fn from_context(context: &Context) -> FieldResult<Self> {
     let person = &context.person();
-    let text = person.endorsement_string(context.lang).await?;
+    let text = person.endorsement_string(context.lang, true).await?;
     let kyc = person.kyc_endorsement().await?
       .map(|k| KycEndorsementManifest{
         name: k.attrs.name,

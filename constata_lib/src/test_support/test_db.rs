@@ -540,10 +540,10 @@ impl SignerClient {
 
   pub async fn make_template(&self, template_file: Vec<u8>) -> crate::models::certos::Template {
     let schema = serde_json::to_string(&vec![
-      TemplateSchemaField::new("name", true, false),
-      TemplateSchemaField::new("course", false, true),
-      TemplateSchemaField::new("date", false, true),
-      TemplateSchemaField::new("email", false, false),
+      TemplateSchemaField::new("name", true, false, "Name".into(), "Nombre".into()),
+      TemplateSchemaField::new("course", false, true, "Course".into(), "Curso".into()),
+      TemplateSchemaField::new("date", false, true, "Date".into(), "Fecha".into()),
+      TemplateSchemaField::new("email", false, false, "Email".into(), "Email".into()),
     ]).unwrap();
     self.try_make_template(template_file, &schema).await.unwrap()
   }

@@ -1,4 +1,4 @@
-{%- macro person_endorsements(person_id, endorsements) -%}
+{%- macro person_endorsements(person_id, endorsements, html=true) -%}
   {%- for endorsement in endorsements -%}
     {%- if endorsement.type == "Kyc" -%}
       {%- set a = endorsement.attrs -%}
@@ -25,10 +25,10 @@
       {%- endif -%}.
     {%- endif -%}
     {% if endorsement.type == "EmailAddress" and not endorsement.keep_private %}
-      Email address <a href="mailto:{{endorsement.address}}">{{endorsement.address}}</a>.
+      Email address {% if html %}<a href="mailto:{{endorsement.address}}">{{endorsement.address}}</a>{% else %}{{endorsement.address}}{% endif %}.
     {%- endif -%}
     {% if endorsement.type == "Website" %}
-      Manager of the website <a target="_blank" href="{{endorsement.url}}">{{- endorsement.url -}}</a>.
+      Manager of the website {% if html %}<a target="_blank" href="{{endorsement.url}}">{{- endorsement.url -}}</a>{% else %}{{endorsement.url}}{% endif %}.
     {%- endif -%}
     {% if endorsement.type == "Telegram" %}
       {%- set a = endorsement.attrs -%}

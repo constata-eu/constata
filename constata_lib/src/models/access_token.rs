@@ -56,7 +56,7 @@ impl AccessToken {
     match self.kind() {
       AccessTokenKind::VerifyEmail => action == "EmailAddressVerification" || action == "createEmailAddressVerification",
       AccessTokenKind::InvoiceLink => action == "InvoiceLink" || action == "createInvoiceLink",
-      AccessTokenKind::DownloadProofLink => action == "DownloadProofLink" || action == "Proof" || action == "updateDownloadProofLink" || action == "deleteDownloadProofLink",
+      AccessTokenKind::DownloadProofLink => matches!(action, "DownloadProofLink" | "Proof" | "updateDownloadProofLink" | "deleteDownloadProofLink" | "AbridgedProofZip"),
     }
   }
 
