@@ -156,9 +156,9 @@ impl Person {
     Ok(endorsements)
   }
 
-  pub async fn endorsement_string(&self, lang: i18n::Lang) -> Result<Option<String>> {
+  pub async fn endorsement_string(&self, lang: i18n::Lang, html: bool) -> Result<Option<String>> {
     if self.kyc_endorsement().await?.is_some() {
-      Ok(Some(Proof::render_endorsements(self, lang).await?))
+      Ok(Some(Proof::render_endorsements(self, lang, html).await?))
     } else {
       Ok(None)
     }

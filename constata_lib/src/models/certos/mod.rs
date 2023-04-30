@@ -402,7 +402,7 @@ describe!{
 
     let alice = c.alice().await;
     let schema = serde_json::to_string(&vec![
-      TemplateSchemaField::new("email", false, false),
+      TemplateSchemaField::new("email", false, false, "Email".into(), "Email".into()),
     ])?;
     let template = alice.try_make_template(read("certos_template.zip"), &schema).await?;
     let mut request = alice.make_request(
