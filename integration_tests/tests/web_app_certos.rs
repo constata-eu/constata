@@ -444,6 +444,8 @@ mod website {
       check_public_certificate(&d, &title, &new_description, &new_image).await;
 
       d.click("#safe-button-change-public-certificate-state").await;
+      d.click(".ra-confirm").await;
+
       d.wait_until_gone("#go-to-public-certificate").await;
 
       d.goto(&download_proof_link.public_certificate_url()).await;
