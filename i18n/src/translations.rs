@@ -15,28 +15,28 @@ macro_rules! make_translations {
 
 make_translations!{
   mailer_welcome_message_subject:
-    "Hi welcome to Constata"
+    "Hi, welcome to Constata"
     "Hola, te doy la bienvenida a Constata";
   mailer_document_received_subject:
     "I got your document"
     "Recibí tu documento";
   template_message_for_diploma:
-    "Hello {{ name }} this is your diploma for {{ motive }}."
+    "Hello {{ name }}, this is your diploma for {{ motive }}."
     "Hola {{ name }}, este es tu diploma de {{ motive }}.";
   template_message_for_attendance:
-    "Hello {{ name }} this is your certificate of attendance to {{ motive }}."
+    "Hello {{ name }}, this is your certificate of attendance to {{ motive }}."
     "Hola {{ name }}, este es tu certificado de asistencia a {{ motive }}.";
   template_message_for_badge:
-    "Hello {{ name }} this is a badge for {{ motive }}."
+    "Hello {{ name }}, this is a badge for {{ motive }}."
     "Hola {{ name }}, esta es una insignia por {{ motive }}.";
   mailer_email_callback_subject:
     "A certified document from {0}"
     "Un documento certificado de parte de {0}";
   mailer_parked_document_reminder_because_tyc_are_not_accepted_subject:
-    "You have pending certifications you need to accept our Terms and Conditions."
+    "You have pending certifications, you need to accept our Terms and Conditions."
     "Tienes certificaciones pendientes, necesitas aceptar nuestros términos y condiciones.";
   mailer_parked_document_reminder_because_payment_is_needed_subject:
-    "You have pending certifications your payment is needed."
+    "You have pending certifications, your payment is needed."
     "Tienes certificaciones pendientes, se necesita un pago.";
   mailer_welcome_after_website_signup_subject:
     "You have signed up to Constata.eu"
@@ -138,7 +138,7 @@ make_translations!{
     "Attendee identification"
     "Identificación del asistente";
   attendance_schema_custom_text:
-    "Title company or affiliation"
+    "Title, company, or affiliation"
     "Título, empresa, afiliación";
   attendance_schema_motive:
     "Name of the event"

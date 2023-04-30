@@ -232,6 +232,16 @@ const Share = ({downloadProofLink, handleChangePublicCertificateState, handleDow
           </Button>
           <Button
             sx={{mx: 0.5, my: 1}}
+            href={downloadProofLink.publicCertificateUrl}
+            target="_blank"
+            startIcon={<LaunchIcon/>}
+            variant="outlined"
+            id="go-to-public-certificate"
+            >
+            {translate("certos.download_proof_link.link_to_public_certificate")}
+          </Button>
+          <Button
+            sx={{mx: 0.5, my: 1}}
             onClick={() => setConfirmUnpublishOpen(true) }
             variant="outlined"
             id="safe-button-change-public-certificate-state"
