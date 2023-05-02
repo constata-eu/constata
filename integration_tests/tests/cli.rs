@@ -97,8 +97,7 @@ mod cli {
 
       let create_attestation  = run_command_json("create-attestation", &["-p", "integration_tests/static/id_example.jpg", "2023-04-29T19:33:45.762762Z", "John Doe"]);
 
-      let create_attestation_2 = run_command_json("create-attestation", &["-p", "integration_tests/static/id_example_2.jpg", "2023-04-30T19:33:45.762762Z", "John Doe_2"]);
-      // let all_issuances_id_eq_3 = run_command_json("all-issuances", &["--id-eq", "3"]);
+      let create_attestation_2 = run_command_json("create-attestation", &["-p", "integration_tests/static/id_example_2.jpg", "2023-04-30T19:33:45.762762Z", "Bart"]);
 
       let all_attestations_id_eq_2 = run_command_json("all-attestations", &["--id-eq", "2"]);
 
@@ -109,18 +108,15 @@ mod cli {
      
       let attestations_state  = run_command_json("all-attestations", &[]);
 
-      
       let all_attestations_markers_like = run_command_json("all-attestations", &["--markers-like", "John"]);
 
       println!("{}" , &serde_json::to_string_pretty(&create_attestation)?);
       println!("{}", &serde_json::to_string_pretty(&create_attestation_2)?);
       println!("{}", &serde_json::to_string_pretty(&attestations_state)?);
       println!("This is Markers Like: q{}", &serde_json::to_string_pretty(&all_attestations_markers_like)?);
-      //println!("{}", (&create_attestation));
       assert_eq!((&create_attestation["id"]), 1);
       assert_eq!((&create_attestation_2["id"]), 2);
       assert_eq!((&create_attestation["markers"]), "John Doe");
-
       assert_eq!((&all_attestations_id_eq_2["allAttestations"][0]["state"]), "processing");
       assert_eq!((&all_attestations_id_eq_2_done["allAttestations"][0]["state"]), "done");
     }
