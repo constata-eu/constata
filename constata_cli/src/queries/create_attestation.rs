@@ -15,9 +15,11 @@ pub struct CreateAttestation {
   pub paths: Vec<PathBuf>,
 
   /// An attestation allows appending documents up until a certain date. If you don't chose a date, no appending will be allowed.
+  #[arg(short)]
   pub open_until: Option<constata_lib::models::UtcDateTime>,
 
   /// Markers is a text that can be used for searching this attestation later. Markers cannot be updated after creation.
+  #[arg(short)]
   pub markers: Option<String>,
 
   /// A list of email addresses to notify when the documents are attested.

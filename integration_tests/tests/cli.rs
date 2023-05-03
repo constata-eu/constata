@@ -96,9 +96,9 @@ mod cli {
     api_integration_test!{ create_attestations(db, mut _chain)
       db.alice().await.write_signature_json_artifact();
 
-      let create_attestation  = run_command_json("create-attestation", &["-p", "integration_tests/static/id_example.jpg", "2023-04-29T19:33:45.762762Z", "John Doe"]);
+      let create_attestation  = run_command_json("create-attestation", &["-p", "integration_tests/static/id_example.jpg", "-m", "John Doe"]);
 
-      let create_attestation_2 = run_command_json("create-attestation", &["-p", "integration_tests/static/id_example_2.jpg", "2023-04-30T19:33:45.762762Z", "Bart"]);
+      let create_attestation_2 = run_command_json("create-attestation", &["-p", "integration_tests/static/id_example_2.jpg", "-m", "Bart"]);
 
       let all_attestations_id_eq_2 = run_command_json("all-attestations", &["--id-eq", "2"]);
             
@@ -112,12 +112,9 @@ mod cli {
       let all_attestations_markers_like = run_command_json("all-attestations", &["--markers-like", "John"]);
 
       //let all_attestations_markers_like_empty = run_command_json("all-attestations", &["--markers-like", "nasa"]);
-      assert_eq!(run_command_json("all-attestations", &["--markers-like", "nasa"])["allAttestations"][0], Null);
-      assert!(run_command_json("all-attestations", &["--markers-like", "nasa"])["allAttestations"].as_array().unwrap().is_empty());
+      assert_none("all-attestations", &["--markers-like", "nasa"], "/allAttestations/0");
       
-      run_command("attestation-html-export", &["2", "target/artifacts/"]);     
-
-
+      assert_command("attestation-html-export", &["2"], "/attestation/id", 2);     
 
       println!("{}" , &serde_json::to_string_pretty(&create_attestation)?);
       println!("{}", &serde_json::to_string_pretty(&create_attestation_2)?);
@@ -187,6 +184,21 @@ mod cli {
 
     fn run_command_json(command: &str, args: &[&str]) -> serde_json::Value {
       serde_json::from_str(&run_command(command, args)).unwrap()
+    }
+
+    fn assert_command<T>(command: &str, args: &[&str], pointer: &str, expected_value: T)
+      where 
+        T: std::fmt::Debug + 'static,
+        for<'a> &'a serde_json::Value: PartialEq<T>
+    {
+      assert_eq!(
+        run_command_json(command, args).pointer(pointer).expect(&format!("Nothing found on {pointer}")),
+        expected_value
+      )
+    }
+
+    fn assert_none(command: &str, args: &[&str], pointer: &str) {
+      assert!(run_command_json(command, args).pointer(pointer).is_none());
     }
   }
 }
