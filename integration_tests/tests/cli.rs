@@ -95,11 +95,39 @@ mod cli {
     api_integration_test!{ create_attestations(db, mut _chain)
       db.alice().await.write_signature_json_artifact();
 
-      let create_attestation  = run_command_json("create-attestation", &["-p", "integration_tests/static/id_example.jpg"]);
+      let create_attestation  = run_command_json("create-attestation", &["-p", "integration_tests/static/id_example.jpg", "2023-04-29T19:33:45.762762Z", "John Doe"]);
 
-      println!("{}", &serde_json::to_string_pretty(&create_attestation)?);
-      //println!("{}", (&create_attestation));
+      let create_attestation_2 = run_command_json("create-attestation", &["-p", "integration_tests/static/id_example_2.jpg", "2023-04-30T19:33:45.762762Z", "Bart"]);
+
+      let all_attestations_id_eq_2 = run_command_json("all-attestations", &["--id-eq", "2"]);
+            
+      _chain.fund_signer_wallet();
+      _chain.simulate_stamping().await;
       
+      let all_attestations_id_eq_2_done = run_command_json("all-attestations", &["--id-eq", "2"]);
+      
+      let attestations_state  = run_command_json("all-attestations", &[]);
+      
+      let all_attestations_markers_like = run_command_json("all-attestations", &["--markers-like", "John"]);
+
+      let all_attestations_markers_like_empty = run_command_json("all-attestations", &["--markers-like", "nasa"]);
+      
+      // run_command("all-attestations-html-export", &["--id-eq", "2", "target/artifacts/"]);     
+
+
+
+      println!("{}" , &serde_json::to_string_pretty(&create_attestation)?);
+      println!("{}", &serde_json::to_string_pretty(&create_attestation_2)?);
+      println!("{}", &serde_json::to_string_pretty(&attestations_state)?);
+      println!("This empty markets {}", &serde_json::to_string_pretty(&all_attestations_markers_like_empty)?);
+      println!("This is Markers Like: q{}", &serde_json::to_string_pretty(&all_attestations_markers_like)?);
+      assert_eq!((&create_attestation["id"]), 1);
+      assert_eq!((&create_attestation_2["id"]), 2);
+      assert_eq!((&create_attestation["markers"]), "John Doe");
+      assert_eq!((all_attestations_markers_like_empty["allAttestations"][0]), Null);
+      assert_eq!((&all_attestations_id_eq_2["allAttestations"][0]["state"]), "processing");
+      assert_eq!((&all_attestations_id_eq_2_done["allAttestations"][0]["state"]), "done");
+
     }
 
     api_integration_test!{ account_state(db, _chain)
