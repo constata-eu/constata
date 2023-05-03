@@ -1,0 +1,58 @@
+#!/bin/bash
+trap "exit" INT
+
+BRANCH=$(git rev-parse --abbrev-ref HEAD) 
+
+if [[ $1 == "production" && $BRANCH != "master" ]]
+then
+  echo Wont deploy anything but MASTER to production
+  exit 1
+fi
+
+if [[ -n $(git status --porcelain) ]]
+then
+  echo "Can't deploy while you have uncommited files"
+  exit 1
+fi
+
+if ! git pull origin $BRANCH
+then
+  echo Could not pull from $BRANCH
+  exit 1
+fi
+
+if [[ -n $(git status | grep ahead) ]]
+then
+  echo "Your branch is ahead of origin, push your changes first"
+  exit 1
+fi
+
+if [[ $1 == "staging" ]]
+then
+  echo "Cleaning up for release build going to staging. This won't happen on production." &&
+  sudo rm -rf target/release/.fingerprint/static_site-*
+fi
+
+cd scripts/deploy &&
+docker build -t constata-rust-builder:1.0 . &&
+cd - &&
+docker run --net=host --rm -v $PWD:/user/constata-rust-builder/src constata-rust-builder:1.0 cargo build --release --bin static_site
+
+rm -rf /tmp/deploy-files &&
+mkdir /tmp/deploy-files &&
+cp target/release/static_site /tmp/deploy-files &&
+echo "Copying static site binary" &&
+scp -r /tmp/deploy-files root@$1:/var/www/ &&
+ssh root@$1 '
+cd /var/www &&
+mkdir -p templates &&
+echo "Changing ownership" &&
+chown -R www-data.www-data deploy-files &&
+echo "Stopping servers" &&
+systemctl stop constata_static_site &&
+echo "Backing up old files, moving in new ones" &&
+mv static_site static_site.old &&
+mv deploy-files/static_site static_site &&
+echo "Start new static_site" &&
+systemctl start constata_static_site &&
+systemctl status constata_static_site'
