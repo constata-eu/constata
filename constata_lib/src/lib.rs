@@ -3,6 +3,8 @@ pub use anyhow;
 
 pub use stripe;
 
+i18n::make_static_renderer!(RENDERER, "$CARGO_MANIFEST_DIR/templates");
+
 #[macro_export]
 macro_rules! tests {
   ($($e:tt)*) => {

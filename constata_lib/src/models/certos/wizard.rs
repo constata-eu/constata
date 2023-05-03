@@ -61,9 +61,9 @@ impl WizardTemplate {
     use zip::write::FileOptions;
 
     let (filename, custom_message) = match kind {
-      TemplateKind::Diploma => ("diploma", i18n::t!(lang, template_message_for_diploma)),
-      TemplateKind::Attendance => ("attendance", i18n::t!(lang, template_message_for_attendance)),
-      _ => ("badge", i18n::t!(lang, template_message_for_badge)),
+      TemplateKind::Diploma => ("diploma.html", i18n::t!(lang, template_message_for_diploma)),
+      TemplateKind::Attendance => ("attendance.html", i18n::t!(lang, template_message_for_attendance)),
+      _ => ("badge.html", i18n::t!(lang, template_message_for_badge)),
     };
 
     let mut context = i18n::Context::new();
@@ -77,12 +77,12 @@ impl WizardTemplate {
       },
       ImageOrText::Text(n) => context.insert("issuer", &n),
     };
-    let html = i18n::render(lang, &format!("template_builder/{filename}.html.tera"), &context)?;
+    let html = crate::RENDERER.i18n_and_context("template_builder", lang, filename, &context)?.to_utf8()?;
 
     let mut file = vec![];
     {
       let mut zip = zip::ZipWriter::new(std::io::Cursor::new(&mut file));
-      zip.start_file(format!("{filename}.html.tera"), FileOptions::default())?;
+      zip.start_file(format!("{filename}.tera"), FileOptions::default())?;
       zip.write_all(html.as_bytes())?;
       zip.flush()?;
       zip.finish()?;
@@ -157,11 +157,9 @@ impl Wizard {
   }
 
   pub async fn read_csv_from_payload(reader_buffer: &[u8]) -> csv::Reader<&[u8]> {
-    let separator = if String::from_utf8_lossy(reader_buffer).contains(",") {
-      b','
-    } else {
-      b';'
-    };
+    let has_colon = String::from_utf8_lossy(reader_buffer)
+      .lines().next().and_then(|l| l.find(',') ).is_some();
+    let separator = if has_colon { b',' } else { b';' };
     csv::ReaderBuilder::new().delimiter(separator).from_reader(reader_buffer)
   }
 }

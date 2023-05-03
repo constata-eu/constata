@@ -96,6 +96,6 @@ impl Previewer {
   }
 
   pub fn render_html(&self, lang: i18n::Lang) -> Result<String> {
-    Ok(i18n::render_from_serialize(lang, "previewer/html.tera", &self)?)
+    Ok(crate::RENDERER.i18n_and_serialize("previewer", lang, "preview.html", &self)?.to_utf8()?)
   }
 }

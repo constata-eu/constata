@@ -1,3 +1,6 @@
+mod abridged_pdf_generator;
+use abridged_pdf_generator::AbridgedPdfGenerator;
+
 use super::{*, blockchain::PrivateKey};
 use crate::{
   models::{
@@ -7,7 +10,6 @@ use crate::{
   Result,
 };
 use chrono::Utc;
-
 
 model!{
   state: Site,
@@ -146,6 +148,38 @@ impl DownloadProofLink {
 
     Ok(share_on_social_networks_call_to_action)
   }
+
+  pub async fn abridged_pdfs_zip(&self, l: i18n::Lang) -> Result<(String, Vec<u8>)> {
+    use std::io::Write;
+    use zip::write::FileOptions;
+
+    let mut destination_buffer = vec![];
+
+    {
+      let mut destination = zip::ZipWriter::new(std::io::Cursor::new(&mut destination_buffer));
+      destination.start_file("español.pdf", FileOptions::default())?;
+      destination.write_all(&AbridgedPdfGenerator::generate(&self, i18n::Lang::Es).await?)?;
+      destination.flush()?;
+      destination.start_file("english.pdf", FileOptions::default())?;
+      destination.write_all(&AbridgedPdfGenerator::generate(&self, i18n::Lang::En).await?)?;
+      destination.flush()?;
+      destination.finish()?;
+    }
+
+    let filename = match self.document().await?.entry_optional().await? {
+      Some(entry) => {
+        match entry.template_kind().await? {
+          TemplateKind::Diploma => i18n::t!(l, abridged_diploma_zip_name),
+          TemplateKind::Attendance => i18n::t!(l, abridged_attendance_zip_name),
+          TemplateKind::Badge => i18n::t!(l, abridged_badge_zip_name),
+        }
+      },
+      None => i18n::t!(l, abridged_document_zip_name),
+    };
+
+
+    Ok((filename, destination_buffer))
+  }
 }
 
 impl InsertDownloadProofLink {
@@ -203,6 +237,23 @@ describe! {
       download_proof_link.share_on_social_networks_call_to_action(&i18n::Lang::En).await?,
       "This badge is certified by the Bitcoin blockchain!".to_string()
     );
+  }
+
+  regtest!{ gets_abridged_pdf_version (_db, c, mut chain)
+    let alice = c.alice().await;
+    alice.make_kyc_endorsement().await;
+    let entry = alice.make_entry_and_sign_it().await;
+    chain.fund_signer_wallet();
+    chain.simulate_stamping().await;
+    let doc = entry.reloaded().await?.document().await?.expect("to get entry's document");
+    let download_proof_link = alice.make_download_proof_link_from_doc(&doc, 30).await;
+    download_proof_link.publish().await?;
+
+    std::fs::write("../target/artifacts/test_es.pdf", &AbridgedPdfGenerator::generate(&download_proof_link, i18n::Lang::Es).await?)?;
+    std::fs::write("../target/artifacts/test_en.pdf", &AbridgedPdfGenerator::generate(&download_proof_link, i18n::Lang::En).await?)?;
+    let (filename, bytes) = &download_proof_link.abridged_pdfs_zip(i18n::Lang::Es).await?;
+    std::fs::write(&format!("../target/artifacts/{}.zip", filename), bytes)?;
+    assert_eq!(filename, "Diploma abreviado en inglés y español"); 
   }
 
   regtest!{ public_certificate_metadata (_db, c, mut chain)

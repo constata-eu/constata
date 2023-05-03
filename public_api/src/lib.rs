@@ -14,6 +14,8 @@ use rocket::http::Method;
 use rocket_cors::{AllowedHeaders, AllowedOrigins, Origins};
 use rocket_recaptcha_v3::ReCaptcha;
 
+i18n::make_static_renderer!(RENDERER, "$CARGO_MANIFEST_DIR/templates");
+
 pub mod controllers;
 use controllers::{
   static_files,

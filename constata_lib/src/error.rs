@@ -16,6 +16,8 @@ use juniper::{FieldError, IntoFieldError, ScalarValue, graphql_value};
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
   #[error(transparent)]
+  IntoInner(#[from] std::io::IntoInnerError<std::io::BufWriter<Vec<u8>>>),
+  #[error(transparent)]
   Ureq(#[from] ureq::Error),
   #[error(transparent)]
   IOError(#[from] std::io::Error),
@@ -81,6 +83,30 @@ pub enum Error {
   Internal(String),
   #[error(transparent)]
   Base64(#[from] base64::DecodeError),
+}
+
+impl From<i18n::error::Error> for Error {
+  fn from(err: i18n::error::Error) -> Error {
+    Error::Internal(format!("Error in i18n: {}", err))
+  }
+}
+
+impl From<printpdf::Error> for Error {
+  fn from(err: printpdf::Error) -> Error {
+    Error::Internal(format!("Error rendering pdf. Obviously unexpected: {}", err))
+  }
+}
+
+impl From<printpdf::svg::SvgParseError> for Error {
+  fn from(err: printpdf::svg::SvgParseError) -> Error {
+    Error::Internal(format!("Error rendering pdf: {}", err))
+  }
+}
+
+impl From<qrcode_generator::QRCodeError> for Error {
+  fn from(err: qrcode_generator::QRCodeError) -> Error {
+    Error::Internal(format!("Error rendering QR code: {}", err))
+  }
 }
 
 impl From<stripe::Error> for Error {

@@ -1,4 +1,5 @@
 use crate::{
+  RENDERER,
   signed_payload::SignedPayload,
   models::{
     bulletin::Published,
@@ -200,11 +201,11 @@ impl<'a> Proof<'a> {
   }
 
   pub fn render_signed_html(&self, context: &i18n::Context, lang: i18n::Lang) -> Result<String> {
-    let mut html = i18n::render(lang, "proofs/html.tera", context)?;
+    let mut html = RENDERER.i18n_and_context("proofs", lang, "proof.html", context)?.to_utf8()?;
     let signature = SignedPayload::sign_with_key(&html.as_bytes(), &self.key);
     let mut sign_context = i18n::Context::new();
     sign_context.insert("signature", &signature.to_base64());
-    html.push_str(&i18n::render(lang, "proofs/signature.tera", &sign_context)?);
+    html.push_str( &RENDERER.i18n_and_context("proofs", lang, "signature.html", &sign_context)?.to_utf8()? );
     Ok(html)
   }
 
@@ -226,11 +227,12 @@ impl<'a> Proof<'a> {
     Ok(file.reopen()?)
   }
 
-  pub async fn render_endorsements(person: &Person, lang: i18n::Lang) -> Result<String> {
+  pub async fn render_endorsements(person: &Person, lang: i18n::Lang, html: bool) -> Result<String> {
     let mut context = i18n::Context::new();
+    context.insert("html", &html);
     context.insert("person_id", person.id());
     context.insert("endorsements", &person.endorsements().await?);
-    Ok(i18n::render(lang, "proofs/endorsements.tera", &context)?)
+    Ok(RENDERER.i18n_and_context("proofs", lang, "endorsements.html", &context)?.to_utf8()?)
   }
 }
 
@@ -243,11 +245,11 @@ describe! {
     alice.make_kyc_endorsement().await;
     alice.make_email("alice@gmail.com").await;
     assert_that!(
-      &Proof::render_endorsements(&alice.person().await, i18n::Lang::Es).await?,
+      &Proof::render_endorsements(&alice.person().await, i18n::Lang::Es, true).await?,
       rematch("residente en España")
     );
     assert_that!(
-      &Proof::render_endorsements(&alice.person().await, i18n::Lang::En).await?,
+      &Proof::render_endorsements(&alice.person().await, i18n::Lang::En, true).await?,
       rematch("lives in España")
     );
   }

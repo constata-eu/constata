@@ -78,6 +78,10 @@ impl SignedPayload {
       SignedPayload::signed_msg_hash(&self.payload),
     )?)
   }
+
+  pub fn signer_as_p2wpkh(&self, network: Network) -> MyResult<String> {
+    Ok(Address::p2wpkh(&self.pubkey()?, network)?.to_string())
+  }
 }
 
 #[rocket::async_trait]

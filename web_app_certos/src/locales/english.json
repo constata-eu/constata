@@ -458,7 +458,7 @@
       "title": "Download or view certificate.",
       "text": "We suggest you download and store this certificate any time before %{validUntil}, that way you'll always have a backup and gain full control of your data.",
       "text_without_date": "We suggest you download and store this certificate, that way you'll always have a backup and gain full control of your data.",
-      "text_2": "A Constata certificate is like any other file that can be sent via email, instant message and verified by the recipient.",
+      "text_2": "A Constata certificate is like any other file that can be sent as an attachment via email, instant message and verified by the recipient.",
       "more_title": "Soon there will be more content",
       "more_text_1": "Constata is certifying new contents that will be added to this Timestamp Certificate.",
       "more_text_2": "Current contents include up to %{lastDocDate}.",
@@ -472,11 +472,15 @@
       "share_on": "Share on",
       "error_download": "Error: Could not download the file. Reload page and try it again",
       "downloaded": "Download completed",
+      "download_starting": "Download starting",
       "error_public_certificate_state": "Error: could not change the certificate's state. Reload page and try it again",
       "error_deletion": "Error: Could not delete link. Reload page and try it again",
       "share": {
         "title": "Publish and share.",
-        "text": "You can share a link to this certificate on your social networks. In order to do that, we have to keep it publicly available on our website. If you change your mind, you can unpublish it later.",
+        "confirm_unpublish_title": "Sure you want to unpublish?",
+        "confirm_unpublish": "All the links you have posted on social networks, sent via instant message, and all the abridged PDF's you've sent will become invalid. People won't be able to see or verify them.",
+        "text": "You can share a link to this certificate on instant message, social networks, or as an abridged PDF. We will keep it online for you, so anyone receiving the link can view and verify it. You can unpublish it later, and they will lose access to it.",
+        "abridged_pdfs": "PDF with links",
         "linkedin": "Share on Linkedin",
         "twitter": "Share on Twitter",
         "add_certificate_to_linkedin": "Add Certificate to Linkedin"
@@ -648,7 +652,7 @@
             "motive": {
               "help": "ej: Bachelors degree in data mining.",
               "label": "Completed the course of",
-              "sample": "Bachelors degree in data mining (opcional)"
+              "sample": "Bachelors degree in data mining"
             },
             "name": {
               "help": "ej: Doctor Jane Doe, Mr. John Smith.",
@@ -689,7 +693,7 @@
             },
             "motive": {
               "help": "ex: \"Hackathon First Place.\"",
-              "label": "Goal achieved",
+              "label": "Achievement",
               "sample": "First place at Web3 Hackathon."
             },
             "name": {

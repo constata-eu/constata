@@ -1,0 +1,37 @@
+{% extends "partials/_base_layout.html" %}
+{%- block layout_init -%}
+  {% set default_title = "Home" %}
+  {% set default_description = "Give more to your students and increase your course outreach by issuing verifiable diplomas. Try it free for up to 10 diplomas a month." %}
+  {% set default_short_desc = "Verifiable diplomas with web3 technology" %}
+
+  {% set lang = "en" %}
+  {% set api_url = url %}
+  {% set menu_label_product = "Product" %}
+  {% set menu_label_prices = "Prices" %}
+  {% set menu_label_api = "API" %}
+  {% set menu_label_contact_us = "Contact us" %}
+  {% set menu_label_access_app = "Access the App" %}
+  {% set menu_mailto_link = "mailto:hola@constata.eu?subject=Hi, I'd like to know more about the product&body=You can reply to this address." %}
+  {% set footer_tagline = "More than trustworthy &mdash; verifiable." %}
+  {% set footer_terms_and_conditions = "Terms and conditions" %}
+  {% set footer_statement_of_contracting_practices= "Declaration of contracting policies." %}
+  {% set footer_no_cookies = "This web does not use cookies." %}
+  {% set footer_privacy_policy = "Privacy policy" %}
+  {% set footer_code_of_conduct = "Code of conduct" %}
+  {% set footer_validity_notice = "
+      The only official domain of constata is <strong>constata.eu</strong> and
+      our PGP key is
+      1EC2 87E1 1969 46A9 8652 4E83 283A D4D8 7409 2824
+      For the Time Stamp service, constata makes up
+      bulletins by grouping sha256 hashes from multiple documents and
+      publishes the bulletin hash on the Bitcoin blockchain by making
+      transactions from the address:
+      bc1qw3ca5pgepg6hqqqle2eq8qakejl5wdafs7up0jd
+      All the validation algorithms are open source and are available at
+      <a href='https://github.com/constata-eu/constata'>
+        our github repo.
+      </a>
+  " %}
+{%- endblock -%}
+
+{%- block layout_overrides -%}{%- endblock -%}
