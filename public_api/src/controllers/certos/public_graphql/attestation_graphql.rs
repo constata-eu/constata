@@ -49,6 +49,7 @@ impl SignedPayload {
 
 #[derive(Debug, Clone, GraphQLObject, Serialize, Deserialize)]
 #[graphql(description = "You can get an attestation as a verifiable HTML, embedding all documents and verifiable in any default browser.")]
+#[serde(rename_all = "camelCase")]
 pub struct AttestationHtmlExport {
   pub id: i32,
   pub attestation: Attestation,

@@ -79,7 +79,8 @@ mod cli {
 
       run_command("entry-html-export", &["4", "target/artifacts/cli_entry_export.html"]);
             
-      assert_eq!((&issuance_1["templateName"]), "my_template");
+      assert_eq!(
+        (&issuance_1["templateName"]), "my_template");
       assert_eq!((issuance_2["templateKind"]), "DIPLOMA");
       assert_eq!((&all_issuances_id_eq_2["allIssuances"][0]["templateId"]), 2);
       assert_eq!((&all_issuances_id_eq_2["allIssuances"][0]["state"]), "received");
@@ -110,21 +111,23 @@ mod cli {
       
       let all_attestations_markers_like = run_command_json("all-attestations", &["--markers-like", "John"]);
 
-      let all_attestations_markers_like_empty = run_command_json("all-attestations", &["--markers-like", "nasa"]);
+      //let all_attestations_markers_like_empty = run_command_json("all-attestations", &["--markers-like", "nasa"]);
+      assert_eq!(run_command_json("all-attestations", &["--markers-like", "nasa"])["allAttestations"][0], Null);
+      assert!(run_command_json("all-attestations", &["--markers-like", "nasa"])["allAttestations"].as_array().unwrap().is_empty());
       
-      // run_command("all-attestations-html-export", &["--id-eq", "2", "target/artifacts/"]);     
+      run_command("attestation-html-export", &["2", "target/artifacts/"]);     
 
 
 
       println!("{}" , &serde_json::to_string_pretty(&create_attestation)?);
       println!("{}", &serde_json::to_string_pretty(&create_attestation_2)?);
       println!("{}", &serde_json::to_string_pretty(&attestations_state)?);
-      println!("This empty markets {}", &serde_json::to_string_pretty(&all_attestations_markers_like_empty)?);
+      
       println!("This is Markers Like: q{}", &serde_json::to_string_pretty(&all_attestations_markers_like)?);
       assert_eq!((&create_attestation["id"]), 1);
       assert_eq!((&create_attestation_2["id"]), 2);
       assert_eq!((&create_attestation["markers"]), "John Doe");
-      assert_eq!((all_attestations_markers_like_empty["allAttestations"][0]), Null);
+      
       assert_eq!((&all_attestations_id_eq_2["allAttestations"][0]["state"]), "processing");
       assert_eq!((&all_attestations_id_eq_2_done["allAttestations"][0]["state"]), "done");
 
