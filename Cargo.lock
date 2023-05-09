@@ -6627,7 +6627,6 @@ dependencies = [
  "lazy_static",
  "log 0.4.17",
  "rocket",
- "rocket_cors",
  "serde",
  "serde_json",
  "thiserror",
