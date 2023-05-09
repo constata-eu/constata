@@ -1,23 +1,12 @@
-mod error;
-mod config;
-use rocket::*;
-use std::path::{Path, PathBuf};
-use i18n::{Renderer, Lang, LocalizedResponse};
-use error::SiteResult;
+mod server;
+use server::*;
 
-#[get("/")]
-fn index(lang: Lang, config: &rocket::State<config::Config>) -> SiteResult<LocalizedResponse<'static>> {
-  public(lang, PathBuf::from("index.html"), config)
-}
-
-#[get("/<path..>")]
-fn public(lang: Lang, path: PathBuf, config: &rocket::State<config::Config>) -> SiteResult<LocalizedResponse<'static>> {
-  Ok(Renderer::new(Path::new("src/assets/"))?.i18n_and_serialize("public", lang, &path, config.inner())?.into_owned())
+fn render(lang: Lang, path: PathBuf, config: &State<Config>) -> LocalizedResult {
+  let renderer = Renderer::new(Path::new("src/assets/"))?;
+  Ok(renderer.i18n_and_serialize("public", lang, &path, config.inner())?.into_owned())
 }
 
 #[launch]
 async fn rocket() -> Rocket<Build> {
-  build()
-    .attach(rocket::fairing::AdHoc::config::<config::Config>())
-    .mount("/", routes![ index, public ])
+  server::rocket().await
 }
