@@ -37,7 +37,6 @@ mod cli {
     api_integration_test!{ create_issuances(db, mut _chain)
       db.alice().await.write_signature_json_artifact();
 
-      //Create issuence 1 and check templateName
       assert_command("create-issuance-from-json", &[
         "name_of_the_issuance",
         "--new-logo-text=testing",
@@ -68,7 +67,7 @@ mod cli {
 
       assert_command("all-issuances", &["--id-eq", "3"], "/allIssuances/0/state", "created");
       run_command("preview-entry", &["9", "target/artifacts/cli_preview.html"]);
-      //Crear una función para testear que falle un preview-entry.
+      failed_command("preview-entry", &["12", "target/artifacts/cli_entry_export.html"]);
       run_command("sign-issuance", &["2"]);
       run_command("sign-issuance", &["3"]);
 
@@ -84,9 +83,8 @@ mod cli {
       assert_command("all-issuances", &["--id-eq", "3"], "/allIssuances/0/state", "completed");
       assert_command("all-issuances", &["--name-like", "simpson"], "/allIssuances/0/name", "first_csv_test_simpson");
       run_command("entry-html-export", &["4", "target/artifacts/cli_entry_export.html"]);
-      //Usar la función para testear que falle un entry-html-export.
+      failed_command("entry-html-export", &["20", "target/artifacts/cli_entry_export.html"]);
       run_command("all-entries-html-export", &["target/artifacts"]);
-      //Usar la función para testear que falle un all-entries-html-export.
             
     }
 
@@ -134,17 +132,7 @@ mod cli {
       */
     }
 
-    /*
-    api_integration_test!{ all_issuances(db, _chain)
-      let _alice = db.alice().await;
-
-      let json = run_command_json("all-issuances", &[]);
-      //assert_eq!(json.get("id").unwrap(), 1);
-
-      println!("{}", &serde_json::to_string_pretty(&json)?);
-
-    }
-    */
+    
     api_integration_test!{ help(db, _chain)
       db.alice().await.write_signature_json_artifact();
 
@@ -152,6 +140,7 @@ mod cli {
      
     }
 
+ 
     fn run_command(command: &str, args: &[&str]) -> String {
       let params = [
         &["run", "-p", "constata-cli", "--","--config=target/artifacts/signature.json",
@@ -189,6 +178,26 @@ mod cli {
 
     fn assert_none(command: &str, args: &[&str], pointer: &str) {
       assert!(run_command_json(command, args).pointer(pointer).is_none());
+    }
+
+    fn failed_command(command: &str, args: &[&str]) -> String {
+      let params = [
+        &["run", "-p", "constata-cli", "--","--config=target/artifacts/signature.json",
+           "--password=password", command],
+        args
+      ].concat();
+
+      let out = Command::new("cargo")
+        .current_dir(std::fs::canonicalize("..").unwrap())
+        .args(&params).output().unwrap();
+
+      if out.status.success() {
+        println!("{}", std::str::from_utf8(out.stdout.as_slice()).unwrap());
+        println!("{}", std::str::from_utf8(out.stderr.as_slice()).unwrap());
+      }
+
+      assert!(!out.status.success());
+      String::from_utf8(out.stderr).unwrap()
     }
 
   }
