@@ -106,11 +106,8 @@ mod cli {
     
     api_integration_test!{ help(db, _chain)
       db.alice().await.write_signature_json_artifact();
-
       run_command("--help", &[]);
-     
     }
-
  
     fn run_command(command: &str, args: &[&str]) -> String {
       let params = [
