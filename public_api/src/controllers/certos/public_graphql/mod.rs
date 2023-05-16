@@ -442,6 +442,12 @@ impl Mutation {
     input.create_attestation(context).await
   }
 
+  pub async fn attestation_set_published(context: &Context, input: AttestationSetPublishedInput)
+    -> FieldResult<Attestation>
+  {
+    input.process(context).await
+  }
+
   pub async fn signing_iterator(context: &Context, input: SigningIteratorInput) -> FieldResult<Option<UnsignedEntryPayload>> {
     input.sign(context).await
   }

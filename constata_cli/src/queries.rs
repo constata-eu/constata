@@ -23,6 +23,7 @@ pub_mods!{
   attestation_state::AttestationState;
   sign_issuance::SignIssuance;
   create_attestation::CreateAttestation;
+  attestation_set_published::AttestationSetPublished;
   preview_sample_from_issuance::PreviewSampleFromIssuance;
   update_web_callbacks_url::UpdateWebCallbacksUrl;
   validate_web_callback::ValidateWebCallback;

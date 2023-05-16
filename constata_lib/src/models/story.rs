@@ -10,6 +10,7 @@ use crate::{
     attestation::*,
     story_snapshot::*,
     document::*,
+    download_proof_link::*,
     Site,
     Proof,
   },
@@ -108,13 +109,13 @@ impl Story {
       .all().await
   }
 
-  pub async fn create_download_proof_link(&self, duration_days: i64) -> Result<Option<String>> {
+  pub async fn get_or_create_download_proof_link(&self, duration_days: i64) -> Result<Option<DownloadProofLink>> {
     let maybe_document = self.document_scope().order_by(DocumentOrderBy::CreatedAt).one().await;
 
     if let Ok(document) = maybe_document {
       if let Ok(accepted) = document.in_accepted() {
         if accepted.bulletin().await?.is_published() {
-          return Ok(Some(document.get_or_create_download_proof_link(duration_days).await?.safe_env_url().await?))
+          return Ok(Some(document.get_or_create_download_proof_link(duration_days).await?))
         }
       }
     }

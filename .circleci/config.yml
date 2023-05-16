@@ -208,9 +208,6 @@ jobs:
       - run:
           command: cd ~/project/constata_cli && ~/.cargo/bin/cargo.exe --config net.git-fetch-with-cli=true build --release
           shell: bash.exe
-      - store_artifacts: 
-          path: C:/Users/circleci.PACKER-6400C91A/project/target/release/constata-cli.exe
-          destination: constata-cli-win.exe
       - run: 
           name: Add file to release
           command: |
@@ -219,6 +216,6 @@ jobs:
             unzip ghr_v0.16.0_windows_amd64.zip
             cd ghr_v0.16.0_windows_amd64
             echo "placeholder" > constata-cli-windows
-            cp /c/Users/circleci.PACKER-6400C91A/project/target/release/constata-cli.exe constata-cli-win.exe
+            cp ~/project/target/release/constata-cli.exe constata-cli-win.exe
             ./ghr -u constata-eu -r constata -replace latest constata-cli-win.exe
           shell: bash.exe
