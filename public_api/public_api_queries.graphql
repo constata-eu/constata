@@ -76,6 +76,33 @@ mutation CreateAttestation($input: AttestationInput!) {
     lastDocDate
     emailAdminAccessUrlTo
     adminAccessUrl
+    publicCertificateUrl
+    createdAt
+    __typename
+  }
+}
+mutation AttestationSetPublished($input: AttestationSetPublishedInput!) {
+  attestationSetPublished(input: $input) {
+    id
+    personId
+    orgId
+    markers
+    openUntil
+    state
+    parkingReason
+    doneDocuments
+    parkedDocuments
+    processingDocuments
+    totalDocuments
+    tokensCost
+    tokensPaid
+    tokensOwed
+    buyTokensUrl
+    acceptTycUrl
+    lastDocDate
+    emailAdminAccessUrlTo
+    adminAccessUrl
+    publicCertificateUrl
     createdAt
     __typename
   }
@@ -211,6 +238,7 @@ mutation UpdateTemplate($input: TemplateInput!) {
       optional
       common
       label
+      labelEs
       help
       sample
       __typename
@@ -344,6 +372,7 @@ query Template($id: Int!) {
       optional
       common
       label
+      labelEs
       help
       sample
       __typename
@@ -367,6 +396,7 @@ query AllTemplates($page: Int, $perPage: Int, $sortField: String, $sortOrder: St
       optional
       common
       label
+      labelEs
       help
       sample
       __typename
@@ -504,6 +534,7 @@ query Attestation($id: Int!) {
     lastDocDate
     emailAdminAccessUrlTo
     adminAccessUrl
+    publicCertificateUrl
     createdAt
     __typename
   }
@@ -529,6 +560,7 @@ query AllAttestations($page: Int, $perPage: Int, $sortField: String, $sortOrder:
     lastDocDate
     emailAdminAccessUrlTo
     adminAccessUrl
+    publicCertificateUrl
     createdAt
     __typename
   }
@@ -740,6 +772,14 @@ query DownloadProofLink($id: String!) {
     __typename
   }
 }
+query AbridgedProofZip($id: String!) {
+  AbridgedProofZip(id: $id) {
+    id
+    filename
+    bytes
+    __typename
+  }
+}
 query Proof($id: String!) {
   Proof(id: $id) {
     id
@@ -777,6 +817,7 @@ query AttestationHtmlExport($id: Int!) {
       lastDocDate
       emailAdminAccessUrlTo
       adminAccessUrl
+      publicCertificateUrl
       createdAt
       __typename
     }

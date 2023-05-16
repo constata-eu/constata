@@ -249,6 +249,7 @@ pub mod gql {
     CreateAttestation,
     Attestation,
     AttestationHtmlExport,
+    AttestationSetPublished,
     AllAttestations,
     CreateIssuanceFromCsv,
     CreateIssuanceFromJson,

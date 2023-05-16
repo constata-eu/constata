@@ -83,6 +83,7 @@ pub const ATTESTATION: &'static str = "\
   lastDocDate
   emailAdminAccessUrlTo
   adminAccessUrl
+  publicCertificateUrl
   createdAt
   __typename";
 

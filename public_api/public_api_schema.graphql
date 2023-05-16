@@ -114,6 +114,8 @@ input IssuanceFilter {
   nameLike: String
 }
 
+scalar Addr
+
 "A list of WebCallbacks we've sent you or are working on sending you, to help you debug your web callbacks integration."
 type WebCallback {
   "Unique identifier for this Entry, across all Issuances."
@@ -140,17 +142,17 @@ enum WebCallbackState {
   FAILED
 }
 
+enum TemplateKind {
+  DIPLOMA
+  ATTENDANCE
+  BADGE
+}
+
 enum WebCallbackResultCode {
   OK
   NETWORK_ERROR
   NO_CALLBACKS_URL_FOR_ORG
   NON_SUCCESS_RESPONSE
-}
-
-enum TemplateKind {
-  DIPLOMA
-  ATTENDANCE
-  BADGE
 }
 
 "This is your organization's account information and stats."
@@ -178,8 +180,6 @@ type AccountState {
   "This should be an address on your own website such as 'https://yoursite.com/web_callbacks_from_constata' where we can notify you about done attestations, issuances, or pending token purchases."
   webCallbacksUrl: String
 }
-
-scalar Addr
 
 "Your email account, as verified by Constata's email robot."
 type EmailEndorsementManifest {
@@ -211,6 +211,12 @@ input CreateIssuanceFromJsonInput {
   "The name of the new template to be created, if no template_id is given." newName: String
   "The text to be used as the logo for the new template, if no template_id is given." newLogoText: String
   "The base64 encoded image to be used as the logo for the new template, if no template_id is given. If you leave it empty your new_logo_text will be displayed." newLogoImage: Bytes
+}
+
+"Used to publish/unpubish an attestation, so that anyone can see it hosted in Constata's website"
+input AttestationSetPublishedInput {
+  attestationId: Int!
+  publish: Boolean!
 }
 
 "SigningIteratorInput Object"
@@ -270,6 +276,7 @@ type TemplateSchemaField {
   optional: Boolean!
   common: Boolean!
   label: String
+  labelEs: String
   help: String
   sample: String
 }
@@ -311,6 +318,7 @@ type Attestation {
   lastDocDate: DateTime
   emailAdminAccessUrlTo: [String!]!
   adminAccessUrl: String
+  publicCertificateUrl: String
   createdAt: DateTime!
 }
 
@@ -453,6 +461,7 @@ type Mutation {
   createIssuanceFromJson(input: CreateIssuanceFromJsonInput!): Issuance!
   appendEntriesToIssuance(input: AppendEntriesToIssuanceInput!): Issuance!
   createAttestation(input: AttestationInput!): Attestation!
+  attestationSetPublished(input: AttestationSetPublishedInput!): Attestation!
   signingIterator(input: SigningIteratorInput!): UnsignedEntryPayload
   createKycRequest(input: KycRequestInput!): KycRequest!
   createEmailAddress(input: EmailAddressInput!): EmailAddress!
@@ -530,6 +539,7 @@ type Query {
   EmailAddressVerification(id: Int!): EmailAddressVerification!
   InvoiceLink(id: String!): InvoiceLink!
   DownloadProofLink(id: String!): DownloadProofLink!
+  AbridgedProofZip(id: String!): AbridgedProofZip!
   Proof(id: String!): Proof!
   IssuanceExport(id: Int!): IssuanceExport!
   AttestationHtmlExport(id: Int!): AttestationHtmlExport!
@@ -538,6 +548,16 @@ type Query {
 input PubkeyFilter {
   ids: [String!]
   idLike: String
+}
+
+"Contains a zip file with abridged proofs."
+type AbridgedProofZip {
+  "The numerical identifier of the entry."
+  id: Int!
+  "A suitable filename for this zip file, without the .zip extension."
+  filename: String!
+  "The base64 encoded contents of the zip"
+  bytes: Bytes!
 }
 
 "An invoice generated when you chose a payment method and amount of tokens to buy, that has not been paid yet."

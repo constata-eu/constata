@@ -119,6 +119,7 @@ pub mod for_api {
     pub last_doc_date: Option<UtcDateTime>,
     pub email_admin_access_url_to: Vec<String>,
     pub admin_access_url: Option<String>,
+    pub public_certificate_url: Option<String>,
     pub created_at: UtcDateTime,
   }
 
@@ -179,7 +180,16 @@ pub mod for_api {
       None
     };
 
-    let admin_access_url = story.create_download_proof_link(30).await?;
+    let maybe_link = story.get_or_create_download_proof_link(30).await?;
+    let (admin_access_url, public_certificate_url) = if let Some(link) = maybe_link {
+      (
+        Some(link.safe_env_url().await?),
+        if link.published_at().is_some() { Some(link.public_certificate_url()) } else { None }
+      )
+    } else {
+      ( None, None )
+    };
+
     let last_doc_date = story.documents().await?.last().map(|d| d.attrs.created_at.clone());
 
     Ok(Attestation {
@@ -192,7 +202,8 @@ pub mod for_api {
       markers: d.attrs.markers,
       created_at: d.attrs.created_at,
       email_admin_access_url_to: Vec::from_iter(email_admin_access_url_to),
-      admin_access_url: admin_access_url,
+      admin_access_url,
+      public_certificate_url,
       buy_tokens_url: account_state.pending_invoice_link_url,
       accept_tyc_url: account_state.pending_tyc_url,
       done_documents,

@@ -109,6 +109,32 @@ impl Showable<attestation::Attestation, AttestationFilter> for Attestation {
   }
 }
 
+#[derive(Debug, Clone, Default, GraphQLInputObject, Serialize, Deserialize, clap::Args)]
+#[graphql(description = "Used to publish/unpubish an attestation, so that anyone can see it hosted in Constata's website")]
+#[serde(rename_all = "camelCase")]
+pub struct AttestationSetPublishedInput {
+  #[arg(help="The attestation to publish/unpublish")]
+  pub attestation_id: i32,
+  #[arg(short, long, help="Pass this flag to publish. Omit this flag to unpublish.")]
+  pub publish: bool,
+}
+
+impl AttestationSetPublishedInput {
+  pub async fn process(self, context: &Context) -> FieldResult<Attestation> {
+    let attestation = context.person().org().await?.attestation_scope().id_eq(&self.attestation_id).one().await?;
+    if let Some(link) = attestation.story().await?.get_or_create_download_proof_link(30).await? {
+      if self.publish {
+        link.publish().await?;
+      } else {
+        link.unpublish().await?;
+      }
+      Ok(Attestation::db_to_graphql(attestation, false).await?)
+    } else {
+      Err(field_error("not_ready_to_publish", "cannot_publish_until_done"))
+    }
+  }
+}
+
 constata_lib::describe_one! {
   fulltest!{ can_create_an_attestation (_site, c, client, mut chain)
     use chrono::prelude::*;
@@ -119,6 +145,7 @@ constata_lib::describe_one! {
       attestation as show,
       all_attestations as all,
       attestation_html_export as export,
+      attestation_set_published as publish,
     };
 
     client.signer.verify_email("test@example.com").await;
@@ -156,6 +183,7 @@ constata_lib::describe_one! {
         accept_tyc_url: eq(None),
         email_admin_access_url_to: contains_in_any_order(vec!["foo@example.com".to_string(), "bar@example.com".to_string()]),
         admin_access_url: eq(None),
+        public_certificate_url: eq(None),
       }}
     }});
 
@@ -244,6 +272,25 @@ constata_lib::describe_one! {
         }}
       }}
     }});
+
+    let published: publish::ResponseData = client.gql(
+      &AttestationSetPublished::build_query(publish::Variables{
+        input: publish::AttestationSetPublishedInput{ attestation_id: 1, publish: true }
+      })
+    ).await;
+
+    assert_that!(
+      &published.attestation_set_published.public_certificate_url.unwrap(),
+      rematch("http://localhost:8000/certificate/")
+    );
+
+    let unpublished: publish::ResponseData = client.gql(
+      &AttestationSetPublished::build_query(publish::Variables{
+        input: publish::AttestationSetPublishedInput{ attestation_id: 1, publish: false }
+      })
+    ).await;
+
+    assert!(unpublished.attestation_set_published.public_certificate_url.is_none());
 
     let bob_client = crate::test_support::PublicApiClient::new(c.bob().await).await;
     let empty_search = all::Variables{

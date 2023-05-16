@@ -139,6 +139,9 @@ commands! {
     runner.exit_with_boolean(query.run(&runner.client)?)?;
   },
 
+  /// Publish/unpublish an attestation so people can see it on constata's website.
+  AttestationSetPublished => print_json,
+
   /// Gets your organization's account state
   AccountState => print_json,
 
