@@ -3,38 +3,7 @@ mod cli {
     use integration_tests::*;
     use assert_cmd::Command;
 
-
-    /*
-     *  This test is commented until we have a new release.
-    test!{ cli_standard_workflow
-      TestDb::new().await?;
-      let _chain = TestBlockchain::new().await;
-      let mut server = public_api_server::PublicApiServer::start();
-
-      let download_url = format!(
-        "https://github.com/constata-eu/constata-client/releases/download/rc-3/constata-cli-{}",
-        std::env::consts::OS
-      );
-
-      Command::new("curl").args(&["-L", "-o", "/tmp/constata-cli", &download_url]).output()
-        .expect("failed to download constata-cli");
-
-      Command::new("chmod").args(&["+x", "/tmp/constata-cli"]).output()
-        .expect("failed to give execution permissions");
-
-      Command::new("/tmp/constata-cli")
-        .arg("--config=constata_conf_cli.json")
-        .arg("--password=not_so_secret")
-        .arg("stamp")
-        .arg("constata_conf_cli.json")
-        .assert()
-        .success();
-
-      server.stop();
-    }
-    */
-
-    api_integration_test!{ create_issuances(db, mut _chain)
+    api_integration_test!{ create_issuances(db, mut chain)
       db.alice().await.write_signature_json_artifact();
 
       assert_command("create-issuance-from-json", &[
@@ -74,8 +43,8 @@ mod cli {
       assert_command("all-issuances", &["--id-eq", "3"], "/allIssuances/0/state", "signed");
       assert_none("all-issuances", &["--id-eq", "21"], "/allIssuances/0");
 
-      _chain.fund_signer_wallet();
-      _chain.simulate_stamping().await;
+      chain.fund_signer_wallet();
+      chain.simulate_stamping().await;
       db.site.request().try_complete().await?;
       
       assert_command("issuance-export", &["3"], "/id", 3);
@@ -88,7 +57,7 @@ mod cli {
             
     }
 
-    api_integration_test!{ create_attestations(db, mut _chain)
+    api_integration_test!{ create_attestations(db, mut chain)
       db.alice().await.write_signature_json_artifact();
 
       assert_command("create-attestation", &[
@@ -107,8 +76,8 @@ mod cli {
         
       assert_command("all-attestations", &["--id-eq", "2"], "/allAttestations/0/state", "processing");
 
-      _chain.fund_signer_wallet();
-      _chain.simulate_stamping().await;
+      chain.fund_signer_wallet();
+      chain.simulate_stamping().await;
       
       assert_command("all-attestations", &["--id-eq", "2"], "/allAttestations/0/state", "done");
       assert_command("all-attestations", &[], "/_allAttestationsMeta/count", 2);
@@ -116,6 +85,13 @@ mod cli {
       assert_none("all-attestations", &["--markers-like", "nasa"], "/allAttestations/0");
       assert_command("attestation-html-export", &["2"], "/attestation/id", 2);     
 
+      assert_none("all-attestations", &["--id-eq", "2"], "/allAttestations/0/publicCertificateUrl");
+      assert!(
+        run_command_json("attestation-set-published", &["2", "--publish"])
+          .pointer("/publicCertificateUrl").unwrap().is_string()
+      );
+
+      assert_none("attestation-set-published", &["2"], "/publicCertificateUrl");
     }
 
     api_integration_test!{ account_state(db, _chain)
@@ -125,11 +101,6 @@ mod cli {
 
       let json = run_command_json("account-state", &[]);
       assert_eq!(json.get("id").unwrap(), 1);
-
-      /*
-      json = run_command_json("account-state", &[]);
-      assert_eq!(json.get("id").unwrap(), 1);
-      */
     }
 
     
@@ -170,14 +141,16 @@ mod cli {
         T: std::fmt::Debug + 'static,
         for<'a> &'a serde_json::Value: PartialEq<T>
     {
+      let response = run_command_json(command, args);
       assert_eq!(
-        run_command_json(command, args).pointer(pointer).expect(&format!("Nothing found on {pointer}")),
+        response.pointer(pointer).expect(&format!("Nothing found on {pointer} for response {response}")),
         expected_value
       )
     }
 
     fn assert_none(command: &str, args: &[&str], pointer: &str) {
-      assert!(run_command_json(command, args).pointer(pointer).is_none());
+      let result = run_command_json(command, args);
+      assert!(matches!(result.pointer(pointer), None | Some(serde_json::Value::Null)));
     }
 
     fn failed_command(command: &str, args: &[&str]) -> String {
@@ -199,6 +172,5 @@ mod cli {
       assert!(!out.status.success());
       String::from_utf8(out.stderr).unwrap()
     }
-
   }
 }
