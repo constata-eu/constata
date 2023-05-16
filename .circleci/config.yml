@@ -208,9 +208,6 @@ jobs:
       - run:
           command: cd ~/project/constata_cli && ~/.cargo/bin/cargo.exe --config net.git-fetch-with-cli=true build --release
           shell: bash.exe
-      - store_artifacts: 
-          path: %HOMEPATH%/project/target/release/constata-cli.exe
-          destination: constata-cli-win.exe
       - run: 
           name: Add file to release
           command: |
