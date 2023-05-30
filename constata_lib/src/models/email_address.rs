@@ -66,12 +66,14 @@ impl EmailAddressHub {
     }
 
     let evidence_hash = hasher::hexdigest(&evidence);
+    let access_token = self.state.access_token()
+      .create(&person, AccessTokenKind::VerifyEmail, Some(30)).await?;
 
     Ok(self.insert(InsertEmailAddress{
       address: address.to_string(),
       person_id: person.attrs.id,
       org_id: person.attrs.org_id,
-      access_token_id: Some(self.state.access_token().create(&person, AccessTokenKind::VerifyEmail, 30).await?.attrs.id),
+      access_token_id: Some(access_token.attrs.id),
       verified_at: if verified { Some(Utc::now()) } else { None },
       evidence_hash,
       evidence,

@@ -32,13 +32,13 @@ model!{
 }
 
 impl AccessTokenHub {
-  pub async fn create(&self, person: &Person, kind: AccessTokenKind, duration_days: i64) -> sqlx::Result<AccessToken> {
+  pub async fn create(&self, person: &Person, kind: AccessTokenKind, duration_days: Option<i64>) -> sqlx::Result<AccessToken> {
     self.insert(InsertAccessToken{
       person_id: person.attrs.id,
       org_id: person.attrs.org_id,
       token: MagicLink::make_random_token(),
       kind,
-      auto_expires_on: Some(Utc::now() + Duration::days(duration_days)),
+      auto_expires_on: duration_days.map(|d| Utc::now() + Duration::days(d)),
     }).save().await
   }
 
@@ -57,6 +57,8 @@ impl AccessToken {
       AccessTokenKind::VerifyEmail => action == "EmailAddressVerification" || action == "createEmailAddressVerification",
       AccessTokenKind::InvoiceLink => action == "InvoiceLink" || action == "createInvoiceLink",
       AccessTokenKind::DownloadProofLink => matches!(action, "DownloadProofLink" | "Proof" | "updateDownloadProofLink" | "deleteDownloadProofLink" | "AbridgedProofZip"),
+      AccessTokenKind::VcPrompt => matches!(action, "createKioskVcRequest" | "KioskVcRequest"),
+      AccessTokenKind::VcRequest => action == "updateKioskVcRequest",
     }
   }
 
@@ -71,6 +73,8 @@ pub enum AccessTokenKind {
   VerifyEmail,
   InvoiceLink,
   DownloadProofLink,
+  VcPrompt,
+  VcRequest,
 }
 
 impl sqlx::postgres::PgHasArrayType for AccessTokenKind {
@@ -78,7 +82,6 @@ impl sqlx::postgres::PgHasArrayType for AccessTokenKind {
     sqlx::postgres::PgTypeInfo::with_name("_access_token_kind")
   }
 }
-
 
 describe! {
   use crate::Result;
@@ -89,19 +92,25 @@ describe! {
     expire_old_and_assert_amount_of_expired_and_not_expired(&site, 0, 0).await?;
 
     let mut access_tokens = vec![];
-    access_tokens.push(site.access_token().create(&person, AccessTokenKind::DownloadProofLink, 30).await?);
-    access_tokens.push(site.access_token().create(&person, AccessTokenKind::VerifyEmail, 30).await?);
-    access_tokens.push(site.access_token().create(&person, AccessTokenKind::InvoiceLink, 30).await?);
-    access_tokens.push(site.access_token().create(&person, AccessTokenKind::DownloadProofLink, 30).await?);
-    access_tokens.push(site.access_token().create(&person, AccessTokenKind::VerifyEmail, 30).await?);
-    access_tokens.push(site.access_token().create(&person, AccessTokenKind::InvoiceLink, 30).await?);
+
+    for kind in [
+      AccessTokenKind::DownloadProofLink,
+      AccessTokenKind::VerifyEmail,
+      AccessTokenKind::InvoiceLink,
+      AccessTokenKind::DownloadProofLink,
+      AccessTokenKind::VerifyEmail,
+      AccessTokenKind::InvoiceLink,
+    ] {
+      access_tokens.push(site.access_token().create(&person, kind, Some(30)).await?);
+    }
+
     access_tokens[0].clone().update().auto_expires_on(Some(Utc::now() - Duration::hours(1))).save().await?;
     expire_old_and_assert_amount_of_expired_and_not_expired(&site, 1, 5).await?;
 
     access_tokens[1].clone().update().auto_expires_on(Some(Utc::now() - Duration::hours(1))).save().await?;
     expire_old_and_assert_amount_of_expired_and_not_expired(&site, 2, 4).await?;
 
-    access_tokens.push(site.access_token().create(&person, AccessTokenKind::InvoiceLink, 30).await?);
+    access_tokens.push(site.access_token().create(&person, AccessTokenKind::InvoiceLink, Some(30)).await?);
     expire_old_and_assert_amount_of_expired_and_not_expired(&site, 2, 5).await?;
 
     for access_token in access_tokens {
@@ -109,7 +118,7 @@ describe! {
     }
     expire_old_and_assert_amount_of_expired_and_not_expired(&site, 7, 0).await?;
 
-    site.access_token().create(&person, AccessTokenKind::InvoiceLink, 30).await?;
+    site.access_token().create(&person, AccessTokenKind::InvoiceLink, Some(30)).await?;
     expire_old_and_assert_amount_of_expired_and_not_expired(&site, 7, 1).await?;
   }
 

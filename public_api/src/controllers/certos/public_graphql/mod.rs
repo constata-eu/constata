@@ -59,6 +59,8 @@ pub mod download_proof_link_graphql;
 pub mod proof_graphql;
 pub mod attestation_graphql;
 pub mod web_callback_graphql;
+pub mod vc_prompt_graphql;
+pub mod vc_request_graphql;
 
 pub use template_graphql::{Template, TemplateFilter, TemplateInput};
 pub use issuance_graphql::{
@@ -82,6 +84,8 @@ pub use download_proof_link_graphql::{DownloadProofLink, DownloadProofLinkInput,
 pub use proof_graphql::Proof;
 pub use attestation_graphql::*;
 pub use web_callback_graphql::*;
+pub use vc_request_graphql::*;
+pub use vc_prompt_graphql::*;
 
 #[rocket::get("/graphiql")]
 pub fn graphiql() -> rocket::response::content::RawHtml<String> {
@@ -331,6 +335,8 @@ make_graphql_query!{
     [Attestation, allAttestations, allAttestationsMeta, "_allAttestationsMeta", AttestationFilter, i32],
     [WebCallback, allWebCallbacks, allWebCallbacksMeta, "_allWebCallbacksMeta", WebCallbackFilter, i32],
     [WebCallbackAttempt, allWebCallbackAttempts, allWebCallbackAttemptsMeta, "_allWebCallbackAttemptsMeta", WebCallbackAttemptFilter, i32],
+    [VcPrompt, allVcPrompts, allVcPromptsMeta, "_allVcPromptsMeta", VcPromptFilter, i32],
+    [VcRequest, allVcRequests, allVcRequestsMeta, "_allVcRequestsMeta", VcRequestFilter, i32],
   }
 
   #[graphql(name="PreviewEntry")]
@@ -380,6 +386,11 @@ make_graphql_query!{
   #[graphql(name="InvoiceLink")]
   async fn invoice_link(context: &Context, _id: String) -> FieldResult<InvoiceLink> {
     InvoiceLink::invoice_link(context).await
+  }
+
+  #[graphql(name="KioskVcRequest")]
+  async fn kiosk_vc_request(context: &Context, id: i32) -> FieldResult<KioskVcRequest> {
+    KioskVcRequest::get(context, id).await
   }
 
   #[graphql(name="DownloadProofLink")]
@@ -500,6 +511,26 @@ impl Mutation {
     let mut org = context.org().await?;
     org = org.update().web_callbacks_url(url).save().await?;
     AccountState::from_db(org.account_state().await?)
+  }
+
+  pub async fn create_vc_prompt(context: &Context, input: CreateVcPromptInput)
+    -> FieldResult<VcPrompt>
+  {
+    input.process(context).await
+  }
+
+  pub async fn update_vc_prompt(context: &Context, input: UpdateVcPromptInput)
+    -> FieldResult<VcPrompt>
+  {
+    input.process(context).await
+  }
+
+  pub async fn create_kiosk_vc_request( context: &Context, _input: Option<i32> ) -> FieldResult<KioskVcRequest> {
+    KioskVcRequest::create(context).await
+  }
+
+  pub async fn update_kiosk_vc_request( context: &Context, code: String ) -> FieldResult<KioskVcRequest> {
+    KioskVcRequest::update(context, &code).await
   }
 }
 

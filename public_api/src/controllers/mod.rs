@@ -43,6 +43,7 @@ pub mod entry;
 pub mod safe;
 pub mod invoices;
 pub mod public_certificates;
+pub mod vc_verifier;
 
 pub use current_person::{CurrentPerson, CurrentPersonAndJson};
 

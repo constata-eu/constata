@@ -1,3 +1,14 @@
+/* TODO:
+ * Mover todo graphql de src/controllers/certos/graphql a src/graphql
+ * Renombrar todos los archivos de graphql.
+ * Quitar los controllers del api anterior que ya no se usan.
+ *    * Controllers tiene que ser solo de páginas server side rendered.
+ *    * "web-app-certos" ahora es "webapp", la app de diplomas.
+ *    * Ponemos dispatching dentro de constata para que cada pubkey tenga su experiencia propia.
+ *
+ * "certos app"
+ */
+
 #[macro_use]
 #[cfg(any(test, feature = "test_support"))]
 pub mod test_support;
@@ -35,6 +46,7 @@ use controllers::{
   safe,
   invoices,
   public_certificates,
+  vc_verifier,
   certos::{public_graphql::{
     new_graphql_schema,
     graphiql,
@@ -57,8 +69,9 @@ pub fn server(site: Site) -> rocket::Rocket<rocket::Build> {
       "http://0.0.0.0:8000",
       "http://127.0.0.1:3000",
       "http://localhost:3000",
+      "http://81.0.7.108",
     ],
-    &["file://.*", "content://.*"]
+    &["file://.*", "content://.*", "https://.*.constata.eu"]
   ).unwrap();
 
   let cors = rocket_cors::CorsOptions {
@@ -68,7 +81,8 @@ pub fn server(site: Site) -> rocket::Rocket<rocket::Build> {
     allow_credentials: true,
     ..Default::default()
   }
-  .to_cors().expect("No pude crear el CORS.");
+  .to_cors().expect("Could not create cors.");
+
   let schema = new_graphql_schema();
 
   rocket::build()
@@ -150,10 +164,12 @@ pub fn server(site: Site) -> rocket::Rocket<rocket::Build> {
     .mount("/workroom", routes![
       certos_app::workroom_redirect,
     ])
+    .mount("/vid_connect", routes![vc_verifier::callback])
     .mount("/", routes![
       safe::safe,
       safe::prompt,
       safe::show,
+      certos_app::vid_chain_redirect_uri,
       certos_app::app,
       certos_app::build_dir,
     ])
