@@ -1,6 +1,3 @@
-/*
- * website::test::uploading_csv_in_wizard
- */
 mod website {
   constata_lib::describe_one! {
     use integration_tests::*;
@@ -43,6 +40,7 @@ mod website {
       let mut chain = TestBlockchain::new().await;
 
       signup(&c, &d, false).await;
+      wait_here();
       for _ in 0..4 {
         create_template(&d, "testing-template", "DIPLOMA").await;
         let csv = format!("{}/tests/resources/default_certos_recipients.csv", env::current_dir().unwrap().display());

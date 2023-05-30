@@ -53,7 +53,7 @@ impl InvoiceLink {
 impl InsertInvoiceLink {
   pub async fn from_org(org: &Org) -> Result<Self> {
     let person = org.admin().await?;
-    let access_token = org.state.access_token().create(&person, AccessTokenKind::InvoiceLink, 30).await?;
+    let access_token = org.state.access_token().create(&person, AccessTokenKind::InvoiceLink, Some(30)).await?;
 
     Ok(Self{ org_id: *org.id(), access_token_id: *access_token.id() })
   }

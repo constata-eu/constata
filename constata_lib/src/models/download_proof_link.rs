@@ -186,7 +186,8 @@ impl InsertDownloadProofLink {
   pub async fn new(document: &Document, duration_days: i64) -> Result<Self> {
     let org = document.org().await?;
     let person = org.admin().await?;
-    let access_token = org.state.access_token().create(&person, AccessTokenKind::DownloadProofLink, duration_days).await?;
+    let access_token = org.state.access_token()
+      .create(&person, AccessTokenKind::DownloadProofLink, Some(duration_days)).await?;
 
     Ok(Self{
       document_id: document.attrs.id.clone(),

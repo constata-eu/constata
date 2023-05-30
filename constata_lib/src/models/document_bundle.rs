@@ -44,7 +44,8 @@ describe! {
   dbtest!{ keeps_serializer_compatibility (site, c)
     let user = c.enterprise().await;
     let org = user.org().await;
-    let mut access_token = site.access_token().create(&user.person().await, AccessTokenKind::InvoiceLink, 30).await?;
+    let mut access_token = site.access_token()
+      .create(&user.person().await, AccessTokenKind::InvoiceLink, Some(30)).await?;
     access_token = access_token.update().token("hello+world".to_string()).save().await?;
 
     org.get_or_create_invoice_link().await?.update()

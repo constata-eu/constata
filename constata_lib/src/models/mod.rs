@@ -54,6 +54,8 @@ pub mod storable;
 pub mod template_schema;
 pub mod attestation;
 pub mod web_callback;
+pub mod vc_prompt;
+pub mod vc_request;
 
 pub use bulletin::{Bulletin, Draft, Proposed, Published, Submitted};
 pub use story::Story;
@@ -97,6 +99,8 @@ pub use certos::*;
 pub use storable::*;
 pub use template_schema::*;
 pub use web_callback::*;
+pub use vc_prompt::*;
+pub use vc_request::*;
 use magic_link::MagicLink;
 
 pub use sqlx::types::chrono::{DateTime, Utc};

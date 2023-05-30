@@ -44,6 +44,7 @@
     "react-iframe": "^1.8.5",
     "react-scripts": "*",
     "react-scripts-ts": "*",
+    "react-qr-code": "*",
     "stream-browserify": "*",
     "tiny-secp256k1": "*",
     "typescript": "*",

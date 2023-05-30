@@ -40,6 +40,7 @@ pub struct SiteSettings {
   pub testing_storage: Option<bool>,
   pub storage: StorageSettings,
   pub storage_backup: StorageSettings,
+  pub vidchain: VidchainSettings,
   pub email_bot_sender: Option<String>,
   pub customer_care_email: Option<String>,
   pub recaptcha_threshold: Option<f64>,
@@ -215,6 +216,13 @@ pub struct StorageSettings {
   pub bucket: String,
   pub local: Option<bool>,
   pub encrypt: Option<bool>,
+}
+
+#[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
+pub struct VidchainSettings {
+  pub host: String,
+  pub redirect_uri: String,
+  pub client_id: String,
 }
 
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize, juniper::GraphQLEnum)]

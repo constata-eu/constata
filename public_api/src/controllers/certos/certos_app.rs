@@ -1,6 +1,7 @@
 use std::{path::{PathBuf}};
 use rocket::get;
-use rocket::http::ContentType;
+use rocket::http::{ContentType, RawStr};
+use rocket::response::Redirect;
 use include_dir::{include_dir, Dir};
 
 static FILES_DIR: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/static/certos");
@@ -13,6 +14,16 @@ pub fn app() -> (ContentType, &'static str) {
       .get_file("index.html").expect("index.html to be bundled")
       .contents_utf8().expect("Bundled HTML to be utf8")
   )
+}
+
+#[get("/vid_chain/redirect_uri?<code>&<scope>&<state>")]
+pub async fn vid_chain_redirect_uri(code: &str, scope: &str, state: &str) -> Redirect {
+  let uri = format!(
+    "/#/vid_chain/redirect_uri?code={code}&scope={scope}&state={state}",
+    scope = scope.replace(" ", "+"),
+    state = state.replace(" ", "+"),
+  );
+  Redirect::permanent(uri)
 }
 
 #[get("/<file..>", rank=2)]
