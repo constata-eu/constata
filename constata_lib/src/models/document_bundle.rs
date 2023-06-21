@@ -1,11 +1,11 @@
+use crate::prelude::*;
 use serde::Serialize;
-use crate::Result;
+use std::collections::HashMap;
 use super::{
   document::Document as DbDocument,
   bulletin,
   story_bundle::{Document, bulletins_from_ids },
 };
-use std::collections::HashMap;
 
 #[derive(Debug, PartialEq, Clone, Serialize)]
 pub struct DocumentBundle {
@@ -17,7 +17,7 @@ pub struct DocumentBundle {
 }
 
 impl DocumentBundle {
-  pub async fn from_document(db_document: &DbDocument) -> Result<DocumentBundle> {
+  pub async fn from_document(db_document: &DbDocument) -> ConstataResult<DocumentBundle> {
     let (document, bulletin_ids, _) = Document::from_document(db_document).await?;
 
     let bulletins = bulletins_from_ids(&db_document.state, bulletin_ids).await?;

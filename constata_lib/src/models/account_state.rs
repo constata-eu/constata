@@ -1,6 +1,4 @@
-use super::{*, invoice::*};
-use crate::Result;
-
+use super::*;
 
 #[derive(Debug, Serialize)]
 pub struct AccountState {
@@ -27,7 +25,7 @@ pub struct AccountState {
 }
 
 impl AccountState {
-  pub async fn find_for(state: Site, org_id: i32) -> Result<AccountState> {
+  pub async fn find_for(state: Site, org_id: i32) -> ConstataResult<AccountState> {
     let total_document_count: i64 = state.db.fetch_one_scalar(sqlx::query_scalar!(
       r#"SELECT COUNT(*)::bigint as "count!" FROM documents WHERE org_id = $1"#,
       org_id,
@@ -116,7 +114,7 @@ impl AccountState {
 }
 
 impl AccountState {
-  pub async fn fund_all_documents(self) -> Result<Vec<String>> {
+  pub async fn fund_all_documents(self) -> ConstataResult<Vec<String>> {
     let unfunded = self.state.db.fetch_all(sqlx::query!(
       r#"SELECT id, cost::decimal as "cost!" FROM documents WHERE org_id = $1 AND NOT funded ORDER BY gift_id NULLS LAST, created_at"#,
       self.org_id

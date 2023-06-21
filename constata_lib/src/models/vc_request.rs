@@ -26,6 +26,10 @@ model!{
     finished_at: Option<UtcDateTime>,
     #[sqlx_model_hints(int4, default)]
     deletion_id: Option<i32>,
+    #[sqlx_model_hints(varchar, default)]
+    vidchain_code: Option<String>,
+    #[sqlx_model_hints(varchar, default)]
+    vidchain_jwt: Option<String>,
   },
   belongs_to {
     Org(org_id),
@@ -58,7 +62,7 @@ impl VcRequest {
     self.update().vc_presentation(Some(vc_presentation)).save().await
   }
 
-  pub async fn vidchain_url(&self) -> crate::error::Result<String> {
+  pub async fn vidchain_url(&self) -> ConstataResult<String> {
     let state = self.access_token().await?.attrs.token;
     let settings = &self.state.settings.vidchain;
     let host = &settings.host;
@@ -70,7 +74,28 @@ impl VcRequest {
     Ok(format!("{host}/oauth2/auth?response_type=code&state={state}&redirect_uri={redirect_uri}&client_id={client_id}&scope=openid%20{scope}&nonce={nonce}"))
   }
 
-  pub async fn resolve_with_vidchain_code(self, code: &str) -> sqlx::Result<Self> {
-    self.update().state(VcRequestState::Approved).save().await
+  pub async fn resolve_with_vidchain_code(self, code: &str) -> ConstataResult<Self> {
+    let settings = &self.state.settings.vidchain;
+    let response = ureq::post(&format!("{}/oauth2/token", &settings.host))
+      .timeout(std::time::Duration::new(5,0))
+      .set("Accept", "application/json")
+      .send_form(&[
+        ("code", code),
+        ("client_id", &settings.client_id),
+        ("client_secret", &settings.client_secret),
+        ("redirect_uri", &settings.redirect_uri),
+        ("grant_type", "authorization_code"),
+      ])?;
+
+    self.resolve_with_vidchain_jwt(code, response.into_string()?).await
+  }
+
+  pub async fn resolve_with_vidchain_jwt(self, code: &str, jwt: String) -> ConstataResult<Self> {
+    Ok(self.update()
+      .state(VcRequestState::Approved)
+      .vidchain_code(Some(code.to_string()))
+      .vidchain_jwt(Some(jwt))
+      .save().await?)
   }
 }
+

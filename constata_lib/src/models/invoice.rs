@@ -1,6 +1,4 @@
-use crate::error::Result;
-use super::{*, payment::*};
-use chrono::Duration;
+use super::*;
 
 model!{
   state: Site,
@@ -36,7 +34,7 @@ model!{
 }
 
 impl InvoiceHub {
-  pub async fn once(self, org: &Org, payment_source: PaymentSource, tokens: Decimal) -> Result<Invoice> {
+  pub async fn once(self, org: &Org, payment_source: PaymentSource, tokens: Decimal) -> ConstataResult<Invoice> {
     let token_price = org.subscription_or_err().await?.attrs.price_per_token;
     let (url, external_id) = match payment_source {
       PaymentSource::Stripe => self.request_on_stripe(org.clone(), &token_price, &tokens).await?,
@@ -62,7 +60,7 @@ impl InvoiceHub {
     Ok(invoice)
   }
 
-  async fn request_on_stripe(&self, org: Org, token_price: &Decimal, tokens: &Decimal) -> Result<(String, String)> {
+  async fn request_on_stripe(&self, org: Org, token_price: &Decimal, tokens: &Decimal) -> ConstataResult<(String, String)> {
     use serde_json::json;
     use stripe::{CheckoutSession, CustomerId};
     use num_traits::cast::ToPrimitive;
@@ -92,7 +90,7 @@ impl InvoiceHub {
     Ok((stripe_session.url, stripe_session.id.to_string()))
   }
 
-  async fn request_on_btc_pay(&self, token_price: &Decimal, tokens: &Decimal) -> Result<(String, String)> {
+  async fn request_on_btc_pay(&self, token_price: &Decimal, tokens: &Decimal) -> ConstataResult<(String, String)> {
     let total = tokens * token_price;
     let settings = &self.state.settings;
 
@@ -128,7 +126,7 @@ impl InvoiceHub {
 }
 
 impl Invoice {
-  pub async fn make_payment(&mut self, clearing_data: Option<&str>) -> Result<Payment> {
+  pub async fn make_payment(&mut self, clearing_data: Option<&str>) -> ConstataResult<Payment> {
     let payment = self.state.payment()
       .insert(InsertPayment{
         org_id: self.attrs.org_id,
@@ -228,7 +226,7 @@ describe! {
     assert_counter_invoices_not_expired_not_paid(&site, 1, None).await?;
   }
 
-  async fn assert_counter_invoices_not_expired_not_paid(site: &Site, counter: i64, payment_source: Option<PaymentSource>) -> Result<()> {
+  async fn assert_counter_invoices_not_expired_not_paid(site: &Site, counter: i64, payment_source: Option<PaymentSource>) -> ConstataResult<()> {
     let invoices_counter = match payment_source {
       Some(x) => site.invoice().select().expired_eq(false).paid_eq(false).payment_source_eq(x).count().await?,
       None => site.invoice().select().expired_eq(false).paid_eq(false).count().await?,
@@ -237,7 +235,7 @@ describe! {
     Ok(())
   }
   async fn assert_counter_invoices_when_expired_is(site: &Site, expired: bool, counter: i64, payment_source: Option<PaymentSource>)
-    -> Result<()> {
+    -> ConstataResult<()> {
     let invoices_counter = match payment_source {
       Some(x) => site.invoice().select().expired_eq(expired).payment_source_eq(x).count().await?,
       None => site.invoice().select().expired_eq(expired).count().await?,

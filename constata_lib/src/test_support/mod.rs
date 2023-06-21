@@ -76,11 +76,11 @@ pub async fn try_until<T: Future<Output = bool>>(times: i32, err: &str,  call: i
 }
 
 pub fn read(file: &str) -> Vec<u8> {
-  std::fs::read(&format!("../constata_lib/src/test_support/resources/{file}")).unwrap()
+  ex::fs::read(&format!("../constata_lib/src/test_support/resources/{file}")).unwrap()
 }
 
 pub fn read_to_string(file: &str) -> String {
-  std::fs::read_to_string(&format!("../constata_lib/src/test_support/resources/{file}")).unwrap()
+  ex::fs::read_to_string(&format!("../constata_lib/src/test_support/resources/{file}")).unwrap()
 }
 
 pub fn mock_callbacks_url(hits: usize, status: usize) -> mockito::Mock {

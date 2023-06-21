@@ -1,11 +1,8 @@
-use super::*;
-use crate::{
-  signed_payload::SignedPayload,
-  models::attestation::Attestation,
-  Error, Result as ConstataResult, Site,
+use super::{
+  *,
+  attestation::Attestation,
 };
-use chrono::{Duration, Utc};
-use serde::{Deserialize, Serialize};
+use crate::signed_payload::SignedPayload;
 use juniper::GraphQLEnum;
 use duplicate::duplicate_item;
 

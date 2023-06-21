@@ -32,7 +32,7 @@ mod cli {
       assert_command("all-issuances", &["--id-eq", "2"], "/allIssuances/0/templateId", 2);
       assert_command("all-issuances", &["--id-eq", "3"], "/allIssuances/0/state", "received");
 
-      db.site.request().create_all_received().await?; // Ahora se crean todos los documentos.
+      db.site.issuance().create_all_received().await?; // Ahora se crean todos los documentos.
 
       assert_command("all-issuances", &["--id-eq", "3"], "/allIssuances/0/state", "created");
       run_command("preview-entry", &["9", "target/artifacts/cli_preview.html"]);
@@ -45,7 +45,7 @@ mod cli {
 
       chain.fund_signer_wallet();
       chain.simulate_stamping().await;
-      db.site.request().try_complete().await?;
+      db.site.issuance().try_complete().await?;
       
       assert_command("issuance-export", &["3"], "/id", 3);
       assert_command("all-issuances", &["--id-eq", "2"], "/allIssuances/0/state", "completed");

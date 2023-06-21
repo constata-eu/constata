@@ -1,6 +1,4 @@
-use crate::{Site, Result};
-use serde::{Serialize};
-use chrono::Utc;
+use crate::prelude::*;
 
 #[derive(Debug, Serialize)]
 pub struct EntryDone {
@@ -15,7 +13,7 @@ pub struct EntryDone {
 }
 
 impl EntryDone {
-  pub async fn new(site: &Site, document_id: &str, custom_message: Option<String>) -> Result<Self> {
+  pub async fn new(site: &Site, document_id: &str, custom_message: Option<String>) -> ConstataResult<Self> {
     let doc = site.document().find(&document_id.to_string()).await?;
     let lang = doc.story().await?.attrs.lang;
     let accepted = doc.clone().in_accepted()?;
@@ -36,7 +34,7 @@ impl EntryDone {
     })
   }
 
-  pub fn render_html(&self) -> Result<String> {
+  pub fn render_html(&self) -> ConstataResult<String> {
     Ok(crate::RENDERER.i18n_and_serialize("emails/", self.lang, "entry_done.html", &self)?.to_utf8()?)
   }
 }

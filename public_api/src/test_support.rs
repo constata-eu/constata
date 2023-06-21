@@ -95,13 +95,6 @@ impl PublicApiClient {
     Header::new("Authentication", token)
   }
 
-  pub fn make_legacy_auth_header<'a>(&'a self, path: &str, date: &str) -> Header<'static> {
-    let payload = serde_json::json![{ "constata_eu_action": path, "expires": date, }].to_string();
-    let token = serde_json::to_string(&self.signer.signed_payload(payload.as_bytes()))
-      .expect("Signed payload to be serialized");
-    Header::new("Authentication", token)
-  }
-
   pub fn ok_auth_header(&self, path: &str, method: &str, body: Option<&str>, query: Option<&str>) -> Header<'static> {
     self.make_auth_header(path , method, chrono::Utc::now().timestamp_millis(), body, query)
   }
@@ -182,10 +175,10 @@ impl PublicApiClient {
     self.get_response_with_auth(path, self.make_auth_header(path, "GET", -1, None, None)).await
   }
 
-  pub async fn get_response_with_bad_auth_signature<'a>(&'a self, path: &'a str) -> LocalResponse<'a> {
+  pub async fn response_with_bad_auth_signature<'a>(&'a self, path: &'a str) -> LocalResponse<'a> {
     let payload = serde_json::json![{
       "path": path,
-      "method": "GET",
+      "method": "POST",
       "nonce": 1,
       "body_hash": null,
       "query_hash": null,
@@ -261,6 +254,7 @@ pub mod gql {
     AllWebCallbacks,
     WebCallbackAttempt,
     AllWebCallbackAttempts,
+    AccountState,
   ];
 
   impl From<constata_lib::signed_payload::SignedPayload> for create_attestation::SignedPayload {

@@ -1,7 +1,6 @@
 use super::*;
 use juniper::GraphQLEnum;
 use google_authenticator::GoogleAuthenticator;
-use crate::error;
 
 #[derive(sqlx::Type, Copy, Clone, Debug, Deserialize, PartialEq, Serialize, GraphQLEnum)]
 #[sqlx(type_name = "admin_role", rename_all = "lowercase")]
@@ -69,9 +68,9 @@ impl AdminUser {
     self.attrs.hashed_password ==  hash_pass(password)
   }
 
-  pub fn get_current_otp(&self) -> error::Result<String> {
+  pub fn get_current_otp(&self) -> ConstataResult<String> {
     GoogleAuthenticator::new().get_code(self.otp_seed(),0)
-      .map_err(|_| error::Error::validation("otp_seed", "cannot_generate_codes"))
+      .map_err(|_| Error::validation("otp_seed", "cannot_generate_codes"))
   }
 }
 

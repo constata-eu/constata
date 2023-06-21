@@ -242,4 +242,4 @@ impl<S: ScalarValue> IntoFieldError<S> for Error {
   }
 }
 
-pub type Result<T> = std::result::Result<T, Error>;
+pub type ConstataResult<T> = Result<T, Error>;

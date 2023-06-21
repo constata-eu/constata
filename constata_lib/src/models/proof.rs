@@ -1,4 +1,5 @@
 use crate::{
+  prelude::*,
   RENDERER,
   signed_payload::SignedPayload,
   models::{
@@ -9,7 +10,6 @@ use crate::{
     Person,
     Endorsement,
   },
-  Base64Standard, Error, Result,
 };
 use bitcoin::{ PrivateKey, network::constants::Network};
 use serde::Serialize;
@@ -56,7 +56,7 @@ pub struct BulletinContents {
 }
 
 impl<'a> Proof<'a> {
-  pub async fn new(story: &Story, network: Network, key: &'a PrivateKey) -> Result<Proof<'a>> {
+  pub async fn new(story: &Story, network: Network, key: &'a PrivateKey) -> ConstataResult<Proof<'a>> {
     use std::cmp::Ordering;
 
     let bundle = StoryBundle::from_story(&story).await?;
@@ -180,11 +180,11 @@ impl<'a> Proof<'a> {
     }
   }
 
-  pub fn render_html(&self, lang: i18n::Lang) -> Result<String> {
+  pub fn render_html(&self, lang: i18n::Lang) -> ConstataResult<String> {
     self.render_signed_html(&i18n::Context::from_serialize(&self)?, lang)
   }
 
-  pub fn generate_each_part_html(&self, lang: i18n::Lang) -> Result<Vec<(String, String)>> {
+  pub fn generate_each_part_html(&self, lang: i18n::Lang) -> ConstataResult<Vec<(String, String)>> {
     let mut tuples = vec![];
 
     for doc in &self.documents {
@@ -200,7 +200,7 @@ impl<'a> Proof<'a> {
     Ok(tuples)
   }
 
-  pub fn render_signed_html(&self, context: &i18n::Context, lang: i18n::Lang) -> Result<String> {
+  pub fn render_signed_html(&self, context: &i18n::Context, lang: i18n::Lang) -> ConstataResult<String> {
     let mut html = RENDERER.i18n_and_context("proofs", lang, "proof.html", context)?.to_utf8()?;
     let signature = SignedPayload::sign_with_key(&html.as_bytes(), &self.key);
     let mut sign_context = i18n::Context::new();
@@ -209,7 +209,7 @@ impl<'a> Proof<'a> {
     Ok(html)
   }
 
-  pub fn generate_each_part_html_and_zip(&self, lang: i18n::Lang) -> Result<File> {
+  pub fn generate_each_part_html_and_zip(&self, lang: i18n::Lang) -> ConstataResult<File> {
     use std::io::Write;
     use zip::write::FileOptions;
 
@@ -227,7 +227,7 @@ impl<'a> Proof<'a> {
     Ok(file.reopen()?)
   }
 
-  pub async fn render_endorsements(person: &Person, lang: i18n::Lang, html: bool) -> Result<String> {
+  pub async fn render_endorsements(person: &Person, lang: i18n::Lang, html: bool) -> ConstataResult<String> {
     let mut context = i18n::Context::new();
     context.insert("html", &html);
     context.insert("person_id", person.id());

@@ -24,6 +24,12 @@ telegram_timeout=15
 telegram_token="XXXXXXXXXX:YYYYYYYYYYYYYYYYYYZZZZZZZZZZZZZZZZZ"
 recaptcha_threshold=0.0
 
+[global.vidchain]
+host="https://staging.vidchain.net"
+redirect_uri="https://example.com/vid_chain/redirect_uri"
+client_id="yourname"
+client_secret="yoursecret"
+
 [global.recaptcha.v3]
 html_key="yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy-"
 secret_key="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"

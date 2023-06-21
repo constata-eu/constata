@@ -1,5 +1,5 @@
 use super::AuditLog;
-use crate::{Error, Result as ConstataResult};
+use crate::{Error, ConstataResult};
 use bitcoin::network::constants::Network;
 use stripe::Client;
 use rocket::Config;
@@ -223,6 +223,9 @@ pub struct VidchainSettings {
   pub host: String,
   pub redirect_uri: String,
   pub client_id: String,
+  pub client_secret: String,
+  pub expected_kid: String,
+  pub rsa_pk_n: String,
 }
 
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize, juniper::GraphQLEnum)]

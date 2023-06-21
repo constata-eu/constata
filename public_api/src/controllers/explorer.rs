@@ -6,7 +6,7 @@ use std::str::FromStr;
 pub async fn show(
   site: &State<Site>,
   id: String,
-) -> Result<Json<bitcoincore_rpc::json::GetRawTransactionResult>> {
+) -> ConstataResult<Json<bitcoincore_rpc::json::GetRawTransactionResult>> {
   let txid = Txid::from_str(&id).map_err(|_| Error::validation("txid", "invalid txid"))?;
   let client = Client::new(
     site.settings.bitcoin_rpc_uri.clone(),

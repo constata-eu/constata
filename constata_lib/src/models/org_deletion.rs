@@ -1,16 +1,3 @@
-use crate::{
-  models::{
-    document::*,
-    story::*,
-    pubkey::*,
-    person::*,
-    kyc_endorsement::*,
-    pubkey_domain_endorsement::*,
-    email_address::*,
-    download_proof_link::*,
-  },
-  Site, Result,
-};
 use super::*;
 
 model!{
@@ -46,7 +33,7 @@ model!{
     KycEndorsement(deletion_id),
     PubkeyDomainEndorsement(deletion_id),
     EmailAddress(deletion_id),
-    Request(deletion_id),
+    Issuance(deletion_id),
     Template(deletion_id),
     Entry(deletion_id),
     DownloadProofLink(deletion_id),
@@ -60,7 +47,7 @@ impl OrgDeletionHub {
     reason: DeletionReason,
     description: String,
     evidence: Vec<&[u8]>,
-  ) -> Result<OrgDeletion> {
+  ) -> ConstataResult<OrgDeletion> {
     let org = self.state.org().find(&org_id).await?;
     let evidence_vec = evidence.iter().map(|x| x.to_vec()).collect();
 
@@ -89,7 +76,7 @@ impl OrgDeletionHub {
 
 
 impl OrgDeletion {
-  pub async fn set_relationships(&self) -> Result<OrgDeletion> {
+  pub async fn set_relationships(&self) -> ConstataResult<OrgDeletion> {
     macro_rules! set_deletion_id (
       ($vec_of_model:expr) => (
         for model in $vec_of_model {
@@ -100,7 +87,7 @@ impl OrgDeletion {
     let org = self.org().await?;
     set_deletion_id![vec![org.clone()]];
     set_deletion_id![org.person_vec().await?];
-    set_deletion_id![org.request_vec().await?];
+    set_deletion_id![org.issuance_vec().await?];
     set_deletion_id![org.template_vec().await?];
     set_deletion_id![org.entry_vec().await?];
     set_deletion_id![org.pubkey_vec().await?];
@@ -116,10 +103,10 @@ impl OrgDeletion {
     Ok(self.clone())
   }
 
-  pub async fn physical_delete(&self) -> Result<OrgDeletion> {
+  pub async fn physical_delete(&self) -> ConstataResult<OrgDeletion> {
     let counter = self.state.org_deletion().select().completed_eq(true).count().await?;
 
-    for r in self.request_vec().await? { r.storage_put(b"").await?  }
+    for r in self.issuance_vec().await? { r.storage_put(b"").await?  }
 
     for t in self.template_vec().await? { t.storage_put(b"").await?  }
 
@@ -167,11 +154,11 @@ describe!{
       custom_message: None,
       sent_at: None,
     }).save().await?;
-    let template_file = read("certos_template.zip");
+    let template_file = read("template.zip");
     let template = alice.make_template(template_file).await;
-    let request_file = read("certos_request_one_entry.csv");
-    alice.make_request(*template.id() ,request_file).await?;
-    site.request().create_all_received().await?;
+    let issuance_file = read("issuance_one_entry.csv");
+    alice.make_issuance(*template.id() ,issuance_file).await?;
+    site.issuance().create_all_received().await?;
 
     assert_that!(site.org().find(&alice_id).await?.org_deletion().await?.is_none());
     let bob_kyc_endorsement = bob.make_kyc_endorsement().await;
@@ -198,7 +185,7 @@ describe!{
     };
 
     macro_rules! assert_count (($count:expr, $scope:expr) => ( assert_eq!($count, $scope.count().await?);));
-    assert_count![1, org_deletion.request_scope()];
+    assert_count![1, org_deletion.issuance_scope()];
     assert_count![1, org_deletion.template_scope()];
     assert_count![1, org_deletion.entry_scope()];
     assert_count![1, org_deletion.pubkey_scope()];
@@ -210,7 +197,7 @@ describe!{
     assert_count![1, org_deletion.download_proof_link_scope()];
 
     let mut org = org_deletion.org().await?;
-    for m in org.request_vec().await? {
+    for m in org.issuance_vec().await? {
       assert_that!(!m.storage_fetch().await?.is_empty());
     };
     for m in org.template_vec().await? {
@@ -224,7 +211,7 @@ describe!{
     
     org = physical_deletion.org().await?;
     assert_that!(physical_deletion.attrs.completed);
-    for m in org.request_vec().await? {
+    for m in org.issuance_vec().await? {
       assert_that!(m.storage_fetch().await?.is_empty());
     };
     for m in org.template_vec().await? {
