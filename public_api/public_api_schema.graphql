@@ -114,8 +114,6 @@ input IssuanceFilter {
   nameLike: String
 }
 
-scalar Addr
-
 "A list of WebCallbacks we've sent you or are working on sending you, to help you debug your web callbacks integration."
 type WebCallback {
   "Unique identifier for this Entry, across all Issuances."
@@ -142,17 +140,17 @@ enum WebCallbackState {
   FAILED
 }
 
-enum TemplateKind {
-  DIPLOMA
-  ATTENDANCE
-  BADGE
-}
-
 enum WebCallbackResultCode {
   OK
   NETWORK_ERROR
   NO_CALLBACKS_URL_FOR_ORG
   NON_SUCCESS_RESPONSE
+}
+
+enum TemplateKind {
+  DIPLOMA
+  ATTENDANCE
+  BADGE
 }
 
 "This is your organization's account information and stats."
@@ -180,6 +178,8 @@ type AccountState {
   "This should be an address on your own website such as 'https://yoursite.com/web_callbacks_from_constata' where we can notify you about done attestations, issuances, or pending token purchases."
   webCallbacksUrl: String
 }
+
+scalar Addr
 
 "Your email account, as verified by Constata's email robot."
 type EmailEndorsementManifest {
@@ -232,6 +232,12 @@ type Signup {
   id: Int!
 }
 
+"The input type for archiving a prompt."
+input UpdateVcPromptInput {
+  id: Int!
+  action: String!
+}
+
 input EntryFilter {
   ids: [Int!]
   idEq: Int
@@ -247,7 +253,7 @@ input KycRequestFilter {
   stateEq: String
 }
 
-"This is the best way to compose an Issuance incrementally. You can add new entries at any time before signing the Issuance. Entries will be validated as they are recevied, and then will be 'created' by our workers. In the unlikely case an entry passes validation and is received, but then an error when our worker tries to create it, the request will be marked as failed, as well as all other entries. "
+"This is the best way to compose an Issuance incrementally. You can add new entries at any time before signing the Issuance. Entries will be validated as they are recevied, and then will be 'created' by our workers. In the unlikely case an entry passes validation and is received, but then an error when our worker tries to create it, the issuance will be marked as failed, as well as all other entries. "
 input AppendEntriesToIssuanceInput {
   "The ID of the Issuance to which the entries are to be appended." issuanceId: Int!
   "An array of JSON objects corresponding to each recipient for whom you want to create a diploma, certificate of attendance or badge. ie: '[{\"name\":\"Alice\",\"motive\":\"Cream of the crop\"},{\"name\":\"Bob\",\"motive\":\"Accredited Expert\"}]'" entries: [EntryParams!]!
@@ -330,6 +336,22 @@ type UnsignedEntryPayload {
   entry: Entry!
   "The base64 encoded contents of this entry. It's always a zip file."
   bytes: Bytes!
+}
+
+"A verifiable credentials presentation request."
+type KioskVcRequest {
+  "Unique numeric identifier of this request."
+  id: Int!
+  "Public description."
+  description: String!
+  "Url for VidWallet users. They must open it with their QR code scanner."
+  vidchainUrl: String!
+  "The presentation request state"
+  state: VcRequestState!
+  "A snake_cased_string with further information about the current state. Can be translated in the front end."
+  stateNotes: String
+  "The date in which this presentation request was made."
+  startedAt: DateTime!
 }
 
 scalar EntryParams
@@ -439,7 +461,58 @@ enum WebCallbackKind {
   ATTESTATION_DONE
 }
 
+"A prompt managing the creation an validation of verifiable credential presentation requests."
+type VcPrompt {
+  "Unique numeric identifier of this prompt"
+  id: Int!
+  "A friendly, public name of this prompt."
+  name: String!
+  "The custom rules applied to the verifiable credentials. (Just the credential type for now.)"
+  rules: String!
+  "The public url for this prompt, can be opened from any device with the link."
+  fullUrl: String!
+  "The date when this prompt was created."
+  createdAt: DateTime!
+  "Archived prompts cannot issue further VC presentation requests."
+  archivedAt: DateTime
+}
+
+enum VcRequestState {
+  PENDING
+  APPROVED
+  REJECTED
+  FAILED
+}
+
+"A verifiable credentials presentation request."
+type VcRequest {
+  "Unique numeric identifier of this request."
+  id: Int!
+  "The VC Prompt which created this presentation request."
+  promptId: Int!
+  "The presentation request state"
+  state: VcRequestState!
+  "A snake_cased_string with further information about the current state. Can be translated in the front end."
+  stateNotes: String
+  "The full VC presentation received from the end user responding to the request."
+  vcPresentation: String
+  "DID of the user responding to this request."
+  did: String
+  "The date in which this presentation request was made."
+  startedAt: DateTime!
+  "The time at which thes presentation request reached its final state."
+  finishedAt: DateTime
+}
+
 scalar Bytes
+
+input VcRequestFilter {
+  ids: [Int!]
+  idEq: Int
+  stateEq: VcRequestState
+  didLike: String
+  finishedAtIsSet: Boolean
+}
 
 "This object retrieves a certificate in verifiable HTML format authenticating with a special token, generated by our backend. This links can be sent to anyone and they will download the verifiable HTML. NOTICE If you need to download the verifiable HTML for any certificate authenticating to our API with your credentials, use the Issuances or Attestations endpoints instead."
 type Proof {
@@ -447,12 +520,6 @@ type Proof {
   id: Int!
   "Certificate HTML contents as text"
   html: String!
-}
-
-"This object is used by our frontend when a customer receives a link to create an invoice to purchase tokens."
-input InvoiceLinkInput {
-  "The payment method to use for this invoice ('Bitcoin' or 'Stripe')." paymentMethod: String!
-  "The number of tokens to purchase with this invoice." tokens: Int!
 }
 
 type Mutation {
@@ -472,6 +539,16 @@ type Mutation {
   updateIssuance(id: Int!): Issuance!
   updateTemplate(input: TemplateInput!): Template!
   updateWebCallbacksUrl(url: String): AccountState!
+  createVcPrompt(input: CreateVcPromptInput!): VcPrompt!
+  updateVcPrompt(input: UpdateVcPromptInput!): VcPrompt!
+  createKioskVcRequest(input: Int): KioskVcRequest!
+  updateKioskVcRequest(code: String!): KioskVcRequest!
+}
+
+"This object is used by our frontend when a customer receives a link to create an invoice to purchase tokens."
+input InvoiceLinkInput {
+  "The payment method to use for this invoice ('Bitcoin' or 'Stripe')." paymentMethod: String!
+  "The number of tokens to purchase with this invoice." tokens: Int!
 }
 
 "Every attempt we made to deliver a WebCallback to your web_callbacks_url"
@@ -531,6 +608,12 @@ type Query {
   WebCallbackAttempt(id: Int!): WebCallbackAttempt!
   allWebCallbackAttempts(page: Int, perPage: Int, sortField: String, sortOrder: String, filter: WebCallbackAttemptFilter): [WebCallbackAttempt!]!
   _allWebCallbackAttemptsMeta(page: Int, perPage: Int, sortField: String, sortOrder: String, filter: WebCallbackAttemptFilter): ListMetadata!
+  VcPrompt(id: Int!): VcPrompt!
+  allVcPrompts(page: Int, perPage: Int, sortField: String, sortOrder: String, filter: VcPromptFilter): [VcPrompt!]!
+  _allVcPromptsMeta(page: Int, perPage: Int, sortField: String, sortOrder: String, filter: VcPromptFilter): ListMetadata!
+  VcRequest(id: Int!): VcRequest!
+  allVcRequests(page: Int, perPage: Int, sortField: String, sortOrder: String, filter: VcRequestFilter): [VcRequest!]!
+  _allVcRequestsMeta(page: Int, perPage: Int, sortField: String, sortOrder: String, filter: VcRequestFilter): ListMetadata!
   PreviewEntry(id: Int!): PreviewEntry!
   UnsignedEntryPayload(id: Int!): UnsignedEntryPayload!
   EntryHtmlExport(id: Int!): EntryHtmlExport!
@@ -538,6 +621,7 @@ type Query {
   EndorsementManifest(id: Int!): EndorsementManifest!
   EmailAddressVerification(id: Int!): EmailAddressVerification!
   InvoiceLink(id: String!): InvoiceLink!
+  KioskVcRequest(id: Int!): KioskVcRequest!
   DownloadProofLink(id: String!): DownloadProofLink!
   AbridgedProofZip(id: String!): AbridgedProofZip!
   Proof(id: String!): Proof!
@@ -548,6 +632,13 @@ type Query {
 input PubkeyFilter {
   ids: [String!]
   idLike: String
+}
+
+input VcPromptFilter {
+  ids: [Int!]
+  idEq: Int
+  nameLike: String
+  archivedAtIsSet: Boolean
 }
 
 "Contains a zip file with abridged proofs."
@@ -624,8 +715,6 @@ type Entry {
   hasEmailCallback: Boolean!
   "Date when the email was sent, if it has already been sent."
   emailCallbackSentAt: DateTime
-  "The data payload for this entry."
-  payload: String
   "The administrative access url for the direct recipient of this entry. They can use it to download, view or share the document."
   adminAccessUrl: String
 }
@@ -700,6 +789,12 @@ input SignedPayload {
   payload: Bytes!
   signer: Addr!
   signature: MsgSig!
+}
+
+"The input type for archiving a prompt."
+input CreateVcPromptInput {
+  name: String!
+  rules: String!
 }
 
 schema {

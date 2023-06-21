@@ -8362,100 +8362,6 @@
     },
     "query": "SELECT id as \"id!: i32\", \ndocument_id as \"document_id!: String\", \naddress as \"address!: String\", \ncustom_message as \"custom_message!: Option < String >\", \nsent_at as \"sent_at!: Option < UtcDateTime >\" FROM email_callbacks WHERE (NOT $1::boolean OR id = $2::int4) AND (NOT $3::boolean OR id != $4::int4) AND (NOT $5::boolean OR id > $6::int4) AND (NOT $7::boolean OR id >= $8::int4) AND (NOT $9::boolean OR id < $10::int4) AND (NOT $11::boolean OR id <= $12::int4) AND (NOT $13::boolean OR id IN (SELECT unnest(CAST($14 as int4[]))) ) AND (NOT $15::boolean OR id NOT IN (SELECT unnest(CAST($16 as int4[]))) ) AND ($17::boolean IS NULL OR (($17::boolean AND id IS NOT NULL) OR (NOT $17::boolean AND id IS NULL))) AND (NOT $18::boolean OR document_id = $19::varchar) AND (NOT $20::boolean OR document_id != $21::varchar) AND (NOT $22::boolean OR document_id > $23::varchar) AND (NOT $24::boolean OR document_id >= $25::varchar) AND (NOT $26::boolean OR document_id < $27::varchar) AND (NOT $28::boolean OR document_id <= $29::varchar) AND (NOT $30::boolean OR document_id LIKE $31::varchar) AND (NOT $32::boolean OR document_id NOT LIKE $33::varchar) AND (NOT $34::boolean OR document_id ILIKE $35::varchar) AND (NOT $36::boolean OR document_id NOT ILIKE $37::varchar) AND (NOT $38::boolean OR document_id SIMILAR TO $39::varchar) AND (NOT $40::boolean OR document_id NOT SIMILAR TO $41::varchar) AND (NOT $42::boolean OR document_id IN (SELECT unnest(CAST($43 as varchar[]))) ) AND (NOT $44::boolean OR document_id NOT IN (SELECT unnest(CAST($45 as varchar[]))) ) AND ($46::boolean IS NULL OR (($46::boolean AND document_id IS NOT NULL) OR (NOT $46::boolean AND document_id IS NULL))) AND (NOT $47::boolean OR address = $48::varchar) AND (NOT $49::boolean OR address != $50::varchar) AND (NOT $51::boolean OR address > $52::varchar) AND (NOT $53::boolean OR address >= $54::varchar) AND (NOT $55::boolean OR address < $56::varchar) AND (NOT $57::boolean OR address <= $58::varchar) AND (NOT $59::boolean OR address LIKE $60::varchar) AND (NOT $61::boolean OR address NOT LIKE $62::varchar) AND (NOT $63::boolean OR address ILIKE $64::varchar) AND (NOT $65::boolean OR address NOT ILIKE $66::varchar) AND (NOT $67::boolean OR address SIMILAR TO $68::varchar) AND (NOT $69::boolean OR address NOT SIMILAR TO $70::varchar) AND (NOT $71::boolean OR address IN (SELECT unnest(CAST($72 as varchar[]))) ) AND (NOT $73::boolean OR address NOT IN (SELECT unnest(CAST($74 as varchar[]))) ) AND ($75::boolean IS NULL OR (($75::boolean AND address IS NOT NULL) OR (NOT $75::boolean AND address IS NULL))) AND (NOT $76::boolean OR custom_message = $77::text) AND (NOT $78::boolean OR custom_message != $79::text) AND (NOT $80::boolean OR custom_message > $81::text) AND (NOT $82::boolean OR custom_message >= $83::text) AND (NOT $84::boolean OR custom_message < $85::text) AND (NOT $86::boolean OR custom_message <= $87::text) AND (NOT $88::boolean OR custom_message LIKE $89::text) AND (NOT $90::boolean OR custom_message NOT LIKE $91::text) AND (NOT $92::boolean OR custom_message ILIKE $93::text) AND (NOT $94::boolean OR custom_message NOT ILIKE $95::text) AND (NOT $96::boolean OR custom_message SIMILAR TO $97::text) AND (NOT $98::boolean OR custom_message NOT SIMILAR TO $99::text) AND (NOT $100::boolean OR custom_message IN (SELECT unnest(CAST($101 as text[]))) ) AND (NOT $102::boolean OR custom_message NOT IN (SELECT unnest(CAST($103 as text[]))) ) AND ($104::boolean IS NULL OR (($104::boolean AND custom_message IS NOT NULL) OR (NOT $104::boolean AND custom_message IS NULL))) AND (NOT $105::boolean OR sent_at = $106::timestamptz) AND (NOT $107::boolean OR sent_at != $108::timestamptz) AND (NOT $109::boolean OR sent_at > $110::timestamptz) AND (NOT $111::boolean OR sent_at >= $112::timestamptz) AND (NOT $113::boolean OR sent_at < $114::timestamptz) AND (NOT $115::boolean OR sent_at <= $116::timestamptz) AND (NOT $117::boolean OR sent_at IN (SELECT unnest(CAST($118 as timestamptz[]))) ) AND (NOT $119::boolean OR sent_at NOT IN (SELECT unnest(CAST($120 as timestamptz[]))) ) AND ($121::boolean IS NULL OR (($121::boolean AND sent_at IS NOT NULL) OR (NOT $121::boolean AND sent_at IS NULL))) ORDER BY \n      (CASE ($122 = 'Id' AND NOT $123) WHEN true THEN id ELSE NULL END),\n      (CASE ($122 = 'Id' AND $123) WHEN true THEN id ELSE NULL END) DESC\n    ,\n      (CASE ($122 = 'DocumentId' AND NOT $123) WHEN true THEN document_id ELSE NULL END),\n      (CASE ($122 = 'DocumentId' AND $123) WHEN true THEN document_id ELSE NULL END) DESC\n    ,\n      (CASE ($122 = 'Address' AND NOT $123) WHEN true THEN address ELSE NULL END),\n      (CASE ($122 = 'Address' AND $123) WHEN true THEN address ELSE NULL END) DESC\n    ,\n      (CASE ($122 = 'CustomMessage' AND NOT $123) WHEN true THEN custom_message ELSE NULL END),\n      (CASE ($122 = 'CustomMessage' AND $123) WHEN true THEN custom_message ELSE NULL END) DESC\n    ,\n      (CASE ($122 = 'SentAt' AND NOT $123) WHEN true THEN sent_at ELSE NULL END),\n      (CASE ($122 = 'SentAt' AND $123) WHEN true THEN sent_at ELSE NULL END) DESC\n     LIMIT $124 OFFSET $125"
   },
-  "5cff33ff8c383de2199cecd439f48e40d472a0fd55de52d28b71a038b838ead9": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id!: i32",
-          "ordinal": 0,
-          "type_info": "Int4"
-        },
-        {
-          "name": "org_id!: i32",
-          "ordinal": 1,
-          "type_info": "Int4"
-        },
-        {
-          "name": "vc_prompt_id!: i32",
-          "ordinal": 2,
-          "type_info": "Int4"
-        },
-        {
-          "name": "access_token_id!: i32",
-          "ordinal": 3,
-          "type_info": "Int4"
-        },
-        {
-          "name": "state!: VcRequestState",
-          "ordinal": 4,
-          "type_info": {
-            "Custom": {
-              "kind": {
-                "Enum": [
-                  "pending",
-                  "approved",
-                  "rejected",
-                  "failed"
-                ]
-              },
-              "name": "vc_request_state"
-            }
-          }
-        },
-        {
-          "name": "state_notes!: Option < String >",
-          "ordinal": 5,
-          "type_info": "Text"
-        },
-        {
-          "name": "vc_presentation!: Option < String >",
-          "ordinal": 6,
-          "type_info": "Text"
-        },
-        {
-          "name": "did!: Option < String >",
-          "ordinal": 7,
-          "type_info": "Text"
-        },
-        {
-          "name": "started_at!: UtcDateTime",
-          "ordinal": 8,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "finished_at!: Option < UtcDateTime >",
-          "ordinal": 9,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "deletion_id!: Option < i32 >",
-          "ordinal": 10,
-          "type_info": "Int4"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        true,
-        true,
-        true,
-        true,
-        false,
-        true,
-        true
-      ],
-      "parameters": {
-        "Left": [
-          "Int4",
-          "Int4",
-          "Int4"
-        ]
-      }
-    },
-    "query": "INSERT INTO vc_requests (org_id, \nvc_prompt_id, \naccess_token_id) VALUES ($1, $2, $3) RETURNING id as \"id!: i32\", \norg_id as \"org_id!: i32\", \nvc_prompt_id as \"vc_prompt_id!: i32\", \naccess_token_id as \"access_token_id!: i32\", \nstate as \"state!: VcRequestState\", \nstate_notes as \"state_notes!: Option < String >\", \nvc_presentation as \"vc_presentation!: Option < String >\", \ndid as \"did!: Option < String >\", \nstarted_at as \"started_at!: UtcDateTime\", \nfinished_at as \"finished_at!: Option < UtcDateTime >\", \ndeletion_id as \"deletion_id!: Option < i32 >\""
-  },
   "5dc84c62118bd88c0923641342cababffeaf7b00b05e1488a4b4953f2d65f71d": {
     "describe": {
       "columns": [
@@ -9394,6 +9300,112 @@
       }
     },
     "query": "UPDATE invoice_links SET (id, \naccess_token_id, \norg_id, \ninvoice_id) = ((CASE $2::boolean WHEN TRUE THEN $3 ELSE id END), (CASE $4::boolean WHEN TRUE THEN $5 ELSE access_token_id END), (CASE $6::boolean WHEN TRUE THEN $7 ELSE org_id END), (CASE $8::boolean WHEN TRUE THEN $9 ELSE invoice_id END)) WHERE id = $1 RETURNING id as \"id!: i32\", \naccess_token_id as \"access_token_id!: i32\", \norg_id as \"org_id!: i32\", \ninvoice_id as \"invoice_id!: Option < i32 >\""
+  },
+  "66008d53148bb75538a966ba1b1c59c5ac2f753cb5a895188cd54979468a0b7f": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id!: i32",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "org_id!: i32",
+          "ordinal": 1,
+          "type_info": "Int4"
+        },
+        {
+          "name": "vc_prompt_id!: i32",
+          "ordinal": 2,
+          "type_info": "Int4"
+        },
+        {
+          "name": "access_token_id!: i32",
+          "ordinal": 3,
+          "type_info": "Int4"
+        },
+        {
+          "name": "state!: VcRequestState",
+          "ordinal": 4,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": [
+                  "pending",
+                  "approved",
+                  "rejected",
+                  "failed"
+                ]
+              },
+              "name": "vc_request_state"
+            }
+          }
+        },
+        {
+          "name": "state_notes!: Option < String >",
+          "ordinal": 5,
+          "type_info": "Text"
+        },
+        {
+          "name": "vc_presentation!: Option < String >",
+          "ordinal": 6,
+          "type_info": "Text"
+        },
+        {
+          "name": "did!: Option < String >",
+          "ordinal": 7,
+          "type_info": "Text"
+        },
+        {
+          "name": "started_at!: UtcDateTime",
+          "ordinal": 8,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "finished_at!: Option < UtcDateTime >",
+          "ordinal": 9,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deletion_id!: Option < i32 >",
+          "ordinal": 10,
+          "type_info": "Int4"
+        },
+        {
+          "name": "vidchain_code!: Option < String >",
+          "ordinal": 11,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "vidchain_jwt!: Option < String >",
+          "ordinal": 12,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Int4",
+          "Int4"
+        ]
+      }
+    },
+    "query": "INSERT INTO vc_requests (org_id, \nvc_prompt_id, \naccess_token_id) VALUES ($1, $2, $3) RETURNING id as \"id!: i32\", \norg_id as \"org_id!: i32\", \nvc_prompt_id as \"vc_prompt_id!: i32\", \naccess_token_id as \"access_token_id!: i32\", \nstate as \"state!: VcRequestState\", \nstate_notes as \"state_notes!: Option < String >\", \nvc_presentation as \"vc_presentation!: Option < String >\", \ndid as \"did!: Option < String >\", \nstarted_at as \"started_at!: UtcDateTime\", \nfinished_at as \"finished_at!: Option < UtcDateTime >\", \ndeletion_id as \"deletion_id!: Option < i32 >\", \nvidchain_code as \"vidchain_code!: Option < String >\", \nvidchain_jwt as \"vidchain_jwt!: Option < String >\""
   },
   "665207f62816ea44e3a12ab0ea471be8da62a97665c9d47b70a15804c5e1b65c": {
     "describe": {
@@ -13010,6 +13022,504 @@
       }
     },
     "query": "INSERT INTO bumps (bulletin_id, \nstarted_at, \ncounter, \nraw_transaction, \nraw_transaction_hash) VALUES ($1, $2, $3, $4, $5) RETURNING id as \"id!: i32\", \nbulletin_id as \"bulletin_id!: i32\", \nstarted_at as \"started_at!: UtcDateTime\", \ncounter as \"counter!: i32\", \nraw_transaction as \"raw_transaction!: String\", \nraw_transaction_hash as \"raw_transaction_hash!: String\""
+  },
+  "8b01d571436dae610a374b7dc53b7613c41d6fdb6b816a32fa326e1527795b7e": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id!: i32",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "org_id!: i32",
+          "ordinal": 1,
+          "type_info": "Int4"
+        },
+        {
+          "name": "vc_prompt_id!: i32",
+          "ordinal": 2,
+          "type_info": "Int4"
+        },
+        {
+          "name": "access_token_id!: i32",
+          "ordinal": 3,
+          "type_info": "Int4"
+        },
+        {
+          "name": "state!: VcRequestState",
+          "ordinal": 4,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": [
+                  "pending",
+                  "approved",
+                  "rejected",
+                  "failed"
+                ]
+              },
+              "name": "vc_request_state"
+            }
+          }
+        },
+        {
+          "name": "state_notes!: Option < String >",
+          "ordinal": 5,
+          "type_info": "Text"
+        },
+        {
+          "name": "vc_presentation!: Option < String >",
+          "ordinal": 6,
+          "type_info": "Text"
+        },
+        {
+          "name": "did!: Option < String >",
+          "ordinal": 7,
+          "type_info": "Text"
+        },
+        {
+          "name": "started_at!: UtcDateTime",
+          "ordinal": 8,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "finished_at!: Option < UtcDateTime >",
+          "ordinal": 9,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deletion_id!: Option < i32 >",
+          "ordinal": 10,
+          "type_info": "Int4"
+        },
+        {
+          "name": "vidchain_code!: Option < String >",
+          "ordinal": 11,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "vidchain_jwt!: Option < String >",
+          "ordinal": 12,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4Array",
+          "Bool",
+          "Int4Array",
+          "Bool",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4Array",
+          "Bool",
+          "Int4Array",
+          "Bool",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4Array",
+          "Bool",
+          "Int4Array",
+          "Bool",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4Array",
+          "Bool",
+          "Int4Array",
+          "Bool",
+          "Bool",
+          {
+            "Custom": {
+              "kind": {
+                "Enum": [
+                  "pending",
+                  "approved",
+                  "rejected",
+                  "failed"
+                ]
+              },
+              "name": "vc_request_state"
+            }
+          },
+          "Bool",
+          {
+            "Custom": {
+              "kind": {
+                "Enum": [
+                  "pending",
+                  "approved",
+                  "rejected",
+                  "failed"
+                ]
+              },
+              "name": "vc_request_state"
+            }
+          },
+          "Bool",
+          {
+            "Custom": {
+              "kind": {
+                "Enum": [
+                  "pending",
+                  "approved",
+                  "rejected",
+                  "failed"
+                ]
+              },
+              "name": "vc_request_state"
+            }
+          },
+          "Bool",
+          {
+            "Custom": {
+              "kind": {
+                "Enum": [
+                  "pending",
+                  "approved",
+                  "rejected",
+                  "failed"
+                ]
+              },
+              "name": "vc_request_state"
+            }
+          },
+          "Bool",
+          {
+            "Custom": {
+              "kind": {
+                "Enum": [
+                  "pending",
+                  "approved",
+                  "rejected",
+                  "failed"
+                ]
+              },
+              "name": "vc_request_state"
+            }
+          },
+          "Bool",
+          {
+            "Custom": {
+              "kind": {
+                "Enum": [
+                  "pending",
+                  "approved",
+                  "rejected",
+                  "failed"
+                ]
+              },
+              "name": "vc_request_state"
+            }
+          },
+          "Bool",
+          {
+            "Custom": {
+              "kind": {
+                "Array": {
+                  "Custom": {
+                    "kind": {
+                      "Enum": [
+                        "pending",
+                        "approved",
+                        "rejected",
+                        "failed"
+                      ]
+                    },
+                    "name": "vc_request_state"
+                  }
+                }
+              },
+              "name": "_vc_request_state"
+            }
+          },
+          "Bool",
+          {
+            "Custom": {
+              "kind": {
+                "Array": {
+                  "Custom": {
+                    "kind": {
+                      "Enum": [
+                        "pending",
+                        "approved",
+                        "rejected",
+                        "failed"
+                      ]
+                    },
+                    "name": "vc_request_state"
+                  }
+                }
+              },
+              "name": "_vc_request_state"
+            }
+          },
+          "Bool",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "VarcharArray",
+          "Bool",
+          "VarcharArray",
+          "Bool",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "VarcharArray",
+          "Bool",
+          "VarcharArray",
+          "Bool",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "VarcharArray",
+          "Bool",
+          "VarcharArray",
+          "Bool",
+          "Bool",
+          "Timestamptz",
+          "Bool",
+          "Timestamptz",
+          "Bool",
+          "Timestamptz",
+          "Bool",
+          "Timestamptz",
+          "Bool",
+          "Timestamptz",
+          "Bool",
+          "Timestamptz",
+          "Bool",
+          "TimestamptzArray",
+          "Bool",
+          "TimestamptzArray",
+          "Bool",
+          "Bool",
+          "Timestamptz",
+          "Bool",
+          "Timestamptz",
+          "Bool",
+          "Timestamptz",
+          "Bool",
+          "Timestamptz",
+          "Bool",
+          "Timestamptz",
+          "Bool",
+          "Timestamptz",
+          "Bool",
+          "TimestamptzArray",
+          "Bool",
+          "TimestamptzArray",
+          "Bool",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4Array",
+          "Bool",
+          "Int4Array",
+          "Bool",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "VarcharArray",
+          "Bool",
+          "VarcharArray",
+          "Bool",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "VarcharArray",
+          "Bool",
+          "VarcharArray",
+          "Bool",
+          "Text",
+          "Bool",
+          "Int8",
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT id as \"id!: i32\", \norg_id as \"org_id!: i32\", \nvc_prompt_id as \"vc_prompt_id!: i32\", \naccess_token_id as \"access_token_id!: i32\", \nstate as \"state!: VcRequestState\", \nstate_notes as \"state_notes!: Option < String >\", \nvc_presentation as \"vc_presentation!: Option < String >\", \ndid as \"did!: Option < String >\", \nstarted_at as \"started_at!: UtcDateTime\", \nfinished_at as \"finished_at!: Option < UtcDateTime >\", \ndeletion_id as \"deletion_id!: Option < i32 >\", \nvidchain_code as \"vidchain_code!: Option < String >\", \nvidchain_jwt as \"vidchain_jwt!: Option < String >\" FROM vc_requests WHERE (NOT $1::boolean OR id = $2::int4) AND (NOT $3::boolean OR id != $4::int4) AND (NOT $5::boolean OR id > $6::int4) AND (NOT $7::boolean OR id >= $8::int4) AND (NOT $9::boolean OR id < $10::int4) AND (NOT $11::boolean OR id <= $12::int4) AND (NOT $13::boolean OR id IN (SELECT unnest(CAST($14 as int4[]))) ) AND (NOT $15::boolean OR id NOT IN (SELECT unnest(CAST($16 as int4[]))) ) AND ($17::boolean IS NULL OR (($17::boolean AND id IS NOT NULL) OR (NOT $17::boolean AND id IS NULL))) AND (NOT $18::boolean OR org_id = $19::int4) AND (NOT $20::boolean OR org_id != $21::int4) AND (NOT $22::boolean OR org_id > $23::int4) AND (NOT $24::boolean OR org_id >= $25::int4) AND (NOT $26::boolean OR org_id < $27::int4) AND (NOT $28::boolean OR org_id <= $29::int4) AND (NOT $30::boolean OR org_id IN (SELECT unnest(CAST($31 as int4[]))) ) AND (NOT $32::boolean OR org_id NOT IN (SELECT unnest(CAST($33 as int4[]))) ) AND ($34::boolean IS NULL OR (($34::boolean AND org_id IS NOT NULL) OR (NOT $34::boolean AND org_id IS NULL))) AND (NOT $35::boolean OR vc_prompt_id = $36::int4) AND (NOT $37::boolean OR vc_prompt_id != $38::int4) AND (NOT $39::boolean OR vc_prompt_id > $40::int4) AND (NOT $41::boolean OR vc_prompt_id >= $42::int4) AND (NOT $43::boolean OR vc_prompt_id < $44::int4) AND (NOT $45::boolean OR vc_prompt_id <= $46::int4) AND (NOT $47::boolean OR vc_prompt_id IN (SELECT unnest(CAST($48 as int4[]))) ) AND (NOT $49::boolean OR vc_prompt_id NOT IN (SELECT unnest(CAST($50 as int4[]))) ) AND ($51::boolean IS NULL OR (($51::boolean AND vc_prompt_id IS NOT NULL) OR (NOT $51::boolean AND vc_prompt_id IS NULL))) AND (NOT $52::boolean OR access_token_id = $53::int4) AND (NOT $54::boolean OR access_token_id != $55::int4) AND (NOT $56::boolean OR access_token_id > $57::int4) AND (NOT $58::boolean OR access_token_id >= $59::int4) AND (NOT $60::boolean OR access_token_id < $61::int4) AND (NOT $62::boolean OR access_token_id <= $63::int4) AND (NOT $64::boolean OR access_token_id IN (SELECT unnest(CAST($65 as int4[]))) ) AND (NOT $66::boolean OR access_token_id NOT IN (SELECT unnest(CAST($67 as int4[]))) ) AND ($68::boolean IS NULL OR (($68::boolean AND access_token_id IS NOT NULL) OR (NOT $68::boolean AND access_token_id IS NULL))) AND (NOT $69::boolean OR state = $70::vc_request_state) AND (NOT $71::boolean OR state != $72::vc_request_state) AND (NOT $73::boolean OR state > $74::vc_request_state) AND (NOT $75::boolean OR state >= $76::vc_request_state) AND (NOT $77::boolean OR state < $78::vc_request_state) AND (NOT $79::boolean OR state <= $80::vc_request_state) AND (NOT $81::boolean OR state IN (SELECT unnest(CAST($82 as vc_request_state[]))) ) AND (NOT $83::boolean OR state NOT IN (SELECT unnest(CAST($84 as vc_request_state[]))) ) AND ($85::boolean IS NULL OR (($85::boolean AND state IS NOT NULL) OR (NOT $85::boolean AND state IS NULL))) AND (NOT $86::boolean OR state_notes = $87::varchar) AND (NOT $88::boolean OR state_notes != $89::varchar) AND (NOT $90::boolean OR state_notes > $91::varchar) AND (NOT $92::boolean OR state_notes >= $93::varchar) AND (NOT $94::boolean OR state_notes < $95::varchar) AND (NOT $96::boolean OR state_notes <= $97::varchar) AND (NOT $98::boolean OR state_notes LIKE $99::varchar) AND (NOT $100::boolean OR state_notes NOT LIKE $101::varchar) AND (NOT $102::boolean OR state_notes ILIKE $103::varchar) AND (NOT $104::boolean OR state_notes NOT ILIKE $105::varchar) AND (NOT $106::boolean OR state_notes SIMILAR TO $107::varchar) AND (NOT $108::boolean OR state_notes NOT SIMILAR TO $109::varchar) AND (NOT $110::boolean OR state_notes IN (SELECT unnest(CAST($111 as varchar[]))) ) AND (NOT $112::boolean OR state_notes NOT IN (SELECT unnest(CAST($113 as varchar[]))) ) AND ($114::boolean IS NULL OR (($114::boolean AND state_notes IS NOT NULL) OR (NOT $114::boolean AND state_notes IS NULL))) AND (NOT $115::boolean OR vc_presentation = $116::varchar) AND (NOT $117::boolean OR vc_presentation != $118::varchar) AND (NOT $119::boolean OR vc_presentation > $120::varchar) AND (NOT $121::boolean OR vc_presentation >= $122::varchar) AND (NOT $123::boolean OR vc_presentation < $124::varchar) AND (NOT $125::boolean OR vc_presentation <= $126::varchar) AND (NOT $127::boolean OR vc_presentation LIKE $128::varchar) AND (NOT $129::boolean OR vc_presentation NOT LIKE $130::varchar) AND (NOT $131::boolean OR vc_presentation ILIKE $132::varchar) AND (NOT $133::boolean OR vc_presentation NOT ILIKE $134::varchar) AND (NOT $135::boolean OR vc_presentation SIMILAR TO $136::varchar) AND (NOT $137::boolean OR vc_presentation NOT SIMILAR TO $138::varchar) AND (NOT $139::boolean OR vc_presentation IN (SELECT unnest(CAST($140 as varchar[]))) ) AND (NOT $141::boolean OR vc_presentation NOT IN (SELECT unnest(CAST($142 as varchar[]))) ) AND ($143::boolean IS NULL OR (($143::boolean AND vc_presentation IS NOT NULL) OR (NOT $143::boolean AND vc_presentation IS NULL))) AND (NOT $144::boolean OR did = $145::varchar) AND (NOT $146::boolean OR did != $147::varchar) AND (NOT $148::boolean OR did > $149::varchar) AND (NOT $150::boolean OR did >= $151::varchar) AND (NOT $152::boolean OR did < $153::varchar) AND (NOT $154::boolean OR did <= $155::varchar) AND (NOT $156::boolean OR did LIKE $157::varchar) AND (NOT $158::boolean OR did NOT LIKE $159::varchar) AND (NOT $160::boolean OR did ILIKE $161::varchar) AND (NOT $162::boolean OR did NOT ILIKE $163::varchar) AND (NOT $164::boolean OR did SIMILAR TO $165::varchar) AND (NOT $166::boolean OR did NOT SIMILAR TO $167::varchar) AND (NOT $168::boolean OR did IN (SELECT unnest(CAST($169 as varchar[]))) ) AND (NOT $170::boolean OR did NOT IN (SELECT unnest(CAST($171 as varchar[]))) ) AND ($172::boolean IS NULL OR (($172::boolean AND did IS NOT NULL) OR (NOT $172::boolean AND did IS NULL))) AND (NOT $173::boolean OR started_at = $174::timestamptz) AND (NOT $175::boolean OR started_at != $176::timestamptz) AND (NOT $177::boolean OR started_at > $178::timestamptz) AND (NOT $179::boolean OR started_at >= $180::timestamptz) AND (NOT $181::boolean OR started_at < $182::timestamptz) AND (NOT $183::boolean OR started_at <= $184::timestamptz) AND (NOT $185::boolean OR started_at IN (SELECT unnest(CAST($186 as timestamptz[]))) ) AND (NOT $187::boolean OR started_at NOT IN (SELECT unnest(CAST($188 as timestamptz[]))) ) AND ($189::boolean IS NULL OR (($189::boolean AND started_at IS NOT NULL) OR (NOT $189::boolean AND started_at IS NULL))) AND (NOT $190::boolean OR finished_at = $191::timestamptz) AND (NOT $192::boolean OR finished_at != $193::timestamptz) AND (NOT $194::boolean OR finished_at > $195::timestamptz) AND (NOT $196::boolean OR finished_at >= $197::timestamptz) AND (NOT $198::boolean OR finished_at < $199::timestamptz) AND (NOT $200::boolean OR finished_at <= $201::timestamptz) AND (NOT $202::boolean OR finished_at IN (SELECT unnest(CAST($203 as timestamptz[]))) ) AND (NOT $204::boolean OR finished_at NOT IN (SELECT unnest(CAST($205 as timestamptz[]))) ) AND ($206::boolean IS NULL OR (($206::boolean AND finished_at IS NOT NULL) OR (NOT $206::boolean AND finished_at IS NULL))) AND (NOT $207::boolean OR deletion_id = $208::int4) AND (NOT $209::boolean OR deletion_id != $210::int4) AND (NOT $211::boolean OR deletion_id > $212::int4) AND (NOT $213::boolean OR deletion_id >= $214::int4) AND (NOT $215::boolean OR deletion_id < $216::int4) AND (NOT $217::boolean OR deletion_id <= $218::int4) AND (NOT $219::boolean OR deletion_id IN (SELECT unnest(CAST($220 as int4[]))) ) AND (NOT $221::boolean OR deletion_id NOT IN (SELECT unnest(CAST($222 as int4[]))) ) AND ($223::boolean IS NULL OR (($223::boolean AND deletion_id IS NOT NULL) OR (NOT $223::boolean AND deletion_id IS NULL))) AND (NOT $224::boolean OR vidchain_code = $225::varchar) AND (NOT $226::boolean OR vidchain_code != $227::varchar) AND (NOT $228::boolean OR vidchain_code > $229::varchar) AND (NOT $230::boolean OR vidchain_code >= $231::varchar) AND (NOT $232::boolean OR vidchain_code < $233::varchar) AND (NOT $234::boolean OR vidchain_code <= $235::varchar) AND (NOT $236::boolean OR vidchain_code LIKE $237::varchar) AND (NOT $238::boolean OR vidchain_code NOT LIKE $239::varchar) AND (NOT $240::boolean OR vidchain_code ILIKE $241::varchar) AND (NOT $242::boolean OR vidchain_code NOT ILIKE $243::varchar) AND (NOT $244::boolean OR vidchain_code SIMILAR TO $245::varchar) AND (NOT $246::boolean OR vidchain_code NOT SIMILAR TO $247::varchar) AND (NOT $248::boolean OR vidchain_code IN (SELECT unnest(CAST($249 as varchar[]))) ) AND (NOT $250::boolean OR vidchain_code NOT IN (SELECT unnest(CAST($251 as varchar[]))) ) AND ($252::boolean IS NULL OR (($252::boolean AND vidchain_code IS NOT NULL) OR (NOT $252::boolean AND vidchain_code IS NULL))) AND (NOT $253::boolean OR vidchain_jwt = $254::varchar) AND (NOT $255::boolean OR vidchain_jwt != $256::varchar) AND (NOT $257::boolean OR vidchain_jwt > $258::varchar) AND (NOT $259::boolean OR vidchain_jwt >= $260::varchar) AND (NOT $261::boolean OR vidchain_jwt < $262::varchar) AND (NOT $263::boolean OR vidchain_jwt <= $264::varchar) AND (NOT $265::boolean OR vidchain_jwt LIKE $266::varchar) AND (NOT $267::boolean OR vidchain_jwt NOT LIKE $268::varchar) AND (NOT $269::boolean OR vidchain_jwt ILIKE $270::varchar) AND (NOT $271::boolean OR vidchain_jwt NOT ILIKE $272::varchar) AND (NOT $273::boolean OR vidchain_jwt SIMILAR TO $274::varchar) AND (NOT $275::boolean OR vidchain_jwt NOT SIMILAR TO $276::varchar) AND (NOT $277::boolean OR vidchain_jwt IN (SELECT unnest(CAST($278 as varchar[]))) ) AND (NOT $279::boolean OR vidchain_jwt NOT IN (SELECT unnest(CAST($280 as varchar[]))) ) AND ($281::boolean IS NULL OR (($281::boolean AND vidchain_jwt IS NOT NULL) OR (NOT $281::boolean AND vidchain_jwt IS NULL))) ORDER BY \n      (CASE ($282 = 'Id' AND NOT $283) WHEN true THEN id ELSE NULL END),\n      (CASE ($282 = 'Id' AND $283) WHEN true THEN id ELSE NULL END) DESC\n    ,\n      (CASE ($282 = 'OrgId' AND NOT $283) WHEN true THEN org_id ELSE NULL END),\n      (CASE ($282 = 'OrgId' AND $283) WHEN true THEN org_id ELSE NULL END) DESC\n    ,\n      (CASE ($282 = 'VcPromptId' AND NOT $283) WHEN true THEN vc_prompt_id ELSE NULL END),\n      (CASE ($282 = 'VcPromptId' AND $283) WHEN true THEN vc_prompt_id ELSE NULL END) DESC\n    ,\n      (CASE ($282 = 'AccessTokenId' AND NOT $283) WHEN true THEN access_token_id ELSE NULL END),\n      (CASE ($282 = 'AccessTokenId' AND $283) WHEN true THEN access_token_id ELSE NULL END) DESC\n    ,\n      (CASE ($282 = 'State' AND NOT $283) WHEN true THEN state ELSE NULL END),\n      (CASE ($282 = 'State' AND $283) WHEN true THEN state ELSE NULL END) DESC\n    ,\n      (CASE ($282 = 'StateNotes' AND NOT $283) WHEN true THEN state_notes ELSE NULL END),\n      (CASE ($282 = 'StateNotes' AND $283) WHEN true THEN state_notes ELSE NULL END) DESC\n    ,\n      (CASE ($282 = 'VcPresentation' AND NOT $283) WHEN true THEN vc_presentation ELSE NULL END),\n      (CASE ($282 = 'VcPresentation' AND $283) WHEN true THEN vc_presentation ELSE NULL END) DESC\n    ,\n      (CASE ($282 = 'Did' AND NOT $283) WHEN true THEN did ELSE NULL END),\n      (CASE ($282 = 'Did' AND $283) WHEN true THEN did ELSE NULL END) DESC\n    ,\n      (CASE ($282 = 'StartedAt' AND NOT $283) WHEN true THEN started_at ELSE NULL END),\n      (CASE ($282 = 'StartedAt' AND $283) WHEN true THEN started_at ELSE NULL END) DESC\n    ,\n      (CASE ($282 = 'FinishedAt' AND NOT $283) WHEN true THEN finished_at ELSE NULL END),\n      (CASE ($282 = 'FinishedAt' AND $283) WHEN true THEN finished_at ELSE NULL END) DESC\n    ,\n      (CASE ($282 = 'DeletionId' AND NOT $283) WHEN true THEN deletion_id ELSE NULL END),\n      (CASE ($282 = 'DeletionId' AND $283) WHEN true THEN deletion_id ELSE NULL END) DESC\n    ,\n      (CASE ($282 = 'VidchainCode' AND NOT $283) WHEN true THEN vidchain_code ELSE NULL END),\n      (CASE ($282 = 'VidchainCode' AND $283) WHEN true THEN vidchain_code ELSE NULL END) DESC\n    ,\n      (CASE ($282 = 'VidchainJwt' AND NOT $283) WHEN true THEN vidchain_jwt ELSE NULL END),\n      (CASE ($282 = 'VidchainJwt' AND $283) WHEN true THEN vidchain_jwt ELSE NULL END) DESC\n     LIMIT $284 OFFSET $285"
   },
   "8c950d5543e0c610c75109ed79a89559d7d71ce9877d35577fc61778e6c37fd7": {
     "describe": {
@@ -18914,132 +19424,6 @@
     },
     "query": "SELECT id as \"id!: i32\", \norg_id as \"org_id!: i32\", \nweb_callback_id as \"web_callback_id!: i32\", \nattempted_at as \"attempted_at!: UtcDateTime\", \nurl as \"url!: String\", \nresult_code as \"result_code!: WebCallbackResultCode\", \nresult_text as \"result_text!: String\" FROM web_callback_attempts WHERE (NOT $1::boolean OR id = $2::int4) AND (NOT $3::boolean OR id != $4::int4) AND (NOT $5::boolean OR id > $6::int4) AND (NOT $7::boolean OR id >= $8::int4) AND (NOT $9::boolean OR id < $10::int4) AND (NOT $11::boolean OR id <= $12::int4) AND (NOT $13::boolean OR id IN (SELECT unnest(CAST($14 as int4[]))) ) AND (NOT $15::boolean OR id NOT IN (SELECT unnest(CAST($16 as int4[]))) ) AND ($17::boolean IS NULL OR (($17::boolean AND id IS NOT NULL) OR (NOT $17::boolean AND id IS NULL))) AND (NOT $18::boolean OR org_id = $19::int4) AND (NOT $20::boolean OR org_id != $21::int4) AND (NOT $22::boolean OR org_id > $23::int4) AND (NOT $24::boolean OR org_id >= $25::int4) AND (NOT $26::boolean OR org_id < $27::int4) AND (NOT $28::boolean OR org_id <= $29::int4) AND (NOT $30::boolean OR org_id IN (SELECT unnest(CAST($31 as int4[]))) ) AND (NOT $32::boolean OR org_id NOT IN (SELECT unnest(CAST($33 as int4[]))) ) AND ($34::boolean IS NULL OR (($34::boolean AND org_id IS NOT NULL) OR (NOT $34::boolean AND org_id IS NULL))) AND (NOT $35::boolean OR web_callback_id = $36::int4) AND (NOT $37::boolean OR web_callback_id != $38::int4) AND (NOT $39::boolean OR web_callback_id > $40::int4) AND (NOT $41::boolean OR web_callback_id >= $42::int4) AND (NOT $43::boolean OR web_callback_id < $44::int4) AND (NOT $45::boolean OR web_callback_id <= $46::int4) AND (NOT $47::boolean OR web_callback_id IN (SELECT unnest(CAST($48 as int4[]))) ) AND (NOT $49::boolean OR web_callback_id NOT IN (SELECT unnest(CAST($50 as int4[]))) ) AND ($51::boolean IS NULL OR (($51::boolean AND web_callback_id IS NOT NULL) OR (NOT $51::boolean AND web_callback_id IS NULL))) AND (NOT $52::boolean OR attempted_at = $53::timestamptz) AND (NOT $54::boolean OR attempted_at != $55::timestamptz) AND (NOT $56::boolean OR attempted_at > $57::timestamptz) AND (NOT $58::boolean OR attempted_at >= $59::timestamptz) AND (NOT $60::boolean OR attempted_at < $61::timestamptz) AND (NOT $62::boolean OR attempted_at <= $63::timestamptz) AND (NOT $64::boolean OR attempted_at IN (SELECT unnest(CAST($65 as timestamptz[]))) ) AND (NOT $66::boolean OR attempted_at NOT IN (SELECT unnest(CAST($67 as timestamptz[]))) ) AND ($68::boolean IS NULL OR (($68::boolean AND attempted_at IS NOT NULL) OR (NOT $68::boolean AND attempted_at IS NULL))) AND (NOT $69::boolean OR url = $70::varchar) AND (NOT $71::boolean OR url != $72::varchar) AND (NOT $73::boolean OR url > $74::varchar) AND (NOT $75::boolean OR url >= $76::varchar) AND (NOT $77::boolean OR url < $78::varchar) AND (NOT $79::boolean OR url <= $80::varchar) AND (NOT $81::boolean OR url LIKE $82::varchar) AND (NOT $83::boolean OR url NOT LIKE $84::varchar) AND (NOT $85::boolean OR url ILIKE $86::varchar) AND (NOT $87::boolean OR url NOT ILIKE $88::varchar) AND (NOT $89::boolean OR url SIMILAR TO $90::varchar) AND (NOT $91::boolean OR url NOT SIMILAR TO $92::varchar) AND (NOT $93::boolean OR url IN (SELECT unnest(CAST($94 as varchar[]))) ) AND (NOT $95::boolean OR url NOT IN (SELECT unnest(CAST($96 as varchar[]))) ) AND ($97::boolean IS NULL OR (($97::boolean AND url IS NOT NULL) OR (NOT $97::boolean AND url IS NULL))) AND (NOT $98::boolean OR result_code = $99::web_callback_result_code) AND (NOT $100::boolean OR result_code != $101::web_callback_result_code) AND (NOT $102::boolean OR result_code > $103::web_callback_result_code) AND (NOT $104::boolean OR result_code >= $105::web_callback_result_code) AND (NOT $106::boolean OR result_code < $107::web_callback_result_code) AND (NOT $108::boolean OR result_code <= $109::web_callback_result_code) AND (NOT $110::boolean OR result_code IN (SELECT unnest(CAST($111 as web_callback_result_code[]))) ) AND (NOT $112::boolean OR result_code NOT IN (SELECT unnest(CAST($113 as web_callback_result_code[]))) ) AND ($114::boolean IS NULL OR (($114::boolean AND result_code IS NOT NULL) OR (NOT $114::boolean AND result_code IS NULL))) AND (NOT $115::boolean OR result_text = $116::varchar) AND (NOT $117::boolean OR result_text != $118::varchar) AND (NOT $119::boolean OR result_text > $120::varchar) AND (NOT $121::boolean OR result_text >= $122::varchar) AND (NOT $123::boolean OR result_text < $124::varchar) AND (NOT $125::boolean OR result_text <= $126::varchar) AND (NOT $127::boolean OR result_text LIKE $128::varchar) AND (NOT $129::boolean OR result_text NOT LIKE $130::varchar) AND (NOT $131::boolean OR result_text ILIKE $132::varchar) AND (NOT $133::boolean OR result_text NOT ILIKE $134::varchar) AND (NOT $135::boolean OR result_text SIMILAR TO $136::varchar) AND (NOT $137::boolean OR result_text NOT SIMILAR TO $138::varchar) AND (NOT $139::boolean OR result_text IN (SELECT unnest(CAST($140 as varchar[]))) ) AND (NOT $141::boolean OR result_text NOT IN (SELECT unnest(CAST($142 as varchar[]))) ) AND ($143::boolean IS NULL OR (($143::boolean AND result_text IS NOT NULL) OR (NOT $143::boolean AND result_text IS NULL))) ORDER BY \n      (CASE ($144 = 'Id' AND NOT $145) WHEN true THEN id ELSE NULL END),\n      (CASE ($144 = 'Id' AND $145) WHEN true THEN id ELSE NULL END) DESC\n    ,\n      (CASE ($144 = 'OrgId' AND NOT $145) WHEN true THEN org_id ELSE NULL END),\n      (CASE ($144 = 'OrgId' AND $145) WHEN true THEN org_id ELSE NULL END) DESC\n    ,\n      (CASE ($144 = 'WebCallbackId' AND NOT $145) WHEN true THEN web_callback_id ELSE NULL END),\n      (CASE ($144 = 'WebCallbackId' AND $145) WHEN true THEN web_callback_id ELSE NULL END) DESC\n    ,\n      (CASE ($144 = 'AttemptedAt' AND NOT $145) WHEN true THEN attempted_at ELSE NULL END),\n      (CASE ($144 = 'AttemptedAt' AND $145) WHEN true THEN attempted_at ELSE NULL END) DESC\n    ,\n      (CASE ($144 = 'Url' AND NOT $145) WHEN true THEN url ELSE NULL END),\n      (CASE ($144 = 'Url' AND $145) WHEN true THEN url ELSE NULL END) DESC\n    ,\n      (CASE ($144 = 'ResultCode' AND NOT $145) WHEN true THEN result_code ELSE NULL END),\n      (CASE ($144 = 'ResultCode' AND $145) WHEN true THEN result_code ELSE NULL END) DESC\n    ,\n      (CASE ($144 = 'ResultText' AND NOT $145) WHEN true THEN result_text ELSE NULL END),\n      (CASE ($144 = 'ResultText' AND $145) WHEN true THEN result_text ELSE NULL END) DESC\n     LIMIT $146 OFFSET $147"
   },
-  "c9d7ee8dee682122a030cb5713b30642024698f51cc58ab101e47af9c8ee4e75": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id!: i32",
-          "ordinal": 0,
-          "type_info": "Int4"
-        },
-        {
-          "name": "org_id!: i32",
-          "ordinal": 1,
-          "type_info": "Int4"
-        },
-        {
-          "name": "vc_prompt_id!: i32",
-          "ordinal": 2,
-          "type_info": "Int4"
-        },
-        {
-          "name": "access_token_id!: i32",
-          "ordinal": 3,
-          "type_info": "Int4"
-        },
-        {
-          "name": "state!: VcRequestState",
-          "ordinal": 4,
-          "type_info": {
-            "Custom": {
-              "kind": {
-                "Enum": [
-                  "pending",
-                  "approved",
-                  "rejected",
-                  "failed"
-                ]
-              },
-              "name": "vc_request_state"
-            }
-          }
-        },
-        {
-          "name": "state_notes!: Option < String >",
-          "ordinal": 5,
-          "type_info": "Text"
-        },
-        {
-          "name": "vc_presentation!: Option < String >",
-          "ordinal": 6,
-          "type_info": "Text"
-        },
-        {
-          "name": "did!: Option < String >",
-          "ordinal": 7,
-          "type_info": "Text"
-        },
-        {
-          "name": "started_at!: UtcDateTime",
-          "ordinal": 8,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "finished_at!: Option < UtcDateTime >",
-          "ordinal": 9,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "deletion_id!: Option < i32 >",
-          "ordinal": 10,
-          "type_info": "Int4"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        true,
-        true,
-        true,
-        true,
-        false,
-        true,
-        true
-      ],
-      "parameters": {
-        "Left": [
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          {
-            "Custom": {
-              "kind": {
-                "Enum": [
-                  "pending",
-                  "approved",
-                  "rejected",
-                  "failed"
-                ]
-              },
-              "name": "vc_request_state"
-            }
-          },
-          "Bool",
-          "Text",
-          "Bool",
-          "Text",
-          "Bool",
-          "Text",
-          "Bool",
-          "Timestamptz",
-          "Bool",
-          "Timestamptz",
-          "Bool",
-          "Int4"
-        ]
-      }
-    },
-    "query": "UPDATE vc_requests SET (id, \norg_id, \nvc_prompt_id, \naccess_token_id, \nstate, \nstate_notes, \nvc_presentation, \ndid, \nstarted_at, \nfinished_at, \ndeletion_id) = ((CASE $2::boolean WHEN TRUE THEN $3 ELSE id END), (CASE $4::boolean WHEN TRUE THEN $5 ELSE org_id END), (CASE $6::boolean WHEN TRUE THEN $7 ELSE vc_prompt_id END), (CASE $8::boolean WHEN TRUE THEN $9 ELSE access_token_id END), (CASE $10::boolean WHEN TRUE THEN $11 ELSE state END), (CASE $12::boolean WHEN TRUE THEN $13 ELSE state_notes END), (CASE $14::boolean WHEN TRUE THEN $15 ELSE vc_presentation END), (CASE $16::boolean WHEN TRUE THEN $17 ELSE did END), (CASE $18::boolean WHEN TRUE THEN $19 ELSE started_at END), (CASE $20::boolean WHEN TRUE THEN $21 ELSE finished_at END), (CASE $22::boolean WHEN TRUE THEN $23 ELSE deletion_id END)) WHERE id = $1 RETURNING id as \"id!: i32\", \norg_id as \"org_id!: i32\", \nvc_prompt_id as \"vc_prompt_id!: i32\", \naccess_token_id as \"access_token_id!: i32\", \nstate as \"state!: VcRequestState\", \nstate_notes as \"state_notes!: Option < String >\", \nvc_presentation as \"vc_presentation!: Option < String >\", \ndid as \"did!: Option < String >\", \nstarted_at as \"started_at!: UtcDateTime\", \nfinished_at as \"finished_at!: Option < UtcDateTime >\", \ndeletion_id as \"deletion_id!: Option < i32 >\""
-  },
   "ca232874cd81b0c4d6503f4daf0926ad9c2093b513ac11140082a6f77b611721": {
     "describe": {
       "columns": [
@@ -21813,434 +22197,6 @@
       }
     },
     "query": "INSERT INTO stories (org_id, \nopen_until, \nmarkers, \nprivate_markers, \nlang) VALUES ($1, $2, $3, $4, $5) RETURNING id as \"id!: i32\", \norg_id as \"org_id!: i32\", \nopen_until as \"open_until!: Option < UtcDateTime >\", \nmarkers as \"markers!: String\", \nprivate_markers as \"private_markers!: String\", \ndeletion_id as \"deletion_id!: Option < i32 >\", \nlang as \"lang!: Lang\""
-  },
-  "e48cea3d14b18c54a60ac77fa0bd9302c64004534b144bcb14e4c6521ba51b06": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id!: i32",
-          "ordinal": 0,
-          "type_info": "Int4"
-        },
-        {
-          "name": "org_id!: i32",
-          "ordinal": 1,
-          "type_info": "Int4"
-        },
-        {
-          "name": "vc_prompt_id!: i32",
-          "ordinal": 2,
-          "type_info": "Int4"
-        },
-        {
-          "name": "access_token_id!: i32",
-          "ordinal": 3,
-          "type_info": "Int4"
-        },
-        {
-          "name": "state!: VcRequestState",
-          "ordinal": 4,
-          "type_info": {
-            "Custom": {
-              "kind": {
-                "Enum": [
-                  "pending",
-                  "approved",
-                  "rejected",
-                  "failed"
-                ]
-              },
-              "name": "vc_request_state"
-            }
-          }
-        },
-        {
-          "name": "state_notes!: Option < String >",
-          "ordinal": 5,
-          "type_info": "Text"
-        },
-        {
-          "name": "vc_presentation!: Option < String >",
-          "ordinal": 6,
-          "type_info": "Text"
-        },
-        {
-          "name": "did!: Option < String >",
-          "ordinal": 7,
-          "type_info": "Text"
-        },
-        {
-          "name": "started_at!: UtcDateTime",
-          "ordinal": 8,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "finished_at!: Option < UtcDateTime >",
-          "ordinal": 9,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "deletion_id!: Option < i32 >",
-          "ordinal": 10,
-          "type_info": "Int4"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        true,
-        true,
-        true,
-        true,
-        false,
-        true,
-        true
-      ],
-      "parameters": {
-        "Left": [
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4Array",
-          "Bool",
-          "Int4Array",
-          "Bool",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4Array",
-          "Bool",
-          "Int4Array",
-          "Bool",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4Array",
-          "Bool",
-          "Int4Array",
-          "Bool",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4Array",
-          "Bool",
-          "Int4Array",
-          "Bool",
-          "Bool",
-          {
-            "Custom": {
-              "kind": {
-                "Enum": [
-                  "pending",
-                  "approved",
-                  "rejected",
-                  "failed"
-                ]
-              },
-              "name": "vc_request_state"
-            }
-          },
-          "Bool",
-          {
-            "Custom": {
-              "kind": {
-                "Enum": [
-                  "pending",
-                  "approved",
-                  "rejected",
-                  "failed"
-                ]
-              },
-              "name": "vc_request_state"
-            }
-          },
-          "Bool",
-          {
-            "Custom": {
-              "kind": {
-                "Enum": [
-                  "pending",
-                  "approved",
-                  "rejected",
-                  "failed"
-                ]
-              },
-              "name": "vc_request_state"
-            }
-          },
-          "Bool",
-          {
-            "Custom": {
-              "kind": {
-                "Enum": [
-                  "pending",
-                  "approved",
-                  "rejected",
-                  "failed"
-                ]
-              },
-              "name": "vc_request_state"
-            }
-          },
-          "Bool",
-          {
-            "Custom": {
-              "kind": {
-                "Enum": [
-                  "pending",
-                  "approved",
-                  "rejected",
-                  "failed"
-                ]
-              },
-              "name": "vc_request_state"
-            }
-          },
-          "Bool",
-          {
-            "Custom": {
-              "kind": {
-                "Enum": [
-                  "pending",
-                  "approved",
-                  "rejected",
-                  "failed"
-                ]
-              },
-              "name": "vc_request_state"
-            }
-          },
-          "Bool",
-          {
-            "Custom": {
-              "kind": {
-                "Array": {
-                  "Custom": {
-                    "kind": {
-                      "Enum": [
-                        "pending",
-                        "approved",
-                        "rejected",
-                        "failed"
-                      ]
-                    },
-                    "name": "vc_request_state"
-                  }
-                }
-              },
-              "name": "_vc_request_state"
-            }
-          },
-          "Bool",
-          {
-            "Custom": {
-              "kind": {
-                "Array": {
-                  "Custom": {
-                    "kind": {
-                      "Enum": [
-                        "pending",
-                        "approved",
-                        "rejected",
-                        "failed"
-                      ]
-                    },
-                    "name": "vc_request_state"
-                  }
-                }
-              },
-              "name": "_vc_request_state"
-            }
-          },
-          "Bool",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "VarcharArray",
-          "Bool",
-          "VarcharArray",
-          "Bool",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "VarcharArray",
-          "Bool",
-          "VarcharArray",
-          "Bool",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "VarcharArray",
-          "Bool",
-          "VarcharArray",
-          "Bool",
-          "Bool",
-          "Timestamptz",
-          "Bool",
-          "Timestamptz",
-          "Bool",
-          "Timestamptz",
-          "Bool",
-          "Timestamptz",
-          "Bool",
-          "Timestamptz",
-          "Bool",
-          "Timestamptz",
-          "Bool",
-          "TimestamptzArray",
-          "Bool",
-          "TimestamptzArray",
-          "Bool",
-          "Bool",
-          "Timestamptz",
-          "Bool",
-          "Timestamptz",
-          "Bool",
-          "Timestamptz",
-          "Bool",
-          "Timestamptz",
-          "Bool",
-          "Timestamptz",
-          "Bool",
-          "Timestamptz",
-          "Bool",
-          "TimestamptzArray",
-          "Bool",
-          "TimestamptzArray",
-          "Bool",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4Array",
-          "Bool",
-          "Int4Array",
-          "Bool",
-          "Text",
-          "Bool",
-          "Int8",
-          "Int8"
-        ]
-      }
-    },
-    "query": "SELECT id as \"id!: i32\", \norg_id as \"org_id!: i32\", \nvc_prompt_id as \"vc_prompt_id!: i32\", \naccess_token_id as \"access_token_id!: i32\", \nstate as \"state!: VcRequestState\", \nstate_notes as \"state_notes!: Option < String >\", \nvc_presentation as \"vc_presentation!: Option < String >\", \ndid as \"did!: Option < String >\", \nstarted_at as \"started_at!: UtcDateTime\", \nfinished_at as \"finished_at!: Option < UtcDateTime >\", \ndeletion_id as \"deletion_id!: Option < i32 >\" FROM vc_requests WHERE (NOT $1::boolean OR id = $2::int4) AND (NOT $3::boolean OR id != $4::int4) AND (NOT $5::boolean OR id > $6::int4) AND (NOT $7::boolean OR id >= $8::int4) AND (NOT $9::boolean OR id < $10::int4) AND (NOT $11::boolean OR id <= $12::int4) AND (NOT $13::boolean OR id IN (SELECT unnest(CAST($14 as int4[]))) ) AND (NOT $15::boolean OR id NOT IN (SELECT unnest(CAST($16 as int4[]))) ) AND ($17::boolean IS NULL OR (($17::boolean AND id IS NOT NULL) OR (NOT $17::boolean AND id IS NULL))) AND (NOT $18::boolean OR org_id = $19::int4) AND (NOT $20::boolean OR org_id != $21::int4) AND (NOT $22::boolean OR org_id > $23::int4) AND (NOT $24::boolean OR org_id >= $25::int4) AND (NOT $26::boolean OR org_id < $27::int4) AND (NOT $28::boolean OR org_id <= $29::int4) AND (NOT $30::boolean OR org_id IN (SELECT unnest(CAST($31 as int4[]))) ) AND (NOT $32::boolean OR org_id NOT IN (SELECT unnest(CAST($33 as int4[]))) ) AND ($34::boolean IS NULL OR (($34::boolean AND org_id IS NOT NULL) OR (NOT $34::boolean AND org_id IS NULL))) AND (NOT $35::boolean OR vc_prompt_id = $36::int4) AND (NOT $37::boolean OR vc_prompt_id != $38::int4) AND (NOT $39::boolean OR vc_prompt_id > $40::int4) AND (NOT $41::boolean OR vc_prompt_id >= $42::int4) AND (NOT $43::boolean OR vc_prompt_id < $44::int4) AND (NOT $45::boolean OR vc_prompt_id <= $46::int4) AND (NOT $47::boolean OR vc_prompt_id IN (SELECT unnest(CAST($48 as int4[]))) ) AND (NOT $49::boolean OR vc_prompt_id NOT IN (SELECT unnest(CAST($50 as int4[]))) ) AND ($51::boolean IS NULL OR (($51::boolean AND vc_prompt_id IS NOT NULL) OR (NOT $51::boolean AND vc_prompt_id IS NULL))) AND (NOT $52::boolean OR access_token_id = $53::int4) AND (NOT $54::boolean OR access_token_id != $55::int4) AND (NOT $56::boolean OR access_token_id > $57::int4) AND (NOT $58::boolean OR access_token_id >= $59::int4) AND (NOT $60::boolean OR access_token_id < $61::int4) AND (NOT $62::boolean OR access_token_id <= $63::int4) AND (NOT $64::boolean OR access_token_id IN (SELECT unnest(CAST($65 as int4[]))) ) AND (NOT $66::boolean OR access_token_id NOT IN (SELECT unnest(CAST($67 as int4[]))) ) AND ($68::boolean IS NULL OR (($68::boolean AND access_token_id IS NOT NULL) OR (NOT $68::boolean AND access_token_id IS NULL))) AND (NOT $69::boolean OR state = $70::vc_request_state) AND (NOT $71::boolean OR state != $72::vc_request_state) AND (NOT $73::boolean OR state > $74::vc_request_state) AND (NOT $75::boolean OR state >= $76::vc_request_state) AND (NOT $77::boolean OR state < $78::vc_request_state) AND (NOT $79::boolean OR state <= $80::vc_request_state) AND (NOT $81::boolean OR state IN (SELECT unnest(CAST($82 as vc_request_state[]))) ) AND (NOT $83::boolean OR state NOT IN (SELECT unnest(CAST($84 as vc_request_state[]))) ) AND ($85::boolean IS NULL OR (($85::boolean AND state IS NOT NULL) OR (NOT $85::boolean AND state IS NULL))) AND (NOT $86::boolean OR state_notes = $87::varchar) AND (NOT $88::boolean OR state_notes != $89::varchar) AND (NOT $90::boolean OR state_notes > $91::varchar) AND (NOT $92::boolean OR state_notes >= $93::varchar) AND (NOT $94::boolean OR state_notes < $95::varchar) AND (NOT $96::boolean OR state_notes <= $97::varchar) AND (NOT $98::boolean OR state_notes LIKE $99::varchar) AND (NOT $100::boolean OR state_notes NOT LIKE $101::varchar) AND (NOT $102::boolean OR state_notes ILIKE $103::varchar) AND (NOT $104::boolean OR state_notes NOT ILIKE $105::varchar) AND (NOT $106::boolean OR state_notes SIMILAR TO $107::varchar) AND (NOT $108::boolean OR state_notes NOT SIMILAR TO $109::varchar) AND (NOT $110::boolean OR state_notes IN (SELECT unnest(CAST($111 as varchar[]))) ) AND (NOT $112::boolean OR state_notes NOT IN (SELECT unnest(CAST($113 as varchar[]))) ) AND ($114::boolean IS NULL OR (($114::boolean AND state_notes IS NOT NULL) OR (NOT $114::boolean AND state_notes IS NULL))) AND (NOT $115::boolean OR vc_presentation = $116::varchar) AND (NOT $117::boolean OR vc_presentation != $118::varchar) AND (NOT $119::boolean OR vc_presentation > $120::varchar) AND (NOT $121::boolean OR vc_presentation >= $122::varchar) AND (NOT $123::boolean OR vc_presentation < $124::varchar) AND (NOT $125::boolean OR vc_presentation <= $126::varchar) AND (NOT $127::boolean OR vc_presentation LIKE $128::varchar) AND (NOT $129::boolean OR vc_presentation NOT LIKE $130::varchar) AND (NOT $131::boolean OR vc_presentation ILIKE $132::varchar) AND (NOT $133::boolean OR vc_presentation NOT ILIKE $134::varchar) AND (NOT $135::boolean OR vc_presentation SIMILAR TO $136::varchar) AND (NOT $137::boolean OR vc_presentation NOT SIMILAR TO $138::varchar) AND (NOT $139::boolean OR vc_presentation IN (SELECT unnest(CAST($140 as varchar[]))) ) AND (NOT $141::boolean OR vc_presentation NOT IN (SELECT unnest(CAST($142 as varchar[]))) ) AND ($143::boolean IS NULL OR (($143::boolean AND vc_presentation IS NOT NULL) OR (NOT $143::boolean AND vc_presentation IS NULL))) AND (NOT $144::boolean OR did = $145::varchar) AND (NOT $146::boolean OR did != $147::varchar) AND (NOT $148::boolean OR did > $149::varchar) AND (NOT $150::boolean OR did >= $151::varchar) AND (NOT $152::boolean OR did < $153::varchar) AND (NOT $154::boolean OR did <= $155::varchar) AND (NOT $156::boolean OR did LIKE $157::varchar) AND (NOT $158::boolean OR did NOT LIKE $159::varchar) AND (NOT $160::boolean OR did ILIKE $161::varchar) AND (NOT $162::boolean OR did NOT ILIKE $163::varchar) AND (NOT $164::boolean OR did SIMILAR TO $165::varchar) AND (NOT $166::boolean OR did NOT SIMILAR TO $167::varchar) AND (NOT $168::boolean OR did IN (SELECT unnest(CAST($169 as varchar[]))) ) AND (NOT $170::boolean OR did NOT IN (SELECT unnest(CAST($171 as varchar[]))) ) AND ($172::boolean IS NULL OR (($172::boolean AND did IS NOT NULL) OR (NOT $172::boolean AND did IS NULL))) AND (NOT $173::boolean OR started_at = $174::timestamptz) AND (NOT $175::boolean OR started_at != $176::timestamptz) AND (NOT $177::boolean OR started_at > $178::timestamptz) AND (NOT $179::boolean OR started_at >= $180::timestamptz) AND (NOT $181::boolean OR started_at < $182::timestamptz) AND (NOT $183::boolean OR started_at <= $184::timestamptz) AND (NOT $185::boolean OR started_at IN (SELECT unnest(CAST($186 as timestamptz[]))) ) AND (NOT $187::boolean OR started_at NOT IN (SELECT unnest(CAST($188 as timestamptz[]))) ) AND ($189::boolean IS NULL OR (($189::boolean AND started_at IS NOT NULL) OR (NOT $189::boolean AND started_at IS NULL))) AND (NOT $190::boolean OR finished_at = $191::timestamptz) AND (NOT $192::boolean OR finished_at != $193::timestamptz) AND (NOT $194::boolean OR finished_at > $195::timestamptz) AND (NOT $196::boolean OR finished_at >= $197::timestamptz) AND (NOT $198::boolean OR finished_at < $199::timestamptz) AND (NOT $200::boolean OR finished_at <= $201::timestamptz) AND (NOT $202::boolean OR finished_at IN (SELECT unnest(CAST($203 as timestamptz[]))) ) AND (NOT $204::boolean OR finished_at NOT IN (SELECT unnest(CAST($205 as timestamptz[]))) ) AND ($206::boolean IS NULL OR (($206::boolean AND finished_at IS NOT NULL) OR (NOT $206::boolean AND finished_at IS NULL))) AND (NOT $207::boolean OR deletion_id = $208::int4) AND (NOT $209::boolean OR deletion_id != $210::int4) AND (NOT $211::boolean OR deletion_id > $212::int4) AND (NOT $213::boolean OR deletion_id >= $214::int4) AND (NOT $215::boolean OR deletion_id < $216::int4) AND (NOT $217::boolean OR deletion_id <= $218::int4) AND (NOT $219::boolean OR deletion_id IN (SELECT unnest(CAST($220 as int4[]))) ) AND (NOT $221::boolean OR deletion_id NOT IN (SELECT unnest(CAST($222 as int4[]))) ) AND ($223::boolean IS NULL OR (($223::boolean AND deletion_id IS NOT NULL) OR (NOT $223::boolean AND deletion_id IS NULL))) ORDER BY \n      (CASE ($224 = 'Id' AND NOT $225) WHEN true THEN id ELSE NULL END),\n      (CASE ($224 = 'Id' AND $225) WHEN true THEN id ELSE NULL END) DESC\n    ,\n      (CASE ($224 = 'OrgId' AND NOT $225) WHEN true THEN org_id ELSE NULL END),\n      (CASE ($224 = 'OrgId' AND $225) WHEN true THEN org_id ELSE NULL END) DESC\n    ,\n      (CASE ($224 = 'VcPromptId' AND NOT $225) WHEN true THEN vc_prompt_id ELSE NULL END),\n      (CASE ($224 = 'VcPromptId' AND $225) WHEN true THEN vc_prompt_id ELSE NULL END) DESC\n    ,\n      (CASE ($224 = 'AccessTokenId' AND NOT $225) WHEN true THEN access_token_id ELSE NULL END),\n      (CASE ($224 = 'AccessTokenId' AND $225) WHEN true THEN access_token_id ELSE NULL END) DESC\n    ,\n      (CASE ($224 = 'State' AND NOT $225) WHEN true THEN state ELSE NULL END),\n      (CASE ($224 = 'State' AND $225) WHEN true THEN state ELSE NULL END) DESC\n    ,\n      (CASE ($224 = 'StateNotes' AND NOT $225) WHEN true THEN state_notes ELSE NULL END),\n      (CASE ($224 = 'StateNotes' AND $225) WHEN true THEN state_notes ELSE NULL END) DESC\n    ,\n      (CASE ($224 = 'VcPresentation' AND NOT $225) WHEN true THEN vc_presentation ELSE NULL END),\n      (CASE ($224 = 'VcPresentation' AND $225) WHEN true THEN vc_presentation ELSE NULL END) DESC\n    ,\n      (CASE ($224 = 'Did' AND NOT $225) WHEN true THEN did ELSE NULL END),\n      (CASE ($224 = 'Did' AND $225) WHEN true THEN did ELSE NULL END) DESC\n    ,\n      (CASE ($224 = 'StartedAt' AND NOT $225) WHEN true THEN started_at ELSE NULL END),\n      (CASE ($224 = 'StartedAt' AND $225) WHEN true THEN started_at ELSE NULL END) DESC\n    ,\n      (CASE ($224 = 'FinishedAt' AND NOT $225) WHEN true THEN finished_at ELSE NULL END),\n      (CASE ($224 = 'FinishedAt' AND $225) WHEN true THEN finished_at ELSE NULL END) DESC\n    ,\n      (CASE ($224 = 'DeletionId' AND NOT $225) WHEN true THEN deletion_id ELSE NULL END),\n      (CASE ($224 = 'DeletionId' AND $225) WHEN true THEN deletion_id ELSE NULL END) DESC\n     LIMIT $226 OFFSET $227"
   },
   "e56d64f97d7b03b8655763a2892d6a77132a86ac23b563baa9070bafdcfac59a": {
     "describe": {
@@ -25745,7 +25701,7 @@
     },
     "query": "SELECT count(*) as \"count!\" FROM kyc_endorsements WHERE (NOT $1::boolean OR id = $2::int4) AND (NOT $3::boolean OR id != $4::int4) AND (NOT $5::boolean OR id > $6::int4) AND (NOT $7::boolean OR id >= $8::int4) AND (NOT $9::boolean OR id < $10::int4) AND (NOT $11::boolean OR id <= $12::int4) AND (NOT $13::boolean OR id IN (SELECT unnest(CAST($14 as int4[]))) ) AND (NOT $15::boolean OR id NOT IN (SELECT unnest(CAST($16 as int4[]))) ) AND ($17::boolean IS NULL OR (($17::boolean AND id IS NOT NULL) OR (NOT $17::boolean AND id IS NULL))) AND (NOT $18::boolean OR person_id = $19::int4) AND (NOT $20::boolean OR person_id != $21::int4) AND (NOT $22::boolean OR person_id > $23::int4) AND (NOT $24::boolean OR person_id >= $25::int4) AND (NOT $26::boolean OR person_id < $27::int4) AND (NOT $28::boolean OR person_id <= $29::int4) AND (NOT $30::boolean OR person_id IN (SELECT unnest(CAST($31 as int4[]))) ) AND (NOT $32::boolean OR person_id NOT IN (SELECT unnest(CAST($33 as int4[]))) ) AND ($34::boolean IS NULL OR (($34::boolean AND person_id IS NOT NULL) OR (NOT $34::boolean AND person_id IS NULL))) AND (NOT $35::boolean OR org_id = $36::int4) AND (NOT $37::boolean OR org_id != $38::int4) AND (NOT $39::boolean OR org_id > $40::int4) AND (NOT $41::boolean OR org_id >= $42::int4) AND (NOT $43::boolean OR org_id < $44::int4) AND (NOT $45::boolean OR org_id <= $46::int4) AND (NOT $47::boolean OR org_id IN (SELECT unnest(CAST($48 as int4[]))) ) AND (NOT $49::boolean OR org_id NOT IN (SELECT unnest(CAST($50 as int4[]))) ) AND ($51::boolean IS NULL OR (($51::boolean AND org_id IS NOT NULL) OR (NOT $51::boolean AND org_id IS NULL))) AND (NOT $52::boolean OR story_id = $53::int4) AND (NOT $54::boolean OR story_id != $55::int4) AND (NOT $56::boolean OR story_id > $57::int4) AND (NOT $58::boolean OR story_id >= $59::int4) AND (NOT $60::boolean OR story_id < $61::int4) AND (NOT $62::boolean OR story_id <= $63::int4) AND (NOT $64::boolean OR story_id IN (SELECT unnest(CAST($65 as int4[]))) ) AND (NOT $66::boolean OR story_id NOT IN (SELECT unnest(CAST($67 as int4[]))) ) AND ($68::boolean IS NULL OR (($68::boolean AND story_id IS NOT NULL) OR (NOT $68::boolean AND story_id IS NULL))) AND (NOT $69::boolean OR created_at = $70::timestamptz) AND (NOT $71::boolean OR created_at != $72::timestamptz) AND (NOT $73::boolean OR created_at > $74::timestamptz) AND (NOT $75::boolean OR created_at >= $76::timestamptz) AND (NOT $77::boolean OR created_at < $78::timestamptz) AND (NOT $79::boolean OR created_at <= $80::timestamptz) AND (NOT $81::boolean OR created_at IN (SELECT unnest(CAST($82 as timestamptz[]))) ) AND (NOT $83::boolean OR created_at NOT IN (SELECT unnest(CAST($84 as timestamptz[]))) ) AND ($85::boolean IS NULL OR (($85::boolean AND created_at IS NOT NULL) OR (NOT $85::boolean AND created_at IS NULL))) AND (NOT $86::boolean OR updated_at = $87::timestamptz) AND (NOT $88::boolean OR updated_at != $89::timestamptz) AND (NOT $90::boolean OR updated_at > $91::timestamptz) AND (NOT $92::boolean OR updated_at >= $93::timestamptz) AND (NOT $94::boolean OR updated_at < $95::timestamptz) AND (NOT $96::boolean OR updated_at <= $97::timestamptz) AND (NOT $98::boolean OR updated_at IN (SELECT unnest(CAST($99 as timestamptz[]))) ) AND (NOT $100::boolean OR updated_at NOT IN (SELECT unnest(CAST($101 as timestamptz[]))) ) AND ($102::boolean IS NULL OR (($102::boolean AND updated_at IS NOT NULL) OR (NOT $102::boolean AND updated_at IS NULL))) AND (NOT $103::boolean OR name = $104::varchar) AND (NOT $105::boolean OR name != $106::varchar) AND (NOT $107::boolean OR name > $108::varchar) AND (NOT $109::boolean OR name >= $110::varchar) AND (NOT $111::boolean OR name < $112::varchar) AND (NOT $113::boolean OR name <= $114::varchar) AND (NOT $115::boolean OR name LIKE $116::varchar) AND (NOT $117::boolean OR name NOT LIKE $118::varchar) AND (NOT $119::boolean OR name ILIKE $120::varchar) AND (NOT $121::boolean OR name NOT ILIKE $122::varchar) AND (NOT $123::boolean OR name SIMILAR TO $124::varchar) AND (NOT $125::boolean OR name NOT SIMILAR TO $126::varchar) AND (NOT $127::boolean OR name IN (SELECT unnest(CAST($128 as varchar[]))) ) AND (NOT $129::boolean OR name NOT IN (SELECT unnest(CAST($130 as varchar[]))) ) AND ($131::boolean IS NULL OR (($131::boolean AND name IS NOT NULL) OR (NOT $131::boolean AND name IS NULL))) AND (NOT $132::boolean OR last_name = $133::varchar) AND (NOT $134::boolean OR last_name != $135::varchar) AND (NOT $136::boolean OR last_name > $137::varchar) AND (NOT $138::boolean OR last_name >= $139::varchar) AND (NOT $140::boolean OR last_name < $141::varchar) AND (NOT $142::boolean OR last_name <= $143::varchar) AND (NOT $144::boolean OR last_name LIKE $145::varchar) AND (NOT $146::boolean OR last_name NOT LIKE $147::varchar) AND (NOT $148::boolean OR last_name ILIKE $149::varchar) AND (NOT $150::boolean OR last_name NOT ILIKE $151::varchar) AND (NOT $152::boolean OR last_name SIMILAR TO $153::varchar) AND (NOT $154::boolean OR last_name NOT SIMILAR TO $155::varchar) AND (NOT $156::boolean OR last_name IN (SELECT unnest(CAST($157 as varchar[]))) ) AND (NOT $158::boolean OR last_name NOT IN (SELECT unnest(CAST($159 as varchar[]))) ) AND ($160::boolean IS NULL OR (($160::boolean AND last_name IS NOT NULL) OR (NOT $160::boolean AND last_name IS NULL))) AND (NOT $161::boolean OR id_number = $162::varchar) AND (NOT $163::boolean OR id_number != $164::varchar) AND (NOT $165::boolean OR id_number > $166::varchar) AND (NOT $167::boolean OR id_number >= $168::varchar) AND (NOT $169::boolean OR id_number < $170::varchar) AND (NOT $171::boolean OR id_number <= $172::varchar) AND (NOT $173::boolean OR id_number LIKE $174::varchar) AND (NOT $175::boolean OR id_number NOT LIKE $176::varchar) AND (NOT $177::boolean OR id_number ILIKE $178::varchar) AND (NOT $179::boolean OR id_number NOT ILIKE $180::varchar) AND (NOT $181::boolean OR id_number SIMILAR TO $182::varchar) AND (NOT $183::boolean OR id_number NOT SIMILAR TO $184::varchar) AND (NOT $185::boolean OR id_number IN (SELECT unnest(CAST($186 as varchar[]))) ) AND (NOT $187::boolean OR id_number NOT IN (SELECT unnest(CAST($188 as varchar[]))) ) AND ($189::boolean IS NULL OR (($189::boolean AND id_number IS NOT NULL) OR (NOT $189::boolean AND id_number IS NULL))) AND (NOT $190::boolean OR id_type = $191::varchar) AND (NOT $192::boolean OR id_type != $193::varchar) AND (NOT $194::boolean OR id_type > $195::varchar) AND (NOT $196::boolean OR id_type >= $197::varchar) AND (NOT $198::boolean OR id_type < $199::varchar) AND (NOT $200::boolean OR id_type <= $201::varchar) AND (NOT $202::boolean OR id_type LIKE $203::varchar) AND (NOT $204::boolean OR id_type NOT LIKE $205::varchar) AND (NOT $206::boolean OR id_type ILIKE $207::varchar) AND (NOT $208::boolean OR id_type NOT ILIKE $209::varchar) AND (NOT $210::boolean OR id_type SIMILAR TO $211::varchar) AND (NOT $212::boolean OR id_type NOT SIMILAR TO $213::varchar) AND (NOT $214::boolean OR id_type IN (SELECT unnest(CAST($215 as varchar[]))) ) AND (NOT $216::boolean OR id_type NOT IN (SELECT unnest(CAST($217 as varchar[]))) ) AND ($218::boolean IS NULL OR (($218::boolean AND id_type IS NOT NULL) OR (NOT $218::boolean AND id_type IS NULL))) AND (NOT $219::boolean OR birthdate = $220::timestamptz) AND (NOT $221::boolean OR birthdate != $222::timestamptz) AND (NOT $223::boolean OR birthdate > $224::timestamptz) AND (NOT $225::boolean OR birthdate >= $226::timestamptz) AND (NOT $227::boolean OR birthdate < $228::timestamptz) AND (NOT $229::boolean OR birthdate <= $230::timestamptz) AND (NOT $231::boolean OR birthdate IN (SELECT unnest(CAST($232 as timestamptz[]))) ) AND (NOT $233::boolean OR birthdate NOT IN (SELECT unnest(CAST($234 as timestamptz[]))) ) AND ($235::boolean IS NULL OR (($235::boolean AND birthdate IS NOT NULL) OR (NOT $235::boolean AND birthdate IS NULL))) AND (NOT $236::boolean OR nationality = $237::varchar) AND (NOT $238::boolean OR nationality != $239::varchar) AND (NOT $240::boolean OR nationality > $241::varchar) AND (NOT $242::boolean OR nationality >= $243::varchar) AND (NOT $244::boolean OR nationality < $245::varchar) AND (NOT $246::boolean OR nationality <= $247::varchar) AND (NOT $248::boolean OR nationality LIKE $249::varchar) AND (NOT $250::boolean OR nationality NOT LIKE $251::varchar) AND (NOT $252::boolean OR nationality ILIKE $253::varchar) AND (NOT $254::boolean OR nationality NOT ILIKE $255::varchar) AND (NOT $256::boolean OR nationality SIMILAR TO $257::varchar) AND (NOT $258::boolean OR nationality NOT SIMILAR TO $259::varchar) AND (NOT $260::boolean OR nationality IN (SELECT unnest(CAST($261 as varchar[]))) ) AND (NOT $262::boolean OR nationality NOT IN (SELECT unnest(CAST($263 as varchar[]))) ) AND ($264::boolean IS NULL OR (($264::boolean AND nationality IS NOT NULL) OR (NOT $264::boolean AND nationality IS NULL))) AND (NOT $265::boolean OR country = $266::varchar) AND (NOT $267::boolean OR country != $268::varchar) AND (NOT $269::boolean OR country > $270::varchar) AND (NOT $271::boolean OR country >= $272::varchar) AND (NOT $273::boolean OR country < $274::varchar) AND (NOT $275::boolean OR country <= $276::varchar) AND (NOT $277::boolean OR country LIKE $278::varchar) AND (NOT $279::boolean OR country NOT LIKE $280::varchar) AND (NOT $281::boolean OR country ILIKE $282::varchar) AND (NOT $283::boolean OR country NOT ILIKE $284::varchar) AND (NOT $285::boolean OR country SIMILAR TO $286::varchar) AND (NOT $287::boolean OR country NOT SIMILAR TO $288::varchar) AND (NOT $289::boolean OR country IN (SELECT unnest(CAST($290 as varchar[]))) ) AND (NOT $291::boolean OR country NOT IN (SELECT unnest(CAST($292 as varchar[]))) ) AND ($293::boolean IS NULL OR (($293::boolean AND country IS NOT NULL) OR (NOT $293::boolean AND country IS NULL))) AND (NOT $294::boolean OR job_title = $295::varchar) AND (NOT $296::boolean OR job_title != $297::varchar) AND (NOT $298::boolean OR job_title > $299::varchar) AND (NOT $300::boolean OR job_title >= $301::varchar) AND (NOT $302::boolean OR job_title < $303::varchar) AND (NOT $304::boolean OR job_title <= $305::varchar) AND (NOT $306::boolean OR job_title LIKE $307::varchar) AND (NOT $308::boolean OR job_title NOT LIKE $309::varchar) AND (NOT $310::boolean OR job_title ILIKE $311::varchar) AND (NOT $312::boolean OR job_title NOT ILIKE $313::varchar) AND (NOT $314::boolean OR job_title SIMILAR TO $315::varchar) AND (NOT $316::boolean OR job_title NOT SIMILAR TO $317::varchar) AND (NOT $318::boolean OR job_title IN (SELECT unnest(CAST($319 as varchar[]))) ) AND (NOT $320::boolean OR job_title NOT IN (SELECT unnest(CAST($321 as varchar[]))) ) AND ($322::boolean IS NULL OR (($322::boolean AND job_title IS NOT NULL) OR (NOT $322::boolean AND job_title IS NULL))) AND (NOT $323::boolean OR legal_entity_name = $324::varchar) AND (NOT $325::boolean OR legal_entity_name != $326::varchar) AND (NOT $327::boolean OR legal_entity_name > $328::varchar) AND (NOT $329::boolean OR legal_entity_name >= $330::varchar) AND (NOT $331::boolean OR legal_entity_name < $332::varchar) AND (NOT $333::boolean OR legal_entity_name <= $334::varchar) AND (NOT $335::boolean OR legal_entity_name LIKE $336::varchar) AND (NOT $337::boolean OR legal_entity_name NOT LIKE $338::varchar) AND (NOT $339::boolean OR legal_entity_name ILIKE $340::varchar) AND (NOT $341::boolean OR legal_entity_name NOT ILIKE $342::varchar) AND (NOT $343::boolean OR legal_entity_name SIMILAR TO $344::varchar) AND (NOT $345::boolean OR legal_entity_name NOT SIMILAR TO $346::varchar) AND (NOT $347::boolean OR legal_entity_name IN (SELECT unnest(CAST($348 as varchar[]))) ) AND (NOT $349::boolean OR legal_entity_name NOT IN (SELECT unnest(CAST($350 as varchar[]))) ) AND ($351::boolean IS NULL OR (($351::boolean AND legal_entity_name IS NOT NULL) OR (NOT $351::boolean AND legal_entity_name IS NULL))) AND (NOT $352::boolean OR legal_entity_country = $353::varchar) AND (NOT $354::boolean OR legal_entity_country != $355::varchar) AND (NOT $356::boolean OR legal_entity_country > $357::varchar) AND (NOT $358::boolean OR legal_entity_country >= $359::varchar) AND (NOT $360::boolean OR legal_entity_country < $361::varchar) AND (NOT $362::boolean OR legal_entity_country <= $363::varchar) AND (NOT $364::boolean OR legal_entity_country LIKE $365::varchar) AND (NOT $366::boolean OR legal_entity_country NOT LIKE $367::varchar) AND (NOT $368::boolean OR legal_entity_country ILIKE $369::varchar) AND (NOT $370::boolean OR legal_entity_country NOT ILIKE $371::varchar) AND (NOT $372::boolean OR legal_entity_country SIMILAR TO $373::varchar) AND (NOT $374::boolean OR legal_entity_country NOT SIMILAR TO $375::varchar) AND (NOT $376::boolean OR legal_entity_country IN (SELECT unnest(CAST($377 as varchar[]))) ) AND (NOT $378::boolean OR legal_entity_country NOT IN (SELECT unnest(CAST($379 as varchar[]))) ) AND ($380::boolean IS NULL OR (($380::boolean AND legal_entity_country IS NOT NULL) OR (NOT $380::boolean AND legal_entity_country IS NULL))) AND (NOT $381::boolean OR legal_entity_registration = $382::varchar) AND (NOT $383::boolean OR legal_entity_registration != $384::varchar) AND (NOT $385::boolean OR legal_entity_registration > $386::varchar) AND (NOT $387::boolean OR legal_entity_registration >= $388::varchar) AND (NOT $389::boolean OR legal_entity_registration < $390::varchar) AND (NOT $391::boolean OR legal_entity_registration <= $392::varchar) AND (NOT $393::boolean OR legal_entity_registration LIKE $394::varchar) AND (NOT $395::boolean OR legal_entity_registration NOT LIKE $396::varchar) AND (NOT $397::boolean OR legal_entity_registration ILIKE $398::varchar) AND (NOT $399::boolean OR legal_entity_registration NOT ILIKE $400::varchar) AND (NOT $401::boolean OR legal_entity_registration SIMILAR TO $402::varchar) AND (NOT $403::boolean OR legal_entity_registration NOT SIMILAR TO $404::varchar) AND (NOT $405::boolean OR legal_entity_registration IN (SELECT unnest(CAST($406 as varchar[]))) ) AND (NOT $407::boolean OR legal_entity_registration NOT IN (SELECT unnest(CAST($408 as varchar[]))) ) AND ($409::boolean IS NULL OR (($409::boolean AND legal_entity_registration IS NOT NULL) OR (NOT $409::boolean AND legal_entity_registration IS NULL))) AND (NOT $410::boolean OR legal_entity_tax_id = $411::varchar) AND (NOT $412::boolean OR legal_entity_tax_id != $413::varchar) AND (NOT $414::boolean OR legal_entity_tax_id > $415::varchar) AND (NOT $416::boolean OR legal_entity_tax_id >= $417::varchar) AND (NOT $418::boolean OR legal_entity_tax_id < $419::varchar) AND (NOT $420::boolean OR legal_entity_tax_id <= $421::varchar) AND (NOT $422::boolean OR legal_entity_tax_id LIKE $423::varchar) AND (NOT $424::boolean OR legal_entity_tax_id NOT LIKE $425::varchar) AND (NOT $426::boolean OR legal_entity_tax_id ILIKE $427::varchar) AND (NOT $428::boolean OR legal_entity_tax_id NOT ILIKE $429::varchar) AND (NOT $430::boolean OR legal_entity_tax_id SIMILAR TO $431::varchar) AND (NOT $432::boolean OR legal_entity_tax_id NOT SIMILAR TO $433::varchar) AND (NOT $434::boolean OR legal_entity_tax_id IN (SELECT unnest(CAST($435 as varchar[]))) ) AND (NOT $436::boolean OR legal_entity_tax_id NOT IN (SELECT unnest(CAST($437 as varchar[]))) ) AND ($438::boolean IS NULL OR (($438::boolean AND legal_entity_tax_id IS NOT NULL) OR (NOT $438::boolean AND legal_entity_tax_id IS NULL))) AND (NOT $439::boolean OR legal_entity_linkedin_id = $440::varchar) AND (NOT $441::boolean OR legal_entity_linkedin_id != $442::varchar) AND (NOT $443::boolean OR legal_entity_linkedin_id > $444::varchar) AND (NOT $445::boolean OR legal_entity_linkedin_id >= $446::varchar) AND (NOT $447::boolean OR legal_entity_linkedin_id < $448::varchar) AND (NOT $449::boolean OR legal_entity_linkedin_id <= $450::varchar) AND (NOT $451::boolean OR legal_entity_linkedin_id LIKE $452::varchar) AND (NOT $453::boolean OR legal_entity_linkedin_id NOT LIKE $454::varchar) AND (NOT $455::boolean OR legal_entity_linkedin_id ILIKE $456::varchar) AND (NOT $457::boolean OR legal_entity_linkedin_id NOT ILIKE $458::varchar) AND (NOT $459::boolean OR legal_entity_linkedin_id SIMILAR TO $460::varchar) AND (NOT $461::boolean OR legal_entity_linkedin_id NOT SIMILAR TO $462::varchar) AND (NOT $463::boolean OR legal_entity_linkedin_id IN (SELECT unnest(CAST($464 as varchar[]))) ) AND (NOT $465::boolean OR legal_entity_linkedin_id NOT IN (SELECT unnest(CAST($466 as varchar[]))) ) AND ($467::boolean IS NULL OR (($467::boolean AND legal_entity_linkedin_id IS NOT NULL) OR (NOT $467::boolean AND legal_entity_linkedin_id IS NULL))) AND (NOT $468::boolean OR deletion_id = $469::int4) AND (NOT $470::boolean OR deletion_id != $471::int4) AND (NOT $472::boolean OR deletion_id > $473::int4) AND (NOT $474::boolean OR deletion_id >= $475::int4) AND (NOT $476::boolean OR deletion_id < $477::int4) AND (NOT $478::boolean OR deletion_id <= $479::int4) AND (NOT $480::boolean OR deletion_id IN (SELECT unnest(CAST($481 as int4[]))) ) AND (NOT $482::boolean OR deletion_id NOT IN (SELECT unnest(CAST($483 as int4[]))) ) AND ($484::boolean IS NULL OR (($484::boolean AND deletion_id IS NOT NULL) OR (NOT $484::boolean AND deletion_id IS NULL)))"
   },
-  "f4a0f24022268286995be50c5376dc4f4b56fead20e8f22962760e9c2a56a835": {
+  "f3a675e8dccd0e5457fe6a39bd622fbd8643fcfea53ce21e8be5dad60cf09d2c": {
     "describe": {
       "columns": [
         {
@@ -26091,11 +26047,69 @@
           "Int4Array",
           "Bool",
           "Int4Array",
+          "Bool",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "VarcharArray",
+          "Bool",
+          "VarcharArray",
+          "Bool",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "VarcharArray",
+          "Bool",
+          "VarcharArray",
           "Bool"
         ]
       }
     },
-    "query": "SELECT count(*) as \"count!\" FROM vc_requests WHERE (NOT $1::boolean OR id = $2::int4) AND (NOT $3::boolean OR id != $4::int4) AND (NOT $5::boolean OR id > $6::int4) AND (NOT $7::boolean OR id >= $8::int4) AND (NOT $9::boolean OR id < $10::int4) AND (NOT $11::boolean OR id <= $12::int4) AND (NOT $13::boolean OR id IN (SELECT unnest(CAST($14 as int4[]))) ) AND (NOT $15::boolean OR id NOT IN (SELECT unnest(CAST($16 as int4[]))) ) AND ($17::boolean IS NULL OR (($17::boolean AND id IS NOT NULL) OR (NOT $17::boolean AND id IS NULL))) AND (NOT $18::boolean OR org_id = $19::int4) AND (NOT $20::boolean OR org_id != $21::int4) AND (NOT $22::boolean OR org_id > $23::int4) AND (NOT $24::boolean OR org_id >= $25::int4) AND (NOT $26::boolean OR org_id < $27::int4) AND (NOT $28::boolean OR org_id <= $29::int4) AND (NOT $30::boolean OR org_id IN (SELECT unnest(CAST($31 as int4[]))) ) AND (NOT $32::boolean OR org_id NOT IN (SELECT unnest(CAST($33 as int4[]))) ) AND ($34::boolean IS NULL OR (($34::boolean AND org_id IS NOT NULL) OR (NOT $34::boolean AND org_id IS NULL))) AND (NOT $35::boolean OR vc_prompt_id = $36::int4) AND (NOT $37::boolean OR vc_prompt_id != $38::int4) AND (NOT $39::boolean OR vc_prompt_id > $40::int4) AND (NOT $41::boolean OR vc_prompt_id >= $42::int4) AND (NOT $43::boolean OR vc_prompt_id < $44::int4) AND (NOT $45::boolean OR vc_prompt_id <= $46::int4) AND (NOT $47::boolean OR vc_prompt_id IN (SELECT unnest(CAST($48 as int4[]))) ) AND (NOT $49::boolean OR vc_prompt_id NOT IN (SELECT unnest(CAST($50 as int4[]))) ) AND ($51::boolean IS NULL OR (($51::boolean AND vc_prompt_id IS NOT NULL) OR (NOT $51::boolean AND vc_prompt_id IS NULL))) AND (NOT $52::boolean OR access_token_id = $53::int4) AND (NOT $54::boolean OR access_token_id != $55::int4) AND (NOT $56::boolean OR access_token_id > $57::int4) AND (NOT $58::boolean OR access_token_id >= $59::int4) AND (NOT $60::boolean OR access_token_id < $61::int4) AND (NOT $62::boolean OR access_token_id <= $63::int4) AND (NOT $64::boolean OR access_token_id IN (SELECT unnest(CAST($65 as int4[]))) ) AND (NOT $66::boolean OR access_token_id NOT IN (SELECT unnest(CAST($67 as int4[]))) ) AND ($68::boolean IS NULL OR (($68::boolean AND access_token_id IS NOT NULL) OR (NOT $68::boolean AND access_token_id IS NULL))) AND (NOT $69::boolean OR state = $70::vc_request_state) AND (NOT $71::boolean OR state != $72::vc_request_state) AND (NOT $73::boolean OR state > $74::vc_request_state) AND (NOT $75::boolean OR state >= $76::vc_request_state) AND (NOT $77::boolean OR state < $78::vc_request_state) AND (NOT $79::boolean OR state <= $80::vc_request_state) AND (NOT $81::boolean OR state IN (SELECT unnest(CAST($82 as vc_request_state[]))) ) AND (NOT $83::boolean OR state NOT IN (SELECT unnest(CAST($84 as vc_request_state[]))) ) AND ($85::boolean IS NULL OR (($85::boolean AND state IS NOT NULL) OR (NOT $85::boolean AND state IS NULL))) AND (NOT $86::boolean OR state_notes = $87::varchar) AND (NOT $88::boolean OR state_notes != $89::varchar) AND (NOT $90::boolean OR state_notes > $91::varchar) AND (NOT $92::boolean OR state_notes >= $93::varchar) AND (NOT $94::boolean OR state_notes < $95::varchar) AND (NOT $96::boolean OR state_notes <= $97::varchar) AND (NOT $98::boolean OR state_notes LIKE $99::varchar) AND (NOT $100::boolean OR state_notes NOT LIKE $101::varchar) AND (NOT $102::boolean OR state_notes ILIKE $103::varchar) AND (NOT $104::boolean OR state_notes NOT ILIKE $105::varchar) AND (NOT $106::boolean OR state_notes SIMILAR TO $107::varchar) AND (NOT $108::boolean OR state_notes NOT SIMILAR TO $109::varchar) AND (NOT $110::boolean OR state_notes IN (SELECT unnest(CAST($111 as varchar[]))) ) AND (NOT $112::boolean OR state_notes NOT IN (SELECT unnest(CAST($113 as varchar[]))) ) AND ($114::boolean IS NULL OR (($114::boolean AND state_notes IS NOT NULL) OR (NOT $114::boolean AND state_notes IS NULL))) AND (NOT $115::boolean OR vc_presentation = $116::varchar) AND (NOT $117::boolean OR vc_presentation != $118::varchar) AND (NOT $119::boolean OR vc_presentation > $120::varchar) AND (NOT $121::boolean OR vc_presentation >= $122::varchar) AND (NOT $123::boolean OR vc_presentation < $124::varchar) AND (NOT $125::boolean OR vc_presentation <= $126::varchar) AND (NOT $127::boolean OR vc_presentation LIKE $128::varchar) AND (NOT $129::boolean OR vc_presentation NOT LIKE $130::varchar) AND (NOT $131::boolean OR vc_presentation ILIKE $132::varchar) AND (NOT $133::boolean OR vc_presentation NOT ILIKE $134::varchar) AND (NOT $135::boolean OR vc_presentation SIMILAR TO $136::varchar) AND (NOT $137::boolean OR vc_presentation NOT SIMILAR TO $138::varchar) AND (NOT $139::boolean OR vc_presentation IN (SELECT unnest(CAST($140 as varchar[]))) ) AND (NOT $141::boolean OR vc_presentation NOT IN (SELECT unnest(CAST($142 as varchar[]))) ) AND ($143::boolean IS NULL OR (($143::boolean AND vc_presentation IS NOT NULL) OR (NOT $143::boolean AND vc_presentation IS NULL))) AND (NOT $144::boolean OR did = $145::varchar) AND (NOT $146::boolean OR did != $147::varchar) AND (NOT $148::boolean OR did > $149::varchar) AND (NOT $150::boolean OR did >= $151::varchar) AND (NOT $152::boolean OR did < $153::varchar) AND (NOT $154::boolean OR did <= $155::varchar) AND (NOT $156::boolean OR did LIKE $157::varchar) AND (NOT $158::boolean OR did NOT LIKE $159::varchar) AND (NOT $160::boolean OR did ILIKE $161::varchar) AND (NOT $162::boolean OR did NOT ILIKE $163::varchar) AND (NOT $164::boolean OR did SIMILAR TO $165::varchar) AND (NOT $166::boolean OR did NOT SIMILAR TO $167::varchar) AND (NOT $168::boolean OR did IN (SELECT unnest(CAST($169 as varchar[]))) ) AND (NOT $170::boolean OR did NOT IN (SELECT unnest(CAST($171 as varchar[]))) ) AND ($172::boolean IS NULL OR (($172::boolean AND did IS NOT NULL) OR (NOT $172::boolean AND did IS NULL))) AND (NOT $173::boolean OR started_at = $174::timestamptz) AND (NOT $175::boolean OR started_at != $176::timestamptz) AND (NOT $177::boolean OR started_at > $178::timestamptz) AND (NOT $179::boolean OR started_at >= $180::timestamptz) AND (NOT $181::boolean OR started_at < $182::timestamptz) AND (NOT $183::boolean OR started_at <= $184::timestamptz) AND (NOT $185::boolean OR started_at IN (SELECT unnest(CAST($186 as timestamptz[]))) ) AND (NOT $187::boolean OR started_at NOT IN (SELECT unnest(CAST($188 as timestamptz[]))) ) AND ($189::boolean IS NULL OR (($189::boolean AND started_at IS NOT NULL) OR (NOT $189::boolean AND started_at IS NULL))) AND (NOT $190::boolean OR finished_at = $191::timestamptz) AND (NOT $192::boolean OR finished_at != $193::timestamptz) AND (NOT $194::boolean OR finished_at > $195::timestamptz) AND (NOT $196::boolean OR finished_at >= $197::timestamptz) AND (NOT $198::boolean OR finished_at < $199::timestamptz) AND (NOT $200::boolean OR finished_at <= $201::timestamptz) AND (NOT $202::boolean OR finished_at IN (SELECT unnest(CAST($203 as timestamptz[]))) ) AND (NOT $204::boolean OR finished_at NOT IN (SELECT unnest(CAST($205 as timestamptz[]))) ) AND ($206::boolean IS NULL OR (($206::boolean AND finished_at IS NOT NULL) OR (NOT $206::boolean AND finished_at IS NULL))) AND (NOT $207::boolean OR deletion_id = $208::int4) AND (NOT $209::boolean OR deletion_id != $210::int4) AND (NOT $211::boolean OR deletion_id > $212::int4) AND (NOT $213::boolean OR deletion_id >= $214::int4) AND (NOT $215::boolean OR deletion_id < $216::int4) AND (NOT $217::boolean OR deletion_id <= $218::int4) AND (NOT $219::boolean OR deletion_id IN (SELECT unnest(CAST($220 as int4[]))) ) AND (NOT $221::boolean OR deletion_id NOT IN (SELECT unnest(CAST($222 as int4[]))) ) AND ($223::boolean IS NULL OR (($223::boolean AND deletion_id IS NOT NULL) OR (NOT $223::boolean AND deletion_id IS NULL)))"
+    "query": "SELECT count(*) as \"count!\" FROM vc_requests WHERE (NOT $1::boolean OR id = $2::int4) AND (NOT $3::boolean OR id != $4::int4) AND (NOT $5::boolean OR id > $6::int4) AND (NOT $7::boolean OR id >= $8::int4) AND (NOT $9::boolean OR id < $10::int4) AND (NOT $11::boolean OR id <= $12::int4) AND (NOT $13::boolean OR id IN (SELECT unnest(CAST($14 as int4[]))) ) AND (NOT $15::boolean OR id NOT IN (SELECT unnest(CAST($16 as int4[]))) ) AND ($17::boolean IS NULL OR (($17::boolean AND id IS NOT NULL) OR (NOT $17::boolean AND id IS NULL))) AND (NOT $18::boolean OR org_id = $19::int4) AND (NOT $20::boolean OR org_id != $21::int4) AND (NOT $22::boolean OR org_id > $23::int4) AND (NOT $24::boolean OR org_id >= $25::int4) AND (NOT $26::boolean OR org_id < $27::int4) AND (NOT $28::boolean OR org_id <= $29::int4) AND (NOT $30::boolean OR org_id IN (SELECT unnest(CAST($31 as int4[]))) ) AND (NOT $32::boolean OR org_id NOT IN (SELECT unnest(CAST($33 as int4[]))) ) AND ($34::boolean IS NULL OR (($34::boolean AND org_id IS NOT NULL) OR (NOT $34::boolean AND org_id IS NULL))) AND (NOT $35::boolean OR vc_prompt_id = $36::int4) AND (NOT $37::boolean OR vc_prompt_id != $38::int4) AND (NOT $39::boolean OR vc_prompt_id > $40::int4) AND (NOT $41::boolean OR vc_prompt_id >= $42::int4) AND (NOT $43::boolean OR vc_prompt_id < $44::int4) AND (NOT $45::boolean OR vc_prompt_id <= $46::int4) AND (NOT $47::boolean OR vc_prompt_id IN (SELECT unnest(CAST($48 as int4[]))) ) AND (NOT $49::boolean OR vc_prompt_id NOT IN (SELECT unnest(CAST($50 as int4[]))) ) AND ($51::boolean IS NULL OR (($51::boolean AND vc_prompt_id IS NOT NULL) OR (NOT $51::boolean AND vc_prompt_id IS NULL))) AND (NOT $52::boolean OR access_token_id = $53::int4) AND (NOT $54::boolean OR access_token_id != $55::int4) AND (NOT $56::boolean OR access_token_id > $57::int4) AND (NOT $58::boolean OR access_token_id >= $59::int4) AND (NOT $60::boolean OR access_token_id < $61::int4) AND (NOT $62::boolean OR access_token_id <= $63::int4) AND (NOT $64::boolean OR access_token_id IN (SELECT unnest(CAST($65 as int4[]))) ) AND (NOT $66::boolean OR access_token_id NOT IN (SELECT unnest(CAST($67 as int4[]))) ) AND ($68::boolean IS NULL OR (($68::boolean AND access_token_id IS NOT NULL) OR (NOT $68::boolean AND access_token_id IS NULL))) AND (NOT $69::boolean OR state = $70::vc_request_state) AND (NOT $71::boolean OR state != $72::vc_request_state) AND (NOT $73::boolean OR state > $74::vc_request_state) AND (NOT $75::boolean OR state >= $76::vc_request_state) AND (NOT $77::boolean OR state < $78::vc_request_state) AND (NOT $79::boolean OR state <= $80::vc_request_state) AND (NOT $81::boolean OR state IN (SELECT unnest(CAST($82 as vc_request_state[]))) ) AND (NOT $83::boolean OR state NOT IN (SELECT unnest(CAST($84 as vc_request_state[]))) ) AND ($85::boolean IS NULL OR (($85::boolean AND state IS NOT NULL) OR (NOT $85::boolean AND state IS NULL))) AND (NOT $86::boolean OR state_notes = $87::varchar) AND (NOT $88::boolean OR state_notes != $89::varchar) AND (NOT $90::boolean OR state_notes > $91::varchar) AND (NOT $92::boolean OR state_notes >= $93::varchar) AND (NOT $94::boolean OR state_notes < $95::varchar) AND (NOT $96::boolean OR state_notes <= $97::varchar) AND (NOT $98::boolean OR state_notes LIKE $99::varchar) AND (NOT $100::boolean OR state_notes NOT LIKE $101::varchar) AND (NOT $102::boolean OR state_notes ILIKE $103::varchar) AND (NOT $104::boolean OR state_notes NOT ILIKE $105::varchar) AND (NOT $106::boolean OR state_notes SIMILAR TO $107::varchar) AND (NOT $108::boolean OR state_notes NOT SIMILAR TO $109::varchar) AND (NOT $110::boolean OR state_notes IN (SELECT unnest(CAST($111 as varchar[]))) ) AND (NOT $112::boolean OR state_notes NOT IN (SELECT unnest(CAST($113 as varchar[]))) ) AND ($114::boolean IS NULL OR (($114::boolean AND state_notes IS NOT NULL) OR (NOT $114::boolean AND state_notes IS NULL))) AND (NOT $115::boolean OR vc_presentation = $116::varchar) AND (NOT $117::boolean OR vc_presentation != $118::varchar) AND (NOT $119::boolean OR vc_presentation > $120::varchar) AND (NOT $121::boolean OR vc_presentation >= $122::varchar) AND (NOT $123::boolean OR vc_presentation < $124::varchar) AND (NOT $125::boolean OR vc_presentation <= $126::varchar) AND (NOT $127::boolean OR vc_presentation LIKE $128::varchar) AND (NOT $129::boolean OR vc_presentation NOT LIKE $130::varchar) AND (NOT $131::boolean OR vc_presentation ILIKE $132::varchar) AND (NOT $133::boolean OR vc_presentation NOT ILIKE $134::varchar) AND (NOT $135::boolean OR vc_presentation SIMILAR TO $136::varchar) AND (NOT $137::boolean OR vc_presentation NOT SIMILAR TO $138::varchar) AND (NOT $139::boolean OR vc_presentation IN (SELECT unnest(CAST($140 as varchar[]))) ) AND (NOT $141::boolean OR vc_presentation NOT IN (SELECT unnest(CAST($142 as varchar[]))) ) AND ($143::boolean IS NULL OR (($143::boolean AND vc_presentation IS NOT NULL) OR (NOT $143::boolean AND vc_presentation IS NULL))) AND (NOT $144::boolean OR did = $145::varchar) AND (NOT $146::boolean OR did != $147::varchar) AND (NOT $148::boolean OR did > $149::varchar) AND (NOT $150::boolean OR did >= $151::varchar) AND (NOT $152::boolean OR did < $153::varchar) AND (NOT $154::boolean OR did <= $155::varchar) AND (NOT $156::boolean OR did LIKE $157::varchar) AND (NOT $158::boolean OR did NOT LIKE $159::varchar) AND (NOT $160::boolean OR did ILIKE $161::varchar) AND (NOT $162::boolean OR did NOT ILIKE $163::varchar) AND (NOT $164::boolean OR did SIMILAR TO $165::varchar) AND (NOT $166::boolean OR did NOT SIMILAR TO $167::varchar) AND (NOT $168::boolean OR did IN (SELECT unnest(CAST($169 as varchar[]))) ) AND (NOT $170::boolean OR did NOT IN (SELECT unnest(CAST($171 as varchar[]))) ) AND ($172::boolean IS NULL OR (($172::boolean AND did IS NOT NULL) OR (NOT $172::boolean AND did IS NULL))) AND (NOT $173::boolean OR started_at = $174::timestamptz) AND (NOT $175::boolean OR started_at != $176::timestamptz) AND (NOT $177::boolean OR started_at > $178::timestamptz) AND (NOT $179::boolean OR started_at >= $180::timestamptz) AND (NOT $181::boolean OR started_at < $182::timestamptz) AND (NOT $183::boolean OR started_at <= $184::timestamptz) AND (NOT $185::boolean OR started_at IN (SELECT unnest(CAST($186 as timestamptz[]))) ) AND (NOT $187::boolean OR started_at NOT IN (SELECT unnest(CAST($188 as timestamptz[]))) ) AND ($189::boolean IS NULL OR (($189::boolean AND started_at IS NOT NULL) OR (NOT $189::boolean AND started_at IS NULL))) AND (NOT $190::boolean OR finished_at = $191::timestamptz) AND (NOT $192::boolean OR finished_at != $193::timestamptz) AND (NOT $194::boolean OR finished_at > $195::timestamptz) AND (NOT $196::boolean OR finished_at >= $197::timestamptz) AND (NOT $198::boolean OR finished_at < $199::timestamptz) AND (NOT $200::boolean OR finished_at <= $201::timestamptz) AND (NOT $202::boolean OR finished_at IN (SELECT unnest(CAST($203 as timestamptz[]))) ) AND (NOT $204::boolean OR finished_at NOT IN (SELECT unnest(CAST($205 as timestamptz[]))) ) AND ($206::boolean IS NULL OR (($206::boolean AND finished_at IS NOT NULL) OR (NOT $206::boolean AND finished_at IS NULL))) AND (NOT $207::boolean OR deletion_id = $208::int4) AND (NOT $209::boolean OR deletion_id != $210::int4) AND (NOT $211::boolean OR deletion_id > $212::int4) AND (NOT $213::boolean OR deletion_id >= $214::int4) AND (NOT $215::boolean OR deletion_id < $216::int4) AND (NOT $217::boolean OR deletion_id <= $218::int4) AND (NOT $219::boolean OR deletion_id IN (SELECT unnest(CAST($220 as int4[]))) ) AND (NOT $221::boolean OR deletion_id NOT IN (SELECT unnest(CAST($222 as int4[]))) ) AND ($223::boolean IS NULL OR (($223::boolean AND deletion_id IS NOT NULL) OR (NOT $223::boolean AND deletion_id IS NULL))) AND (NOT $224::boolean OR vidchain_code = $225::varchar) AND (NOT $226::boolean OR vidchain_code != $227::varchar) AND (NOT $228::boolean OR vidchain_code > $229::varchar) AND (NOT $230::boolean OR vidchain_code >= $231::varchar) AND (NOT $232::boolean OR vidchain_code < $233::varchar) AND (NOT $234::boolean OR vidchain_code <= $235::varchar) AND (NOT $236::boolean OR vidchain_code LIKE $237::varchar) AND (NOT $238::boolean OR vidchain_code NOT LIKE $239::varchar) AND (NOT $240::boolean OR vidchain_code ILIKE $241::varchar) AND (NOT $242::boolean OR vidchain_code NOT ILIKE $243::varchar) AND (NOT $244::boolean OR vidchain_code SIMILAR TO $245::varchar) AND (NOT $246::boolean OR vidchain_code NOT SIMILAR TO $247::varchar) AND (NOT $248::boolean OR vidchain_code IN (SELECT unnest(CAST($249 as varchar[]))) ) AND (NOT $250::boolean OR vidchain_code NOT IN (SELECT unnest(CAST($251 as varchar[]))) ) AND ($252::boolean IS NULL OR (($252::boolean AND vidchain_code IS NOT NULL) OR (NOT $252::boolean AND vidchain_code IS NULL))) AND (NOT $253::boolean OR vidchain_jwt = $254::varchar) AND (NOT $255::boolean OR vidchain_jwt != $256::varchar) AND (NOT $257::boolean OR vidchain_jwt > $258::varchar) AND (NOT $259::boolean OR vidchain_jwt >= $260::varchar) AND (NOT $261::boolean OR vidchain_jwt < $262::varchar) AND (NOT $263::boolean OR vidchain_jwt <= $264::varchar) AND (NOT $265::boolean OR vidchain_jwt LIKE $266::varchar) AND (NOT $267::boolean OR vidchain_jwt NOT LIKE $268::varchar) AND (NOT $269::boolean OR vidchain_jwt ILIKE $270::varchar) AND (NOT $271::boolean OR vidchain_jwt NOT ILIKE $272::varchar) AND (NOT $273::boolean OR vidchain_jwt SIMILAR TO $274::varchar) AND (NOT $275::boolean OR vidchain_jwt NOT SIMILAR TO $276::varchar) AND (NOT $277::boolean OR vidchain_jwt IN (SELECT unnest(CAST($278 as varchar[]))) ) AND (NOT $279::boolean OR vidchain_jwt NOT IN (SELECT unnest(CAST($280 as varchar[]))) ) AND ($281::boolean IS NULL OR (($281::boolean AND vidchain_jwt IS NOT NULL) OR (NOT $281::boolean AND vidchain_jwt IS NULL)))"
   },
   "f4b0f04e935127ef809815c8723074fad765d73503971fdb3e45ef3c452ab6ea": {
     "describe": {
@@ -26267,6 +26281,148 @@
       }
     },
     "query": "SELECT id as \"id!: i32\", \naccess_token_id as \"access_token_id!: i32\", \norg_id as \"org_id!: i32\", \ninvoice_id as \"invoice_id!: Option < i32 >\" FROM invoice_links WHERE (NOT $1::boolean OR id = $2::int4) AND (NOT $3::boolean OR id != $4::int4) AND (NOT $5::boolean OR id > $6::int4) AND (NOT $7::boolean OR id >= $8::int4) AND (NOT $9::boolean OR id < $10::int4) AND (NOT $11::boolean OR id <= $12::int4) AND (NOT $13::boolean OR id IN (SELECT unnest(CAST($14 as int4[]))) ) AND (NOT $15::boolean OR id NOT IN (SELECT unnest(CAST($16 as int4[]))) ) AND ($17::boolean IS NULL OR (($17::boolean AND id IS NOT NULL) OR (NOT $17::boolean AND id IS NULL))) AND (NOT $18::boolean OR access_token_id = $19::int4) AND (NOT $20::boolean OR access_token_id != $21::int4) AND (NOT $22::boolean OR access_token_id > $23::int4) AND (NOT $24::boolean OR access_token_id >= $25::int4) AND (NOT $26::boolean OR access_token_id < $27::int4) AND (NOT $28::boolean OR access_token_id <= $29::int4) AND (NOT $30::boolean OR access_token_id IN (SELECT unnest(CAST($31 as int4[]))) ) AND (NOT $32::boolean OR access_token_id NOT IN (SELECT unnest(CAST($33 as int4[]))) ) AND ($34::boolean IS NULL OR (($34::boolean AND access_token_id IS NOT NULL) OR (NOT $34::boolean AND access_token_id IS NULL))) AND (NOT $35::boolean OR org_id = $36::int4) AND (NOT $37::boolean OR org_id != $38::int4) AND (NOT $39::boolean OR org_id > $40::int4) AND (NOT $41::boolean OR org_id >= $42::int4) AND (NOT $43::boolean OR org_id < $44::int4) AND (NOT $45::boolean OR org_id <= $46::int4) AND (NOT $47::boolean OR org_id IN (SELECT unnest(CAST($48 as int4[]))) ) AND (NOT $49::boolean OR org_id NOT IN (SELECT unnest(CAST($50 as int4[]))) ) AND ($51::boolean IS NULL OR (($51::boolean AND org_id IS NOT NULL) OR (NOT $51::boolean AND org_id IS NULL))) AND (NOT $52::boolean OR invoice_id = $53::int4) AND (NOT $54::boolean OR invoice_id != $55::int4) AND (NOT $56::boolean OR invoice_id > $57::int4) AND (NOT $58::boolean OR invoice_id >= $59::int4) AND (NOT $60::boolean OR invoice_id < $61::int4) AND (NOT $62::boolean OR invoice_id <= $63::int4) AND (NOT $64::boolean OR invoice_id IN (SELECT unnest(CAST($65 as int4[]))) ) AND (NOT $66::boolean OR invoice_id NOT IN (SELECT unnest(CAST($67 as int4[]))) ) AND ($68::boolean IS NULL OR (($68::boolean AND invoice_id IS NOT NULL) OR (NOT $68::boolean AND invoice_id IS NULL))) ORDER BY \n      (CASE ($69 = 'Id' AND NOT $70) WHEN true THEN id ELSE NULL END),\n      (CASE ($69 = 'Id' AND $70) WHEN true THEN id ELSE NULL END) DESC\n    ,\n      (CASE ($69 = 'AccessTokenId' AND NOT $70) WHEN true THEN access_token_id ELSE NULL END),\n      (CASE ($69 = 'AccessTokenId' AND $70) WHEN true THEN access_token_id ELSE NULL END) DESC\n    ,\n      (CASE ($69 = 'OrgId' AND NOT $70) WHEN true THEN org_id ELSE NULL END),\n      (CASE ($69 = 'OrgId' AND $70) WHEN true THEN org_id ELSE NULL END) DESC\n    ,\n      (CASE ($69 = 'InvoiceId' AND NOT $70) WHEN true THEN invoice_id ELSE NULL END),\n      (CASE ($69 = 'InvoiceId' AND $70) WHEN true THEN invoice_id ELSE NULL END) DESC\n     LIMIT $71 OFFSET $72"
+  },
+  "f575dfda21dfa4f2f16c57bcab77ac15a23d260a0e0b468a81958391bbc7ab1f": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id!: i32",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "org_id!: i32",
+          "ordinal": 1,
+          "type_info": "Int4"
+        },
+        {
+          "name": "vc_prompt_id!: i32",
+          "ordinal": 2,
+          "type_info": "Int4"
+        },
+        {
+          "name": "access_token_id!: i32",
+          "ordinal": 3,
+          "type_info": "Int4"
+        },
+        {
+          "name": "state!: VcRequestState",
+          "ordinal": 4,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": [
+                  "pending",
+                  "approved",
+                  "rejected",
+                  "failed"
+                ]
+              },
+              "name": "vc_request_state"
+            }
+          }
+        },
+        {
+          "name": "state_notes!: Option < String >",
+          "ordinal": 5,
+          "type_info": "Text"
+        },
+        {
+          "name": "vc_presentation!: Option < String >",
+          "ordinal": 6,
+          "type_info": "Text"
+        },
+        {
+          "name": "did!: Option < String >",
+          "ordinal": 7,
+          "type_info": "Text"
+        },
+        {
+          "name": "started_at!: UtcDateTime",
+          "ordinal": 8,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "finished_at!: Option < UtcDateTime >",
+          "ordinal": 9,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deletion_id!: Option < i32 >",
+          "ordinal": 10,
+          "type_info": "Int4"
+        },
+        {
+          "name": "vidchain_code!: Option < String >",
+          "ordinal": 11,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "vidchain_jwt!: Option < String >",
+          "ordinal": 12,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          {
+            "Custom": {
+              "kind": {
+                "Enum": [
+                  "pending",
+                  "approved",
+                  "rejected",
+                  "failed"
+                ]
+              },
+              "name": "vc_request_state"
+            }
+          },
+          "Bool",
+          "Text",
+          "Bool",
+          "Text",
+          "Bool",
+          "Text",
+          "Bool",
+          "Timestamptz",
+          "Bool",
+          "Timestamptz",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar"
+        ]
+      }
+    },
+    "query": "UPDATE vc_requests SET (id, \norg_id, \nvc_prompt_id, \naccess_token_id, \nstate, \nstate_notes, \nvc_presentation, \ndid, \nstarted_at, \nfinished_at, \ndeletion_id, \nvidchain_code, \nvidchain_jwt) = ((CASE $2::boolean WHEN TRUE THEN $3 ELSE id END), (CASE $4::boolean WHEN TRUE THEN $5 ELSE org_id END), (CASE $6::boolean WHEN TRUE THEN $7 ELSE vc_prompt_id END), (CASE $8::boolean WHEN TRUE THEN $9 ELSE access_token_id END), (CASE $10::boolean WHEN TRUE THEN $11 ELSE state END), (CASE $12::boolean WHEN TRUE THEN $13 ELSE state_notes END), (CASE $14::boolean WHEN TRUE THEN $15 ELSE vc_presentation END), (CASE $16::boolean WHEN TRUE THEN $17 ELSE did END), (CASE $18::boolean WHEN TRUE THEN $19 ELSE started_at END), (CASE $20::boolean WHEN TRUE THEN $21 ELSE finished_at END), (CASE $22::boolean WHEN TRUE THEN $23 ELSE deletion_id END), (CASE $24::boolean WHEN TRUE THEN $25 ELSE vidchain_code END), (CASE $26::boolean WHEN TRUE THEN $27 ELSE vidchain_jwt END)) WHERE id = $1 RETURNING id as \"id!: i32\", \norg_id as \"org_id!: i32\", \nvc_prompt_id as \"vc_prompt_id!: i32\", \naccess_token_id as \"access_token_id!: i32\", \nstate as \"state!: VcRequestState\", \nstate_notes as \"state_notes!: Option < String >\", \nvc_presentation as \"vc_presentation!: Option < String >\", \ndid as \"did!: Option < String >\", \nstarted_at as \"started_at!: UtcDateTime\", \nfinished_at as \"finished_at!: Option < UtcDateTime >\", \ndeletion_id as \"deletion_id!: Option < i32 >\", \nvidchain_code as \"vidchain_code!: Option < String >\", \nvidchain_jwt as \"vidchain_jwt!: Option < String >\""
   },
   "f707d4e94c516f96bb2ce1131873a917155d5ea731e4710afeaa5663d2ffd810": {
     "describe": {

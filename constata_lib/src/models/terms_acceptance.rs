@@ -1,5 +1,4 @@
 use super::*;
-use crate::{Site, Result};
 
 model!{
   state: Site,
@@ -39,7 +38,7 @@ impl TermsAcceptance {
     self.attrs.accepted.is_none()
   }
 
-  pub async fn accept(&self, evidence: &[u8]) -> Result<TermsAcceptance> {
+  pub async fn accept(&self, evidence: &[u8]) -> ConstataResult<TermsAcceptance> {
     let accepted = if self.is_needed() {
       let (tx, draft) = self.state.bulletin().current_draft().await?;
       let updated = self.clone().update()

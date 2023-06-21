@@ -1,6 +1,6 @@
 use crate::{
+  prelude::*,
   models::{Document, Proof},
-  Base64Standard, Error, Result,
 };
 use serde::Serialize;
 use serde_with::serde_as;
@@ -35,7 +35,7 @@ pub struct Previewer {
 }
 
 impl Previewer {
-  pub fn create(payload: &[u8], has_kyc_endorsement: bool) -> Result<Self> {
+  pub fn create(payload: &[u8], has_kyc_endorsement: bool) -> ConstataResult<Self> {
     let mime_and_ext = Document::mime_and_ext(payload, None);
     let mut parts = match (mime_and_ext.0.as_str(), mime_and_ext.1.as_str()) {
       ("application/zip", _) => Self::index_as_zip(payload)?,
@@ -60,7 +60,7 @@ impl Previewer {
     Ok(Self{ parts, has_kyc_endorsement })
   }
 
-  fn index_as_zip(payload: &[u8]) -> Result<Vec<PreviewPart>> {
+  fn index_as_zip(payload: &[u8]) -> ConstataResult<Vec<PreviewPart>> {
     use std::io::Read;
     let mut parts = vec![PreviewPart::new(payload, "application/zip", "full_zip_file", true)];
 
@@ -95,7 +95,7 @@ impl Previewer {
     Ok(parts)
   }
 
-  pub fn render_html(&self, lang: i18n::Lang) -> Result<String> {
+  pub fn render_html(&self, lang: i18n::Lang) -> ConstataResult<String> {
     Ok(crate::RENDERER.i18n_and_serialize("previewer", lang, "preview.html", &self)?.to_utf8()?)
   }
 }

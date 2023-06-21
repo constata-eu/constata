@@ -9,7 +9,7 @@ use constata_lib::Site;
 mod controllers;
 use controllers::*;
 
-use controllers::private_graphql::{
+use controllers::api::{
   new_graphql_schema,
   graphiql,
   get_graphql_handler,

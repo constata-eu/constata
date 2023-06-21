@@ -1,14 +1,4 @@
-use crate::error::*;
-use super::{
-  *,
-  document::*,
-  email_address::*,
-  pubkey::*,
-  pubkey_domain_endorsement::*,
-  kyc_endorsement::*,
-  terms_acceptance::*,
-  kyc_request::*,
-};
+use super::*;
 use i18n::Lang;
 
 pub type PersonId = i32;
@@ -43,14 +33,14 @@ model!{
     KycEndorsement(person_id),
     TermsAcceptance(person_id),
     KycRequest(person_id),
-    Request(person_id),
+    Issuance(person_id),
     Template(person_id),
     Entry(person_id),
   }
 }
 
 impl PersonHub {  
-  pub async fn persons_that_are_missing_tokens_count(&self) -> Result<i64> {
+  pub async fn persons_that_are_missing_tokens_count(&self) -> ConstataResult<i64> {
     let count: i64 = self.state.db.fetch_one_scalar(sqlx::query_scalar!(r#"
       SELECT COUNT(DISTINCT d.person_id)::bigint as "count!" FROM documents d
       INNER JOIN terms_acceptances ta ON d.person_id = ta.person_id
@@ -156,7 +146,7 @@ impl Person {
     Ok(endorsements)
   }
 
-  pub async fn endorsement_string(&self, lang: i18n::Lang, html: bool) -> Result<Option<String>> {
+  pub async fn endorsement_string(&self, lang: i18n::Lang, html: bool) -> ConstataResult<Option<String>> {
     if self.kyc_endorsement().await?.is_some() {
       Ok(Some(Proof::render_endorsements(self, lang, html).await?))
     } else {
@@ -164,11 +154,11 @@ impl Person {
     }
   }
 
-  pub async fn can_send_email(&self) -> Result<bool> {
+  pub async fn can_send_email(&self) -> ConstataResult<bool> {
     Ok(!self.endorsements().await?.is_empty())
   }
 
-  pub async fn create_or_update_email_address(&self, address: &String, keep_private: bool) -> Result<EmailAddress> {
+  pub async fn create_or_update_email_address(&self, address: &String, keep_private: bool) -> ConstataResult<EmailAddress> {
     if let Some(mut existing) = self.email_address().await? {
       if existing.address() == address {
         if existing.attrs.keep_private != keep_private {

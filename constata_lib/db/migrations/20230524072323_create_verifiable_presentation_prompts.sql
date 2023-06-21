@@ -33,6 +33,8 @@ CREATE TABLE vc_requests (
   state_notes TEXT,
   vc_presentation TEXT,
   did TEXT,
+  vidchain_code VARCHAR,
+  vidchain_jwt VARCHAR,
   started_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   finished_at TIMESTAMPTZ,
   deletion_id INTEGER

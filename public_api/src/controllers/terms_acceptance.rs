@@ -1,9 +1,8 @@
-use super::{Result as MyResult, *};
-use constata_lib::models::terms_acceptance::TermsAcceptance;
+use super::*;
 use rocket::data::{Data, ToByteUnit};
 
 #[get("/<token>")]
-pub async fn show(token: Option<String>, site: &State<Site>, l: Lang) -> MyResult<i18n::LocalizedResponse<'_>> {
+pub async fn show(token: Option<String>, site: &State<Site>, l: Lang) -> ConstataResult<i18n::LocalizedResponse<'_>> {
   if let Some(t) = token {
     let needed = site.terms_acceptance()
       .select().token_eq(&t).optional().await?
@@ -19,7 +18,7 @@ pub async fn show(token: Option<String>, site: &State<Site>, l: Lang) -> MyResul
 }
 
 #[get("/")]
-pub async fn show_bare(l: Lang) -> MyResult<i18n::LocalizedResponse<'static>> {
+pub async fn show_bare(l: Lang) -> ConstataResult<i18n::LocalizedResponse<'static>> {
   return Ok(crate::RENDERER.i18n("terms_acceptance/", l, "for_display.html")?)
 }
 

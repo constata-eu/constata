@@ -1,6 +1,4 @@
 use super::*;
-use crate::Site;
-use chrono::{Duration, Utc};
 
 model!{
   state: Site,
@@ -54,10 +52,29 @@ impl AccessTokenHub {
 impl AccessToken {
   pub fn allows(&self, action: &str) -> bool {
     match self.kind() {
-      AccessTokenKind::VerifyEmail => action == "EmailAddressVerification" || action == "createEmailAddressVerification",
-      AccessTokenKind::InvoiceLink => action == "InvoiceLink" || action == "createInvoiceLink",
-      AccessTokenKind::DownloadProofLink => matches!(action, "DownloadProofLink" | "Proof" | "updateDownloadProofLink" | "deleteDownloadProofLink" | "AbridgedProofZip"),
-      AccessTokenKind::VcPrompt => matches!(action, "createKioskVcRequest" | "KioskVcRequest"),
+      AccessTokenKind::VerifyEmail => matches!(
+        action,
+        "EmailAddressVerification" |
+        "createEmailAddressVerification"
+      ),
+      AccessTokenKind::InvoiceLink => matches!(
+        action,
+        "InvoiceLink" |
+        "createInvoiceLink"
+      ),
+      AccessTokenKind::DownloadProofLink => matches!(
+        action,
+        "DownloadProofLink" |
+        "Proof" |
+        "updateDownloadProofLink" |
+        "deleteDownloadProofLink" |
+        "AbridgedProofZip"
+      ),
+      AccessTokenKind::VcPrompt => matches!(
+        action,
+        "createKioskVcRequest" |
+        "KioskVcRequest"
+      ),
       AccessTokenKind::VcRequest => action == "updateKioskVcRequest",
     }
   }
@@ -84,8 +101,6 @@ impl sqlx::postgres::PgHasArrayType for AccessTokenKind {
 }
 
 describe! {
-  use crate::Result;
-
   dbtest!{ expire_old_access_tokens (site, c)
     let alice = c.alice().await;
     let person = alice.person().await;
@@ -122,7 +137,7 @@ describe! {
     expire_old_and_assert_amount_of_expired_and_not_expired(&site, 7, 1).await?;
   }
 
-  pub async fn expire_old_and_assert_amount_of_expired_and_not_expired(site: &Site, expired: usize, not_expired: usize) -> Result<()> {
+  pub async fn expire_old_and_assert_amount_of_expired_and_not_expired(site: &Site, expired: usize, not_expired: usize) -> ConstataResult<()> {
     site.access_token().expire_all_old_access_tokens().await?;
     assert_eq!(site.access_token().select().expired_eq(true).all().await?.len(), expired);
     assert_eq!(site.access_token().select().expired_eq(false).all().await?.len(), not_expired);
