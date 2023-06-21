@@ -170,9 +170,13 @@ podemos decir que el "Documento" existía desde antes de esa fecha y el sello es
 
   window.onload = async function(){
     if(await ensure_running_on_secure_environment()){
-      if(await constataValidation()){
-        generatePreviews();
-        document.getElementById("loader_overlay").style.display = "none";
+      if(window.location.origin === "{{ secure_origin }}") {
+        skipVerificationInSecureOrigin();
+      } else {
+        if(await constataValidation()){
+          generatePreviews();
+          document.getElementById("loader_overlay").style.display = "none";
+        }
       }
     }
   }
@@ -200,7 +204,9 @@ podemos decir que el "Documento" existía desde antes de esa fecha y el sello es
     <br/>
     También puedes visualizarlo desde otro dispositivo, como tu ordenador.
   </p>
-  <div id="message" class="hidden"></div>
+  <div class="message-wrapper">
+    <div id="message" class="hidden"></div>
+  </div>
 </div>
 
 <div id="mobile_warning" class="hidden">
@@ -223,13 +229,16 @@ Estos datos se usan en el algoritmo que vimos más arriba.
 
 {%- if doc_count > 1 -%}
 <div class="many-docs-notice">
-  Contiene <strong>{{ doc_count }} documentos</strong> registrados
-  {% if bulletin_count > 1 %}
-    entre <strong class="timestamp-{{ bulletin_ids | first }}">{cargando fecha}</strong>
-    y <strong class="timestamp-{{ bulletin_ids | last }}">{cargando fecha}</strong>.
-  {% else %}
-    el <strong class="timestamp-{{ bulletin_ids | first }}">{cargando fecha}</strong>.
-  {% endif %}
+  Contiene <strong>{{ doc_count }} documentos</strong>
+  <span class="hide-if-unverified">
+    registrados
+    {% if bulletin_count > 1 %}
+      entre <strong class="timestamp-{{ bulletin_ids | first }}">{cargando fecha}</strong>
+      y <strong class="timestamp-{{ bulletin_ids | last }}">{cargando fecha}</strong>.
+    {% else %}
+      el <strong class="timestamp-{{ bulletin_ids | first }}">{cargando fecha}</strong>.
+    {% endif %}
+  </span>
 </div>
 {%- endif -%}
 
@@ -301,7 +310,7 @@ Estos datos se usan en el algoritmo que vimos más arriba.
         <div class="payload hidden">{{ part.contents }}</div> 
 
         {% if part.object.is_base %}
-          <div class="signature">
+          <div class="signature hide-if-unverified">
             <div class="field">
               <b>Fecha de registro en blockchain de Bitcoin:</b>
               <span class="timestamp-{{ doc.bulletin_id }}"><i>{cargando fecha}</i></span>.
@@ -320,7 +329,7 @@ Estos datos se usan en el algoritmo que vimos más arriba.
               <b>Firmado digitalmente por: </b>
               {{ macros_es::person_endorsements(person_id=signature.person_id, endorsements=endorsements[signature.person_id]) }}
             </div>
-            <div class="field">
+            <div class="field hide-if-unverified">
               <b>Firmado el:</b>
               <span class="timestamp-{{ signature.bulletin_id }}">{ cargando fecha }</span>
             </div>
@@ -350,7 +359,7 @@ Estos datos se usan en el algoritmo que vimos más arriba.
 {% endfor %}
 
 {% for bulletin in bulletins %}
-  <div id="bulletin_{{bulletin.object.id}}" class="bulletin hidden" data-bulletin-id="{{bulletin.object.id}}" data-bulletin-hash="{{bulletin.object.hash}}" data-transaction-hash="{{ bulletin.object.transaction_hash }}">{{ bulletin.contents }}</div>
+  <div id="bulletin_{{bulletin.object.id}}" class="bulletin hidden" data-bulletin-id="{{bulletin.object.id}}" data-bulletin-date="{{ bulletin.object.block_time }}" data-bulletin-hash="{{bulletin.object.hash}}" data-transaction-hash="{{ bulletin.object.transaction_hash }}">{{ bulletin.contents }}</div>
 {% endfor %}
 
 <div class="footer">
@@ -601,14 +610,21 @@ Estos datos se usan en el algoritmo que vimos más arriba.
 
   function showBlockchainTemporarilyUnavailableMessage() {
     showErrorMessage(`
-      <h1>⚠ NO SE PUDO VALIDAR EL CERTIFICADO</h1>
-      <h2>Las consultas a la Blockchain de Bitcoin fallaron.</h2>
+      <h1>⚠ Cuidado, no se pudo verificar el certificado.</h1>
       <p>
-        Esto puede ser un problema temporal con las copias públicas del blockchain, o con su conexión a internet. 
-        Revise su conexión y espera unos minutos.
+        Puede ser por un problema temporal con su conexión o su proveedor de internet.
       </p>
       <p>
-        Si continúa sin poder validar el sello y necesita ayuda, contacte a <a href="https://constata.eu">Constata.eu</a> o puede asesorarse con cualquier profesional de sistemas informáticos. El mecanismo de validación está descripto en este mismo certificado.
+        O puede ser que su empresa esté restringiendo el acceso a los puntos de verificación.
+      </p>
+      <p>
+        <button onclick="dismissErrorMessage()">Visualizar sin verificar</button>
+      </p>
+      <p>
+        La verificación es fundamental para confiar en el contenido que se muestra. Le recomendamos intentar desde otro dispositivo u otra conexión a internet.
+      </p>
+      <p>
+        Si continúa sin poder verificarlo contacte a <a href="https://constata.eu">Constata.eu</a> o puede asesorarse con cualquier profesional de sistemas informáticos. El mecanismo de validación está descripto en este mismo certificado.
       </p>
     `);
   }
