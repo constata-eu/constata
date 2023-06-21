@@ -8,6 +8,28 @@ function showErrorMessage(text){
   document.getElementById("loader_spin").style.display = "none";
 }
 
+function dismissErrorMessage() {
+  generatePreviews();
+  for ( i of document.querySelectorAll(".hide-if-unverified") ){
+    i.style.display = "none";
+  }
+  document.getElementById("message").classList.add("hidden");
+  document.getElementById("loader_overlay").style.display = "none";
+}
+
+function skipVerificationInSecureOrigin(){
+  const bulletins = document.querySelectorAll('.bulletin');
+  for( bulletin of bulletins ) {
+    const bulletinDate = new Date(bulletin.dataset.bulletinDate)
+      .toLocaleString(undefined, { dateStyle: "medium", timeStyle: "long" });
+    const bulletinId = bulletin.dataset.bulletinId;
+    document.querySelectorAll(`.timestamp-${bulletinId}`)
+      .forEach(el => el.innerHTML = bulletinDate);
+  }
+  generatePreviews();
+  document.getElementById("loader_overlay").style.display = "none";
+}
+
 function writeLoadingDetails(text){
   document.getElementById("loader_spin").classList.remove("hidden");
   document.getElementById("loader_detail").innerHTML = text;
