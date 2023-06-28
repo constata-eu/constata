@@ -9,8 +9,8 @@ pub struct VcPrompt {
   id: i32,
   #[graphql(description = "A friendly, public name of this prompt.")]
   name: String,
-  #[graphql(description = "The custom rules applied to the verifiable credentials. (Just the credential type for now.)")]
-  rules: String,
+  #[graphql(description = "The custom rules applied to the verifiable credentials.")]
+  vc_requirement_id: i32,
   #[graphql(description = "The public url for this prompt, can be opened from any device with the link.")]
   full_url: String,
   #[graphql(description = "The date when this prompt was created.")]
@@ -74,7 +74,7 @@ impl Showable<models::VcPrompt, VcPromptFilter> for VcPrompt {
       id: d.attrs.id,
       name: d.attrs.name,
       full_url,
-      rules: d.attrs.rules,
+      vc_requirement_id: d.attrs.vc_requirement_id,
       created_at: d.attrs.created_at,
       archived_at: d.attrs.archived_at,
     })
@@ -86,13 +86,17 @@ impl Showable<models::VcPrompt, VcPromptFilter> for VcPrompt {
 #[serde(rename_all = "camelCase")]
 pub struct CreateVcPromptInput {
   pub name: String,
-  pub rules: String,
+  pub vc_requirement_id: i32,
 }
 
 impl CreateVcPromptInput {
   pub async fn process(&self, context: &Context) -> FieldResult<VcPrompt> {
+    let requirement = context.site.vc_requirement().select()
+      .org_id_eq(&context.org_id())
+      .id_eq(&self.vc_requirement_id)
+      .one().await?;
     let prompt = context.site.vc_prompt()
-      .create(&context.person(), &self.name, &self.rules).await?;
+      .create(&context.person(), &self.name, &requirement).await?;
     Ok(VcPrompt::db_to_graphql(prompt).await?)
   }
 }

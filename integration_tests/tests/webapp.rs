@@ -90,7 +90,6 @@ mod webapp {
       let payload = std::fs::read("static/custom_template.zip").expect("custom_template.zip");
 
       c.site.template().insert(InsertTemplate{
-        app_id: 1,
         person_id: 1,
         org_id: 1,
         name: "Tempalte Custom".to_string(),
@@ -98,7 +97,6 @@ mod webapp {
         schema: d.template_custom_schema(),
         og_title_override: Some("Curso de programación".to_string()),
         custom_message: Some("Mensaje custom".to_string()),
-        size_in_bytes: payload.len() as i32,
       }).validate_and_save(&payload).await?;
       
       d.click("a[href='#/wizard']").await;

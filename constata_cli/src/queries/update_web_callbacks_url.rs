@@ -1,5 +1,5 @@
 use super::*;
-use gql_types::account_state_graphql::AccountState;
+use gql_types::AccountState;
 
 #[derive(serde::Serialize, clap::Args)]
 pub struct UpdateWebCallbacksUrl {

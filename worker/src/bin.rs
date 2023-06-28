@@ -1,4 +1,4 @@
-use constata_lib::models::{Site, Utc};
+use constata_lib::prelude::*;
 use email_bot::EmailBot;
 use log::*;
 use std::time::Duration;
@@ -31,8 +31,8 @@ async fn main() {
   }
 
   every![100, |s| {
-    run!("workroom_create_received" { s.request().create_all_received().await });
-    run!("workroom_complete_all_notified" { s.request().try_complete().await });
+    run!("workroom_create_received" { s.issuance().create_all_received().await });
+    run!("workroom_complete_all_notified" { s.issuance().try_complete().await });
     run!("attempting_webhooks" { s.web_callback().attempt_all_pending().await });
   }];
 

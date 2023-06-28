@@ -66,10 +66,9 @@ include_dir = { version="*", features= ["glob"]}
 printpdf = { git = "https://github.com/nubis/printpdf", features = ["svg"]}
 qrcode-generator = "*"
 textwrap = "0.16.0"
-#ssi = "0.6"
-ssi = { path = "/home/nubis/ssi" }
-#did-ethr = "0.2.1"
-did-ethr = { path = "/home/nubis/ssi/did-ethr" }
+ssi = "0.6"
+ssi-jws = "0.1.0"
+did-ethr = "0.2.1"
 ex = "0.1.3"
 
 [dependencies.bitcoin]

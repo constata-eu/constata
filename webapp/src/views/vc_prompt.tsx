@@ -19,9 +19,9 @@ const VcPromptDashboard = () => {
 
   return (<Container maxWidth="md" id="vc-prompt-dashboard">
     <Box mb={3}>
-      <Head1 sx={{ mb:2 }}>Puntos de verificación</Head1>
+      <Head1 sx={{ mb:2 }}>Verification points</Head1>
       <Typography>
-        Los puntos de verificación de credenciales le permiten solicitar credenciales verificables en forma presencial a usuarios de VidWallet.
+        Credential verification points let you request verifiable credentials from a mobile device on physical locations.
       </Typography>
     </Box>
     <NewPromptDialog />
@@ -53,7 +53,7 @@ const NewPromptDialog = () => {
 
   return (<Box id="recipients">
     <Button fullWidth size="large" variant="contained" onClick={() => setOpen(true) } sx={{ fontSize: 20, mb: 5 }}>
-      Nuevo punto de verificación
+      Create Verification Point
     </Button>
     <Dialog open={open} onClose={handleClose} sx={{ minWidth: 500 }}>
       <SimpleForm onSubmit={handleSubmit} record={{}}>
@@ -73,7 +73,7 @@ function VcPromptList() {
 
   return (
     <Card>
-      <CardTitle text="Puntos de verificación activos" />
+      <CardTitle text="Active verification points" />
       <List
         resource="VcPrompt"
         perPage={20}
@@ -83,8 +83,7 @@ function VcPromptList() {
       >
         <Datagrid bulkActionButtons={false}>
           <TextField source="id" sortable={false}/>
-          <TextField source="name" sortable={false}/>
-          <TextField source="rules" sortable={false}/>
+          <TextField source="name" sx={{ flex: 5 }} sortable={false}/>
           <ConfigureVcPrompt />
         </Datagrid>
       </List>
@@ -100,9 +99,9 @@ const ConfigureVcPrompt = (url) => {
     setOpen(false);
   };
   
-  return (<Box id="recipients">
+  return (<Box id="recipients" sx={{ width:"150px"}}>
     <Button fullWidth size="small" variant="outlined" onClick={() => setOpen(true) }>
-      Configurar
+      Setup mobile device
     </Button>
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidht>
       <DialogContent>
@@ -131,13 +130,13 @@ function VcRequestList() {
   const refresh = useRefresh();
 
   useEffect(() => {
-    let interval = setInterval(() =>  refresh(), 2000);
-    return function cleanup() { clearInterval(interval); };
+    //let interval = setInterval(() =>  refresh(), 2000);
+    //return function cleanup() { clearInterval(interval); };
   }, []);
 
   return (
     <Card>
-      <CardTitle text="Últimas verificaciones" />
+      <CardTitle text="Latest attempts" />
       <List
         empty={false}
         resource="VcRequest"
@@ -149,7 +148,6 @@ function VcRequestList() {
         <Datagrid bulkActionButtons={false}>
           <TextField source="id" sortable={false} />
           <TextField source="state" sortable={false}/>
-          <TextField source="state_notes" sortable={false} />
           <TextField source="startedAt" sortable={false}/>
         </Datagrid>
       </List>

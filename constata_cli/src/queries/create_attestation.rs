@@ -1,10 +1,6 @@
 use super::*;
-use gql_types::{
-  attestation_graphql::{
-    Attestation,
-    AttestationInput,
-  }
-};
+use constata_lib::prelude::*;
+use gql_types::*;
 
 #[derive(serde::Serialize, clap::Args)]
 #[serde(rename_all = "camelCase")]
@@ -16,7 +12,7 @@ pub struct CreateAttestation {
 
   /// An attestation allows appending documents up until a certain date. If you don't chose a date, no appending will be allowed.
   #[arg(short)]
-  pub open_until: Option<constata_lib::models::UtcDateTime>,
+  pub open_until: Option<UtcDateTime>,
 
   /// Markers is a text that can be used for searching this attestation later. Markers cannot be updated after creation.
   #[arg(short)]

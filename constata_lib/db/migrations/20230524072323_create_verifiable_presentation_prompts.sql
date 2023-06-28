@@ -8,13 +8,25 @@ CREATE TYPE vc_request_state AS ENUM (
   'failed'
 );
 
+CREATE TABLE vc_requirements (
+  id SERIAL PRIMARY KEY NOT NULL,
+  org_id INTEGER NOT NULL,
+  name TEXT NOT NULL,
+  rules TEXT NOT NULL,
+  archived BOOLEAN,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  deletion_id INTEGER
+);
+
+CREATE INDEX vc_requirements_org_id ON vc_requirements (org_id);
+
 CREATE TABLE vc_prompts (
   id SERIAL PRIMARY KEY NOT NULL,
   org_id INTEGER NOT NULL,
   person_id INTEGER NOT NULL,
   name VARCHAR NOT NULL,
   access_token_id INTEGER NOT NULL,
-  rules TEXT,
+  vc_requirement_id INTEGER NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   archived_at TIMESTAMPTZ,
   deletion_id INTEGER
@@ -45,3 +57,4 @@ CREATE INDEX vc_requests_access_token_id ON vc_requests (access_token_id);
 CREATE INDEX vc_requests_state ON vc_requests (state);
 CREATE INDEX vc_requests_did ON vc_requests (did);
 CREATE INDEX vc_requests_finished_at ON vc_requests (finished_at);
+

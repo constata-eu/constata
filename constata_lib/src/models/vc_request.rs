@@ -68,10 +68,9 @@ impl VcRequest {
     let host = &settings.host;
     let redirect_uri = &settings.redirect_uri;
     let client_id = &settings.client_id;
-    let scope = self.vc_prompt().await?.attrs.rules;
     let nonce = self.attrs.id;
 
-    Ok(format!("{host}/oauth2/auth?response_type=code&state={state}&redirect_uri={redirect_uri}&client_id={client_id}&scope=openid%20{scope}&nonce={nonce}"))
+    Ok(format!("{host}/oauth2/auth?response_type=code&state={state}&redirect_uri={redirect_uri}&client_id={client_id}&scope=openid%20VerifiableCredential&nonce={nonce}"))
   }
 
   pub async fn resolve_with_vidchain_code(self, code: &str) -> ConstataResult<Self> {
@@ -91,11 +90,54 @@ impl VcRequest {
   }
 
   pub async fn resolve_with_vidchain_jwt(self, code: &str, jwt: String) -> ConstataResult<Self> {
-    Ok(self.update()
-      .state(VcRequestState::Approved)
-      .vidchain_code(Some(code.to_string()))
-      .vidchain_jwt(Some(jwt))
-      .save().await?)
+    use ssi::jwk::JWK;
+
+    let conf = &self.state.settings.vidchain;
+    let key: JWK = serde_json::from_value(serde_json::json!({
+      "kty": "RSA",
+      "n": conf.rsa_pk_n,
+      "e": "AQAB",
+      "alg": "RS256",
+      "kid": conf.expected_kid,
+    }))?;
+
+    let response: serde_json::Value = serde_json::from_str(&jwt)?;
+    let presentation_jwt = response["id_token"].as_str().unwrap();
+    let claims: serde_json::Value = ssi::jwt::decode_verify(presentation_jwt, &key)?;
+
+    let (state, notes) = self.validate_requirements(claims).await?;
+
+    Ok(
+      self.update()
+        .vidchain_code(Some(code.to_string()))
+        .vidchain_jwt(Some(jwt))
+        .state(state)
+        .state_notes(notes)
+        .save().await?
+    )
+  }
+
+  async fn validate_requirements(&self, claims: serde_json::Value) -> ConstataResult<(VcRequestState, Option<String>)> {
+    use serde_json::json;
+
+    let did_ethr = &self.state.settings.vidchain.did_ethr;
+    if claims["aud"] != json!{["constata"]} || claims["did"] != json!{did_ethr} {
+      return Ok((VcRequestState::Rejected, Some("aud_must_be_constata_and_did_must_be_vid".to_string())));
+    }
+
+    let rules = self.vc_prompt().await?.requirement_rules().await?;
+
+    let Some(credentials) = claims.pointer("/vp/verifiableCredential").and_then(|x| x.as_array() ) else {
+      return Ok((VcRequestState::Rejected, Some("presentation_had_no_credentials".to_string())))
+    };
+
+    for required_set in &rules.acceptable_sets {
+      if required_set.matches(&credentials) {
+        return Ok((VcRequestState::Approved, None));
+      }
+    }
+
+    return Ok((VcRequestState::Rejected, Some("presentation_does_not_meet_requirements".to_string())));
   }
 }
 

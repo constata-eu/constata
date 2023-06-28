@@ -13,7 +13,7 @@ pub use client::Client;
 pub mod queries;
 pub use queries::*;
 
-pub use public_api::controllers::certos::public_graphql as gql_types;
+pub use public_api::api as gql_types;
 
 #[macro_export]
 macro_rules! pub_mods {
