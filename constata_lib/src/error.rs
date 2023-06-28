@@ -85,6 +85,12 @@ pub enum Error {
   Base64(#[from] base64::DecodeError),
 }
 
+impl From<ssi_jws::Error> for Error {
+  fn from(err: ssi_jws::Error) -> Error {
+    Error::Internal(format!("Error in ssi: {}", err))
+  }
+}
+
 impl From<i18n::error::Error> for Error {
   fn from(err: i18n::error::Error) -> Error {
     Error::Internal(format!("Error in i18n: {}", err))

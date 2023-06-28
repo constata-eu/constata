@@ -51,6 +51,7 @@ constata_lib::pub_mods!{
   endorsement_manifest::{EndorsementManifest};
   vc_request::{KioskVcRequest, VcRequest, VcRequestFilter};
   vc_prompt::{VcPrompt, VcPromptFilter, CreateVcPromptInput, UpdateVcPromptInput};
+  vc_requirement::{VcRequirement, VcRequirementFilter};
   email_address::{EmailAddress, EmailAddressFilter, EmailAddressInput, EmailAddressVerification};
   signup::{Signup, SignupInput};
   download_proof_link::{DownloadProofLink, DownloadProofLinkInput, AbridgedProofZip};
@@ -226,6 +227,7 @@ make_graphql_query!{
     [WebCallbackAttempt, allWebCallbackAttempts, allWebCallbackAttemptsMeta, "_allWebCallbackAttemptsMeta", WebCallbackAttemptFilter, i32],
     [VcPrompt, allVcPrompts, allVcPromptsMeta, "_allVcPromptsMeta", VcPromptFilter, i32],
     [VcRequest, allVcRequests, allVcRequestsMeta, "_allVcRequestsMeta", VcRequestFilter, i32],
+    [VcRequirement, allVcRequirements, allVcRequirementsMeta, "_allVcRequirementsMeta", VcRequirementFilter, i32],
   }
 
   #[graphql(name="PreviewEntry")]
