@@ -21,13 +21,6 @@ const OtherActions = () => {
       >
         {translate("certos.dashboard.other_actions.graphiql")}
       </Button>
-      <Button 
-        sx={{display: "block"}}
-        href="#/vc_prompt_dashboard"
-        id="vc_prompt_dashboard"
-      >
-        Puntos de verificación
-      </Button>
     </Box>
   </>)
 }

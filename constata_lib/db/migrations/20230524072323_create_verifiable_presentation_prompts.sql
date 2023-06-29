@@ -13,7 +13,7 @@ CREATE TABLE vc_requirements (
   org_id INTEGER NOT NULL,
   name TEXT NOT NULL,
   rules TEXT NOT NULL,
-  archived BOOLEAN,
+  archived BOOLEAN NOT NULL DEFAULT FALSE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   deletion_id INTEGER
 );

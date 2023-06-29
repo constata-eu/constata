@@ -30,7 +30,6 @@ pub fn server(site: Site) -> rocket::Rocket<rocket::Build> {
       "http://0.0.0.0:8000",
       "http://127.0.0.1:3000",
       "http://localhost:3000",
-      "http://81.0.7.108",
     ],
     &["file://.*", "content://.*", "https://.*.constata.eu"]
   ).unwrap();

@@ -8,7 +8,7 @@ import authProvider from './components/auth_provider';
 import { ConstataLayout } from './views/layout';
 import Signup from './views/signup';
 import VerifyEmail from './views/verify_email';
-import Dashboard from './views/dashboard';
+import MultiAppDashboard from './views/multi_app_dashboard';
 import Wizard from './views/wizard';
 import Login from './views/login';
 import { IssuanceList, IssuanceShow } from "./views/issuance";
@@ -24,7 +24,6 @@ import Loading from "./views/loading";
 import {InvoiceLink, InvoiceLinkSuccess, InvoiceLinkError} from "./views/invoice_link";
 import Safe from "./views/safe";
 import { DownloadProofLink, CertificateShow } from "./views/download_proof_link";
-import { VcPromptDashboard } from "./views/vc_prompt";
 import { VcPromptKiosk, VidChainRedirect } from "./views/vc_prompt_kiosk";
 import Graphiql from "./views/graphiql";
 
@@ -128,7 +127,7 @@ function App() {
   return (
     <Admin
       disableTelemetry
-      dashboard={Dashboard}
+      dashboard={MultiAppDashboard}
       dataProvider={dataProvider}
       authProvider={authProvider}
       i18nProvider={i18nProvider}
@@ -153,7 +152,6 @@ function App() {
           <Route path="/wizard" element={<Wizard />} />
           <Route path="/wizard/:id" element={<Wizard />} />
           <Route path="/request_verification" element={<KycRequest />} />
-          <Route path="/vc_prompt_dashboard" element={<Authenticated><VcPromptDashboard /></Authenticated>} />
         </CustomRoutes>
         <Resource
           name="Issuance"
