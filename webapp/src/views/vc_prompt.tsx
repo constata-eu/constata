@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Dialog, DialogContent, DialogActions, Card, CardContent, Typography, Container, Box, LinearProgress, Button, Link } from '@mui/material';
-import { Datagrid, UrlField, TextField, FunctionField, List, useNotify, useCreateController, useTranslate, useDataProvider, Form, NumberInput, required, minValue, maxValue, TextInput, SelectInput, SimpleForm, useRefresh, useRecordContext } from 'react-admin';
+import { Datagrid, UrlField, TextField, FunctionField, List, useNotify, useCreateController, useTranslate, useDataProvider, Form, NumberInput, required, minValue, maxValue, TextInput, SelectInput, SimpleForm, useRefresh, useRecordContext, ReferenceInput, ReferenceField } from 'react-admin';
 import { useSafeSetState } from 'ra-core';
 import { useParams, useNavigate } from 'react-router-dom';
 import { setAccessToken, clearAccessToken } from '../components/auth_provider';
@@ -55,14 +55,12 @@ const NewPromptDialog = () => {
     <Button fullWidth size="large" variant="contained" onClick={() => setOpen(true) } sx={{ fontSize: 20, mb: 5 }}>
       Create Verification Point
     </Button>
-    <Dialog open={open} onClose={handleClose} sx={{ minWidth: 500 }}>
+    <Dialog open={open} fullWidth onClose={handleClose}>
       <SimpleForm onSubmit={handleSubmit} record={{}}>
-        <TextInput source="name" />
-        <SelectInput source="rules" choices={[
-          { id: "VerifiableCredential", name: "VerifiableCredential" },
-          { id: "VerifiableIdCredential", name: "VerifiableIdCredential" },
-          { id: "EmailCredential", name: "EmailCredential" },
-        ]} />
+        <TextInput fullWidth source="name" />
+        <ReferenceInput source="vcRequirementId" reference="VcRequirement">
+          <SelectInput fullWidth label="Rules" optionText="name" />
+        </ReferenceInput>
       </SimpleForm>
     </Dialog>
   </Box>);
@@ -75,15 +73,25 @@ function VcPromptList() {
     <Card>
       <CardTitle text="Active verification points" />
       <List
+        empty={<Box sx={{m: 1}}>Create a new verification point. You can have as many as you want!</Box>}
         resource="VcPrompt"
         perPage={20}
         sort= {{ field: 'id', order: 'DESC' }}
         pagination={false}
         actions={false}
       >
-        <Datagrid bulkActionButtons={false}>
-          <TextField source="id" sortable={false}/>
-          <TextField source="name" sx={{ flex: 5 }} sortable={false}/>
+        <Datagrid
+          bulkActionButtons={false}
+          sx={{ '& .column-name': { width: "100%" } }}
+        >
+          <TextField source="id" sortable={false} />
+          <Box source="name" width="100%">
+            <TextField source="name" sortable={false} />
+            <br/>
+            <ReferenceField label="VcRequirement" source="vcRequirementId" reference="VcRequirement">
+              <TextField source="name" variant="caption"/>
+            </ReferenceField>
+          </Box>
           <ConfigureVcPrompt />
         </Datagrid>
       </List>
@@ -130,15 +138,15 @@ function VcRequestList() {
   const refresh = useRefresh();
 
   useEffect(() => {
-    //let interval = setInterval(() =>  refresh(), 2000);
-    //return function cleanup() { clearInterval(interval); };
+    let interval = setInterval(() =>  refresh(), 2000);
+    return function cleanup() { clearInterval(interval); };
   }, []);
 
   return (
     <Card>
       <CardTitle text="Latest attempts" />
       <List
-        empty={false}
+        empty={<Box sx={{m: 1}}>When people start trying to access any of your verification points you'll see it here</Box>}
         resource="VcRequest"
         perPage={100}
         pagination={false}

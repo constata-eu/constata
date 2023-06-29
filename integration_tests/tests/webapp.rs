@@ -675,7 +675,46 @@ mod webapp {
     }
 
     integration_test!{ has_a_verifiable_credential_verifier (c, d)
-      signup(&c, &d, false).await;
+      let alice = signup(&c, &d, false).await;
+      let org_id = alice.org().await.attrs.id;
+
+      c.site.vc_requirement().insert(InsertVcRequirement{
+        org_id,
+        name: "Allows any MedicoCredential".to_string(),
+        rules: r#"{ "acceptable_sets": [
+          { "required_set": [
+            { "credential_spec": [
+              { "pointer":"/type", "filter":{"ArrayContains":"MedicoCredential"} }
+            ]}
+          ]}
+        ]}"#.to_string(),
+      }).save().await?;
+
+      c.site.vc_requirement().insert(InsertVcRequirement{
+        org_id,
+        name: "Allows any obstetrician".to_string(),
+        rules: r#"{ "acceptable_sets": [
+          { "required_set": [
+            { "credential_spec": [
+              { "pointer":"/type", "filter":{"ArrayContains":"MedicoCredential"} },
+              { "pointer":"/credentialSubject/Especialidad", "filter":{"StringMatches":"Tocólogo"} }
+            ]}
+          ]}
+        ]}"#.to_string(),
+      }).save().await?;
+
+      c.site.vc_requirement().insert(InsertVcRequirement{
+        org_id,
+        name: "Only allows doctor Nubis".to_string(),
+        rules: r#"{ "acceptable_sets": [
+          { "required_set": [
+            { "credential_spec": [
+              { "pointer":"/type", "filter":{"ArrayContains":"MedicoCredential"} },
+              { "pointer":"/credentialSubject/Nombre", "filter":{"StringMatches":"Nubis"} }
+            ]}
+          ]}
+        ]}"#.to_string(),
+      }).save().await?;
     }
 
     async fn set_up_download_proof_link(alice: &SignerClient, chain: &mut TestBlockchain) -> ConstataResult<DownloadProofLink> {
