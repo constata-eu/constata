@@ -225,7 +225,7 @@
       "accepted": "Credencial aceptada.",
       "rejected": "Esa credencial no cumple los requisitos.",
       "failed": "Hubo un error, intente otra vez.",
-      "redirect_success": "Credencial aceptada. Puede cerrar esta ventana."
+      "redirect_success": "Credencial enviada. Puede cerrar esta ventana."
     }
   },
   "certos": {

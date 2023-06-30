@@ -225,7 +225,7 @@
       "accepted": "Credential accepted.",
       "rejected": "That credential does not meet the requirements.",
       "failed": "There was an error, try again.",
-      "redirect_success": "Credential accepted. You may close this window."
+      "redirect_success": "Credential submitted. You may close this window."
     }
   },
 	"certos": {
