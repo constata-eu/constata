@@ -58,3 +58,4 @@ CREATE INDEX vc_requests_state ON vc_requests (state);
 CREATE INDEX vc_requests_did ON vc_requests (did);
 CREATE INDEX vc_requests_finished_at ON vc_requests (finished_at);
 
+ALTER TABLE orgs ADD COLUMN use_verifier BOOLEAN NOT NULL DEFAULT false;

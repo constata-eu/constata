@@ -9,13 +9,16 @@ import ConstataSkeleton from '../components/skeleton';
 import CssBaseline from '@mui/material/CssBaseline';
 import QRCode from "react-qr-code";
 import { useSearchParams } from "react-router-dom";
-import DoneIcon from '@mui/icons-material/Done';
+import VerifiedIcon from '@mui/icons-material/Verified';
+import DoNotDisturbOnIcon from '@mui/icons-material/DoNotDisturbOn';
+import ReportProblemIcon from '@mui/icons-material/ReportProblem';
+import { Head2 } from "../theme";
 
 const VcPromptKiosk = () => {
   const dataProvider = useDataProvider();
   const { access_token } = useParams();
   const [vcRequest, setVcRequest] = useSafeSetState();
-  const [done, setDone] = useSafeSetState();
+  const [doneRequest, setDoneRequest] = useSafeSetState(null);
   const translate = useTranslate();
   const notify = useNotify();
 
@@ -24,7 +27,7 @@ const VcPromptKiosk = () => {
     try {
       const {data} = await dataProvider.create('KioskVcRequest', { data: { input: null } });
       clearAccessToken();
-      setDone(false);
+      setDoneRequest(null);
       setVcRequest(data);
     } catch(e) {
       notify(e.toString(), { type: 'error' });
@@ -46,8 +49,8 @@ const VcPromptKiosk = () => {
       let value = await dataProvider.getOne('KioskVcRequest', { id: vcRequest.id });
       clearAccessToken();
 
-      if( value.data.state == "APPROVED" ) {
-        setDone(true);
+      if( value.data.state != "PENDING" ) {
+        setDoneRequest(value.data);
         setVcRequest(null);
         setTimeout(create, 2000);
       }
@@ -60,41 +63,69 @@ const VcPromptKiosk = () => {
   return (<Box sx={{ minHeight: "100vh", display: "flex", flexDirection: "column", }}>
     <CssBaseline/>
     <Container maxWidth="md" id="vc-prompt">
-      <Box textAlign="center" mt={8} mb={2}>
+      <Box textAlign="center" mt={4} mb={2}>
         <div style={{ height: "auto", margin: "0 auto", maxWidth: 500, width: "100%" }}>
-          { !vcRequest && !done && <Skeleton variant="rectangular" height="auto" sx={{ maxWidth: "100%", width: "100%"}} /> }
-          { vcRequest && !done &&
-            <Box>
-              <Typography textAlign="center" mb={3}>
-                { vcRequest.description }
-              </Typography>
-              <QRCode
-                size={256}
-                style={{ height: "auto", maxWidth: "100%", width: "100%" }}
-                value={vcRequest.vidchainUrl}
-                viewBox={`0 0 256 256`}
-              />
-              <Typography textAlign="center" mt={3}>
-                Debe tener instalado VidWallet.
-              </Typography>
-              <Typography textAlign="center">
-                Utilice su scanner de QR habitual, no el de VidWallet.
-              </Typography>
-            </Box>
-          }
-          { done &&
-            <Box>
-              <DoneIcon sx={{ height: 200, width: 200, color: "#018264" }} />
-              <Typography sx={{ color: "#018264", textAlign: "center" }}>
-                Credencial aceptada.
-              </Typography>
-            </Box>
-          }
+          { !vcRequest && !doneRequest && <Skeleton variant="rectangular" height="auto" sx={{ maxWidth: "100%", width: "100%"}} /> }
+          { vcRequest && !doneRequest && <CurrentVcRequest request={vcRequest} /> }
+        
+          { doneRequest && <DoneVcRequest request={doneRequest} />}
         </div>
       </Box>
     </Container>
   </Box>)
 }
+
+const CurrentVcRequest = ({request}) => {
+  const translate = useTranslate();
+
+  return <Box>
+    <KioskLogo logo={request.logoUrl} />
+    <Head2 textAlign="center" sx={{ mb:"1em" }}>
+      { request.description }
+    </Head2>
+    <QRCode
+      size={256}
+      style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+      value={request.vidchainUrl}
+      viewBox={`0 0 256 256`}
+    />
+    <Typography textAlign="center" mt={3}>
+      { translate("vc_validator.kiosk.instructions_1") }
+      <br/>
+      { translate("vc_validator.kiosk.instructions_2") }
+    </Typography>
+  </Box>;
+}
+
+const DoneVcRequest = ({request}) => {
+  const translate = useTranslate();
+  const dimensions = { height: 200, width: 200 };
+
+  return <Box textAlign="center">
+    <KioskLogo logo={request.logoUrl} />
+    { request.state== "APPROVED" &&
+      <Box color="#00a975">
+        <VerifiedIcon sx={dimensions} />
+        <Head2>{ translate("vc_validator.kiosk.accepted") }</Head2>
+      </Box>
+    }
+    { request.state == "REJECTED" &&
+      <Box color="#c60042">
+        <DoNotDisturbOnIcon sx={dimensions} />
+        <Head2>{ translate("vc_validator.kiosk.rejected") }</Head2>
+      </Box>
+    }
+    { request.state == "FAILED" &&
+      <Box color="#c60042">
+        <ReportProblemIcon sx={dimensions} />
+        <Head2>{ translate("vc_validator.kiosk.failed") }</Head2>
+      </Box>
+    }
+  </Box>;
+}
+
+const KioskLogo = ({ logo }) => 
+  <img src={logo} style={{maxHeight: "10em", marginBottom: "2em" }} />
 
 const VidChainRedirect = () => {
   const dataProvider = useDataProvider();
@@ -121,18 +152,16 @@ const VidChainRedirect = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const dimensions = { height: 200, width: 200 };
+
   return (<Box sx={{ minHeight: "100vh", display: "flex", flexDirection: "column", }}>
     <CssBaseline/>
-    <Container maxWidth="md" id="submit" sx={{ display: "flex" }}>
+    <Container maxWidth="md" sx={{ display: "flex" }}>
       <Box sx={{ margin: "2em auto", alignSelf: "center" }} >
-        { !done && <Skeleton variant="rectangular" sx={{ height: 200, width: 200 }} /> }
-        { done && <Box>
-            <DoneIcon sx={{ height: 200, width: 200, color: "#018264" }} />
-            <Typography sx={{ color: "#018264", textAlign: "center" }}>
-              Credencial aceptada.
-              <br/>
-              Puede cerrar esta ventana.
-            </Typography>
+        { !done && <Skeleton variant="rectangular" sx={dimensions} /> }
+        { done && <Box color="#018264" textAlign="center">
+            <VerifiedIcon sx={dimensions} />
+            <Head2>{ translate("vc_validator.kiosk.redirect_success") }</Head2>
           </Box>
         }
       </Box>

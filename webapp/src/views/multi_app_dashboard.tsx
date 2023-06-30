@@ -1,6 +1,6 @@
 import { Box, Button, Typography, Container, Skeleton } from '@mui/material';
 import { useEffect } from "react";
-import { useTranslate, useCheckAuth, useSafeSetState } from 'ra-core';
+import { useTranslate, useCheckAuth, useSafeSetState, useGetOne } from 'ra-core';
 import AccountStateSection from '../components/account_state_section';
 import Balance from '../components/balance_section';
 import IssuancesSection from '../components/issuances_section';
@@ -12,30 +12,14 @@ import { VcPromptDashboard } from "./vc_prompt";
 import { Head1 } from '../theme';
 
 export default function MultiAppDashboard() {
-  const translate = useTranslate();
-  const checkAuth = useCheckAuth();
-  const [ready, setReady] = useSafeSetState(false);
+  const {isLoading, data: accountState} = useGetOne( 'AccountState', { id: 1 });
+  const {useVerifier} = accountState || {};
 
-  useEffect(() => {
-    async function checkVerification() {
-      try {
-        await checkAuth();
-      } catch {
-        return;
-      }
-      setReady(true);
-    }
-    checkVerification();
-  }, [checkAuth]);
-
-  if (!ready) return <Container maxWidth="md" id="constata_dashboard_loading">
+  if (isLoading) return <Container maxWidth="md" id="constata_dashboard_loading">
     <Skeleton/>
     <Skeleton/>
     <Skeleton/>
   </Container>;
 
-  return (<Container maxWidth="md" id="constata_dashboard">
-    <Dashboard/>
-    <VcPromptDashboard/>
-  </Container>)
+  return useVerifier ?  <VcPromptDashboard/> : <Dashboard/>;
 };
