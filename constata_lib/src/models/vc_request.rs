@@ -111,6 +111,7 @@ impl VcRequest {
       self.update()
         .vidchain_code(Some(code.to_string()))
         .vidchain_jwt(Some(jwt))
+        .finished_at(Some(Utc::now()))
         .state(state)
         .state_notes(notes)
         .save().await?

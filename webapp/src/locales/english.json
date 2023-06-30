@@ -183,6 +183,49 @@
       "unarchiveTitle": "Are you sure you want to UNARCHIVE this template?",
       "unarchiveContent": "After disarchive this template you will be able to use it when creating an issuance",
       "errorUpdating": "Error modifying Template"
+    },
+    "VcPrompt": {
+      "vcRequirementId": "Rules",
+      "name": "Name"
+    },
+    "VcRequest": {
+      "promptId": "Verification Point",
+      "finishedAt": "Scanned"
+    }
+  },
+  "vc_validator": {
+    "dashboard": {
+      "title": "Verification Points",
+      "subtitle": "Credential verification points let you request verifiable credentials from a mobile device on physical locations."
+    },
+    "new_prompt": {
+      "button_label": "Create Verification Point",
+      "nameHelperText": "A good name could be the place this verification point will be located, or the person who will be using it. \"Museum main entrance\" or \"Parking enforcement officer #1234\"",
+      "vcRequirementIdHelperText": "The rules to be applied for validating credentials. Contact us to configure new rules for you."
+    },
+    "prompt_list": {
+      "title": "Active verification points",
+      "empty_message":
+        "Start by creating a new verification point. When you do, you'll be able to configure it on a mobile device here."
+    },
+    "configure": {
+      "button_label": "Setup on mobile device",
+      "description": "Scan this QR code — or copy and share the link — to convert any mobile device into a verification point.",
+      "copy_to_clipboard": "Copy link",
+      "copied_to_clipboard": "Link copied!"
+    },
+    "request_list": {
+      "title": "Recent attempts",
+      "empty_message":
+        "When people start using your verification points, you'll see it here."
+    },
+    "kiosk": {
+      "instructions_1": "Scan with your phone's QR code scanner.",
+      "instructions_2": "Do not use the VidWallet scanner.",
+      "accepted": "Credential accepted.",
+      "rejected": "That credential does not meet the requirements.",
+      "failed": "There was an error, try again.",
+      "redirect_success": "Credential accepted. You may close this window."
     }
   },
 	"certos": {

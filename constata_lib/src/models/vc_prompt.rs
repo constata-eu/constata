@@ -59,9 +59,31 @@ impl VcPrompt {
     Ok(format!("{}/#/vc_prompt_kiosk/{}", &self.state.settings.url, self.access_token().await?.attrs.token))
   }
 
+  pub async fn get_or_create_request(&self) -> sqlx::Result<VcRequest> {
+    let existing = self.vc_request_scope()
+      .state_eq(VcRequestState::Pending)
+      .order_by(VcRequestOrderBy::StartedAt)
+      .desc(true)
+      .limit(1)
+      .optional().await?;
+
+    if let Some(it) = existing {
+      Ok(it)
+    } else {
+      self.create_request().await
+    }
+  }
+
   pub async fn create_request(&self) -> sqlx::Result<VcRequest> {
     let access_token = self.state.access_token()
       .create(&self.org().await?.admin().await?, AccessTokenKind::VcRequest, None).await?;
+
+    for previous in self.vc_request_scope().state_eq(VcRequestState::Pending).all().await? {
+      previous.update()
+        .state(VcRequestState::Failed)
+        .state_notes(Some("replaced_by_newer".to_string()))
+        .save().await?;
+    }
 
     self.state.vc_request().insert(InsertVcRequest{
       org_id: self.attrs.org_id,

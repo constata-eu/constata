@@ -1,14 +1,14 @@
-import {AppBar, Toolbar, IconButton, Box, Button, Container, styled, Backdrop, useMediaQuery } from '@mui/material';
+import {AppBar, Toolbar, IconButton, Box, Button, Container, styled, Backdrop, Skeleton, useMediaQuery } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
 import { useNavigate } from 'react-router-dom';
-import { useTranslate, useSafeSetState } from 'ra-core';
+import { useTranslate, useSafeSetState, useGetOne} from 'ra-core';
 import { useLogout } from "react-admin";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import logo from '../assets/logo_denim.png';
 
-const ResponsiveAppBar = ({loggedIn}) => {
+const ResponsiveAppBar = ({loggedIn, accountState}) => {
   const [menuOpen, setMenuOpen] = useSafeSetState(false);
   const logout = useLogout();
   const navigate = useNavigate();
@@ -34,14 +34,19 @@ const ResponsiveAppBar = ({loggedIn}) => {
           <CloseIcon />
         </IconButton>
 
-        <Button size="large" sx={{ "svg": { fontSize: "1em !important" }, fontSize: 40, mb: 2, textTransform: "uppercase"}} color="inverted" onClick={ () => navigate("/") } id="dashboard-mobile-menu-item"
-          startIcon={<DashboardIcon/>} 
-        >
-          { translate("certos.menu.dashboard") }
-        </Button>
-        <Button size="large" sx={{ fontSize: 40, mb: 2, textTransform: "uppercase"}} color="inverted" onClick={ () => navigate("/Issuance") } id="issuances-mobile-menu-item">
-          { translate("certos.menu.issuances") }
-        </Button>
+        { !accountState?.useVerifier &&
+          <Button size="large" sx={{ "svg": { fontSize: "1em !important" }, fontSize: 40, mb: 2, textTransform: "uppercase"}} color="inverted" onClick={ () => navigate("/") } id="dashboard-mobile-menu-item"
+            startIcon={<DashboardIcon/>} 
+          >
+            { translate("certos.menu.dashboard") }
+          </Button>
+        }
+
+        { !accountState?.useVerifier &&
+          <Button size="large" sx={{ fontSize: 40, mb: 2, textTransform: "uppercase"}} color="inverted" onClick={ () => navigate("/Issuance") } id="issuances-mobile-menu-item">
+            { translate("certos.menu.issuances") }
+          </Button>
+        }
         <Button size="large"sx={{ fontSize: 40, mb: 2, textTransform: "uppercase"}} color="inverted" href="mailto:hola@constata.eu" target="_blank" id="help-mobile-menu-item">
           { translate("certos.menu.help") }
         </Button>
@@ -53,12 +58,16 @@ const ResponsiveAppBar = ({loggedIn}) => {
   </Box>
 
   const ComputerMenu = () => <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, justifyContent:"end" }} id="desktop-menu">
-    <Button sx={{ ml: 1, textTransform: "uppercase" }} variant="contained" color="highlight" onClick={ () => navigate("/") } startIcon={<DashboardIcon/>} id="dashboard-menu-item">
-      { translate("certos.menu.dashboard") }
-    </Button>
-    <Button sx={{ ml: 1, textTransform: "uppercase" }} color="highlight" onClick={ () => navigate("/Issuance") } id="issuances-menu-item">
-      { translate("certos.menu.issuances") }
-    </Button>
+    { !accountState?.useVerifier &&
+      <Button sx={{ ml: 1, textTransform: "uppercase" }} variant="contained" color="highlight" onClick={ () => navigate("/") } startIcon={<DashboardIcon/>} id="dashboard-menu-item">
+        { translate("certos.menu.dashboard") }
+      </Button>
+    }
+    { !accountState?.useVerifier &&
+      <Button sx={{ ml: 1, textTransform: "uppercase" }} color="highlight" onClick={ () => navigate("/Issuance") } id="issuances-menu-item">
+        { translate("certos.menu.issuances") }
+      </Button>
+    }
     <Button sx={{ ml: 1, textTransform: "uppercase" }} color="highlight" href="mailto:hola@constata.eu" target="_blank" id="help-menu-item">
       { translate("certos.menu.help") }
     </Button>
@@ -72,9 +81,15 @@ const ResponsiveAppBar = ({loggedIn}) => {
       <Container maxWidth="md" style={{ padding: 0}}>
         <Toolbar sx={{ minHeight: "0 !important" }}>
           <Box sx={{ display: "flex"}} >
-            <a href="https://constata.eu" style={{lineHeight: 0}} target="_blank" rel="noreferrer">
-              <img src={logo} alt={translate("certos.menu.logo")} style={{ height: isSmall ? "20px" : "30px", width: "auto" }}/>
-            </a>
+            { 
+              (accountState?.logoUrl) ?
+                <img src={accountState.logoUrl} style={{ maxHeight: isSmall ? "30px" : "50px", width: "auto" }}/>
+            
+              :
+              <a href="https://constata.eu" style={{lineHeight: 0}} target="_blank" rel="noreferrer">
+                <img src={logo} alt={translate("certos.menu.logo")} style={{ height: isSmall ? "20px" : "30px", width: "auto" }}/>
+              </a>
+            }
           </Box>
           {loggedIn && <>
               <MobileMenu />
@@ -132,12 +147,12 @@ export const BareLayout = ({children}) => {
   )
 }
 
-export const ToolbarLayout = ({children, loggedIn}) => {
+export const ToolbarLayout = ({children, loggedIn, accountState}) => {
   return (
     <Root>
       <CssBaseline/>
       <AppFrame>
-        <ResponsiveAppBar loggedIn={loggedIn} />
+        <ResponsiveAppBar loggedIn={loggedIn} accountState={accountState} />
         <Content>
           {children}
         </Content>
@@ -151,5 +166,13 @@ export const NoLoggedInLayout = ({ children }) => {
 };
 
 export const ConstataLayout = ({ children }) => {
-  return <ToolbarLayout loggedIn={true} children={children} />;
+  const {isLoading, data: accountState} = useGetOne( 'AccountState', { id: 1 });
+
+  if (isLoading) return <Container>
+    <Skeleton/>
+    <Skeleton/>
+    <Skeleton/>
+  </Container>;
+  
+  return <ToolbarLayout loggedIn={true} accountState={accountState} children={children} />;
 };

@@ -29,6 +29,10 @@ pub struct AccountState {
   pending_invoice_link_url: Option<String>,
   #[graphql(description = "This should be an address on your own website such as 'https://yoursite.com/web_callbacks_from_constata' where we can notify you about done attestations, issuances, or pending token purchases.")]
   web_callbacks_url: Option<String>,
+  #[graphql(description = "A custom logo URL for your organization, configured by us.")]
+  logo_url: Option<String>,
+  #[graphql(description = "Whether your account has access to the Credentials Verifier feature.")]
+  use_verifier: bool,
 }
 
 #[derive(Debug, GraphQLObject, Serialize, Deserialize)]
@@ -68,7 +72,9 @@ impl AccountState {
       invoices,
       pending_tyc_url: d.pending_tyc_url,
       pending_invoice_link_url: d.pending_invoice_link_url,
-      web_callbacks_url: d.org.attrs.web_callbacks_url
+      web_callbacks_url: d.org.attrs.web_callbacks_url,
+      logo_url: d.org.attrs.logo_url,
+      use_verifier: d.org.attrs.use_verifier,
     })
   }
 }

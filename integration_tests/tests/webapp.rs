@@ -676,7 +676,7 @@ mod webapp {
 
     integration_test!{ has_a_verifiable_credential_verifier (c, d)
       let alice = signup(&c, &d, false).await;
-      let org_id = alice.org().await.attrs.id;
+      let org_id = alice.org().await.update().use_verifier(true).save().await?.attrs.id;
 
       c.site.vc_requirement().insert(InsertVcRequirement{
         org_id,

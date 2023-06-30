@@ -103,6 +103,8 @@ pub struct KioskVcRequest {
   state_notes: Option<String>,
   #[graphql(description = "The date in which this presentation request was made.")]
   started_at: UtcDateTime,
+  #[graphql(description = "Logo of the organization running this prompt (yours).")]
+  logo_url: Option<String>,
 }
 
 impl KioskVcRequest {
@@ -111,7 +113,7 @@ impl KioskVcRequest {
       let request = context.site.vc_prompt().select()
         .access_token_id_eq(token.attrs.id)
         .one().await?
-        .create_request().await?;
+        .get_or_create_request().await?;
 
       Self::db_to_graphql(request).await
     } else {
@@ -148,11 +150,13 @@ impl KioskVcRequest {
   pub async fn db_to_graphql(d: models::VcRequest) -> FieldResult<KioskVcRequest> {
     let description = d.vc_prompt().await?.attrs.name;
     let vidchain_url = d.vidchain_url().await?;
+    let logo_url = d.org().await?.attrs.logo_url;
 
     Ok(KioskVcRequest {
       id: d.attrs.id,
       description,
       vidchain_url,
+      logo_url,
       state: d.attrs.state,
       state_notes: d.attrs.state_notes,
       started_at: d.attrs.started_at,
