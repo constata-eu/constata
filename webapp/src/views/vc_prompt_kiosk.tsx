@@ -12,6 +12,7 @@ import { useSearchParams } from "react-router-dom";
 import VerifiedIcon from '@mui/icons-material/Verified';
 import DoNotDisturbOnIcon from '@mui/icons-material/DoNotDisturbOn';
 import ReportProblemIcon from '@mui/icons-material/ReportProblem';
+import SendToMobileIcon from '@mui/icons-material/SendToMobile';
 import { Head2 } from "../theme";
 
 const VcPromptKiosk = () => {
@@ -52,7 +53,7 @@ const VcPromptKiosk = () => {
       if( value.data.state != "PENDING" ) {
         setDoneRequest(value.data);
         setVcRequest(null);
-        setTimeout(create, 2000);
+        setTimeout(create, 4000);
       }
     }
     load();
@@ -159,8 +160,8 @@ const VidChainRedirect = () => {
     <Container maxWidth="md" sx={{ display: "flex" }}>
       <Box sx={{ margin: "2em auto", alignSelf: "center" }} >
         { !done && <Skeleton variant="rectangular" sx={dimensions} /> }
-        { done && <Box color="#018264" textAlign="center">
-            <VerifiedIcon sx={dimensions} />
+        { done && <Box textAlign="center">
+            <SendToMobileIcon sx={dimensions} />
             <Head2>{ translate("vc_validator.kiosk.redirect_success") }</Head2>
           </Box>
         }
