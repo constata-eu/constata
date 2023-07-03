@@ -69,8 +69,9 @@ impl VcRequest {
     let redirect_uri = &settings.redirect_uri;
     let client_id = &settings.client_id;
     let nonce = self.attrs.id;
+    let scope = self.vc_prompt().await?.requirement_rules().await?.vidchain_scope();
 
-    Ok(format!("{host}/oauth2/auth?response_type=code&state={state}&redirect_uri={redirect_uri}&client_id={client_id}&scope=openid%20VerifiableCredential&nonce={nonce}"))
+    Ok(format!("{host}/oauth2/auth?response_type=code&state={state}&redirect_uri={redirect_uri}&client_id={client_id}&scope=openid%20{scope}&nonce={nonce}"))
   }
 
   pub async fn resolve_with_vidchain_code(self, code: &str) -> ConstataResult<Self> {
@@ -121,9 +122,8 @@ impl VcRequest {
   async fn validate_requirements(&self, claims: serde_json::Value) -> ConstataResult<(VcRequestState, Option<String>)> {
     use serde_json::json;
 
-    let did_ethr = &self.state.settings.vidchain.did_ethr;
-    if claims["aud"] != json!{["constata"]} || claims["did"] != json!{did_ethr} {
-      return Ok((VcRequestState::Rejected, Some("aud_must_be_constata_and_did_must_be_vid".to_string())));
+    if claims["aud"] != json!{["constata"]} {
+      return Ok((VcRequestState::Rejected, Some("aud_must_be_constata".to_string())));
     }
 
     let rules = self.vc_prompt().await?.requirement_rules().await?;

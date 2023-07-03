@@ -83,7 +83,7 @@ const ResponsiveAppBar = ({loggedIn, accountState}) => {
           <Box sx={{ display: "flex"}} >
             { 
               (accountState?.logoUrl) ?
-                <img src={accountState.logoUrl} style={{ maxHeight: isSmall ? "30px" : "50px", width: "auto" }}/>
+                <img src={accountState.logoUrl} style={{ maxHeight: isSmall ? "30px" : "65px", width: "auto" }}/>
             
               :
               <a href="https://constata.eu" style={{lineHeight: 0}} target="_blank" rel="noreferrer">
