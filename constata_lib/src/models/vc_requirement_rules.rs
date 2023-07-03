@@ -5,6 +5,31 @@ pub struct VcRequirementRules {
   pub acceptable_sets: Vec<RequiredSet>,
 }
 
+impl VcRequirementRules {
+  pub fn vidchain_scope(&self) -> String {
+    let default = "VerifiableCredential".to_string();
+
+    let mut found_type = None;
+
+    for required_set in &self.acceptable_sets {
+      for spec in &required_set.required_set {
+        for requirement in &spec.credential_spec {
+          if requirement.pointer != "/type" { continue; }
+
+          if let Filter::ArrayContains(typ) = &requirement.filter {
+            match &found_type {
+              None => found_type = Some(typ.clone()),
+              Some(f) => if f != typ { return default; }
+            }
+          }
+        }
+      }
+    }
+
+    found_type.unwrap_or(default)
+  }
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct RequiredSet {
   pub required_set: Vec<CredentialSpec>,
@@ -69,4 +94,39 @@ impl Filter {
 
 fn test<V: serde::de::DeserializeOwned, P: FnOnce(V) -> bool >(value: &serde_json::Value, predicate: P) -> bool {
   serde_json::from_value::<V>(value.to_owned()).map(predicate).unwrap_or(false)
+}
+
+describe! {
+  dbtest!{ can_request_a_specific_credential_type (_site, c)
+    let rules: VcRequirementRules = serde_json::from_str(r#"{ "acceptable_sets": [
+      { "required_set": [
+        { "credential_spec": [
+          { "pointer":"/type", "filter":{"ArrayContains":"MedicoCredential"} }
+        ]}
+      ]},
+      { "required_set": [
+        { "credential_spec": [
+          { "pointer":"/type", "filter":{"ArrayContains":"MedicoCredential"} },
+          { "pointer":"/credentialStatus/statusListIndex", "filter": { "NumberGreaterThan": 40 } }
+        ]}
+      ]}
+    ]}"#)?;
+    assert_eq!(&rules.vidchain_scope(), "MedicoCredential");
+  }
+
+  dbtest!{ can_request_with_generic_scope (_site, c)
+    let multi: VcRequirementRules = serde_json::from_str(r#"{ "acceptable_sets": [
+      { "required_set": [
+        { "credential_spec": [
+          { "pointer":"/type", "filter":{"ArrayContains":"MedicoCredential"} }
+        ]}
+      ]},
+      { "required_set": [
+        { "credential_spec": [
+          { "pointer":"/type", "filter":{"ArrayContains":"StudentCredential"} }
+        ]}
+      ]}
+    ]}"#)?;
+    assert_eq!(&multi.vidchain_scope(), "VerifiableCredential");
+  }
 }
