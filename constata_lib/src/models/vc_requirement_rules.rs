@@ -9,6 +9,9 @@ impl VcRequirementRules {
   pub fn vidchain_scope(&self) -> String {
     let default = "VerifiableCredential".to_string();
 
+    return default;
+    /*
+
     let mut found_type = None;
 
     for required_set in &self.acceptable_sets {
@@ -27,6 +30,7 @@ impl VcRequirementRules {
     }
 
     found_type.unwrap_or(default)
+    */
   }
 }
 
@@ -111,7 +115,7 @@ describe! {
         ]}
       ]}
     ]}"#)?;
-    assert_eq!(&rules.vidchain_scope(), "MedicoCredential");
+    assert_eq!(&rules.vidchain_scope(), "VerifiableCredential");
   }
 
   dbtest!{ can_request_with_generic_scope (_site, c)
