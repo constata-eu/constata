@@ -71,7 +71,7 @@ impl VcRequest {
     let nonce = self.attrs.id;
     let scope = self.vc_prompt().await?.requirement_rules().await?.vidchain_scope();
 
-    Ok(format!("{host}/oauth2/auth?response_type=code&state={state}&redirect_uri={redirect_uri}&client_id={client_id}&scope=openid%20{scope}&nonce={nonce}"))
+    Ok(format!("{host}/oauth2/auth?response_type=code&state={state}&redirect_uri={redirect_uri}&client_id={client_id}&scope=openid%20VerifiableCredential&nonce={nonce}"))
   }
 
   pub async fn resolve_with_vidchain_code(self, code: &str) -> ConstataResult<Self> {

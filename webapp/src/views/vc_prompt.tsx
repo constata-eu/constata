@@ -89,7 +89,6 @@ function VcPromptList() {
         resource="VcPrompt"
         perPage={20}
         sort= {{ field: 'id', order: 'DESC' }}
-        pagination={false}
         actions={false}
       >
         <Datagrid
