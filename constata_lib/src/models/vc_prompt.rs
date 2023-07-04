@@ -79,10 +79,7 @@ impl VcPrompt {
       .create(&self.org().await?.admin().await?, AccessTokenKind::VcRequest, None).await?;
 
     for previous in self.vc_request_scope().state_eq(VcRequestState::Pending).all().await? {
-      previous.update()
-        .state(VcRequestState::Failed)
-        .state_notes(Some("replaced_by_newer".to_string()))
-        .save().await?;
+      previous.finish(VcRequestState::Failed, Some("replaced_by_newer".to_string()), None, None).await?;
     }
 
     self.state.vc_request().insert(InsertVcRequest{

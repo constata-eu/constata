@@ -108,15 +108,22 @@ impl VcRequest {
 
     let (state, notes) = self.validate_requirements(claims).await?;
 
-    Ok(
-      self.update()
-        .vidchain_code(Some(code.to_string()))
-        .vidchain_jwt(Some(jwt))
-        .finished_at(Some(Utc::now()))
-        .state(state)
-        .state_notes(notes)
-        .save().await?
-    )
+    Ok(self.finish(state, notes, Some(jwt), Some(code.to_string())).await?)
+  }
+
+  pub async fn finish(self,
+    state: VcRequestState,
+    notes: Option<String>,
+    vidchain_jwt: Option<String>,
+    vidchain_code: Option<String>
+  ) -> sqlx::Result<Self> {
+    self.update()
+      .vidchain_code(vidchain_code)
+      .vidchain_jwt(vidchain_jwt)
+      .finished_at(Some(Utc::now()))
+      .state(state)
+      .state_notes(notes)
+      .save().await
   }
 
   async fn validate_requirements(&self, claims: serde_json::Value) -> ConstataResult<(VcRequestState, Option<String>)> {
