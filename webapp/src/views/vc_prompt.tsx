@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Dialog, DialogContent, DialogTitle, DialogActions, Card, CardContent, Typography, Container, Box, LinearProgress, Button, IconButton, Link } from '@mui/material';
-import { Datagrid, UrlField, DateField, TextField, FunctionField, List, useNotify, useCreateController, useTranslate, useDataProvider, Form, NumberInput, required, minValue, maxValue, TextInput, SelectInput, SimpleForm, useRefresh, useRecordContext, ReferenceInput, ReferenceField } from 'react-admin';
+import { Datagrid, UrlField, DateField, TextField, FunctionField, List, useNotify, useCreateController, useTranslate, useDataProvider, Form, NumberInput, required, minValue, maxValue, TextInput, SelectInput, SimpleForm, useRefresh, useRecordContext, ReferenceInput, ReferenceField, Pagination } from 'react-admin';
 import { useSafeSetState } from 'ra-core';
 import { useParams, useNavigate } from 'react-router-dom';
 import { setAccessToken, clearAccessToken } from '../components/auth_provider';
@@ -18,8 +18,8 @@ import VerifiedIcon from '@mui/icons-material/Verified';
 import DoNotDisturbOnIcon from '@mui/icons-material/DoNotDisturbOn';
 import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 import LinkIcon from '@mui/icons-material/Link';
-import PendingOutlinedIcon from '@mui/icons-material/PendingOutlined';
 import CloseIcon from '@mui/icons-material/Close';
+import ArchivePromptAction from "../components/archive_prompt_action";
 
 const VcPromptDashboard = () => {
   const translate = useTranslate();
@@ -87,8 +87,9 @@ function VcPromptList() {
       <List
         empty={<Box sx={{m: 1}}>{ translate("vc_validator.prompt_list.empty_message") }</Box>}
         resource="VcPrompt"
-        perPage={20}
+        pagination={<Pagination rowsPerPageOptions={[20]} />}
         sort= {{ field: 'id', order: 'DESC' }}
+        filter={{ archivedAtIsSet: false }}
         actions={false}
       >
         <Datagrid
@@ -105,6 +106,7 @@ function VcPromptList() {
               </ReferenceField>
             </Box>
             <ConfigureVcPrompt />
+            <ArchivePromptAction />
           </Box>
         </Datagrid>
       </List>
@@ -181,8 +183,9 @@ function VcRequestList() {
       <List
         empty={<Box sx={{m: 1}}>{ translate("vc_validator.request_list.empty_message")} </Box>}
         resource="VcRequest"
-        perPage={10}
+        pagination={<Pagination rowsPerPageOptions={[20]} />}
         sort = {{ field: 'id', order: 'DESC' }}
+        filter = {{ finishedAtIsSet: true }}
         actions={false}
         disableSyncWithLocation
       >
@@ -193,8 +196,6 @@ function VcRequestList() {
           <FunctionField sortable={false} source="state" label={false} render={ record => {
             const dimensions = { height: 30, width: 30 };
             switch(record.state) {
-              case "PENDING":
-                return <Box> <PendingOutlinedIcon sx={dimensions} /> </Box>;
               case "APPROVED":
                 return <Box color="#00a975"> <VerifiedIcon sx={dimensions} /> </Box>;
               case "REJECTED":

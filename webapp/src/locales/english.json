@@ -206,7 +206,7 @@
     "prompt_list": {
       "title": "Active verification points",
       "empty_message":
-        "Start by creating a new verification point. When you do, you'll be able to configure it on a mobile device here."
+        "There are no active verification points. Create a new one. When you do, you'll be able to configure it on a mobile device here."
     },
     "configure": {
       "button_label": "Setup on mobile device",
@@ -226,6 +226,11 @@
       "rejected": "That credential does not meet the requirements.",
       "failed": "There was an error, try again.",
       "redirect_success": "Credential submitted. You may close this window."
+    },
+    "archive_prompt": {
+      "title": "Archive verification point.",
+      "content": "You can archive your verification points when you stop needing them. The verification point will stop working, but its history will remain intact.",
+      "errorUpdating": "There was a problem archiving this verification point"
     }
   },
 	"certos": {

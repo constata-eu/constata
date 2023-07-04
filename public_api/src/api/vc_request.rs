@@ -32,6 +32,8 @@ pub struct VcRequestFilter {
   id_eq: Option<i32>,
   #[arg(long, help="Fetch requests in the given state")]
   state_eq: Option<VcRequestState>,
+  #[arg(long, help="Fetch requests in the given state")]
+  state_ne: Option<VcRequestState>,
   #[arg(long, help="Fetch requests by the respondent DID")]
   did_like: Option<String>,
   #[arg(long, help="Fetch requests by the respondent DID")]
