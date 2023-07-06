@@ -14,14 +14,7 @@ impl DownloadProofLink {
     }
 
     let document = context.site.document().find(&document_id).await?;
-    let mut url = None;
 
-    if let Ok(accepted) = document.in_accepted() {
-      if accepted.bulletin().await?.is_published() {
-        url = Some(document.get_or_create_download_proof_link(7).await?.full_url().await?);
-      }
-    }
-
-    Ok(DownloadProofLink { id: document_id, url, })
+    Ok(DownloadProofLink { id: document_id, url: None })
   }
 }
