@@ -226,6 +226,7 @@ pub struct VidchainSettings {
   pub client_secret: String,
   pub expected_kid: String,
   pub rsa_pk_n: String,
+  pub enabled_scopes: Vec<String>,
 }
 
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize, juniper::GraphQLEnum)]

@@ -69,9 +69,8 @@ impl VcRequest {
     let redirect_uri = &settings.redirect_uri;
     let client_id = &settings.client_id;
     let nonce = self.attrs.id;
-    let scope = self.vc_prompt().await?.requirement_rules().await?.vidchain_scope();
-
-    Ok(format!("{host}/oauth2/auth?response_type=code&state={state}&redirect_uri={redirect_uri}&client_id={client_id}&scope=openid%20VerifiableCredential&nonce={nonce}"))
+    let scope = self.vc_prompt().await?.requirement_rules().await?.vidchain_scope(&settings.enabled_scopes);
+    Ok(format!("{host}/oauth2/auth?response_type=code&state={state}&redirect_uri={redirect_uri}&client_id={client_id}&scope=openid%20{scope}&nonce={nonce}"))
   }
 
   pub async fn resolve_with_vidchain_code(self, code: &str) -> ConstataResult<Self> {
