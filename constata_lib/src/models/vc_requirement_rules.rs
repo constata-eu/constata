@@ -6,31 +6,30 @@ pub struct VcRequirementRules {
 }
 
 impl VcRequirementRules {
-  pub fn vidchain_scope(&self) -> String {
+  pub fn vidchain_scope(&self, enabled_scopes: &[String]) -> String {
     let default = "VerifiableCredential".to_string();
 
-    return default;
-    /*
-
-    let mut found_type = None;
+    let mut maybe_desired = None;
 
     for required_set in &self.acceptable_sets {
       for spec in &required_set.required_set {
         for requirement in &spec.credential_spec {
           if requirement.pointer != "/type" { continue; }
 
-          if let Filter::ArrayContains(typ) = &requirement.filter {
-            match &found_type {
-              None => found_type = Some(typ.clone()),
-              Some(f) => if f != typ { return default; }
+          if let Filter::ArrayContains(scope) = &requirement.filter {
+            if maybe_desired.map(|previous| &previous != scope).unwrap_or(false) {
+              return default;
             }
+            maybe_desired = Some(scope.clone());
           }
         }
       }
     }
 
-    found_type.unwrap_or(default)
-    */
+    match maybe_desired {
+      Some(desired) if enabled_scopes.contains(&desired) => desired,
+      _ => default
+    }
   }
 }
 
@@ -101,7 +100,7 @@ fn test<V: serde::de::DeserializeOwned, P: FnOnce(V) -> bool >(value: &serde_jso
 }
 
 describe! {
-  dbtest!{ can_request_a_specific_credential_type (_site, c)
+  dbtest!{ can_request_a_specific_credential_type (site, _c)
     let rules: VcRequirementRules = serde_json::from_str(r#"{ "acceptable_sets": [
       { "required_set": [
         { "credential_spec": [
@@ -115,10 +114,10 @@ describe! {
         ]}
       ]}
     ]}"#)?;
-    assert_eq!(&rules.vidchain_scope(), "VerifiableCredential");
+    assert_eq!(&rules.vidchain_scope(&site.settings.vidchain.enabled_scopes), "MedicoCredential");
   }
 
-  dbtest!{ can_request_with_generic_scope (_site, c)
+  dbtest!{ can_request_with_generic_scope (site, _c)
     let multi: VcRequirementRules = serde_json::from_str(r#"{ "acceptable_sets": [
       { "required_set": [
         { "credential_spec": [
@@ -131,6 +130,6 @@ describe! {
         ]}
       ]}
     ]}"#)?;
-    assert_eq!(&multi.vidchain_scope(), "VerifiableCredential");
+    assert_eq!(&multi.vidchain_scope(&site.settings.vidchain.enabled_scopes), "VerifiableCredential");
   }
 }

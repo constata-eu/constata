@@ -8,7 +8,8 @@ mod webapp {
     use bitcoin::network::constants::Network;
     use std::env;
 
-    integration_test!{ full_flow_from_signup_until_stamped (c, d)
+    integration_test!{ signs_up_and_creates_issuance (c, d)
+      let mut chain = TestBlockchain::new().await;
       fill_signup_form(&d).await;
       d.wait_for("#constata_dashboard").await;
       let path = d.check_downloads_for_file("signature.json").await;
@@ -28,6 +29,27 @@ mod webapp {
 
       d.click("#dashboard-menu-item").await;
       d.wait_for_text("h2", "In progress").await;
+
+      chain.fund_signer_wallet();
+      chain.simulate_stamping().await;
+      try_until(40, "bulletin_is_published", || async { c.site.bulletin().find(1).await.unwrap().is_published() }).await;
+    }
+
+    integration_test!{ has_issuances_admin (c, d)
+      let mut chain = TestBlockchain::new().await;
+      let alice = signup(&c, &d, false).await;
+      alice.make_signed_diplomas_issuance().await;
+
+      chain.fund_signer_wallet();
+      chain.simulate_stamping().await;
+      try_until(40, "bulletin_is_published", || async { c.site.bulletin().find(1).await.unwrap().is_published() }).await;
+      c.site.issuance().try_complete().await?;
+
+      d.wait_for_text("h2", "Recent issuances").await;
+      d.click("a[href='#/Issuance/1/show']").await;
+      d.wait_for_text(".MuiTablePagination-displayedRows", "1-2 of 2").await;
+      d.fill_in("input#paramsLike", "stan").await;
+      d.wait_for_text(".MuiTablePagination-displayedRows", "1-1 of 1").await;
     }
  
     integration_test!{ issues_diplomas_from_csv_and_completes_them (c, d)

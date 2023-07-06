@@ -69,12 +69,8 @@ impl DownloadProofLink {
       .render_html(lang)
   }
 
-  pub async fn full_url(&self) -> ConstataResult<String> {
-    Ok(format!("{}/download-proof/{}", &self.state.settings.url, self.token().await?))
-  }
-
   pub async fn safe_env_url(&self) -> ConstataResult<String> {
-    Ok(format!("{}/safe/{}", &self.state.settings.url, self.token().await?))
+    Ok(format!("{}/#/safe/{}", &self.state.settings.url, self.token().await?))
   }
 
   pub fn public_certificate_url(&self) -> String {
@@ -191,6 +187,7 @@ impl InsertDownloadProofLink {
 
 describe! {
   use std::collections::HashMap;
+
   regtest!{ create_public_certificate_and_switch_state (_db, c, mut chain)
     let alice = c.alice().await;
     let entry = alice.make_entry_and_sign_it().await;
@@ -199,6 +196,9 @@ describe! {
     let doc = entry.reloaded().await?.document().await?.expect("to get entry's document");
     let download_proof_link = alice.make_download_proof_link_from_doc(&doc, 30).await;
     let access_token = download_proof_link.access_token().await?;
+
+    assert_that!(&download_proof_link.public_certificate_url(), rematch(r#":8000/certificate/"#));
+    assert_that!(&download_proof_link.safe_env_url().await?, rematch(r#":8000/#/safe/"#));
 
     download_proof_link.publish().await?;
     assert_that!(download_proof_link.reloaded().await?.published_at().is_some());
