@@ -26,9 +26,12 @@ recaptcha_threshold=0.0
 
 [global.vidchain]
 host="https://staging.vidchain.net"
-redirect_uri="https://example.com/vid_chain/redirect_uri"
-client_id="yourname"
+redirect_uri="https://development.constata.eu/vid_chain/redirect_uri"
+client_id="constata"
 client_secret="yoursecret"
+expected_kid = "public:04045639-27bc-4e59-b18c-629d6e7c4c60"
+rsa_pk_n = "z88btvayTpaJPaUFkaWNls4z3cPDSp3mXsQcdeXq70-nxlRVVhjq4kJHfv1P23qn99Y4j3dVnmVuv2-lal8_o1z3H4iAUorqFiYx5K8586Tq87PJd67p_Qy5s2-Dz4qNUtVehPEdwGkj6uv-5l48cSlJOpDlh390G4XJS1MDsvMoW1lXESvWQ902p7sZAJm0DwaZwzP9UQUnWB2mBfA7xxRKGyTFm_QJdpMrLxT4fqkeHHTdbJUOdFAMcosHBFIz8aD1cGBAMMnOajNd7EGi7ov6jZRFG5pLW74ET8G1Soohi0EybaQBf5U4BX9kE8X9jIiDn_O8u1EOHixHBJVRAIwg6M6hfimX4tHGZ3a1feNn-uHSq-Yk0UUonwD3JGqdkvsdSJp0-CEF9QDbh3dIvR3yMftmmxS0USXxsilX3tiv-rSXxVhWAmbgZhela31Nwjewr_1pkVtP_9iEdK6K0kRJaUJLSfZebsiRtm97XFR0Rxkw5rELqHs0pJnMZiqgQEE_MRF6n2wf4XMpBhjD5OgnIZ79pQyplYj3aYi-1b-NTSurdeAlDtsCyNgDnK0IC_fbiINeAyU06ReRkhN_JNE3hCz5mOFDOBs78S95kQ49Om0Yuibi8Lsx1qrcF01zahvdHBgLn808aDkeT_-HSO7_MDOCYOoH4fzIsZOMLoM"
+enabled_scopes = [ "FuncionarioCARM", "FuncionarioLaRioja", "MedicoCredential", "EmailCredential", "VerifiableIdCredential" ]
 
 [global.recaptcha.v3]
 html_key="yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy-"
