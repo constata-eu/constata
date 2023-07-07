@@ -38,7 +38,7 @@ mod webapp {
     integration_test!{ has_issuances_admin (c, d)
       let mut chain = TestBlockchain::new().await;
       let alice = signup(&c, &d, false).await;
-      alice.make_signed_diplomas_issuance().await;
+      alice.make_signed_diplomas_issuance().await?;
 
       chain.fund_signer_wallet();
       chain.simulate_stamping().await;

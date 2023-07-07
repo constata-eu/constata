@@ -845,6 +845,74 @@
     },
     "query": "UPDATE admin_user_sessions SET (id, \nadmin_user_id, \ntoken, \nexpired, \ncreated_at, \nexpires_at) = ((CASE $2::boolean WHEN TRUE THEN $3 ELSE id END), (CASE $4::boolean WHEN TRUE THEN $5 ELSE admin_user_id END), (CASE $6::boolean WHEN TRUE THEN $7 ELSE token END), (CASE $8::boolean WHEN TRUE THEN $9 ELSE expired END), (CASE $10::boolean WHEN TRUE THEN $11 ELSE created_at END), (CASE $12::boolean WHEN TRUE THEN $13 ELSE expires_at END)) WHERE id = $1 RETURNING id as \"id!: i32\", \nadmin_user_id as \"admin_user_id!: i32\", \ntoken as \"token!: String\", \nexpired as \"expired!: bool\", \ncreated_at as \"created_at!: UtcDateTime\", \nexpires_at as \"expires_at!: UtcDateTime\""
   },
+  "0ec5d6216eee99559aa0830313f7ec202f659e04d9f3221e867619f1a1ffde65": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id!: i32",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "subscription_id!: Option < i32 >",
+          "ordinal": 1,
+          "type_info": "Int4"
+        },
+        {
+          "name": "stripe_customer_id!: Option < String >",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "public_name!: Option < String >",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "logo_url!: Option < String >",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "use_verifier!: bool",
+          "ordinal": 5,
+          "type_info": "Bool"
+        },
+        {
+          "name": "deletion_id!: Option < i32 >",
+          "ordinal": 6,
+          "type_info": "Int4"
+        },
+        {
+          "name": "created_at!: UtcDateTime",
+          "ordinal": 7,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "web_callbacks_url!: Option < String >",
+          "ordinal": 8,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        false,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Timestamptz"
+        ]
+      }
+    },
+    "query": "SELECT id as \"id!: i32\", \nsubscription_id as \"subscription_id!: Option < i32 >\", \nstripe_customer_id as \"stripe_customer_id!: Option < String >\", \npublic_name as \"public_name!: Option < String >\", \nlogo_url as \"logo_url!: Option < String >\", \nuse_verifier as \"use_verifier!: bool\", \ndeletion_id as \"deletion_id!: Option < i32 >\", \ncreated_at as \"created_at!: UtcDateTime\", \nweb_callbacks_url as \"web_callbacks_url!: Option < String >\" FROM orgs WHERE id IN (\n      SELECT d.org_id FROM documents d\n      INNER JOIN email_addresses ea ON d.org_id = ea.org_id\n      LEFT JOIN parked_reminders pr ON d.org_id = pr.org_id\n      WHERE d.bulletin_id IS NULL\n        AND NOT d.funded\n        AND d.created_at < ($1::TIMESTAMPTZ - INTERVAL '2 DAYS')\n        AND (pr.created_at IS NULL OR pr.created_at < ($1::TIMESTAMPTZ - INTERVAL '30 DAYS'))\n      GROUP BY d.org_id)\n    "
+  },
   "0f1ad066ade28dc813c276f8c28d439e684cd874c134081dd3234858cf80356d": {
     "describe": {
       "columns": [
@@ -2692,75 +2760,6 @@
       }
     },
     "query": "DELETE FROM documents WHERE id = $1 AND bulletin_id IS NULL AND NOT FUNDED"
-  },
-  "1cf2e4306f9053c3e430157f7c189eea98bc84fc7361a203a432588178c2301b": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id!: i32",
-          "ordinal": 0,
-          "type_info": "Int4"
-        },
-        {
-          "name": "subscription_id!: Option < i32 >",
-          "ordinal": 1,
-          "type_info": "Int4"
-        },
-        {
-          "name": "stripe_customer_id!: Option < String >",
-          "ordinal": 2,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "public_name!: Option < String >",
-          "ordinal": 3,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "logo_url!: Option < String >",
-          "ordinal": 4,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "use_verifier!: Option < String >",
-          "ordinal": 5,
-          "type_info": "Bool"
-        },
-        {
-          "name": "deletion_id!: Option < i32 >",
-          "ordinal": 6,
-          "type_info": "Int4"
-        },
-        {
-          "name": "created_at!: UtcDateTime",
-          "ordinal": 7,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "web_callbacks_url!: Option < String >",
-          "ordinal": 8,
-          "type_info": "Varchar"
-        }
-      ],
-      "nullable": [
-        false,
-        true,
-        true,
-        true,
-        true,
-        false,
-        true,
-        false,
-        true
-      ],
-      "parameters": {
-        "Left": [
-          "Int8",
-          "Int8"
-        ]
-      }
-    },
-    "query": "SELECT id as \"id!: i32\", \nsubscription_id as \"subscription_id!: Option < i32 >\", \nstripe_customer_id as \"stripe_customer_id!: Option < String >\", \npublic_name as \"public_name!: Option < String >\", \nlogo_url as \"logo_url!: Option < String >\", \nuse_verifier as \"use_verifier!: Option < String >\", \ndeletion_id as \"deletion_id!: Option < i32 >\", \ncreated_at as \"created_at!: UtcDateTime\", \nweb_callbacks_url as \"web_callbacks_url!: Option < String >\" FROM orgs WHERE id IN (\n      SELECT d.org_id FROM documents d\n      INNER JOIN terms_acceptances ta ON d.org_id = ta.org_id\n      AND ta.accepted IS NOT NULL AND NOT d.funded\n      GROUP BY d.org_id\n    )\n    ORDER BY (SELECT SUM(cost) FROM documents WHERE NOT funded AND org_id = orgs.id)\n    DESC LIMIT $1 OFFSET $2\n    "
   },
   "1d97be0c11a754a82de9273c0bc657359882b517196e4d5a8c319d7ad1e76b82": {
     "describe": {
@@ -8197,6 +8196,74 @@
     },
     "query": "UPDATE persons SET (id, \norg_id, \ndeletion_id, \nlang, \nlang_set_from, \nadmin, \nbilling, \nsuspended) = ((CASE $2::boolean WHEN TRUE THEN $3 ELSE id END), (CASE $4::boolean WHEN TRUE THEN $5 ELSE org_id END), (CASE $6::boolean WHEN TRUE THEN $7 ELSE deletion_id END), (CASE $8::boolean WHEN TRUE THEN $9 ELSE lang END), (CASE $10::boolean WHEN TRUE THEN $11 ELSE lang_set_from END), (CASE $12::boolean WHEN TRUE THEN $13 ELSE admin END), (CASE $14::boolean WHEN TRUE THEN $15 ELSE billing END), (CASE $16::boolean WHEN TRUE THEN $17 ELSE suspended END)) WHERE id = $1 RETURNING id as \"id!: PersonId\", \norg_id as \"org_id!: i32\", \ndeletion_id as \"deletion_id!: Option < i32 >\", \nlang as \"lang!: Lang\", \nlang_set_from as \"lang_set_from!: String\", \nadmin as \"admin!: bool\", \nbilling as \"billing!: bool\", \nsuspended as \"suspended!: bool\""
   },
+  "59dbc78d106787e487f47c6b4842153652bda07f252cd3e4eed3fa06cfb7afbc": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id!: i32",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "subscription_id!: Option < i32 >",
+          "ordinal": 1,
+          "type_info": "Int4"
+        },
+        {
+          "name": "stripe_customer_id!: Option < String >",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "public_name!: Option < String >",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "logo_url!: Option < String >",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "use_verifier!: bool",
+          "ordinal": 5,
+          "type_info": "Bool"
+        },
+        {
+          "name": "deletion_id!: Option < i32 >",
+          "ordinal": 6,
+          "type_info": "Int4"
+        },
+        {
+          "name": "created_at!: UtcDateTime",
+          "ordinal": 7,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "web_callbacks_url!: Option < String >",
+          "ordinal": 8,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        false,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "INSERT INTO orgs (subscription_id) VALUES ($1) RETURNING id as \"id!: i32\", \nsubscription_id as \"subscription_id!: Option < i32 >\", \nstripe_customer_id as \"stripe_customer_id!: Option < String >\", \npublic_name as \"public_name!: Option < String >\", \nlogo_url as \"logo_url!: Option < String >\", \nuse_verifier as \"use_verifier!: bool\", \ndeletion_id as \"deletion_id!: Option < i32 >\", \ncreated_at as \"created_at!: UtcDateTime\", \nweb_callbacks_url as \"web_callbacks_url!: Option < String >\""
+  },
   "5b0374b6506e907a9d6d1ae9f6d83bdb680769ad376e26b490cf92fb0700349f": {
     "describe": {
       "columns": [
@@ -9710,6 +9777,75 @@
     },
     "query": "DELETE FROM kyc_request_evidences WHERE id = $1"
   },
+  "62c60f6815845728ade9736627f908c80e1c97fbb46b79011fc754294b6671a8": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id!: i32",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "subscription_id!: Option < i32 >",
+          "ordinal": 1,
+          "type_info": "Int4"
+        },
+        {
+          "name": "stripe_customer_id!: Option < String >",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "public_name!: Option < String >",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "logo_url!: Option < String >",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "use_verifier!: bool",
+          "ordinal": 5,
+          "type_info": "Bool"
+        },
+        {
+          "name": "deletion_id!: Option < i32 >",
+          "ordinal": 6,
+          "type_info": "Int4"
+        },
+        {
+          "name": "created_at!: UtcDateTime",
+          "ordinal": 7,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "web_callbacks_url!: Option < String >",
+          "ordinal": 8,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        false,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT id as \"id!: i32\", \nsubscription_id as \"subscription_id!: Option < i32 >\", \nstripe_customer_id as \"stripe_customer_id!: Option < String >\", \npublic_name as \"public_name!: Option < String >\", \nlogo_url as \"logo_url!: Option < String >\", \nuse_verifier as \"use_verifier!: bool\", \ndeletion_id as \"deletion_id!: Option < i32 >\", \ncreated_at as \"created_at!: UtcDateTime\", \nweb_callbacks_url as \"web_callbacks_url!: Option < String >\" FROM orgs WHERE id IN (\n      SELECT d.org_id FROM documents d\n      INNER JOIN terms_acceptances ta ON d.org_id = ta.org_id\n      AND ta.accepted IS NOT NULL AND NOT d.funded\n      GROUP BY d.org_id\n    )\n    ORDER BY (SELECT SUM(cost) FROM documents WHERE NOT funded AND org_id = orgs.id)\n    DESC LIMIT $1 OFFSET $2\n    "
+  },
   "63fec685170a90c8f730dafb9cedf34d8e13a80edae83024aad76a60327d2572": {
     "describe": {
       "columns": [],
@@ -10650,74 +10786,6 @@
     },
     "query": "UPDATE vc_prompts SET (id, \norg_id, \nperson_id, \nname, \naccess_token_id, \nvc_requirement_id, \ncreated_at, \narchived_at, \ndeletion_id) = ((CASE $2::boolean WHEN TRUE THEN $3 ELSE id END), (CASE $4::boolean WHEN TRUE THEN $5 ELSE org_id END), (CASE $6::boolean WHEN TRUE THEN $7 ELSE person_id END), (CASE $8::boolean WHEN TRUE THEN $9 ELSE name END), (CASE $10::boolean WHEN TRUE THEN $11 ELSE access_token_id END), (CASE $12::boolean WHEN TRUE THEN $13 ELSE vc_requirement_id END), (CASE $14::boolean WHEN TRUE THEN $15 ELSE created_at END), (CASE $16::boolean WHEN TRUE THEN $17 ELSE archived_at END), (CASE $18::boolean WHEN TRUE THEN $19 ELSE deletion_id END)) WHERE id = $1 RETURNING id as \"id!: i32\", \norg_id as \"org_id!: i32\", \nperson_id as \"person_id!: i32\", \nname as \"name!: String\", \naccess_token_id as \"access_token_id!: i32\", \nvc_requirement_id as \"vc_requirement_id!: i32\", \ncreated_at as \"created_at!: UtcDateTime\", \narchived_at as \"archived_at!: Option < UtcDateTime >\", \ndeletion_id as \"deletion_id!: Option < i32 >\""
   },
-  "72dfdba193cd4a23693e3dd01c2c9244234c32923d4a33ee87caecc3dfafd166": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id!: i32",
-          "ordinal": 0,
-          "type_info": "Int4"
-        },
-        {
-          "name": "subscription_id!: Option < i32 >",
-          "ordinal": 1,
-          "type_info": "Int4"
-        },
-        {
-          "name": "stripe_customer_id!: Option < String >",
-          "ordinal": 2,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "public_name!: Option < String >",
-          "ordinal": 3,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "logo_url!: Option < String >",
-          "ordinal": 4,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "use_verifier!: Option < String >",
-          "ordinal": 5,
-          "type_info": "Bool"
-        },
-        {
-          "name": "deletion_id!: Option < i32 >",
-          "ordinal": 6,
-          "type_info": "Int4"
-        },
-        {
-          "name": "created_at!: UtcDateTime",
-          "ordinal": 7,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "web_callbacks_url!: Option < String >",
-          "ordinal": 8,
-          "type_info": "Varchar"
-        }
-      ],
-      "nullable": [
-        false,
-        true,
-        true,
-        true,
-        true,
-        false,
-        true,
-        false,
-        true
-      ],
-      "parameters": {
-        "Left": [
-          "Timestamptz"
-        ]
-      }
-    },
-    "query": "SELECT id as \"id!: i32\", \nsubscription_id as \"subscription_id!: Option < i32 >\", \nstripe_customer_id as \"stripe_customer_id!: Option < String >\", \npublic_name as \"public_name!: Option < String >\", \nlogo_url as \"logo_url!: Option < String >\", \nuse_verifier as \"use_verifier!: Option < String >\", \ndeletion_id as \"deletion_id!: Option < i32 >\", \ncreated_at as \"created_at!: UtcDateTime\", \nweb_callbacks_url as \"web_callbacks_url!: Option < String >\" FROM orgs WHERE id IN (\n      SELECT d.org_id FROM documents d\n      INNER JOIN email_addresses ea ON d.org_id = ea.org_id\n      LEFT JOIN parked_reminders pr ON d.org_id = pr.org_id\n      WHERE d.bulletin_id IS NULL\n        AND NOT d.funded\n        AND d.created_at < ($1::TIMESTAMPTZ - INTERVAL '2 DAYS')\n        AND (pr.created_at IS NULL OR pr.created_at < ($1::TIMESTAMPTZ - INTERVAL '30 DAYS'))\n      GROUP BY d.org_id)\n    "
-  },
   "7417d2805c782a1dc31e68a1a40d2083e23a3c4d396d3918f2c179510c7af718": {
     "describe": {
       "columns": [
@@ -11440,278 +11508,6 @@
       }
     },
     "query": "INSERT INTO kyc_request_evidences (kyc_request_id, \nfilename, \ncontent_type) VALUES ($1, $2, $3) RETURNING id as \"id!: i32\", \nkyc_request_id as \"kyc_request_id!: i32\", \nfilename as \"filename!: String\", \ncontent_type as \"content_type!: String\""
-  },
-  "75669bb225e9c655be9d884381b4aa1533f59fecda5b5dfbd0ba16f1630c9c93": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id!: i32",
-          "ordinal": 0,
-          "type_info": "Int4"
-        },
-        {
-          "name": "subscription_id!: Option < i32 >",
-          "ordinal": 1,
-          "type_info": "Int4"
-        },
-        {
-          "name": "stripe_customer_id!: Option < String >",
-          "ordinal": 2,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "public_name!: Option < String >",
-          "ordinal": 3,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "logo_url!: Option < String >",
-          "ordinal": 4,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "use_verifier!: Option < String >",
-          "ordinal": 5,
-          "type_info": "Bool"
-        },
-        {
-          "name": "deletion_id!: Option < i32 >",
-          "ordinal": 6,
-          "type_info": "Int4"
-        },
-        {
-          "name": "created_at!: UtcDateTime",
-          "ordinal": 7,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "web_callbacks_url!: Option < String >",
-          "ordinal": 8,
-          "type_info": "Varchar"
-        }
-      ],
-      "nullable": [
-        false,
-        true,
-        true,
-        true,
-        true,
-        false,
-        true,
-        false,
-        true
-      ],
-      "parameters": {
-        "Left": [
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4Array",
-          "Bool",
-          "Int4Array",
-          "Bool",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4Array",
-          "Bool",
-          "Int4Array",
-          "Bool",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "VarcharArray",
-          "Bool",
-          "VarcharArray",
-          "Bool",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "VarcharArray",
-          "Bool",
-          "VarcharArray",
-          "Bool",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "VarcharArray",
-          "Bool",
-          "VarcharArray",
-          "Bool",
-          "Bool",
-          "Bool",
-          "Bool",
-          "Bool",
-          "Bool",
-          "Bool",
-          "Bool",
-          "Bool",
-          "Bool",
-          "Bool",
-          "Bool",
-          "Bool",
-          "Bool",
-          "BoolArray",
-          "Bool",
-          "BoolArray",
-          "Bool",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4Array",
-          "Bool",
-          "Int4Array",
-          "Bool",
-          "Bool",
-          "Timestamptz",
-          "Bool",
-          "Timestamptz",
-          "Bool",
-          "Timestamptz",
-          "Bool",
-          "Timestamptz",
-          "Bool",
-          "Timestamptz",
-          "Bool",
-          "Timestamptz",
-          "Bool",
-          "TimestamptzArray",
-          "Bool",
-          "TimestamptzArray",
-          "Bool",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "VarcharArray",
-          "Bool",
-          "VarcharArray",
-          "Bool",
-          "Text",
-          "Bool",
-          "Int8",
-          "Int8"
-        ]
-      }
-    },
-    "query": "SELECT id as \"id!: i32\", \nsubscription_id as \"subscription_id!: Option < i32 >\", \nstripe_customer_id as \"stripe_customer_id!: Option < String >\", \npublic_name as \"public_name!: Option < String >\", \nlogo_url as \"logo_url!: Option < String >\", \nuse_verifier as \"use_verifier!: Option < String >\", \ndeletion_id as \"deletion_id!: Option < i32 >\", \ncreated_at as \"created_at!: UtcDateTime\", \nweb_callbacks_url as \"web_callbacks_url!: Option < String >\" FROM orgs WHERE (NOT $1::boolean OR id = $2::int4) AND (NOT $3::boolean OR id != $4::int4) AND (NOT $5::boolean OR id > $6::int4) AND (NOT $7::boolean OR id >= $8::int4) AND (NOT $9::boolean OR id < $10::int4) AND (NOT $11::boolean OR id <= $12::int4) AND (NOT $13::boolean OR id IN (SELECT unnest(CAST($14 as int4[]))) ) AND (NOT $15::boolean OR id NOT IN (SELECT unnest(CAST($16 as int4[]))) ) AND ($17::boolean IS NULL OR (($17::boolean AND id IS NOT NULL) OR (NOT $17::boolean AND id IS NULL))) AND (NOT $18::boolean OR subscription_id = $19::int4) AND (NOT $20::boolean OR subscription_id != $21::int4) AND (NOT $22::boolean OR subscription_id > $23::int4) AND (NOT $24::boolean OR subscription_id >= $25::int4) AND (NOT $26::boolean OR subscription_id < $27::int4) AND (NOT $28::boolean OR subscription_id <= $29::int4) AND (NOT $30::boolean OR subscription_id IN (SELECT unnest(CAST($31 as int4[]))) ) AND (NOT $32::boolean OR subscription_id NOT IN (SELECT unnest(CAST($33 as int4[]))) ) AND ($34::boolean IS NULL OR (($34::boolean AND subscription_id IS NOT NULL) OR (NOT $34::boolean AND subscription_id IS NULL))) AND (NOT $35::boolean OR stripe_customer_id = $36::varchar) AND (NOT $37::boolean OR stripe_customer_id != $38::varchar) AND (NOT $39::boolean OR stripe_customer_id > $40::varchar) AND (NOT $41::boolean OR stripe_customer_id >= $42::varchar) AND (NOT $43::boolean OR stripe_customer_id < $44::varchar) AND (NOT $45::boolean OR stripe_customer_id <= $46::varchar) AND (NOT $47::boolean OR stripe_customer_id LIKE $48::varchar) AND (NOT $49::boolean OR stripe_customer_id NOT LIKE $50::varchar) AND (NOT $51::boolean OR stripe_customer_id ILIKE $52::varchar) AND (NOT $53::boolean OR stripe_customer_id NOT ILIKE $54::varchar) AND (NOT $55::boolean OR stripe_customer_id SIMILAR TO $56::varchar) AND (NOT $57::boolean OR stripe_customer_id NOT SIMILAR TO $58::varchar) AND (NOT $59::boolean OR stripe_customer_id IN (SELECT unnest(CAST($60 as varchar[]))) ) AND (NOT $61::boolean OR stripe_customer_id NOT IN (SELECT unnest(CAST($62 as varchar[]))) ) AND ($63::boolean IS NULL OR (($63::boolean AND stripe_customer_id IS NOT NULL) OR (NOT $63::boolean AND stripe_customer_id IS NULL))) AND (NOT $64::boolean OR public_name = $65::varchar) AND (NOT $66::boolean OR public_name != $67::varchar) AND (NOT $68::boolean OR public_name > $69::varchar) AND (NOT $70::boolean OR public_name >= $71::varchar) AND (NOT $72::boolean OR public_name < $73::varchar) AND (NOT $74::boolean OR public_name <= $75::varchar) AND (NOT $76::boolean OR public_name LIKE $77::varchar) AND (NOT $78::boolean OR public_name NOT LIKE $79::varchar) AND (NOT $80::boolean OR public_name ILIKE $81::varchar) AND (NOT $82::boolean OR public_name NOT ILIKE $83::varchar) AND (NOT $84::boolean OR public_name SIMILAR TO $85::varchar) AND (NOT $86::boolean OR public_name NOT SIMILAR TO $87::varchar) AND (NOT $88::boolean OR public_name IN (SELECT unnest(CAST($89 as varchar[]))) ) AND (NOT $90::boolean OR public_name NOT IN (SELECT unnest(CAST($91 as varchar[]))) ) AND ($92::boolean IS NULL OR (($92::boolean AND public_name IS NOT NULL) OR (NOT $92::boolean AND public_name IS NULL))) AND (NOT $93::boolean OR logo_url = $94::varchar) AND (NOT $95::boolean OR logo_url != $96::varchar) AND (NOT $97::boolean OR logo_url > $98::varchar) AND (NOT $99::boolean OR logo_url >= $100::varchar) AND (NOT $101::boolean OR logo_url < $102::varchar) AND (NOT $103::boolean OR logo_url <= $104::varchar) AND (NOT $105::boolean OR logo_url LIKE $106::varchar) AND (NOT $107::boolean OR logo_url NOT LIKE $108::varchar) AND (NOT $109::boolean OR logo_url ILIKE $110::varchar) AND (NOT $111::boolean OR logo_url NOT ILIKE $112::varchar) AND (NOT $113::boolean OR logo_url SIMILAR TO $114::varchar) AND (NOT $115::boolean OR logo_url NOT SIMILAR TO $116::varchar) AND (NOT $117::boolean OR logo_url IN (SELECT unnest(CAST($118 as varchar[]))) ) AND (NOT $119::boolean OR logo_url NOT IN (SELECT unnest(CAST($120 as varchar[]))) ) AND ($121::boolean IS NULL OR (($121::boolean AND logo_url IS NOT NULL) OR (NOT $121::boolean AND logo_url IS NULL))) AND (NOT $122::boolean OR use_verifier = $123::boolean) AND (NOT $124::boolean OR use_verifier != $125::boolean) AND (NOT $126::boolean OR use_verifier > $127::boolean) AND (NOT $128::boolean OR use_verifier >= $129::boolean) AND (NOT $130::boolean OR use_verifier < $131::boolean) AND (NOT $132::boolean OR use_verifier <= $133::boolean) AND (NOT $134::boolean OR use_verifier IN (SELECT unnest(CAST($135 as boolean[]))) ) AND (NOT $136::boolean OR use_verifier NOT IN (SELECT unnest(CAST($137 as boolean[]))) ) AND ($138::boolean IS NULL OR (($138::boolean AND use_verifier IS NOT NULL) OR (NOT $138::boolean AND use_verifier IS NULL))) AND (NOT $139::boolean OR deletion_id = $140::int4) AND (NOT $141::boolean OR deletion_id != $142::int4) AND (NOT $143::boolean OR deletion_id > $144::int4) AND (NOT $145::boolean OR deletion_id >= $146::int4) AND (NOT $147::boolean OR deletion_id < $148::int4) AND (NOT $149::boolean OR deletion_id <= $150::int4) AND (NOT $151::boolean OR deletion_id IN (SELECT unnest(CAST($152 as int4[]))) ) AND (NOT $153::boolean OR deletion_id NOT IN (SELECT unnest(CAST($154 as int4[]))) ) AND ($155::boolean IS NULL OR (($155::boolean AND deletion_id IS NOT NULL) OR (NOT $155::boolean AND deletion_id IS NULL))) AND (NOT $156::boolean OR created_at = $157::timestamptz) AND (NOT $158::boolean OR created_at != $159::timestamptz) AND (NOT $160::boolean OR created_at > $161::timestamptz) AND (NOT $162::boolean OR created_at >= $163::timestamptz) AND (NOT $164::boolean OR created_at < $165::timestamptz) AND (NOT $166::boolean OR created_at <= $167::timestamptz) AND (NOT $168::boolean OR created_at IN (SELECT unnest(CAST($169 as timestamptz[]))) ) AND (NOT $170::boolean OR created_at NOT IN (SELECT unnest(CAST($171 as timestamptz[]))) ) AND ($172::boolean IS NULL OR (($172::boolean AND created_at IS NOT NULL) OR (NOT $172::boolean AND created_at IS NULL))) AND (NOT $173::boolean OR web_callbacks_url = $174::varchar) AND (NOT $175::boolean OR web_callbacks_url != $176::varchar) AND (NOT $177::boolean OR web_callbacks_url > $178::varchar) AND (NOT $179::boolean OR web_callbacks_url >= $180::varchar) AND (NOT $181::boolean OR web_callbacks_url < $182::varchar) AND (NOT $183::boolean OR web_callbacks_url <= $184::varchar) AND (NOT $185::boolean OR web_callbacks_url LIKE $186::varchar) AND (NOT $187::boolean OR web_callbacks_url NOT LIKE $188::varchar) AND (NOT $189::boolean OR web_callbacks_url ILIKE $190::varchar) AND (NOT $191::boolean OR web_callbacks_url NOT ILIKE $192::varchar) AND (NOT $193::boolean OR web_callbacks_url SIMILAR TO $194::varchar) AND (NOT $195::boolean OR web_callbacks_url NOT SIMILAR TO $196::varchar) AND (NOT $197::boolean OR web_callbacks_url IN (SELECT unnest(CAST($198 as varchar[]))) ) AND (NOT $199::boolean OR web_callbacks_url NOT IN (SELECT unnest(CAST($200 as varchar[]))) ) AND ($201::boolean IS NULL OR (($201::boolean AND web_callbacks_url IS NOT NULL) OR (NOT $201::boolean AND web_callbacks_url IS NULL))) ORDER BY \n      (CASE ($202 = 'Id' AND NOT $203) WHEN true THEN id ELSE NULL END),\n      (CASE ($202 = 'Id' AND $203) WHEN true THEN id ELSE NULL END) DESC\n    ,\n      (CASE ($202 = 'SubscriptionId' AND NOT $203) WHEN true THEN subscription_id ELSE NULL END),\n      (CASE ($202 = 'SubscriptionId' AND $203) WHEN true THEN subscription_id ELSE NULL END) DESC\n    ,\n      (CASE ($202 = 'StripeCustomerId' AND NOT $203) WHEN true THEN stripe_customer_id ELSE NULL END),\n      (CASE ($202 = 'StripeCustomerId' AND $203) WHEN true THEN stripe_customer_id ELSE NULL END) DESC\n    ,\n      (CASE ($202 = 'PublicName' AND NOT $203) WHEN true THEN public_name ELSE NULL END),\n      (CASE ($202 = 'PublicName' AND $203) WHEN true THEN public_name ELSE NULL END) DESC\n    ,\n      (CASE ($202 = 'LogoUrl' AND NOT $203) WHEN true THEN logo_url ELSE NULL END),\n      (CASE ($202 = 'LogoUrl' AND $203) WHEN true THEN logo_url ELSE NULL END) DESC\n    ,\n      (CASE ($202 = 'UseVerifier' AND NOT $203) WHEN true THEN use_verifier ELSE NULL END),\n      (CASE ($202 = 'UseVerifier' AND $203) WHEN true THEN use_verifier ELSE NULL END) DESC\n    ,\n      (CASE ($202 = 'DeletionId' AND NOT $203) WHEN true THEN deletion_id ELSE NULL END),\n      (CASE ($202 = 'DeletionId' AND $203) WHEN true THEN deletion_id ELSE NULL END) DESC\n    ,\n      (CASE ($202 = 'CreatedAt' AND NOT $203) WHEN true THEN created_at ELSE NULL END),\n      (CASE ($202 = 'CreatedAt' AND $203) WHEN true THEN created_at ELSE NULL END) DESC\n    ,\n      (CASE ($202 = 'WebCallbacksUrl' AND NOT $203) WHEN true THEN web_callbacks_url ELSE NULL END),\n      (CASE ($202 = 'WebCallbacksUrl' AND $203) WHEN true THEN web_callbacks_url ELSE NULL END) DESC\n     LIMIT $204 OFFSET $205"
   },
   "761187b0215078b1ac407a06162e98cf8f7bc6fdc874f76fd6d8a30e5dfbba4f": {
     "describe": {
@@ -17008,92 +16804,6 @@
     },
     "query": "DELETE FROM invoice_links WHERE id = $1"
   },
-  "a4bb96b275f27b82abad56f6a9e5245240c0efb61ab12a77109036928ddcb3cb": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id!: i32",
-          "ordinal": 0,
-          "type_info": "Int4"
-        },
-        {
-          "name": "subscription_id!: Option < i32 >",
-          "ordinal": 1,
-          "type_info": "Int4"
-        },
-        {
-          "name": "stripe_customer_id!: Option < String >",
-          "ordinal": 2,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "public_name!: Option < String >",
-          "ordinal": 3,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "logo_url!: Option < String >",
-          "ordinal": 4,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "use_verifier!: Option < String >",
-          "ordinal": 5,
-          "type_info": "Bool"
-        },
-        {
-          "name": "deletion_id!: Option < i32 >",
-          "ordinal": 6,
-          "type_info": "Int4"
-        },
-        {
-          "name": "created_at!: UtcDateTime",
-          "ordinal": 7,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "web_callbacks_url!: Option < String >",
-          "ordinal": 8,
-          "type_info": "Varchar"
-        }
-      ],
-      "nullable": [
-        false,
-        true,
-        true,
-        true,
-        true,
-        false,
-        true,
-        false,
-        true
-      ],
-      "parameters": {
-        "Left": [
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Bool",
-          "Bool",
-          "Bool",
-          "Int4",
-          "Bool",
-          "Timestamptz",
-          "Bool",
-          "Varchar"
-        ]
-      }
-    },
-    "query": "UPDATE orgs SET (id, \nsubscription_id, \nstripe_customer_id, \npublic_name, \nlogo_url, \nuse_verifier, \ndeletion_id, \ncreated_at, \nweb_callbacks_url) = ((CASE $2::boolean WHEN TRUE THEN $3 ELSE id END), (CASE $4::boolean WHEN TRUE THEN $5 ELSE subscription_id END), (CASE $6::boolean WHEN TRUE THEN $7 ELSE stripe_customer_id END), (CASE $8::boolean WHEN TRUE THEN $9 ELSE public_name END), (CASE $10::boolean WHEN TRUE THEN $11 ELSE logo_url END), (CASE $12::boolean WHEN TRUE THEN $13 ELSE use_verifier END), (CASE $14::boolean WHEN TRUE THEN $15 ELSE deletion_id END), (CASE $16::boolean WHEN TRUE THEN $17 ELSE created_at END), (CASE $18::boolean WHEN TRUE THEN $19 ELSE web_callbacks_url END)) WHERE id = $1 RETURNING id as \"id!: i32\", \nsubscription_id as \"subscription_id!: Option < i32 >\", \nstripe_customer_id as \"stripe_customer_id!: Option < String >\", \npublic_name as \"public_name!: Option < String >\", \nlogo_url as \"logo_url!: Option < String >\", \nuse_verifier as \"use_verifier!: Option < String >\", \ndeletion_id as \"deletion_id!: Option < i32 >\", \ncreated_at as \"created_at!: UtcDateTime\", \nweb_callbacks_url as \"web_callbacks_url!: Option < String >\""
-  },
   "a4d64067fc0b0334e8630411a27632cb17b66563dd1ba3bd5b2de6cfd3055804": {
     "describe": {
       "columns": [
@@ -18471,6 +18181,92 @@
     },
     "query": "SELECT id as \"id!: i32\", \naccess_token_id as \"access_token_id!: i32\", \ndocument_id as \"document_id!: String\", \npublic_token as \"public_token!: String\", \npublished_at as \"published_at!: Option < UtcDateTime >\", \nadmin_visited as \"admin_visited!: bool\", \npublic_visit_count as \"public_visit_count!: i32\", \ndeletion_id as \"deletion_id!: Option < i32 >\" FROM download_proof_links WHERE (NOT $1::boolean OR id = $2::int4) AND (NOT $3::boolean OR id != $4::int4) AND (NOT $5::boolean OR id > $6::int4) AND (NOT $7::boolean OR id >= $8::int4) AND (NOT $9::boolean OR id < $10::int4) AND (NOT $11::boolean OR id <= $12::int4) AND (NOT $13::boolean OR id IN (SELECT unnest(CAST($14 as int4[]))) ) AND (NOT $15::boolean OR id NOT IN (SELECT unnest(CAST($16 as int4[]))) ) AND ($17::boolean IS NULL OR (($17::boolean AND id IS NOT NULL) OR (NOT $17::boolean AND id IS NULL))) AND (NOT $18::boolean OR access_token_id = $19::int4) AND (NOT $20::boolean OR access_token_id != $21::int4) AND (NOT $22::boolean OR access_token_id > $23::int4) AND (NOT $24::boolean OR access_token_id >= $25::int4) AND (NOT $26::boolean OR access_token_id < $27::int4) AND (NOT $28::boolean OR access_token_id <= $29::int4) AND (NOT $30::boolean OR access_token_id IN (SELECT unnest(CAST($31 as int4[]))) ) AND (NOT $32::boolean OR access_token_id NOT IN (SELECT unnest(CAST($33 as int4[]))) ) AND ($34::boolean IS NULL OR (($34::boolean AND access_token_id IS NOT NULL) OR (NOT $34::boolean AND access_token_id IS NULL))) AND (NOT $35::boolean OR document_id = $36::varchar) AND (NOT $37::boolean OR document_id != $38::varchar) AND (NOT $39::boolean OR document_id > $40::varchar) AND (NOT $41::boolean OR document_id >= $42::varchar) AND (NOT $43::boolean OR document_id < $44::varchar) AND (NOT $45::boolean OR document_id <= $46::varchar) AND (NOT $47::boolean OR document_id LIKE $48::varchar) AND (NOT $49::boolean OR document_id NOT LIKE $50::varchar) AND (NOT $51::boolean OR document_id ILIKE $52::varchar) AND (NOT $53::boolean OR document_id NOT ILIKE $54::varchar) AND (NOT $55::boolean OR document_id SIMILAR TO $56::varchar) AND (NOT $57::boolean OR document_id NOT SIMILAR TO $58::varchar) AND (NOT $59::boolean OR document_id IN (SELECT unnest(CAST($60 as varchar[]))) ) AND (NOT $61::boolean OR document_id NOT IN (SELECT unnest(CAST($62 as varchar[]))) ) AND ($63::boolean IS NULL OR (($63::boolean AND document_id IS NOT NULL) OR (NOT $63::boolean AND document_id IS NULL))) AND (NOT $64::boolean OR public_token = $65::varchar) AND (NOT $66::boolean OR public_token != $67::varchar) AND (NOT $68::boolean OR public_token > $69::varchar) AND (NOT $70::boolean OR public_token >= $71::varchar) AND (NOT $72::boolean OR public_token < $73::varchar) AND (NOT $74::boolean OR public_token <= $75::varchar) AND (NOT $76::boolean OR public_token LIKE $77::varchar) AND (NOT $78::boolean OR public_token NOT LIKE $79::varchar) AND (NOT $80::boolean OR public_token ILIKE $81::varchar) AND (NOT $82::boolean OR public_token NOT ILIKE $83::varchar) AND (NOT $84::boolean OR public_token SIMILAR TO $85::varchar) AND (NOT $86::boolean OR public_token NOT SIMILAR TO $87::varchar) AND (NOT $88::boolean OR public_token IN (SELECT unnest(CAST($89 as varchar[]))) ) AND (NOT $90::boolean OR public_token NOT IN (SELECT unnest(CAST($91 as varchar[]))) ) AND ($92::boolean IS NULL OR (($92::boolean AND public_token IS NOT NULL) OR (NOT $92::boolean AND public_token IS NULL))) AND (NOT $93::boolean OR published_at = $94::timestamptz) AND (NOT $95::boolean OR published_at != $96::timestamptz) AND (NOT $97::boolean OR published_at > $98::timestamptz) AND (NOT $99::boolean OR published_at >= $100::timestamptz) AND (NOT $101::boolean OR published_at < $102::timestamptz) AND (NOT $103::boolean OR published_at <= $104::timestamptz) AND (NOT $105::boolean OR published_at IN (SELECT unnest(CAST($106 as timestamptz[]))) ) AND (NOT $107::boolean OR published_at NOT IN (SELECT unnest(CAST($108 as timestamptz[]))) ) AND ($109::boolean IS NULL OR (($109::boolean AND published_at IS NOT NULL) OR (NOT $109::boolean AND published_at IS NULL))) AND (NOT $110::boolean OR admin_visited = $111::boolean) AND (NOT $112::boolean OR admin_visited != $113::boolean) AND (NOT $114::boolean OR admin_visited > $115::boolean) AND (NOT $116::boolean OR admin_visited >= $117::boolean) AND (NOT $118::boolean OR admin_visited < $119::boolean) AND (NOT $120::boolean OR admin_visited <= $121::boolean) AND (NOT $122::boolean OR admin_visited IN (SELECT unnest(CAST($123 as boolean[]))) ) AND (NOT $124::boolean OR admin_visited NOT IN (SELECT unnest(CAST($125 as boolean[]))) ) AND ($126::boolean IS NULL OR (($126::boolean AND admin_visited IS NOT NULL) OR (NOT $126::boolean AND admin_visited IS NULL))) AND (NOT $127::boolean OR public_visit_count = $128::int4) AND (NOT $129::boolean OR public_visit_count != $130::int4) AND (NOT $131::boolean OR public_visit_count > $132::int4) AND (NOT $133::boolean OR public_visit_count >= $134::int4) AND (NOT $135::boolean OR public_visit_count < $136::int4) AND (NOT $137::boolean OR public_visit_count <= $138::int4) AND (NOT $139::boolean OR public_visit_count IN (SELECT unnest(CAST($140 as int4[]))) ) AND (NOT $141::boolean OR public_visit_count NOT IN (SELECT unnest(CAST($142 as int4[]))) ) AND ($143::boolean IS NULL OR (($143::boolean AND public_visit_count IS NOT NULL) OR (NOT $143::boolean AND public_visit_count IS NULL))) AND (NOT $144::boolean OR deletion_id = $145::int4) AND (NOT $146::boolean OR deletion_id != $147::int4) AND (NOT $148::boolean OR deletion_id > $149::int4) AND (NOT $150::boolean OR deletion_id >= $151::int4) AND (NOT $152::boolean OR deletion_id < $153::int4) AND (NOT $154::boolean OR deletion_id <= $155::int4) AND (NOT $156::boolean OR deletion_id IN (SELECT unnest(CAST($157 as int4[]))) ) AND (NOT $158::boolean OR deletion_id NOT IN (SELECT unnest(CAST($159 as int4[]))) ) AND ($160::boolean IS NULL OR (($160::boolean AND deletion_id IS NOT NULL) OR (NOT $160::boolean AND deletion_id IS NULL))) ORDER BY \n      (CASE ($161 = 'Id' AND NOT $162) WHEN true THEN id ELSE NULL END),\n      (CASE ($161 = 'Id' AND $162) WHEN true THEN id ELSE NULL END) DESC\n    ,\n      (CASE ($161 = 'AccessTokenId' AND NOT $162) WHEN true THEN access_token_id ELSE NULL END),\n      (CASE ($161 = 'AccessTokenId' AND $162) WHEN true THEN access_token_id ELSE NULL END) DESC\n    ,\n      (CASE ($161 = 'DocumentId' AND NOT $162) WHEN true THEN document_id ELSE NULL END),\n      (CASE ($161 = 'DocumentId' AND $162) WHEN true THEN document_id ELSE NULL END) DESC\n    ,\n      (CASE ($161 = 'PublicToken' AND NOT $162) WHEN true THEN public_token ELSE NULL END),\n      (CASE ($161 = 'PublicToken' AND $162) WHEN true THEN public_token ELSE NULL END) DESC\n    ,\n      (CASE ($161 = 'PublishedAt' AND NOT $162) WHEN true THEN published_at ELSE NULL END),\n      (CASE ($161 = 'PublishedAt' AND $162) WHEN true THEN published_at ELSE NULL END) DESC\n    ,\n      (CASE ($161 = 'AdminVisited' AND NOT $162) WHEN true THEN admin_visited ELSE NULL END),\n      (CASE ($161 = 'AdminVisited' AND $162) WHEN true THEN admin_visited ELSE NULL END) DESC\n    ,\n      (CASE ($161 = 'PublicVisitCount' AND NOT $162) WHEN true THEN public_visit_count ELSE NULL END),\n      (CASE ($161 = 'PublicVisitCount' AND $162) WHEN true THEN public_visit_count ELSE NULL END) DESC\n    ,\n      (CASE ($161 = 'DeletionId' AND NOT $162) WHEN true THEN deletion_id ELSE NULL END),\n      (CASE ($161 = 'DeletionId' AND $162) WHEN true THEN deletion_id ELSE NULL END) DESC\n     LIMIT $163 OFFSET $164"
   },
+  "b42fddbd5eb6d5366ca4b4e5a3252059477a2a63494f81a3c20fd9b44ccd19d1": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id!: i32",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "subscription_id!: Option < i32 >",
+          "ordinal": 1,
+          "type_info": "Int4"
+        },
+        {
+          "name": "stripe_customer_id!: Option < String >",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "public_name!: Option < String >",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "logo_url!: Option < String >",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "use_verifier!: bool",
+          "ordinal": 5,
+          "type_info": "Bool"
+        },
+        {
+          "name": "deletion_id!: Option < i32 >",
+          "ordinal": 6,
+          "type_info": "Int4"
+        },
+        {
+          "name": "created_at!: UtcDateTime",
+          "ordinal": 7,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "web_callbacks_url!: Option < String >",
+          "ordinal": 8,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        false,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Bool",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Timestamptz",
+          "Bool",
+          "Varchar"
+        ]
+      }
+    },
+    "query": "UPDATE orgs SET (id, \nsubscription_id, \nstripe_customer_id, \npublic_name, \nlogo_url, \nuse_verifier, \ndeletion_id, \ncreated_at, \nweb_callbacks_url) = ((CASE $2::boolean WHEN TRUE THEN $3 ELSE id END), (CASE $4::boolean WHEN TRUE THEN $5 ELSE subscription_id END), (CASE $6::boolean WHEN TRUE THEN $7 ELSE stripe_customer_id END), (CASE $8::boolean WHEN TRUE THEN $9 ELSE public_name END), (CASE $10::boolean WHEN TRUE THEN $11 ELSE logo_url END), (CASE $12::boolean WHEN TRUE THEN $13 ELSE use_verifier END), (CASE $14::boolean WHEN TRUE THEN $15 ELSE deletion_id END), (CASE $16::boolean WHEN TRUE THEN $17 ELSE created_at END), (CASE $18::boolean WHEN TRUE THEN $19 ELSE web_callbacks_url END)) WHERE id = $1 RETURNING id as \"id!: i32\", \nsubscription_id as \"subscription_id!: Option < i32 >\", \nstripe_customer_id as \"stripe_customer_id!: Option < String >\", \npublic_name as \"public_name!: Option < String >\", \nlogo_url as \"logo_url!: Option < String >\", \nuse_verifier as \"use_verifier!: bool\", \ndeletion_id as \"deletion_id!: Option < i32 >\", \ncreated_at as \"created_at!: UtcDateTime\", \nweb_callbacks_url as \"web_callbacks_url!: Option < String >\""
+  },
   "b466671729ac0b4dc333951fbba256ad1b719a9da48b946a2424bd3180f45ace": {
     "describe": {
       "columns": [
@@ -19303,74 +19099,6 @@
       }
     },
     "query": "SELECT count(*) as \"count!\" FROM subscriptions WHERE (NOT $1::boolean OR id = $2::int4) AND (NOT $3::boolean OR id != $4::int4) AND (NOT $5::boolean OR id > $6::int4) AND (NOT $7::boolean OR id >= $8::int4) AND (NOT $9::boolean OR id < $10::int4) AND (NOT $11::boolean OR id <= $12::int4) AND (NOT $13::boolean OR id IN (SELECT unnest(CAST($14 as int4[]))) ) AND (NOT $15::boolean OR id NOT IN (SELECT unnest(CAST($16 as int4[]))) ) AND ($17::boolean IS NULL OR (($17::boolean AND id IS NOT NULL) OR (NOT $17::boolean AND id IS NULL))) AND (NOT $18::boolean OR org_id = $19::int4) AND (NOT $20::boolean OR org_id != $21::int4) AND (NOT $22::boolean OR org_id > $23::int4) AND (NOT $24::boolean OR org_id >= $25::int4) AND (NOT $26::boolean OR org_id < $27::int4) AND (NOT $28::boolean OR org_id <= $29::int4) AND (NOT $30::boolean OR org_id IN (SELECT unnest(CAST($31 as int4[]))) ) AND (NOT $32::boolean OR org_id NOT IN (SELECT unnest(CAST($33 as int4[]))) ) AND ($34::boolean IS NULL OR (($34::boolean AND org_id IS NOT NULL) OR (NOT $34::boolean AND org_id IS NULL))) AND (NOT $35::boolean OR is_active = $36::boolean) AND (NOT $37::boolean OR is_active != $38::boolean) AND (NOT $39::boolean OR is_active > $40::boolean) AND (NOT $41::boolean OR is_active >= $42::boolean) AND (NOT $43::boolean OR is_active < $44::boolean) AND (NOT $45::boolean OR is_active <= $46::boolean) AND (NOT $47::boolean OR is_active IN (SELECT unnest(CAST($48 as boolean[]))) ) AND (NOT $49::boolean OR is_active NOT IN (SELECT unnest(CAST($50 as boolean[]))) ) AND ($51::boolean IS NULL OR (($51::boolean AND is_active IS NOT NULL) OR (NOT $51::boolean AND is_active IS NULL))) AND (NOT $52::boolean OR plan_name = $53::varchar) AND (NOT $54::boolean OR plan_name != $55::varchar) AND (NOT $56::boolean OR plan_name > $57::varchar) AND (NOT $58::boolean OR plan_name >= $59::varchar) AND (NOT $60::boolean OR plan_name < $61::varchar) AND (NOT $62::boolean OR plan_name <= $63::varchar) AND (NOT $64::boolean OR plan_name LIKE $65::varchar) AND (NOT $66::boolean OR plan_name NOT LIKE $67::varchar) AND (NOT $68::boolean OR plan_name ILIKE $69::varchar) AND (NOT $70::boolean OR plan_name NOT ILIKE $71::varchar) AND (NOT $72::boolean OR plan_name SIMILAR TO $73::varchar) AND (NOT $74::boolean OR plan_name NOT SIMILAR TO $75::varchar) AND (NOT $76::boolean OR plan_name IN (SELECT unnest(CAST($77 as varchar[]))) ) AND (NOT $78::boolean OR plan_name NOT IN (SELECT unnest(CAST($79 as varchar[]))) ) AND ($80::boolean IS NULL OR (($80::boolean AND plan_name IS NOT NULL) OR (NOT $80::boolean AND plan_name IS NULL))) AND (NOT $81::boolean OR max_monthly_gift = $82::decimal) AND (NOT $83::boolean OR max_monthly_gift != $84::decimal) AND (NOT $85::boolean OR max_monthly_gift > $86::decimal) AND (NOT $87::boolean OR max_monthly_gift >= $88::decimal) AND (NOT $89::boolean OR max_monthly_gift < $90::decimal) AND (NOT $91::boolean OR max_monthly_gift <= $92::decimal) AND (NOT $93::boolean OR max_monthly_gift IN (SELECT unnest(CAST($94 as decimal[]))) ) AND (NOT $95::boolean OR max_monthly_gift NOT IN (SELECT unnest(CAST($96 as decimal[]))) ) AND ($97::boolean IS NULL OR (($97::boolean AND max_monthly_gift IS NOT NULL) OR (NOT $97::boolean AND max_monthly_gift IS NULL))) AND (NOT $98::boolean OR price_per_token = $99::decimal) AND (NOT $100::boolean OR price_per_token != $101::decimal) AND (NOT $102::boolean OR price_per_token > $103::decimal) AND (NOT $104::boolean OR price_per_token >= $105::decimal) AND (NOT $106::boolean OR price_per_token < $107::decimal) AND (NOT $108::boolean OR price_per_token <= $109::decimal) AND (NOT $110::boolean OR price_per_token IN (SELECT unnest(CAST($111 as decimal[]))) ) AND (NOT $112::boolean OR price_per_token NOT IN (SELECT unnest(CAST($113 as decimal[]))) ) AND ($114::boolean IS NULL OR (($114::boolean AND price_per_token IS NOT NULL) OR (NOT $114::boolean AND price_per_token IS NULL))) AND (NOT $115::boolean OR stripe_subscription_id = $116::varchar) AND (NOT $117::boolean OR stripe_subscription_id != $118::varchar) AND (NOT $119::boolean OR stripe_subscription_id > $120::varchar) AND (NOT $121::boolean OR stripe_subscription_id >= $122::varchar) AND (NOT $123::boolean OR stripe_subscription_id < $124::varchar) AND (NOT $125::boolean OR stripe_subscription_id <= $126::varchar) AND (NOT $127::boolean OR stripe_subscription_id LIKE $128::varchar) AND (NOT $129::boolean OR stripe_subscription_id NOT LIKE $130::varchar) AND (NOT $131::boolean OR stripe_subscription_id ILIKE $132::varchar) AND (NOT $133::boolean OR stripe_subscription_id NOT ILIKE $134::varchar) AND (NOT $135::boolean OR stripe_subscription_id SIMILAR TO $136::varchar) AND (NOT $137::boolean OR stripe_subscription_id NOT SIMILAR TO $138::varchar) AND (NOT $139::boolean OR stripe_subscription_id IN (SELECT unnest(CAST($140 as varchar[]))) ) AND (NOT $141::boolean OR stripe_subscription_id NOT IN (SELECT unnest(CAST($142 as varchar[]))) ) AND ($143::boolean IS NULL OR (($143::boolean AND stripe_subscription_id IS NOT NULL) OR (NOT $143::boolean AND stripe_subscription_id IS NULL))) AND (NOT $144::boolean OR default_payment_source = $145::payment_source) AND (NOT $146::boolean OR default_payment_source != $147::payment_source) AND (NOT $148::boolean OR default_payment_source > $149::payment_source) AND (NOT $150::boolean OR default_payment_source >= $151::payment_source) AND (NOT $152::boolean OR default_payment_source < $153::payment_source) AND (NOT $154::boolean OR default_payment_source <= $155::payment_source) AND (NOT $156::boolean OR default_payment_source IN (SELECT unnest(CAST($157 as payment_source[]))) ) AND (NOT $158::boolean OR default_payment_source NOT IN (SELECT unnest(CAST($159 as payment_source[]))) ) AND ($160::boolean IS NULL OR (($160::boolean AND default_payment_source IS NOT NULL) OR (NOT $160::boolean AND default_payment_source IS NULL)))"
-  },
-  "c6ab5c7e45c6b92fe3ae1aa61bad8cd6a0cc41a7d2da6df50b46bc2d18bf568d": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id!: i32",
-          "ordinal": 0,
-          "type_info": "Int4"
-        },
-        {
-          "name": "subscription_id!: Option < i32 >",
-          "ordinal": 1,
-          "type_info": "Int4"
-        },
-        {
-          "name": "stripe_customer_id!: Option < String >",
-          "ordinal": 2,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "public_name!: Option < String >",
-          "ordinal": 3,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "logo_url!: Option < String >",
-          "ordinal": 4,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "use_verifier!: Option < String >",
-          "ordinal": 5,
-          "type_info": "Bool"
-        },
-        {
-          "name": "deletion_id!: Option < i32 >",
-          "ordinal": 6,
-          "type_info": "Int4"
-        },
-        {
-          "name": "created_at!: UtcDateTime",
-          "ordinal": 7,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "web_callbacks_url!: Option < String >",
-          "ordinal": 8,
-          "type_info": "Varchar"
-        }
-      ],
-      "nullable": [
-        false,
-        true,
-        true,
-        true,
-        true,
-        false,
-        true,
-        false,
-        true
-      ],
-      "parameters": {
-        "Left": [
-          "Int4"
-        ]
-      }
-    },
-    "query": "INSERT INTO orgs (subscription_id) VALUES ($1) RETURNING id as \"id!: i32\", \nsubscription_id as \"subscription_id!: Option < i32 >\", \nstripe_customer_id as \"stripe_customer_id!: Option < String >\", \npublic_name as \"public_name!: Option < String >\", \nlogo_url as \"logo_url!: Option < String >\", \nuse_verifier as \"use_verifier!: Option < String >\", \ndeletion_id as \"deletion_id!: Option < i32 >\", \ncreated_at as \"created_at!: UtcDateTime\", \nweb_callbacks_url as \"web_callbacks_url!: Option < String >\""
   },
   "c766cf3efe913faeac4ade7856e3b18e6b586d6215f98d381016e75147d2ad20": {
     "describe": {
@@ -21446,72 +21174,6 @@
       }
     },
     "query": "SELECT id as \"id!: i32\", \nstory_id as \"story_id!: i32\", \ncreated_at as \"created_at!: UtcDateTime\", \nhash as \"hash!: String\", \nbulletin_id as \"bulletin_id!: i32\" FROM story_snapshots WHERE (NOT $1::boolean OR id = $2::int4) AND (NOT $3::boolean OR id != $4::int4) AND (NOT $5::boolean OR id > $6::int4) AND (NOT $7::boolean OR id >= $8::int4) AND (NOT $9::boolean OR id < $10::int4) AND (NOT $11::boolean OR id <= $12::int4) AND (NOT $13::boolean OR id IN (SELECT unnest(CAST($14 as int4[]))) ) AND (NOT $15::boolean OR id NOT IN (SELECT unnest(CAST($16 as int4[]))) ) AND ($17::boolean IS NULL OR (($17::boolean AND id IS NOT NULL) OR (NOT $17::boolean AND id IS NULL))) AND (NOT $18::boolean OR story_id = $19::int4) AND (NOT $20::boolean OR story_id != $21::int4) AND (NOT $22::boolean OR story_id > $23::int4) AND (NOT $24::boolean OR story_id >= $25::int4) AND (NOT $26::boolean OR story_id < $27::int4) AND (NOT $28::boolean OR story_id <= $29::int4) AND (NOT $30::boolean OR story_id IN (SELECT unnest(CAST($31 as int4[]))) ) AND (NOT $32::boolean OR story_id NOT IN (SELECT unnest(CAST($33 as int4[]))) ) AND ($34::boolean IS NULL OR (($34::boolean AND story_id IS NOT NULL) OR (NOT $34::boolean AND story_id IS NULL))) AND (NOT $35::boolean OR created_at = $36::timestamptz) AND (NOT $37::boolean OR created_at != $38::timestamptz) AND (NOT $39::boolean OR created_at > $40::timestamptz) AND (NOT $41::boolean OR created_at >= $42::timestamptz) AND (NOT $43::boolean OR created_at < $44::timestamptz) AND (NOT $45::boolean OR created_at <= $46::timestamptz) AND (NOT $47::boolean OR created_at IN (SELECT unnest(CAST($48 as timestamptz[]))) ) AND (NOT $49::boolean OR created_at NOT IN (SELECT unnest(CAST($50 as timestamptz[]))) ) AND ($51::boolean IS NULL OR (($51::boolean AND created_at IS NOT NULL) OR (NOT $51::boolean AND created_at IS NULL))) AND (NOT $52::boolean OR hash = $53::varchar) AND (NOT $54::boolean OR hash != $55::varchar) AND (NOT $56::boolean OR hash > $57::varchar) AND (NOT $58::boolean OR hash >= $59::varchar) AND (NOT $60::boolean OR hash < $61::varchar) AND (NOT $62::boolean OR hash <= $63::varchar) AND (NOT $64::boolean OR hash LIKE $65::varchar) AND (NOT $66::boolean OR hash NOT LIKE $67::varchar) AND (NOT $68::boolean OR hash ILIKE $69::varchar) AND (NOT $70::boolean OR hash NOT ILIKE $71::varchar) AND (NOT $72::boolean OR hash SIMILAR TO $73::varchar) AND (NOT $74::boolean OR hash NOT SIMILAR TO $75::varchar) AND (NOT $76::boolean OR hash IN (SELECT unnest(CAST($77 as varchar[]))) ) AND (NOT $78::boolean OR hash NOT IN (SELECT unnest(CAST($79 as varchar[]))) ) AND ($80::boolean IS NULL OR (($80::boolean AND hash IS NOT NULL) OR (NOT $80::boolean AND hash IS NULL))) AND (NOT $81::boolean OR bulletin_id = $82::int4) AND (NOT $83::boolean OR bulletin_id != $84::int4) AND (NOT $85::boolean OR bulletin_id > $86::int4) AND (NOT $87::boolean OR bulletin_id >= $88::int4) AND (NOT $89::boolean OR bulletin_id < $90::int4) AND (NOT $91::boolean OR bulletin_id <= $92::int4) AND (NOT $93::boolean OR bulletin_id IN (SELECT unnest(CAST($94 as int4[]))) ) AND (NOT $95::boolean OR bulletin_id NOT IN (SELECT unnest(CAST($96 as int4[]))) ) AND ($97::boolean IS NULL OR (($97::boolean AND bulletin_id IS NOT NULL) OR (NOT $97::boolean AND bulletin_id IS NULL))) ORDER BY \n      (CASE ($98 = 'Id' AND NOT $99) WHEN true THEN id ELSE NULL END),\n      (CASE ($98 = 'Id' AND $99) WHEN true THEN id ELSE NULL END) DESC\n    ,\n      (CASE ($98 = 'StoryId' AND NOT $99) WHEN true THEN story_id ELSE NULL END),\n      (CASE ($98 = 'StoryId' AND $99) WHEN true THEN story_id ELSE NULL END) DESC\n    ,\n      (CASE ($98 = 'CreatedAt' AND NOT $99) WHEN true THEN created_at ELSE NULL END),\n      (CASE ($98 = 'CreatedAt' AND $99) WHEN true THEN created_at ELSE NULL END) DESC\n    ,\n      (CASE ($98 = 'Hash' AND NOT $99) WHEN true THEN hash ELSE NULL END),\n      (CASE ($98 = 'Hash' AND $99) WHEN true THEN hash ELSE NULL END) DESC\n    ,\n      (CASE ($98 = 'BulletinId' AND NOT $99) WHEN true THEN bulletin_id ELSE NULL END),\n      (CASE ($98 = 'BulletinId' AND $99) WHEN true THEN bulletin_id ELSE NULL END) DESC\n     LIMIT $100 OFFSET $101"
-  },
-  "d8d3f235693b53e5262e9f6c4cdae75b43c6e31a6b99c373631b866906c03e0a": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id!: i32",
-          "ordinal": 0,
-          "type_info": "Int4"
-        },
-        {
-          "name": "subscription_id!: Option < i32 >",
-          "ordinal": 1,
-          "type_info": "Int4"
-        },
-        {
-          "name": "stripe_customer_id!: Option < String >",
-          "ordinal": 2,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "public_name!: Option < String >",
-          "ordinal": 3,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "logo_url!: Option < String >",
-          "ordinal": 4,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "use_verifier!: Option < String >",
-          "ordinal": 5,
-          "type_info": "Bool"
-        },
-        {
-          "name": "deletion_id!: Option < i32 >",
-          "ordinal": 6,
-          "type_info": "Int4"
-        },
-        {
-          "name": "created_at!: UtcDateTime",
-          "ordinal": 7,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "web_callbacks_url!: Option < String >",
-          "ordinal": 8,
-          "type_info": "Varchar"
-        }
-      ],
-      "nullable": [
-        false,
-        true,
-        true,
-        true,
-        true,
-        false,
-        true,
-        false,
-        true
-      ],
-      "parameters": {
-        "Left": []
-      }
-    },
-    "query": "SELECT id as \"id!: i32\", \nsubscription_id as \"subscription_id!: Option < i32 >\", \nstripe_customer_id as \"stripe_customer_id!: Option < String >\", \npublic_name as \"public_name!: Option < String >\", \nlogo_url as \"logo_url!: Option < String >\", \nuse_verifier as \"use_verifier!: Option < String >\", \ndeletion_id as \"deletion_id!: Option < i32 >\", \ncreated_at as \"created_at!: UtcDateTime\", \nweb_callbacks_url as \"web_callbacks_url!: Option < String >\" FROM orgs WHERE id IN (\n        SELECT org_id FROM payments GROUP BY org_id ORDER BY SUM(amount) DESC LIMIT 10)\n        ORDER BY (SELECT SUM(amount) FROM payments WHERE org_id = orgs.id) DESC\n    "
   },
   "da5e24fb46ea80fa1a1c344819f76b096aa3a4d4c486904d606ca284eb8d72f0": {
     "describe": {
@@ -24341,6 +24003,278 @@
     },
     "query": "SELECT count(*) as \"count!\" FROM terms_acceptances WHERE (NOT $1::boolean OR id = $2::int4) AND (NOT $3::boolean OR id != $4::int4) AND (NOT $5::boolean OR id > $6::int4) AND (NOT $7::boolean OR id >= $8::int4) AND (NOT $9::boolean OR id < $10::int4) AND (NOT $11::boolean OR id <= $12::int4) AND (NOT $13::boolean OR id IN (SELECT unnest(CAST($14 as int4[]))) ) AND (NOT $15::boolean OR id NOT IN (SELECT unnest(CAST($16 as int4[]))) ) AND ($17::boolean IS NULL OR (($17::boolean AND id IS NOT NULL) OR (NOT $17::boolean AND id IS NULL))) AND (NOT $18::boolean OR token = $19::varchar) AND (NOT $20::boolean OR token != $21::varchar) AND (NOT $22::boolean OR token > $23::varchar) AND (NOT $24::boolean OR token >= $25::varchar) AND (NOT $26::boolean OR token < $27::varchar) AND (NOT $28::boolean OR token <= $29::varchar) AND (NOT $30::boolean OR token LIKE $31::varchar) AND (NOT $32::boolean OR token NOT LIKE $33::varchar) AND (NOT $34::boolean OR token ILIKE $35::varchar) AND (NOT $36::boolean OR token NOT ILIKE $37::varchar) AND (NOT $38::boolean OR token SIMILAR TO $39::varchar) AND (NOT $40::boolean OR token NOT SIMILAR TO $41::varchar) AND (NOT $42::boolean OR token IN (SELECT unnest(CAST($43 as varchar[]))) ) AND (NOT $44::boolean OR token NOT IN (SELECT unnest(CAST($45 as varchar[]))) ) AND ($46::boolean IS NULL OR (($46::boolean AND token IS NOT NULL) OR (NOT $46::boolean AND token IS NULL))) AND (NOT $47::boolean OR person_id = $48::int4) AND (NOT $49::boolean OR person_id != $50::int4) AND (NOT $51::boolean OR person_id > $52::int4) AND (NOT $53::boolean OR person_id >= $54::int4) AND (NOT $55::boolean OR person_id < $56::int4) AND (NOT $57::boolean OR person_id <= $58::int4) AND (NOT $59::boolean OR person_id IN (SELECT unnest(CAST($60 as int4[]))) ) AND (NOT $61::boolean OR person_id NOT IN (SELECT unnest(CAST($62 as int4[]))) ) AND ($63::boolean IS NULL OR (($63::boolean AND person_id IS NOT NULL) OR (NOT $63::boolean AND person_id IS NULL))) AND (NOT $64::boolean OR org_id = $65::int4) AND (NOT $66::boolean OR org_id != $67::int4) AND (NOT $68::boolean OR org_id > $69::int4) AND (NOT $70::boolean OR org_id >= $71::int4) AND (NOT $72::boolean OR org_id < $73::int4) AND (NOT $74::boolean OR org_id <= $75::int4) AND (NOT $76::boolean OR org_id IN (SELECT unnest(CAST($77 as int4[]))) ) AND (NOT $78::boolean OR org_id NOT IN (SELECT unnest(CAST($79 as int4[]))) ) AND ($80::boolean IS NULL OR (($80::boolean AND org_id IS NOT NULL) OR (NOT $80::boolean AND org_id IS NULL))) AND (NOT $81::boolean OR created_at = $82::timestamptz) AND (NOT $83::boolean OR created_at != $84::timestamptz) AND (NOT $85::boolean OR created_at > $86::timestamptz) AND (NOT $87::boolean OR created_at >= $88::timestamptz) AND (NOT $89::boolean OR created_at < $90::timestamptz) AND (NOT $91::boolean OR created_at <= $92::timestamptz) AND (NOT $93::boolean OR created_at IN (SELECT unnest(CAST($94 as timestamptz[]))) ) AND (NOT $95::boolean OR created_at NOT IN (SELECT unnest(CAST($96 as timestamptz[]))) ) AND ($97::boolean IS NULL OR (($97::boolean AND created_at IS NOT NULL) OR (NOT $97::boolean AND created_at IS NULL))) AND (NOT $98::boolean OR accepted = $99::timestamptz) AND (NOT $100::boolean OR accepted != $101::timestamptz) AND (NOT $102::boolean OR accepted > $103::timestamptz) AND (NOT $104::boolean OR accepted >= $105::timestamptz) AND (NOT $106::boolean OR accepted < $107::timestamptz) AND (NOT $108::boolean OR accepted <= $109::timestamptz) AND (NOT $110::boolean OR accepted IN (SELECT unnest(CAST($111 as timestamptz[]))) ) AND (NOT $112::boolean OR accepted NOT IN (SELECT unnest(CAST($113 as timestamptz[]))) ) AND ($114::boolean IS NULL OR (($114::boolean AND accepted IS NOT NULL) OR (NOT $114::boolean AND accepted IS NULL))) AND (NOT $115::boolean OR evidence = $116::bytea) AND (NOT $117::boolean OR evidence != $118::bytea) AND (NOT $119::boolean OR evidence > $120::bytea) AND (NOT $121::boolean OR evidence >= $122::bytea) AND (NOT $123::boolean OR evidence < $124::bytea) AND (NOT $125::boolean OR evidence <= $126::bytea) AND (NOT $127::boolean OR evidence IN (SELECT unnest(CAST($128 as bytea[]))) ) AND (NOT $129::boolean OR evidence NOT IN (SELECT unnest(CAST($130 as bytea[]))) ) AND ($131::boolean IS NULL OR (($131::boolean AND evidence IS NOT NULL) OR (NOT $131::boolean AND evidence IS NULL))) AND (NOT $132::boolean OR bulletin_id = $133::int4) AND (NOT $134::boolean OR bulletin_id != $135::int4) AND (NOT $136::boolean OR bulletin_id > $137::int4) AND (NOT $138::boolean OR bulletin_id >= $139::int4) AND (NOT $140::boolean OR bulletin_id < $141::int4) AND (NOT $142::boolean OR bulletin_id <= $143::int4) AND (NOT $144::boolean OR bulletin_id IN (SELECT unnest(CAST($145 as int4[]))) ) AND (NOT $146::boolean OR bulletin_id NOT IN (SELECT unnest(CAST($147 as int4[]))) ) AND ($148::boolean IS NULL OR (($148::boolean AND bulletin_id IS NOT NULL) OR (NOT $148::boolean AND bulletin_id IS NULL))) AND (NOT $149::boolean OR hash = $150::varchar) AND (NOT $151::boolean OR hash != $152::varchar) AND (NOT $153::boolean OR hash > $154::varchar) AND (NOT $155::boolean OR hash >= $156::varchar) AND (NOT $157::boolean OR hash < $158::varchar) AND (NOT $159::boolean OR hash <= $160::varchar) AND (NOT $161::boolean OR hash LIKE $162::varchar) AND (NOT $163::boolean OR hash NOT LIKE $164::varchar) AND (NOT $165::boolean OR hash ILIKE $166::varchar) AND (NOT $167::boolean OR hash NOT ILIKE $168::varchar) AND (NOT $169::boolean OR hash SIMILAR TO $170::varchar) AND (NOT $171::boolean OR hash NOT SIMILAR TO $172::varchar) AND (NOT $173::boolean OR hash IN (SELECT unnest(CAST($174 as varchar[]))) ) AND (NOT $175::boolean OR hash NOT IN (SELECT unnest(CAST($176 as varchar[]))) ) AND ($177::boolean IS NULL OR (($177::boolean AND hash IS NOT NULL) OR (NOT $177::boolean AND hash IS NULL)))"
   },
+  "e9a014933f39bcffa9a5e89f24b0258c2fdd19ea4ee74f77d40cf757115c2675": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id!: i32",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "subscription_id!: Option < i32 >",
+          "ordinal": 1,
+          "type_info": "Int4"
+        },
+        {
+          "name": "stripe_customer_id!: Option < String >",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "public_name!: Option < String >",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "logo_url!: Option < String >",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "use_verifier!: bool",
+          "ordinal": 5,
+          "type_info": "Bool"
+        },
+        {
+          "name": "deletion_id!: Option < i32 >",
+          "ordinal": 6,
+          "type_info": "Int4"
+        },
+        {
+          "name": "created_at!: UtcDateTime",
+          "ordinal": 7,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "web_callbacks_url!: Option < String >",
+          "ordinal": 8,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        false,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4Array",
+          "Bool",
+          "Int4Array",
+          "Bool",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4Array",
+          "Bool",
+          "Int4Array",
+          "Bool",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "VarcharArray",
+          "Bool",
+          "VarcharArray",
+          "Bool",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "VarcharArray",
+          "Bool",
+          "VarcharArray",
+          "Bool",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "VarcharArray",
+          "Bool",
+          "VarcharArray",
+          "Bool",
+          "Bool",
+          "Bool",
+          "Bool",
+          "Bool",
+          "Bool",
+          "Bool",
+          "Bool",
+          "Bool",
+          "Bool",
+          "Bool",
+          "Bool",
+          "Bool",
+          "Bool",
+          "BoolArray",
+          "Bool",
+          "BoolArray",
+          "Bool",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Int4Array",
+          "Bool",
+          "Int4Array",
+          "Bool",
+          "Bool",
+          "Timestamptz",
+          "Bool",
+          "Timestamptz",
+          "Bool",
+          "Timestamptz",
+          "Bool",
+          "Timestamptz",
+          "Bool",
+          "Timestamptz",
+          "Bool",
+          "Timestamptz",
+          "Bool",
+          "TimestamptzArray",
+          "Bool",
+          "TimestamptzArray",
+          "Bool",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Bool",
+          "VarcharArray",
+          "Bool",
+          "VarcharArray",
+          "Bool",
+          "Text",
+          "Bool",
+          "Int8",
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT id as \"id!: i32\", \nsubscription_id as \"subscription_id!: Option < i32 >\", \nstripe_customer_id as \"stripe_customer_id!: Option < String >\", \npublic_name as \"public_name!: Option < String >\", \nlogo_url as \"logo_url!: Option < String >\", \nuse_verifier as \"use_verifier!: bool\", \ndeletion_id as \"deletion_id!: Option < i32 >\", \ncreated_at as \"created_at!: UtcDateTime\", \nweb_callbacks_url as \"web_callbacks_url!: Option < String >\" FROM orgs WHERE (NOT $1::boolean OR id = $2::int4) AND (NOT $3::boolean OR id != $4::int4) AND (NOT $5::boolean OR id > $6::int4) AND (NOT $7::boolean OR id >= $8::int4) AND (NOT $9::boolean OR id < $10::int4) AND (NOT $11::boolean OR id <= $12::int4) AND (NOT $13::boolean OR id IN (SELECT unnest(CAST($14 as int4[]))) ) AND (NOT $15::boolean OR id NOT IN (SELECT unnest(CAST($16 as int4[]))) ) AND ($17::boolean IS NULL OR (($17::boolean AND id IS NOT NULL) OR (NOT $17::boolean AND id IS NULL))) AND (NOT $18::boolean OR subscription_id = $19::int4) AND (NOT $20::boolean OR subscription_id != $21::int4) AND (NOT $22::boolean OR subscription_id > $23::int4) AND (NOT $24::boolean OR subscription_id >= $25::int4) AND (NOT $26::boolean OR subscription_id < $27::int4) AND (NOT $28::boolean OR subscription_id <= $29::int4) AND (NOT $30::boolean OR subscription_id IN (SELECT unnest(CAST($31 as int4[]))) ) AND (NOT $32::boolean OR subscription_id NOT IN (SELECT unnest(CAST($33 as int4[]))) ) AND ($34::boolean IS NULL OR (($34::boolean AND subscription_id IS NOT NULL) OR (NOT $34::boolean AND subscription_id IS NULL))) AND (NOT $35::boolean OR stripe_customer_id = $36::varchar) AND (NOT $37::boolean OR stripe_customer_id != $38::varchar) AND (NOT $39::boolean OR stripe_customer_id > $40::varchar) AND (NOT $41::boolean OR stripe_customer_id >= $42::varchar) AND (NOT $43::boolean OR stripe_customer_id < $44::varchar) AND (NOT $45::boolean OR stripe_customer_id <= $46::varchar) AND (NOT $47::boolean OR stripe_customer_id LIKE $48::varchar) AND (NOT $49::boolean OR stripe_customer_id NOT LIKE $50::varchar) AND (NOT $51::boolean OR stripe_customer_id ILIKE $52::varchar) AND (NOT $53::boolean OR stripe_customer_id NOT ILIKE $54::varchar) AND (NOT $55::boolean OR stripe_customer_id SIMILAR TO $56::varchar) AND (NOT $57::boolean OR stripe_customer_id NOT SIMILAR TO $58::varchar) AND (NOT $59::boolean OR stripe_customer_id IN (SELECT unnest(CAST($60 as varchar[]))) ) AND (NOT $61::boolean OR stripe_customer_id NOT IN (SELECT unnest(CAST($62 as varchar[]))) ) AND ($63::boolean IS NULL OR (($63::boolean AND stripe_customer_id IS NOT NULL) OR (NOT $63::boolean AND stripe_customer_id IS NULL))) AND (NOT $64::boolean OR public_name = $65::varchar) AND (NOT $66::boolean OR public_name != $67::varchar) AND (NOT $68::boolean OR public_name > $69::varchar) AND (NOT $70::boolean OR public_name >= $71::varchar) AND (NOT $72::boolean OR public_name < $73::varchar) AND (NOT $74::boolean OR public_name <= $75::varchar) AND (NOT $76::boolean OR public_name LIKE $77::varchar) AND (NOT $78::boolean OR public_name NOT LIKE $79::varchar) AND (NOT $80::boolean OR public_name ILIKE $81::varchar) AND (NOT $82::boolean OR public_name NOT ILIKE $83::varchar) AND (NOT $84::boolean OR public_name SIMILAR TO $85::varchar) AND (NOT $86::boolean OR public_name NOT SIMILAR TO $87::varchar) AND (NOT $88::boolean OR public_name IN (SELECT unnest(CAST($89 as varchar[]))) ) AND (NOT $90::boolean OR public_name NOT IN (SELECT unnest(CAST($91 as varchar[]))) ) AND ($92::boolean IS NULL OR (($92::boolean AND public_name IS NOT NULL) OR (NOT $92::boolean AND public_name IS NULL))) AND (NOT $93::boolean OR logo_url = $94::varchar) AND (NOT $95::boolean OR logo_url != $96::varchar) AND (NOT $97::boolean OR logo_url > $98::varchar) AND (NOT $99::boolean OR logo_url >= $100::varchar) AND (NOT $101::boolean OR logo_url < $102::varchar) AND (NOT $103::boolean OR logo_url <= $104::varchar) AND (NOT $105::boolean OR logo_url LIKE $106::varchar) AND (NOT $107::boolean OR logo_url NOT LIKE $108::varchar) AND (NOT $109::boolean OR logo_url ILIKE $110::varchar) AND (NOT $111::boolean OR logo_url NOT ILIKE $112::varchar) AND (NOT $113::boolean OR logo_url SIMILAR TO $114::varchar) AND (NOT $115::boolean OR logo_url NOT SIMILAR TO $116::varchar) AND (NOT $117::boolean OR logo_url IN (SELECT unnest(CAST($118 as varchar[]))) ) AND (NOT $119::boolean OR logo_url NOT IN (SELECT unnest(CAST($120 as varchar[]))) ) AND ($121::boolean IS NULL OR (($121::boolean AND logo_url IS NOT NULL) OR (NOT $121::boolean AND logo_url IS NULL))) AND (NOT $122::boolean OR use_verifier = $123::boolean) AND (NOT $124::boolean OR use_verifier != $125::boolean) AND (NOT $126::boolean OR use_verifier > $127::boolean) AND (NOT $128::boolean OR use_verifier >= $129::boolean) AND (NOT $130::boolean OR use_verifier < $131::boolean) AND (NOT $132::boolean OR use_verifier <= $133::boolean) AND (NOT $134::boolean OR use_verifier IN (SELECT unnest(CAST($135 as boolean[]))) ) AND (NOT $136::boolean OR use_verifier NOT IN (SELECT unnest(CAST($137 as boolean[]))) ) AND ($138::boolean IS NULL OR (($138::boolean AND use_verifier IS NOT NULL) OR (NOT $138::boolean AND use_verifier IS NULL))) AND (NOT $139::boolean OR deletion_id = $140::int4) AND (NOT $141::boolean OR deletion_id != $142::int4) AND (NOT $143::boolean OR deletion_id > $144::int4) AND (NOT $145::boolean OR deletion_id >= $146::int4) AND (NOT $147::boolean OR deletion_id < $148::int4) AND (NOT $149::boolean OR deletion_id <= $150::int4) AND (NOT $151::boolean OR deletion_id IN (SELECT unnest(CAST($152 as int4[]))) ) AND (NOT $153::boolean OR deletion_id NOT IN (SELECT unnest(CAST($154 as int4[]))) ) AND ($155::boolean IS NULL OR (($155::boolean AND deletion_id IS NOT NULL) OR (NOT $155::boolean AND deletion_id IS NULL))) AND (NOT $156::boolean OR created_at = $157::timestamptz) AND (NOT $158::boolean OR created_at != $159::timestamptz) AND (NOT $160::boolean OR created_at > $161::timestamptz) AND (NOT $162::boolean OR created_at >= $163::timestamptz) AND (NOT $164::boolean OR created_at < $165::timestamptz) AND (NOT $166::boolean OR created_at <= $167::timestamptz) AND (NOT $168::boolean OR created_at IN (SELECT unnest(CAST($169 as timestamptz[]))) ) AND (NOT $170::boolean OR created_at NOT IN (SELECT unnest(CAST($171 as timestamptz[]))) ) AND ($172::boolean IS NULL OR (($172::boolean AND created_at IS NOT NULL) OR (NOT $172::boolean AND created_at IS NULL))) AND (NOT $173::boolean OR web_callbacks_url = $174::varchar) AND (NOT $175::boolean OR web_callbacks_url != $176::varchar) AND (NOT $177::boolean OR web_callbacks_url > $178::varchar) AND (NOT $179::boolean OR web_callbacks_url >= $180::varchar) AND (NOT $181::boolean OR web_callbacks_url < $182::varchar) AND (NOT $183::boolean OR web_callbacks_url <= $184::varchar) AND (NOT $185::boolean OR web_callbacks_url LIKE $186::varchar) AND (NOT $187::boolean OR web_callbacks_url NOT LIKE $188::varchar) AND (NOT $189::boolean OR web_callbacks_url ILIKE $190::varchar) AND (NOT $191::boolean OR web_callbacks_url NOT ILIKE $192::varchar) AND (NOT $193::boolean OR web_callbacks_url SIMILAR TO $194::varchar) AND (NOT $195::boolean OR web_callbacks_url NOT SIMILAR TO $196::varchar) AND (NOT $197::boolean OR web_callbacks_url IN (SELECT unnest(CAST($198 as varchar[]))) ) AND (NOT $199::boolean OR web_callbacks_url NOT IN (SELECT unnest(CAST($200 as varchar[]))) ) AND ($201::boolean IS NULL OR (($201::boolean AND web_callbacks_url IS NOT NULL) OR (NOT $201::boolean AND web_callbacks_url IS NULL))) ORDER BY \n      (CASE ($202 = 'Id' AND NOT $203) WHEN true THEN id ELSE NULL END),\n      (CASE ($202 = 'Id' AND $203) WHEN true THEN id ELSE NULL END) DESC\n    ,\n      (CASE ($202 = 'SubscriptionId' AND NOT $203) WHEN true THEN subscription_id ELSE NULL END),\n      (CASE ($202 = 'SubscriptionId' AND $203) WHEN true THEN subscription_id ELSE NULL END) DESC\n    ,\n      (CASE ($202 = 'StripeCustomerId' AND NOT $203) WHEN true THEN stripe_customer_id ELSE NULL END),\n      (CASE ($202 = 'StripeCustomerId' AND $203) WHEN true THEN stripe_customer_id ELSE NULL END) DESC\n    ,\n      (CASE ($202 = 'PublicName' AND NOT $203) WHEN true THEN public_name ELSE NULL END),\n      (CASE ($202 = 'PublicName' AND $203) WHEN true THEN public_name ELSE NULL END) DESC\n    ,\n      (CASE ($202 = 'LogoUrl' AND NOT $203) WHEN true THEN logo_url ELSE NULL END),\n      (CASE ($202 = 'LogoUrl' AND $203) WHEN true THEN logo_url ELSE NULL END) DESC\n    ,\n      (CASE ($202 = 'UseVerifier' AND NOT $203) WHEN true THEN use_verifier ELSE NULL END),\n      (CASE ($202 = 'UseVerifier' AND $203) WHEN true THEN use_verifier ELSE NULL END) DESC\n    ,\n      (CASE ($202 = 'DeletionId' AND NOT $203) WHEN true THEN deletion_id ELSE NULL END),\n      (CASE ($202 = 'DeletionId' AND $203) WHEN true THEN deletion_id ELSE NULL END) DESC\n    ,\n      (CASE ($202 = 'CreatedAt' AND NOT $203) WHEN true THEN created_at ELSE NULL END),\n      (CASE ($202 = 'CreatedAt' AND $203) WHEN true THEN created_at ELSE NULL END) DESC\n    ,\n      (CASE ($202 = 'WebCallbacksUrl' AND NOT $203) WHEN true THEN web_callbacks_url ELSE NULL END),\n      (CASE ($202 = 'WebCallbacksUrl' AND $203) WHEN true THEN web_callbacks_url ELSE NULL END) DESC\n     LIMIT $204 OFFSET $205"
+  },
   "e9c92783a801d77c933a2a313859bdae3a2d7344e5e6423c537b70e613ec6d20": {
     "describe": {
       "columns": [
@@ -26616,6 +26550,72 @@
       }
     },
     "query": "SELECT COALESCE(SUM(tokens), 0)::decimal as \"gifts!\" FROM gifts WHERE org_id = $1"
+  },
+  "fa082dac66c6af435e3290bd264df9bd4a85a09fdb1fc39044137b9a10efa5fe": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id!: i32",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "subscription_id!: Option < i32 >",
+          "ordinal": 1,
+          "type_info": "Int4"
+        },
+        {
+          "name": "stripe_customer_id!: Option < String >",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "public_name!: Option < String >",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "logo_url!: Option < String >",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "use_verifier!: bool",
+          "ordinal": 5,
+          "type_info": "Bool"
+        },
+        {
+          "name": "deletion_id!: Option < i32 >",
+          "ordinal": 6,
+          "type_info": "Int4"
+        },
+        {
+          "name": "created_at!: UtcDateTime",
+          "ordinal": 7,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "web_callbacks_url!: Option < String >",
+          "ordinal": 8,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        false,
+        true
+      ],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "SELECT id as \"id!: i32\", \nsubscription_id as \"subscription_id!: Option < i32 >\", \nstripe_customer_id as \"stripe_customer_id!: Option < String >\", \npublic_name as \"public_name!: Option < String >\", \nlogo_url as \"logo_url!: Option < String >\", \nuse_verifier as \"use_verifier!: bool\", \ndeletion_id as \"deletion_id!: Option < i32 >\", \ncreated_at as \"created_at!: UtcDateTime\", \nweb_callbacks_url as \"web_callbacks_url!: Option < String >\" FROM orgs WHERE id IN (\n        SELECT org_id FROM payments GROUP BY org_id ORDER BY SUM(amount) DESC LIMIT 10)\n        ORDER BY (SELECT SUM(amount) FROM payments WHERE org_id = orgs.id) DESC\n    "
   },
   "fa37c60a491eda2414fbdedb9ffbb3c0c65c6c60efe798aca9a6e0c3b959c593": {
     "describe": {
