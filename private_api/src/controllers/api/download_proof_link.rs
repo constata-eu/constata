@@ -13,8 +13,6 @@ impl DownloadProofLink {
       return Err(field_error("401", "you don't have permission and you tried to hack the UI"));
     }
 
-    let document = context.site.document().find(&document_id).await?;
-
     Ok(DownloadProofLink { id: document_id, url: None })
   }
 }
