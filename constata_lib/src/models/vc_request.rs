@@ -73,7 +73,6 @@ impl VcRequest {
   }
 
   pub async fn request_on_vidchain(self) -> ConstataResult<()> {
-    println!("Requesting vc_request {}", &self.attrs.id);
     use tungstenite::{connect, Message};
 
     let state = &self.access_token().await?.attrs.token;
@@ -86,7 +85,7 @@ impl VcRequest {
     let vidconnect_url = format!("{host}/oauth2/auth?response_type=code&state={state}&redirect_uri={redirect_uri}&client_id={client_id}&scope=openid%20{scope}&nonce={nonce}");
     let websocket = "wss://staging.vidchain.net/socket.io/?EIO=4&transport=websocket";
 
-    let response = ureq::builder().redirects(0).build().get(&vidconnect_url).call().unwrap();
+    let response = ureq::builder().redirects(0).build().get(&vidconnect_url).call()?;
     let redirect = Url::parse(response.header("location").unwrap()).unwrap();
     let login_challenge = redirect.query_pairs().filter(|(k,_)| k == "login_challenge").next().expect("login challenge").1;
 
@@ -190,8 +189,6 @@ impl VcRequest {
   async fn validate_requirements(&self, claims: serde_json::Value) -> ConstataResult<(VcRequestState, Option<String>)> {
     use serde_json::json;
 
-    dbg!(&self);
-    dbg!(&claims);
     if claims["aud"] != json!{"https://staging.vidchain.net/siop/responses"} {
       return Ok((VcRequestState::Rejected, Some("aud_must_be_constata".to_string())));
     }
