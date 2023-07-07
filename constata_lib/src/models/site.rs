@@ -125,7 +125,7 @@ impl Site {
   pub async fn from_settings_and_password(settings: SiteSettings, password: Option<&str>) -> ConstataResult<Self> {
     let mut options = PgConnectOptions::from_str(&settings.database_uri)?;
     options.disable_statement_logging();
-    let pool_options = PgPoolOptions::new().max_connections(5);
+    let pool_options = PgPoolOptions::new().max_connections(2);
     let pool = pool_options.connect_with(options).await?;
     let db = Db{ pool, transaction: None };
     let audit_log = AuditLog::new(settings.audit_log_path.clone(), settings.audit_log_max_size);
