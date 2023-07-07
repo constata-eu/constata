@@ -65,9 +65,11 @@ async fn main() {
           n.remove(&id);
         });
       }
+      tokio::time::sleep(Duration::from_millis(500)).await;
     }
   }));
 
+  /*
   every![100, |s| {
     run!("workroom_create_received" { s.issuance().create_all_received().await });
     run!("workroom_complete_all_notified" { s.issuance().try_complete().await });
@@ -81,7 +83,6 @@ async fn main() {
     };
   }];
 
-  /*
   every![300000, |s| {
     run!("pubkey_domain_endorsement" { s.pubkey_domain_endorsement().process_all().await });
   }];
