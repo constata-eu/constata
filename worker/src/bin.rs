@@ -40,8 +40,10 @@ async fn main() {
       for r in prompts_site.vc_request().select().state_eq(VcRequestState::Pending).all().await.unwrap().into_iter() {
         prompts.push(tokio::spawn(async move {
           let id = r.attrs.id;
-          r.request_on_vidchain().await.expect("Success");
-          println!("Processed vc_request {}", id);
+          match r.request_on_vidchain().await {
+            Err(e) => println!("Error processing vc_request {} ", id),
+            Ok(_) => println!("Processed vc_request {}", id),
+          }
         }));
       }
       futures::future::join_all(prompts).await;

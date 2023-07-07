@@ -190,7 +190,8 @@ impl VcRequest {
   async fn validate_requirements(&self, claims: serde_json::Value) -> ConstataResult<(VcRequestState, Option<String>)> {
     use serde_json::json;
 
-    dbg!(&claims["aud"]);
+    dbg!(&self);
+    dbg!(&claims);
     if claims["aud"] != json!{"https://staging.vidchain.net/siop/responses"} {
       return Ok((VcRequestState::Rejected, Some("aud_must_be_constata".to_string())));
     }
