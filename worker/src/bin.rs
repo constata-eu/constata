@@ -41,7 +41,7 @@ async fn main() {
         prompts.push(tokio::spawn(async move {
           let id = r.attrs.id;
           match r.request_on_vidchain().await {
-            Err(e) => println!("Error processing vc_request {} ", id),
+            Err(e) => println!("Error processing vc_request {}: {} ", id, e),
             Ok(_) => println!("Processed vc_request {}", id),
           }
         }));
