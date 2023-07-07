@@ -2,6 +2,9 @@ use constata_lib::prelude::*;
 use email_bot::EmailBot;
 use log::*;
 use std::time::Duration;
+use tokio::sync::RwLock;
+use std::collections::HashSet;
+use std::sync::Arc;
 
 use constata_lib::models::*;
 
@@ -35,18 +38,32 @@ async fn main() {
 
   let prompts_site = site.clone();
   handles.push(tokio::spawn(async move{
+    let lock: Arc<RwLock<HashSet<i32>>> = Arc::new(RwLock::new(HashSet::new()));
+
     loop {
-      let mut prompts = vec![];
-      for r in prompts_site.vc_request().select().state_eq(VcRequestState::Pending).all().await.unwrap().into_iter() {
-        prompts.push(tokio::spawn(async move {
-          let id = r.attrs.id;
+      let started = lock.read().await.iter().cloned().collect::<Vec<i32>>();
+      let pending = prompts_site
+        .vc_request()
+        .select()
+        .id_not_in(started)
+        .state_eq(VcRequestState::Pending)
+        .all().await
+        .unwrap().into_iter();
+      for r in pending {
+        let id = r.attrs.id;
+        let mut n = lock.write().await;
+        n.insert(id);
+
+        let inner_lock = Arc::clone(&lock);
+        tokio::spawn(async move {
           match r.request_on_vidchain().await {
             Err(e) => println!("Error processing vc_request {}: {} ", id, e),
             Ok(_) => println!("Processed vc_request {}", id),
           }
-        }));
+          let mut n = inner_lock.write().await;
+          n.remove(&id);
+        });
       }
-      futures::future::join_all(prompts).await;
     }
   }));
 
