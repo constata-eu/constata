@@ -220,8 +220,7 @@
         "When people start using your verification points, you'll see it here."
     },
     "kiosk": {
-      "instructions_1": "Scan with your phone's QR code scanner.",
-      "instructions_2": "Do not use the VidWallet scanner.",
+      "instructions_1": "Scan with VidWallets QR code scanner.",
       "accepted": "Credential accepted.",
       "rejected": "That credential does not meet the requirements.",
       "failed": "There was an error, try again.",

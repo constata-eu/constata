@@ -21,6 +21,8 @@ pub struct VcRequest {
   started_at: UtcDateTime,
   #[graphql(description = "The time at which thes presentation request reached its final state.")]
   finished_at: Option<UtcDateTime>,
+  #[graphql(description = "The URL to scan with VidWallet's QR code scanner.")]
+  vidchain_url: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, GraphQLInputObject, serde::Serialize, serde::Deserialize, clap::Args)]
@@ -85,6 +87,7 @@ impl Showable<models::VcRequest, VcRequestFilter> for VcRequest {
       did: d.attrs.did,
       started_at: d.attrs.started_at,
       finished_at: d.attrs.finished_at,
+      vidchain_url: d.attrs.vidchain_url,
     })
   }
 }
@@ -97,8 +100,8 @@ pub struct KioskVcRequest {
   id: i32,
   #[graphql(description = "Public description.")]
   description: String,
-  #[graphql(description = "Url for VidWallet users. They must open it with their QR code scanner.")]
-  vidchain_url: String,
+  #[graphql(description = "Url for VidWallet users.")]
+  vidchain_url: Option<String>,
   #[graphql(description = "The presentation request state")]
   state: VcRequestState,
   #[graphql(description = "A snake_cased_string with further information about the current state. Can be translated in the front end.")]
@@ -136,6 +139,7 @@ impl KioskVcRequest {
     }
   }
 
+  /*
   pub async fn update( context: &Context, code: &str ) -> FieldResult<KioskVcRequest> {
     if let AuthMethod::Token { ref token } = context.current_person.method {
       let request = context.site.vc_request().select()
@@ -148,16 +152,16 @@ impl KioskVcRequest {
       Err(field_error("access", "invalid auth token"))
     }
   }
+  */
 
   pub async fn db_to_graphql(d: models::VcRequest) -> FieldResult<KioskVcRequest> {
     let description = d.vc_prompt().await?.attrs.name;
-    let vidchain_url = d.vidchain_url().await?;
     let logo_url = d.org().await?.attrs.logo_url;
 
     Ok(KioskVcRequest {
       id: d.attrs.id,
       description,
-      vidchain_url,
+      vidchain_url: d.attrs.vidchain_url,
       logo_url,
       state: d.attrs.state,
       state_notes: d.attrs.state_notes,

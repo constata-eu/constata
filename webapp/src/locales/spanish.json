@@ -220,8 +220,7 @@
       "empty_message": "Cuando la gente intente utilizar los puntos de verificación, lo verá aquí."
     },
     "kiosk": {
-      "instructions_1": "Utilice el escaner de QRs de su móvil.",
-      "instructions_2": "No utilice el escáner de VidWallet.",
+      "instructions_1": "Utilice el escaner de QRs de VidWallet",
       "accepted": "Credencial aceptada.",
       "rejected": "Esa credencial no cumple los requisitos.",
       "failed": "Hubo un error, intente otra vez.",
