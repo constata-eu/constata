@@ -1,4 +1,5 @@
 use super::*;
+use url::Url;
 
 model!{
   state: Site,
@@ -26,6 +27,8 @@ model!{
     finished_at: Option<UtcDateTime>,
     #[sqlx_model_hints(int4, default)]
     deletion_id: Option<i32>,
+    #[sqlx_model_hints(varchar, default)]
+    vidchain_url: Option<String>,
     #[sqlx_model_hints(varchar, default)]
     vidchain_code: Option<String>,
     #[sqlx_model_hints(varchar, default)]
@@ -57,22 +60,79 @@ impl sqlx::postgres::PgHasArrayType for VcRequestState {
   }
 }
 
+#[derive(Debug, serde::Deserialize)]
+struct VidchainValidationResult {
+  validationResult: bool,
+  did: String,
+  jwt: String,
+}
+
 impl VcRequest {
   pub async fn submit_presentation(self, vc_presentation: String) -> sqlx::Result<Self> {
     self.update().vc_presentation(Some(vc_presentation)).save().await
   }
 
-  pub async fn vidchain_url(&self) -> ConstataResult<String> {
-    let state = self.access_token().await?.attrs.token;
+  pub async fn request_on_vidchain(self) -> ConstataResult<()> {
+    println!("Requesting vc_request {}", &self.attrs.id);
+    use tungstenite::{connect, Message};
+
+    let state = &self.access_token().await?.attrs.token;
     let settings = &self.state.settings.vidchain;
     let host = &settings.host;
     let redirect_uri = &settings.redirect_uri;
     let client_id = &settings.client_id;
     let nonce = self.attrs.id;
     let scope = self.vc_prompt().await?.requirement_rules().await?.vidchain_scope(&settings.enabled_scopes);
-    Ok(format!("{host}/oauth2/auth?response_type=code&state={state}&redirect_uri={redirect_uri}&client_id={client_id}&scope=openid%20{scope}&nonce={nonce}"))
+    let vidconnect_url = format!("{host}/oauth2/auth?response_type=code&state={state}&redirect_uri={redirect_uri}&client_id={client_id}&scope=openid%20{scope}&nonce={nonce}");
+    let websocket = "wss://staging.vidchain.net/socket.io/?EIO=4&transport=websocket";
+
+    let response = ureq::builder().redirects(0).build().get(&vidconnect_url).call().unwrap();
+    let redirect = Url::parse(response.header("location").unwrap()).unwrap();
+    let login_challenge = redirect.query_pairs().filter(|(k,_)| k == "login_challenge").next().expect("login challenge").1;
+
+    let (mut socket, response) = connect(Url::parse(websocket).unwrap()).expect("Can't connect");
+
+    let msg = socket.read_message().expect("Error reading message");
+
+    socket.write_message(Message::Text("40".into())).unwrap();
+
+    let msg_2 = socket.read_message().expect("Error reading message");
+
+    socket.write_message(Message::Text(
+      format!(r#"42["signIn",{{"clientUriRedirect":"","challenge":"{login_challenge}","client_name":"{client_id}","scope":"openid,{scope}","isMobile":false}}]"#)
+    )).unwrap();
+
+    let msg_3 = socket.read_message().expect("Error reading message");
+
+    let msg_4 = socket.read_message().expect("Error reading message");
+
+    let json: serde_json::Value = serde_json::from_str(msg_4.to_text().unwrap().strip_prefix("42").unwrap()).unwrap();
+
+    let siop_uri = json.pointer("/1/siopUri").unwrap().as_str().unwrap();
+
+    let qr_uri = siop_uri.strip_prefix("vidchain://did-auth?").unwrap();
+
+    let updated = self.update().vidchain_url(Some(qr_uri.to_string())).save().await?;
+
+    loop {
+      let msg = socket.read_message().expect("Error reading message");
+      if let Some(sign_in_response) = msg.to_text().unwrap().strip_prefix("42") {
+        let json: serde_json::Value = serde_json::from_str(sign_in_response).unwrap();
+        let result: VidchainValidationResult = serde_json::from_str(
+          json.pointer("/1").expect("tuple with result at 1").as_str().unwrap()
+        ).expect("validation result");
+        updated.resolve_with_vidchain_jwt(&result.did, result.jwt).await?;
+        socket.close(None);
+        break;
+      } else {
+        socket.write_message(Message::Text("3".into()));
+      }
+    }
+
+    Ok(())
   }
 
+  /*
   pub async fn resolve_with_vidchain_code(self, code: &str) -> ConstataResult<Self> {
     let settings = &self.state.settings.vidchain;
     let response = ureq::post(&format!("{}/oauth2/token", &settings.host))
@@ -88,8 +148,9 @@ impl VcRequest {
 
     self.resolve_with_vidchain_jwt(code, response.into_string()?).await
   }
+  */
 
-  pub async fn resolve_with_vidchain_jwt(self, code: &str, jwt: String) -> ConstataResult<Self> {
+  pub async fn resolve_with_vidchain_jwt(self, code: &str, presentation_jwt: String) -> ConstataResult<Self> {
     use ssi::jwk::JWK;
 
     let conf = &self.state.settings.vidchain;
@@ -101,13 +162,14 @@ impl VcRequest {
       "kid": conf.expected_kid,
     }))?;
 
-    let response: serde_json::Value = serde_json::from_str(&jwt)?;
-    let presentation_jwt = response["id_token"].as_str().unwrap();
-    let claims: serde_json::Value = ssi::jwt::decode_verify(presentation_jwt, &key)?;
+    //let response: serde_json::Value = serde_json::from_str(&jwt)?;
+    //let presentation_jwt = response["id_token"].as_str().unwrap();
+    //let claims: serde_json::Value = ssi::jwt::decode_verify(&presentation_jwt, &key)?;
+    let claims: serde_json::Value = ssi::jwt::decode_unverified(&presentation_jwt)?;
 
     let (state, notes) = self.validate_requirements(claims).await?;
 
-    Ok(self.finish(state, notes, Some(jwt), Some(code.to_string())).await?)
+    Ok(self.finish(state, notes, Some(presentation_jwt), Some(code.to_string())).await?)
   }
 
   pub async fn finish(self,
@@ -128,7 +190,8 @@ impl VcRequest {
   async fn validate_requirements(&self, claims: serde_json::Value) -> ConstataResult<(VcRequestState, Option<String>)> {
     use serde_json::json;
 
-    if claims["aud"] != json!{["constata"]} {
+    dbg!(&claims["aud"]);
+    if claims["aud"] != json!{"https://staging.vidchain.net/siop/responses"} {
       return Ok((VcRequestState::Rejected, Some("aud_must_be_constata".to_string())));
     }
 

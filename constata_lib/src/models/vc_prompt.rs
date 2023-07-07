@@ -216,8 +216,8 @@ describe! {
     let prompt = person.state.vc_prompt().create(&person, "museum entrance 1", &requirement).await?;
     let mut request = prompt.create_request().await?;
     request = request.resolve_with_vidchain_jwt(
-      "GfkE9rv6MokiPX431swk8Ft7PRag7idzIQQNDgb9pPE.qt49pQ8JmQMp9r1KfV5K0KRUuxBcltTfPGn9xQ7QnXQ",
-      read_to_string("vc_requests/wrapped_verifiable_presentation_response.json")
+      "did:ethr:abcd1",
+      read_to_string("vc_requests/siop_vp.jwt")
     ).await?;
 
     Ok(request)

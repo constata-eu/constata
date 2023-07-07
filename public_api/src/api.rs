@@ -420,9 +420,11 @@ impl Mutation {
     KioskVcRequest::create(context).await
   }
 
+  /*
   pub async fn update_kiosk_vc_request( context: &Context, code: String ) -> FieldResult<KioskVcRequest> {
     KioskVcRequest::update(context, &code).await
   }
+  */
 }
 
 // A root schema consists of a query and a mutation.

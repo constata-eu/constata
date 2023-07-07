@@ -42,7 +42,7 @@ const VcPromptKiosk = () => {
   }, []);
 
   useEffect(() => {
-    let interval;
+    let timeout;
     async function load(){
       if(!vcRequest) { return; }
 
@@ -54,12 +54,13 @@ const VcPromptKiosk = () => {
         setDoneRequest(value.data);
         setVcRequest(null);
         setTimeout(create, 4000);
+      } else {
+        setVcRequest(value.data);
       }
     }
-    load();
-    interval = setInterval(load, 1000);
-    return function cleanup() { clearInterval(interval); };
-  }, [vcRequest, setVcRequest]);
+    timeout = setTimeout(load, 1000);
+    return function cleanup() { clearTimeout(timeout); };
+  }, [vcRequest]);
 
   return (<Box sx={{ minHeight: "100vh", display: "flex", flexDirection: "column", }}>
     <CssBaseline/>
@@ -84,16 +85,18 @@ const CurrentVcRequest = ({request}) => {
     <Head2 textAlign="center" sx={{ mb:"1em" }}>
       { request.description }
     </Head2>
-    <QRCode
-      size={256}
-      style={{ height: "auto", maxWidth: "100%", width: "100%" }}
-      value={request.vidchainUrl}
-      viewBox={`0 0 256 256`}
-    />
+    { request.vidchainUrl ?
+      <QRCode
+        size={256}
+        style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+        value={request.vidchainUrl}
+        viewBox={`0 0 256 256`}
+      />
+      : 
+      <Skeleton variant="rectangular" sx={{ margin: "auto", height: "256px", width: "256px", maxWidth: "100%", maxHeight: "100%"}} />
+    }
     <Typography textAlign="center" mt={3}>
       { translate("vc_validator.kiosk.instructions_1") }
-      <br/>
-      { translate("vc_validator.kiosk.instructions_2") }
     </Typography>
   </Box>;
 }
