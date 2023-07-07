@@ -51,6 +51,7 @@ async fn main() {
         .unwrap().into_iter();
       for r in pending {
         let id = r.attrs.id;
+        println!("Starting websocket for {}", id);
         let mut n = lock.write().await;
         n.insert(id);
 
