@@ -81,6 +81,7 @@ async fn main() {
     };
   }];
 
+  /*
   every![300000, |s| {
     run!("pubkey_domain_endorsement" { s.pubkey_domain_endorsement().process_all().await });
   }];
@@ -91,6 +92,7 @@ async fn main() {
     run!("expire_old_invoices" { s.invoice().expire_all_old_invoices().await });
     run!("expire_old_access_tokens" { s.access_token().expire_all_old_access_tokens().await });
   }];
+  */
 
   futures::future::join_all(handles).await;
 }
