@@ -698,9 +698,10 @@ mod webapp {
 
     integration_test!{ has_a_verifiable_credential_verifier (c, d)
       let alice = signup(&c, &d, false).await;
+      let person = alice.person().await;
       let org_id = alice.org().await.update().use_verifier(true).save().await?.attrs.id;
 
-      c.site.vc_requirement().insert(InsertVcRequirement{
+      let req_1 = c.site.vc_requirement().insert(InsertVcRequirement{
         org_id,
         name: "Allows any MedicoCredential".to_string(),
         rules: r#"{ "acceptable_sets": [
@@ -712,7 +713,9 @@ mod webapp {
         ]}"#.to_string(),
       }).save().await?;
 
-      c.site.vc_requirement().insert(InsertVcRequirement{
+      person.state.vc_prompt().create(&person, "Prompt 1", &req_1).await?;
+
+      let req_2 = c.site.vc_requirement().insert(InsertVcRequirement{
         org_id,
         name: "Allows any obstetrician".to_string(),
         rules: r#"{ "acceptable_sets": [
@@ -724,8 +727,9 @@ mod webapp {
           ]}
         ]}"#.to_string(),
       }).save().await?;
+      person.state.vc_prompt().create(&person, "Prompt 2", &req_2).await?;
 
-      c.site.vc_requirement().insert(InsertVcRequirement{
+      let req_3 = c.site.vc_requirement().insert(InsertVcRequirement{
         org_id,
         name: "Only allows doctor Nubis".to_string(),
         rules: r#"{ "acceptable_sets": [
@@ -737,6 +741,8 @@ mod webapp {
           ]}
         ]}"#.to_string(),
       }).save().await?;
+      person.state.vc_prompt().create(&person, "Prompt 3", &req_3).await?;
+
     }
 
     async fn set_up_download_proof_link(alice: &SignerClient, chain: &mut TestBlockchain) -> ConstataResult<DownloadProofLink> {
