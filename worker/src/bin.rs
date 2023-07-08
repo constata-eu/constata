@@ -29,7 +29,7 @@ async fn main() {
 
   macro_rules! run {
     ($name:literal {$($blk:tt)*}) => (
-      //println!("Running: {}", $name);
+      println!("Running: {}", $name);
       if let Err(err) = { $($blk)* } {
         error!("Error in {}: {:?}", $name, err);
       }
@@ -37,6 +37,7 @@ async fn main() {
   }
 
   let prompts_site = site.clone();
+
   handles.push(tokio::spawn(async move{
     let lock: Arc<RwLock<HashSet<i32>>> = Arc::new(RwLock::new(HashSet::new()));
 
@@ -49,6 +50,7 @@ async fn main() {
         .state_eq(VcRequestState::Pending)
         .all().await
         .unwrap().into_iter();
+
       for r in pending {
         let id = r.attrs.id;
         let mut n = lock.write().await;
@@ -65,17 +67,16 @@ async fn main() {
           n.remove(&id);
         });
       }
-      tokio::time::sleep(Duration::from_millis(1000)).await;
+      tokio::time::sleep(Duration::from_millis(10)).await;
     }
   }));
 
-  every![1000, |s| {
+  every![500, |s| {
     run!("workroom_create_received" { s.issuance().create_all_received().await });
     run!("workroom_complete_all_notified" { s.issuance().try_complete().await });
     run!("attempting_webhooks" { s.web_callback().attempt_all_pending().await });
   }];
 
-  /*
   every![10000, |s| {
     match EmailBot::new(s.clone()).await {
       Ok(email_bot) => { run!("notify_emails" { email_bot.handle_notify_emails().await }); },
@@ -93,7 +94,6 @@ async fn main() {
     run!("expire_old_invoices" { s.invoice().expire_all_old_invoices().await });
     run!("expire_old_access_tokens" { s.access_token().expire_all_old_access_tokens().await });
   }];
-  */
 
   futures::future::join_all(handles).await;
 }

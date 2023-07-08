@@ -1,5 +1,8 @@
 use super::*;
 use url::Url;
+use futures_util::{future, pin_mut, StreamExt, SinkExt};
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use tokio_tungstenite::{connect_async, tungstenite::protocol::Message};
 
 model!{
   state: Site,
@@ -73,8 +76,9 @@ impl VcRequest {
   }
 
   pub async fn request_on_vidchain(self) -> ConstataResult<()> {
+    self.clone().update().vidchain_url(None).save().await?;
+
     let id = self.attrs.id.clone();
-    use tungstenite::{connect, Message};
 
     let state = &self.access_token().await?.attrs.token;
     let settings = &self.state.settings.vidchain;
@@ -90,55 +94,45 @@ impl VcRequest {
     let redirect = Url::parse(response.header("location").unwrap()).unwrap();
     let login_challenge = redirect.query_pairs().filter(|(k,_)| k == "login_challenge").next().expect("login challenge").1;
 
-    let (mut socket, response) = connect(Url::parse(websocket).unwrap()).expect("Can't connect");
+    let (mut ws_stream, _) = connect_async(Url::parse(websocket).unwrap()).await.expect("Failed to connect");
 
-    let msg = socket.read_message().expect("Error reading message");
-    println!("Request {} received: {:?}", id, &msg);
+    while let Some(msg) = ws_stream.next().await {
+      println!("Got message for {}", &id);
+      match msg {
+        Ok(Message::Text(content)) => {
+          if content.starts_with("0{") {
+            ws_stream.send(Message::Text("40".into())).await.unwrap();
+          } else if content.starts_with("40{\"sid\":") {
+            ws_stream.send(Message::Text(
+              format!(r#"42["signIn",{{"clientUriRedirect":"","challenge":"{login_challenge}","client_name":"{client_id}","scope":"openid,{scope}","isMobile":false}}]"#)
+            )).await.unwrap();
+          } else if content.starts_with("42[\"signIn\"") {
+            // Do nothing
+          } else if content.starts_with("42[\"printQR\"") {
+            let json: serde_json::Value = serde_json::from_str(content.strip_prefix("42").unwrap()).unwrap();
 
-    socket.write_message(Message::Text("40".into())).unwrap();
+            let siop_uri = json.pointer("/1/siopUri").unwrap().as_str().unwrap();
 
-    let msg_2 = socket.read_message().expect("Error reading message");
-    println!("Request {} received (2): {:?}", id, &msg_2);
-
-    socket.write_message(Message::Text(
-      format!(r#"42["signIn",{{"clientUriRedirect":"","challenge":"{login_challenge}","client_name":"{client_id}","scope":"openid,{scope}","isMobile":false}}]"#)
-    )).unwrap();
-
-    let msg_3 = socket.read_message().expect("Error reading message");
-    println!("Request {} received (3): {:?}", id, &msg_3);
-
-    let msg_4 = socket.read_message().expect("Error reading message");
-    println!("Request {} received (4): {:?}", id, &msg_4);
-
-    let json: serde_json::Value = serde_json::from_str(msg_4.to_text().unwrap().strip_prefix("42").unwrap()).unwrap();
-
-    let siop_uri = json.pointer("/1/siopUri").unwrap().as_str().unwrap();
-
-    let qr_uri = siop_uri.strip_prefix("vidchain://did-auth?").unwrap();
-    println!("Request {} resolved to QR URI: {:?}", id, &qr_uri);
-
-    let updated = self.update().vidchain_url(Some(qr_uri.to_string())).save().await?;
-    println!("Request {} updated with new uri", id);
-
-    loop {
-      println!("Request {} reading messages", id);
-      let msg = socket.read_message().expect("Error reading message");
-      if let Some(sign_in_response) = msg.to_text().unwrap().strip_prefix("42") {
-        println!("Request {} in loop received jwt response", id);
-        let json: serde_json::Value = serde_json::from_str(sign_in_response).unwrap();
-        let result: VidchainValidationResult = serde_json::from_str(
-          json.pointer("/1").expect("tuple with result at 1").as_str().unwrap()
-        ).expect("validation result");
-        println!("Request {} resolving with JWT", id);
-        updated.resolve_with_vidchain_jwt(&result.did, result.jwt).await?;
-        println!("Request {} resolved", id);
-        socket.close(None);
-        break;
-      } else {
-        println!("Request {} in loop received a status message: {:?}", id, &msg);
-        socket.write_message(Message::Text("3".into()));
+            let qr_uri = siop_uri.strip_prefix("vidchain://did-auth?").unwrap();
+            self.clone().update().vidchain_url(Some(qr_uri.to_string())).save().await?;
+          } else if content == "2" {
+            ws_stream.send(Message::Text("3".into())).await.unwrap();
+          } else if content.starts_with("42[\"signInResponse\"") {
+            let sign_in_response = content.strip_prefix("42").unwrap();
+            let json: serde_json::Value = serde_json::from_str(sign_in_response).unwrap();
+            let result: VidchainValidationResult = serde_json::from_str(
+              json.pointer("/1").expect("tuple with result at 1").as_str().unwrap()
+            ).expect("validation result");
+            self.clone().resolve_with_vidchain_jwt(&result.did, result.jwt).await?;
+            ws_stream.close(None).await.unwrap();
+          } else {
+            println!("Got unexpected message: {}",  content);
+            ws_stream.close(None).await.unwrap();
+          }
+        },
+        Ok(Message::Close(_)) => {},
+        e => { println!("Unknown message: {:?}", e); }
       }
-      tokio::time::sleep(std::time::Duration::from_millis(300)).await;
     }
 
     Ok(())
