@@ -138,7 +138,7 @@ impl VcRequest {
         println!("Request {} in loop received a status message: {:?}", id, &msg);
         socket.write_message(Message::Text("3".into()));
       }
-      tokio::time::sleep(std::time::Duration::from_millis(10)).await;
+      tokio::time::sleep(std::time::Duration::from_millis(300)).await;
     }
 
     Ok(())
