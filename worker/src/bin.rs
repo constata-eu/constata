@@ -51,12 +51,12 @@ async fn main() {
         .unwrap().into_iter();
       for r in pending {
         let id = r.attrs.id;
-        println!("Starting websocket for {}", id);
         let mut n = lock.write().await;
         n.insert(id);
 
         let inner_lock = Arc::clone(&lock);
         tokio::spawn(async move {
+          println!("Starting websocket for {}", id);
           match r.request_on_vidchain().await {
             Err(e) => println!("Error processing vc_request {}: {} ", id, e),
             Ok(_) => println!("Processed vc_request {}", id),
@@ -69,7 +69,6 @@ async fn main() {
     }
   }));
 
-  /*
   every![100, |s| {
     run!("workroom_create_received" { s.issuance().create_all_received().await });
     run!("workroom_complete_all_notified" { s.issuance().try_complete().await });
@@ -93,7 +92,6 @@ async fn main() {
     run!("expire_old_invoices" { s.invoice().expire_all_old_invoices().await });
     run!("expire_old_access_tokens" { s.access_token().expire_all_old_access_tokens().await });
   }];
-  */
 
   futures::future::join_all(handles).await;
 }

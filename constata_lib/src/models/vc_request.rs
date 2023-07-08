@@ -73,6 +73,7 @@ impl VcRequest {
   }
 
   pub async fn request_on_vidchain(self) -> ConstataResult<()> {
+    println!("About to start websocket");
     use tungstenite::{connect, Message};
 
     let state = &self.access_token().await?.attrs.token;
