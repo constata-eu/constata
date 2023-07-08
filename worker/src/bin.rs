@@ -65,7 +65,7 @@ async fn main() {
           n.remove(&id);
         });
       }
-      tokio::time::sleep(Duration::from_millis(10)).await;
+      tokio::time::sleep(Duration::from_millis(1000)).await;
     }
   }));
 
