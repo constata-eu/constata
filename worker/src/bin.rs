@@ -65,16 +65,17 @@ async fn main() {
           n.remove(&id);
         });
       }
-      tokio::time::sleep(Duration::from_millis(500)).await;
+      tokio::time::sleep(Duration::from_millis(10)).await;
     }
   }));
 
-  every![100, |s| {
+  every![1000, |s| {
     run!("workroom_create_received" { s.issuance().create_all_received().await });
     run!("workroom_complete_all_notified" { s.issuance().try_complete().await });
     run!("attempting_webhooks" { s.web_callback().attempt_all_pending().await });
   }];
 
+  /*
   every![10000, |s| {
     match EmailBot::new(s.clone()).await {
       Ok(email_bot) => { run!("notify_emails" { email_bot.handle_notify_emails().await }); },
@@ -92,6 +93,7 @@ async fn main() {
     run!("expire_old_invoices" { s.invoice().expire_all_old_invoices().await });
     run!("expire_old_access_tokens" { s.access_token().expire_all_old_access_tokens().await });
   }];
+  */
 
   futures::future::join_all(handles).await;
 }
