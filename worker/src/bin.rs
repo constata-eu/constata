@@ -41,7 +41,9 @@ async fn main() {
     let lock: Arc<RwLock<HashSet<i32>>> = Arc::new(RwLock::new(HashSet::new()));
 
     loop {
+      println!("Looping through pending requests");
       let started = lock.read().await.iter().cloned().collect::<Vec<i32>>();
+      println!("Already started {:?}", &started);
       let pending = prompts_site
         .vc_request()
         .select()
