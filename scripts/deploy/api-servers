@@ -9,23 +9,23 @@ then
   exit 1
 fi
 
-#   if [[ -n $(git status --porcelain) ]]
-#   then
-#     echo "Can't deploy while you have uncommited files"
-#     exit 1
-#   fi
+if [[ -n $(git status --porcelain) ]]
+then
+  echo "Can't deploy while you have uncommited files"
+  exit 1
+fi
 
-#   if ! git pull origin $BRANCH
-#   then
-#     echo Could not pull from $BRANCH
-#     exit 1
-#   fi
+if ! git pull origin $BRANCH
+then
+  echo Could not pull from $BRANCH
+  exit 1
+fi
 
-#   if [[ -n $(git status | grep ahead) ]]
-#   then
-#     echo "Your branch is ahead of origin, push your changes first"
-#     exit 1
-#   fi
+if [[ -n $(git status | grep ahead) ]]
+then
+  echo "Your branch is ahead of origin, push your changes first"
+  exit 1
+fi
 
 if [[ $1 == "staging" ]]
 then
