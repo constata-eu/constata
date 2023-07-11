@@ -113,6 +113,7 @@ const authProvider: any = {
     if (!getAccessToken() && !getSignupData() && (graphQLFail || httpFail) ) {
       return Promise.reject(graphQLFail ? graphQLErrors : error);
     }
+    clearAccessToken();
 
     return Promise.resolve();
   },

@@ -93,7 +93,7 @@ const CurrentVcRequest = ({request}) => {
         viewBox={`0 0 256 256`}
       />
       : 
-      <Skeleton variant="rectangular" sx={{ margin: "auto", height: "256px", width: "256px", maxWidth: "100%", maxHeight: "100%"}} />
+      <Skeleton variant="rectangular" sx={{ margin: "auto", height: "500px", width: "500px", maxWidth: "100%", maxHeight: "100%"}} />
     }
     <Typography textAlign="center" mt={3}>
       { translate("vc_validator.kiosk.instructions_1") }
@@ -103,10 +103,13 @@ const CurrentVcRequest = ({request}) => {
 
 const DoneVcRequest = ({request}) => {
   const translate = useTranslate();
-  const dimensions = { height: 200, width: 200 };
+  const dimensions = { height: "500px", width: "500px", maxWidth: "100%", maxHeight: "100%" };
 
   return <Box textAlign="center">
     <KioskLogo logo={request.logoUrl} />
+    <Head2 textAlign="center" sx={{ mb:"1em" }}>
+      { request.description }
+    </Head2>
     { request.state== "APPROVED" &&
       <Box color="#00a975">
         <VerifiedIcon sx={dimensions} />
@@ -129,7 +132,7 @@ const DoneVcRequest = ({request}) => {
 }
 
 const KioskLogo = ({ logo }) => 
-  <img src={logo} style={{maxHeight: "10em", marginBottom: "2em" }} />
+  <img src={logo} style={{maxHeight: "10em", marginBottom: "2em", maxWidth: "80%"}} />
 
 const VidChainRedirect = () => {
   const dataProvider = useDataProvider();
