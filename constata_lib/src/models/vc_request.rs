@@ -3,6 +3,10 @@ use url::Url;
 use futures_util::{future, pin_mut, StreamExt, SinkExt};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio_tungstenite::{connect_async, tungstenite::protocol::Message};
+use std::time::Duration;
+use tokio::sync::RwLock;
+use std::collections::HashSet;
+use std::sync::Arc;
 
 model!{
   state: Site,
@@ -70,6 +74,41 @@ struct VidchainValidationResult {
   jwt: String,
 }
 
+impl VcRequestHub {
+  pub async fn wait_for_request_scans(&self) {
+    let lock: Arc<RwLock<HashSet<i32>>> = Arc::new(RwLock::new(HashSet::new()));
+
+    loop {
+      let started = lock.read().await.iter().cloned().collect::<Vec<i32>>();
+      let pending = self
+        .select()
+        .id_not_in(started)
+        .state_eq(VcRequestState::Pending)
+        .all().await
+        .unwrap().into_iter();
+
+      for r in pending {
+        let id = r.attrs.id;
+        let mut n = lock.write().await;
+        n.insert(id);
+
+        let inner_lock = Arc::clone(&lock);
+        tokio::spawn(async move {
+          println!("Starting websocket for {}", id);
+          match r.request_on_vidchain().await {
+            Err(e) => println!("Error processing vc_request {}: {} ", id, e),
+            Ok(_) => println!("Processed vc_request {}", id),
+          }
+          let mut n = inner_lock.write().await;
+          n.remove(&id);
+        });
+      }
+      tokio::time::sleep(Duration::from_millis(10)).await;
+    }
+
+  }
+}
+
 impl VcRequest {
   pub async fn submit_presentation(self, vc_presentation: String) -> sqlx::Result<Self> {
     self.update().vc_presentation(Some(vc_presentation)).save().await
@@ -96,8 +135,9 @@ impl VcRequest {
 
     let (mut ws_stream, _) = connect_async(Url::parse(websocket).unwrap()).await.expect("Failed to connect");
 
+    let mut keep_alive = 8;
+
     while let Some(msg) = ws_stream.next().await {
-      println!("Got message for {}", &id);
       match msg {
         Ok(Message::Text(content)) => {
           if content.starts_with("0{") {
@@ -116,7 +156,13 @@ impl VcRequest {
             let qr_uri = siop_uri.strip_prefix("vidchain://did-auth?").unwrap();
             self.clone().update().vidchain_url(Some(qr_uri.to_string())).save().await?;
           } else if content == "2" {
-            ws_stream.send(Message::Text("3".into())).await.unwrap();
+            if keep_alive > 0 {
+              ws_stream.send(Message::Text("3".into())).await.unwrap();
+              keep_alive -= 1;
+            } else {
+              self.clone().update().vidchain_url(None).save().await?;
+              ws_stream.close(None).await.unwrap();
+            }
           } else if content.starts_with("42[\"signInResponse\"") {
             let sign_in_response = content.strip_prefix("42").unwrap();
             let json: serde_json::Value = serde_json::from_str(sign_in_response).unwrap();
