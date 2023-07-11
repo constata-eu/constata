@@ -5,7 +5,7 @@ use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio_tungstenite::{connect_async, tungstenite::protocol::Message};
 use std::time::Duration;
 use tokio::sync::RwLock;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
 model!{
@@ -75,32 +75,47 @@ struct VidchainValidationResult {
 }
 
 impl VcRequestHub {
+  // In order to scan with VidWallet, we need to keep a websocket open to the vidchain / vidconnect site.
+  // Vidconnect QR's expire every few seconds, and the user may scan a QR code and take too long to submit it,
+  // which would result in an error, and needing to scan again.
+  // To minimize chances of that, we use a sliding window with two valid websocket sessions for the same VcRequest.
   pub async fn wait_for_request_scans(&self) {
-    let lock: Arc<RwLock<HashSet<i32>>> = Arc::new(RwLock::new(HashSet::new()));
+    let lock: Arc<RwLock<HashMap<i32, HashSet<UtcDateTime>>>> = Arc::new(RwLock::new(HashMap::new()));
 
     loop {
-      let started = lock.read().await.iter().cloned().collect::<Vec<i32>>();
       let pending = self
         .select()
-        .id_not_in(started)
         .state_eq(VcRequestState::Pending)
         .all().await
         .unwrap().into_iter();
 
       for r in pending {
         let id = r.attrs.id;
-        let mut n = lock.write().await;
-        n.insert(id);
+        let now = Utc::now();
+        let mut running = lock.write().await;
+
+        if let Some(mut sessions) = running.get_mut(&id) {
+          if sessions.len() >= 2 { continue; }
+
+          // Sessions end by themselves, we don't start a new session unless the previous one
+          // is at least 3 minutes old.
+          let session_is_old = sessions.iter().next()
+            .map(|i| i > &(now - chrono::Duration::minutes(3)) ) 
+            .unwrap_or(false);
+          if sessions.len() == 1 && session_is_old { continue; }
+
+          sessions.insert(now.clone());
+        } else {
+          running.insert(id, HashSet::from_iter(vec![now.clone()].into_iter()));
+        }
 
         let inner_lock = Arc::clone(&lock);
         tokio::spawn(async move {
-          println!("Starting websocket for {}", id);
           match r.request_on_vidchain().await {
             Err(e) => println!("Error processing vc_request {}: {} ", id, e),
             Ok(_) => println!("Processed vc_request {}", id),
           }
-          let mut n = inner_lock.write().await;
-          n.remove(&id);
+          inner_lock.write().await.entry(id).and_modify(|sessions|{ sessions.remove(&now); });
         });
       }
       tokio::time::sleep(Duration::from_millis(10)).await;
@@ -115,8 +130,6 @@ impl VcRequest {
   }
 
   pub async fn request_on_vidchain(self) -> ConstataResult<()> {
-    self.clone().update().vidchain_url(None).save().await?;
-
     let id = self.attrs.id.clone();
 
     let state = &self.access_token().await?.attrs.token;
@@ -135,6 +148,10 @@ impl VcRequest {
 
     let (mut ws_stream, _) = connect_async(Url::parse(websocket).unwrap()).await.expect("Failed to connect");
 
+    // Vidchain websockets send heartbeats every ~20 seconds.
+    // QR codes expire at ~10 heartbeats, and show an error on vidwallet.
+    // We reduce chances of that by closing this websocket session earlier, forcing the
+    // calling process to open a new websocket session.
     let mut keep_alive = 8;
 
     while let Some(msg) = ws_stream.next().await {
@@ -160,7 +177,6 @@ impl VcRequest {
               ws_stream.send(Message::Text("3".into())).await.unwrap();
               keep_alive -= 1;
             } else {
-              self.clone().update().vidchain_url(None).save().await?;
               ws_stream.close(None).await.unwrap();
             }
           } else if content.starts_with("42[\"signInResponse\"") {
@@ -172,7 +188,6 @@ impl VcRequest {
             self.clone().resolve_with_vidchain_jwt(&result.did, result.jwt).await?;
             ws_stream.close(None).await.unwrap();
           } else {
-            println!("Got unexpected message: {}",  content);
             ws_stream.close(None).await.unwrap();
           }
         },
@@ -183,24 +198,6 @@ impl VcRequest {
 
     Ok(())
   }
-
-  /*
-  pub async fn resolve_with_vidchain_code(self, code: &str) -> ConstataResult<Self> {
-    let settings = &self.state.settings.vidchain;
-    let response = ureq::post(&format!("{}/oauth2/token", &settings.host))
-      .timeout(std::time::Duration::new(5,0))
-      .set("Accept", "application/json")
-      .send_form(&[
-        ("code", code),
-        ("client_id", &settings.client_id),
-        ("client_secret", &settings.client_secret),
-        ("redirect_uri", &settings.redirect_uri),
-        ("grant_type", "authorization_code"),
-      ])?;
-
-    self.resolve_with_vidchain_jwt(code, response.into_string()?).await
-  }
-  */
 
   pub async fn resolve_with_vidchain_jwt(self, code: &str, presentation_jwt: String) -> ConstataResult<Self> {
     use ssi::jwk::JWK;
@@ -214,22 +211,23 @@ impl VcRequest {
       "kid": conf.expected_kid,
     }))?;
 
-    //let response: serde_json::Value = serde_json::from_str(&jwt)?;
-    //let presentation_jwt = response["id_token"].as_str().unwrap();
-    //let claims: serde_json::Value = ssi::jwt::decode_verify(&presentation_jwt, &key)?;
     let claims: serde_json::Value = ssi::jwt::decode_unverified(&presentation_jwt)?;
-
     let (state, notes) = self.validate_requirements(claims).await?;
-
     Ok(self.finish(state, notes, Some(presentation_jwt), Some(code.to_string())).await?)
   }
 
-  pub async fn finish(self,
+  pub async fn finish(mut self,
     state: VcRequestState,
     notes: Option<String>,
     vidchain_jwt: Option<String>,
     vidchain_code: Option<String>
   ) -> sqlx::Result<Self> {
+    self.reload().await?;
+
+    if self.attrs.state != VcRequestState::Pending {
+      return Ok(self);
+    }
+
     self.update()
       .vidchain_code(vidchain_code)
       .vidchain_jwt(vidchain_jwt)
