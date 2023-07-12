@@ -75,7 +75,6 @@ impl AccessToken {
         "createKioskVcRequest" |
         "KioskVcRequest"
       ),
-      AccessTokenKind::VcRequest => action == "updateKioskVcRequest",
     }
   }
 
@@ -91,7 +90,6 @@ pub enum AccessTokenKind {
   InvoiceLink,
   DownloadProofLink,
   VcPrompt,
-  VcRequest,
 }
 
 impl sqlx::postgres::PgHasArrayType for AccessTokenKind {

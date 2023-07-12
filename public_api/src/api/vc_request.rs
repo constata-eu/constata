@@ -13,15 +13,13 @@ pub struct VcRequest {
   state: VcRequestState,
   #[graphql(description = "A snake_cased_string with further information about the current state. Can be translated in the front end.")]
   state_notes: Option<String>,
-  #[graphql(description = "The full VC presentation received from the end user responding to the request.")]
-  vc_presentation: Option<String>,
   #[graphql(description = "DID of the user responding to this request.")]
   did: Option<String>,
   #[graphql(description = "The date in which this presentation request was made.")]
   started_at: UtcDateTime,
   #[graphql(description = "The time at which thes presentation request reached its final state.")]
   finished_at: Option<UtcDateTime>,
-  #[graphql(description = "The URL to scan with VidWallet's QR code scanner.")]
+  #[graphql(description = "The URL to scan with VidWallet's QR code scanner. Do not store. This URL is updated every couple of minutes.")]
   vidchain_url: Option<String>,
 }
 
@@ -83,7 +81,6 @@ impl Showable<models::VcRequest, VcRequestFilter> for VcRequest {
       prompt_id: d.attrs.vc_prompt_id,
       state: d.attrs.state,
       state_notes: d.attrs.state_notes,
-      vc_presentation: d.attrs.vc_presentation,
       did: d.attrs.did,
       started_at: d.attrs.started_at,
       finished_at: d.attrs.finished_at,
@@ -131,28 +128,12 @@ impl KioskVcRequest {
       let prompt = context.site.vc_prompt().select()
         .access_token_id_eq(token.attrs.id)
         .one().await?;
-      let request = prompt.vc_request_scope().id_eq(id).one().await?;
-
+      let request = prompt.vc_request_scope().id_eq(id).one().await?.set_active().await?;
       Self::db_to_graphql(request).await
     } else {
       Err(field_error("access", "invalid verifiable credentials request token"))
     }
   }
-
-  /*
-  pub async fn update( context: &Context, code: &str ) -> FieldResult<KioskVcRequest> {
-    if let AuthMethod::Token { ref token } = context.current_person.method {
-      let request = context.site.vc_request().select()
-        .access_token_id_eq(token.attrs.id)
-        .one().await?
-        .resolve_with_vidchain_code(code).await?;
-
-      Self::db_to_graphql(request).await
-    } else {
-      Err(field_error("access", "invalid auth token"))
-    }
-  }
-  */
 
   pub async fn db_to_graphql(d: models::VcRequest) -> FieldResult<KioskVcRequest> {
     let description = d.vc_prompt().await?.attrs.name;
