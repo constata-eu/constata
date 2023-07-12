@@ -1,7 +1,6 @@
 use constata_lib::prelude::*;
 use email_bot::EmailBot;
 use log::*;
-use constata_lib::models::*;
 use std::time::Duration;
 
 #[tokio::main]
@@ -25,7 +24,7 @@ async fn main() {
 
   macro_rules! run {
     ($name:literal {$($blk:tt)*}) => (
-      println!("Running: {}", $name);
+      //println!("Running: {}", $name);
       if let Err(err) = { $($blk)* } {
         error!("Error in {}: {:?}", $name, err);
       }

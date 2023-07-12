@@ -75,9 +75,6 @@ impl VcPrompt {
   }
 
   pub async fn create_request(&self) -> sqlx::Result<VcRequest> {
-    let access_token = self.state.access_token()
-      .create(&self.org().await?.admin().await?, AccessTokenKind::VcRequest, None).await?;
-
     for previous in self.vc_request_scope().state_eq(VcRequestState::Pending).all().await? {
       previous.finish(VcRequestState::Failed, Some("replaced_by_newer".to_string()), None, None).await?;
     }
@@ -85,14 +82,12 @@ impl VcPrompt {
     self.state.vc_request().insert(InsertVcRequest{
       org_id: self.attrs.org_id,
       vc_prompt_id: self.attrs.id,
-      access_token_id: access_token.attrs.id
     }).save().await
   }
 
   pub async fn requirement_rules(&self) -> ConstataResult<VcRequirementRules> {
     Ok(serde_json::from_str(&self.vc_requirement().await?.attrs.rules)?)
   }
-
 }
 
 describe! {
@@ -202,6 +197,32 @@ describe! {
     ).await?;
 
     assert_eq!(too_low.attrs.state, VcRequestState::Rejected);
+  }
+
+  dbtest!{ can_populate_qr_from_vidchain(_site, c) 
+    let person = c.alice().await.person().await;
+    let org = person.org().await?.update().use_verifier(true).save().await?;
+
+    let requirement = person.state.vc_requirement().insert(InsertVcRequirement{
+      org_id: org.attrs.id,
+      name: "Testing rules".to_string(),
+      rules: r#"{ "acceptable_sets": [
+        { "required_set": [
+          { "credential_spec": [
+            { "pointer":"/type", "filter":{"ArrayContains":"MedicoCredential"} }
+          ]}
+        ]}
+      ]}"#.to_string()
+    }).save().await?;
+
+    let prompt = person.state.vc_prompt().create(&person, "museum entrance 1", &requirement).await?;
+    let request = prompt.create_request().await?;
+
+    assert!(&request.attrs.vidchain_url.is_none());
+
+    request.clone().request_on_vidchain(0).await?; // Keep alive 0 will exit soon, without having been scanned.
+
+    assert!(&request.reloaded().await?.attrs.vidchain_url.unwrap().starts_with("openid://?response_type=id_token"));
   }
 
   async fn process_with_rules(person: &Person, rules: &str) -> anyhow::Result<VcRequest> {
