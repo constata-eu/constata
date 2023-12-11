@@ -16,8 +16,6 @@ model!{
     public_name: Option<String>,
     #[sqlx_model_hints(varchar, default)]
     logo_url: Option<String>,
-    #[sqlx_model_hints(boolean, default)]
-    use_verifier: bool,
     #[sqlx_model_hints(int4, default)]
     deletion_id: Option<i32>,
     #[sqlx_model_hints(timestamptz, default)]

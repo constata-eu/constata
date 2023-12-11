@@ -70,11 +70,6 @@ impl AccessToken {
         "deleteDownloadProofLink" |
         "AbridgedProofZip"
       ),
-      AccessTokenKind::VcPrompt => matches!(
-        action,
-        "createKioskVcRequest" |
-        "KioskVcRequest"
-      ),
     }
   }
 
@@ -89,7 +84,6 @@ pub enum AccessTokenKind {
   VerifyEmail,
   InvoiceLink,
   DownloadProofLink,
-  VcPrompt,
 }
 
 impl sqlx::postgres::PgHasArrayType for AccessTokenKind {
