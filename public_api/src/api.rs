@@ -49,9 +49,6 @@ constata_lib::pub_mods!{
     AttestationHtmlExport
   };
   endorsement_manifest::{EndorsementManifest};
-  vc_request::{KioskVcRequest, VcRequest, VcRequestFilter};
-  vc_prompt::{VcPrompt, VcPromptFilter, CreateVcPromptInput, UpdateVcPromptInput};
-  vc_requirement::{VcRequirement, VcRequirementFilter};
   email_address::{EmailAddress, EmailAddressFilter, EmailAddressInput, EmailAddressVerification};
   signup::{Signup, SignupInput};
   download_proof_link::{DownloadProofLink, DownloadProofLinkInput, AbridgedProofZip};
@@ -225,9 +222,6 @@ make_graphql_query!{
     [Attestation, allAttestations, allAttestationsMeta, "_allAttestationsMeta", AttestationFilter, i32],
     [WebCallback, allWebCallbacks, allWebCallbacksMeta, "_allWebCallbacksMeta", WebCallbackFilter, i32],
     [WebCallbackAttempt, allWebCallbackAttempts, allWebCallbackAttemptsMeta, "_allWebCallbackAttemptsMeta", WebCallbackAttemptFilter, i32],
-    [VcPrompt, allVcPrompts, allVcPromptsMeta, "_allVcPromptsMeta", VcPromptFilter, i32],
-    [VcRequest, allVcRequests, allVcRequestsMeta, "_allVcRequestsMeta", VcRequestFilter, i32],
-    [VcRequirement, allVcRequirements, allVcRequirementsMeta, "_allVcRequirementsMeta", VcRequirementFilter, i32],
   }
 
   #[graphql(name="PreviewEntry")]
@@ -277,11 +271,6 @@ make_graphql_query!{
   #[graphql(name="InvoiceLink")]
   async fn invoice_link(context: &Context, _id: String) -> FieldResult<InvoiceLink> {
     InvoiceLink::invoice_link(context).await
-  }
-
-  #[graphql(name="KioskVcRequest")]
-  async fn kiosk_vc_request(context: &Context, id: i32) -> FieldResult<KioskVcRequest> {
-    KioskVcRequest::get(context, id).await
   }
 
   #[graphql(name="DownloadProofLink")]
@@ -403,28 +392,6 @@ impl Mutation {
     org = org.update().web_callbacks_url(url).save().await?;
     AccountState::from_db(org.account_state().await?)
   }
-
-  pub async fn create_vc_prompt(context: &Context, input: CreateVcPromptInput)
-    -> FieldResult<VcPrompt>
-  {
-    input.process(context).await
-  }
-
-  pub async fn update_vc_prompt(context: &Context, input: UpdateVcPromptInput)
-    -> FieldResult<VcPrompt>
-  {
-    input.process(context).await
-  }
-
-  pub async fn create_kiosk_vc_request( context: &Context, _input: Option<i32> ) -> FieldResult<KioskVcRequest> {
-    KioskVcRequest::create(context).await
-  }
-
-  /*
-  pub async fn update_kiosk_vc_request( context: &Context, code: String ) -> FieldResult<KioskVcRequest> {
-    KioskVcRequest::update(context, &code).await
-  }
-  */
 }
 
 // A root schema consists of a query and a mutation.

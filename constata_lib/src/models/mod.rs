@@ -49,9 +49,6 @@ pub_mods!{
   storable;
   template_schema;
   web_callback;
-  vc_prompt;
-  vc_request;
-  vc_requirement;
   bump;
   storage;
   template;
@@ -62,7 +59,6 @@ pub_mods!{
 }
 
 pub_mods!{
-  vc_requirement_rules::VcRequirementRules;
   story_bundle::StoryBundle;
   document_bundle::DocumentBundle;
 }
