@@ -6,6 +6,23 @@ mod proof_integration {
       extensions::cdp::{ChromeDevTools, NetworkConditions},
     };
 
+    integration_test!{ proof_for_issuance_entry (c, d) 
+      let mut chain = TestBlockchain::new().await;
+      let key = TestBlockchain::default_private_key().await.unwrap();
+
+      let alice = c.alice().await;
+      alice.verify_email("apps.script.testing@constata.eu").await;
+      let entry = alice.make_entry_and_sign_it().await;
+      chain.fund_signer_wallet();
+      chain.simulate_stamping().await;
+      alice.make_download_proof_link_from_doc(&entry.document().await?.unwrap(), 30).await.publish().await?;
+
+      let content_es = entry.html_proof(&key, i18n::Lang::Es).await?.unwrap();
+      std::fs::write("../target/artifacts/entry_proof_es.html", &content_es).unwrap();
+      let content_en = entry.html_proof(&key, i18n::Lang::En).await?.unwrap();
+      std::fs::write("../target/artifacts/entry_proof_en.html", &content_en).unwrap();
+    }
+
     integration_test!{ proofs_integration_test (c, d)
       let mut chain = TestBlockchain::new().await;
       let key = TestBlockchain::default_private_key().await.unwrap();
@@ -27,6 +44,7 @@ mod proof_integration {
 
       let content_path = "/tmp/content.html";
       std::fs::write(&content_path, &content).unwrap();
+      wait_here();
 
       d.goto(&format!("file://{}", content_path)).await;
       d.wait_for("#document_0 .previews .preview img").await;

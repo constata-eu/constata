@@ -24,7 +24,6 @@ import Loading from "./views/loading";
 import {InvoiceLink, InvoiceLinkSuccess, InvoiceLinkError} from "./views/invoice_link";
 import Safe from "./views/safe";
 import { DownloadProofLink, CertificateShow } from "./views/download_proof_link";
-import { VcPromptKiosk, VidChainRedirect } from "./views/vc_prompt_kiosk";
 import Graphiql from "./views/graphiql";
 
 
@@ -145,8 +144,6 @@ function App() {
           <Route path="/safe/:access_token" element={<DownloadProofLink />} />
           <Route path="/safe/:access_token/show" element={<CertificateShow />} />
           <Route path="/graphiql" element={<Authenticated><Graphiql /></Authenticated>} />
-          <Route path="/vc_prompt_kiosk/:access_token" element={<VcPromptKiosk />} />
-          <Route path="/vid_chain/redirect_uri" element={<VidChainRedirect />} />
         </CustomRoutes>
         <CustomRoutes>
           <Route path="/wizard" element={<Wizard />} />

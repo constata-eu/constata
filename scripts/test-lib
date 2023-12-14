@@ -1,2 +1,2 @@
 #!/bin/bash
-cd constata_lib && cargo test --lib -p constata_lib --color always -- $2 --test-threads 1 $1 2>&1 | less -R
+cd constata_lib && cargo test --lib -p constata_lib --color always -- $2 --test-threads 1 --nocapture $1 2>&1 | less -R

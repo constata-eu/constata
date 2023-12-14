@@ -388,7 +388,7 @@ const Recipients = (props) => {
         <ListContextProvider value={listContext}>
           <SimpleList
             primaryText={(record) => <Grid container justifyContent="space-between" alignItems="center" spacing="auto">
-              <Grid item xs={11}> <Typography> {record.name} </Typography> </Grid>
+              <Grid item xs={11}> <Typography> {record.name || record.nombre || record.alumno } </Typography> </Grid>
               <Grid item xs={1}>
                 <IconButton size="small" aria-label="delete" onClick={() => handleRemoveRecipient(record.id)}>
                   <DeleteIcon />

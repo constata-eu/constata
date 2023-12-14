@@ -24,6 +24,7 @@ pub struct Proof<'a> {
   documents: Vec<DocumentContents>,
   endorsements: HashMap<PersonId, Vec<Endorsement>>,
   persons_missing_kyc: Vec<PersonId>,
+  public_certificate_url: Option<(String, String)>,
   explorers: Vec<String>,
   secure_origin: String,
   will_be_updated: bool,
@@ -152,6 +153,8 @@ impl<'a> Proof<'a> {
       }
     }
 
+    let public_certificate_url = Self::make_public_certificate_url(&story).await?;
+
     Ok(Proof {
       bulletins,
       key,
@@ -161,7 +164,23 @@ impl<'a> Proof<'a> {
       persons_missing_kyc,
       secure_origin,
       will_be_updated,
+      public_certificate_url,
     })
+  }
+
+  pub async fn make_public_certificate_url(story: &Story) -> ConstataResult<Option<(String, String)>> {
+    use qrcode_generator::{QrCodeEcc, to_svg_to_string};
+
+    let Some(link) = story.get_or_create_download_proof_link(30).await? else { return Ok(None) };
+
+    if link.published_at().is_none() {
+      return Ok(None);
+    }
+    
+    let url = link.public_certificate_url();
+    let qr = to_svg_to_string(&url, QrCodeEcc::Medium, 1024, None::<&str>)?;
+
+    Ok(Some((url, qr)))
   }
 
   pub fn type_priority(t: &str) -> i32 {
@@ -264,6 +283,7 @@ describe! {
     let story = alice.story_with_signed_doc(&read("document.zip"), None, "").await;
     let key = TestBlockchain::default_private_key().await?;
     let make_proof = ||{ story.proof(Network::Regtest, &key) };
+    let download_link = alice.make_download_proof_link_from_doc(&story.documents().await?[0], 30).await;
 
     assert_that!( &make_proof().await.unwrap_err(), is_variant!{ Error::DocumentParked });
 
@@ -277,7 +297,13 @@ describe! {
     chain.fund_signer_wallet();
     chain.simulate_stamping().await;
 
-    let proof = make_proof().await?;
+    let mut proof = make_proof().await?;
+    assert!(proof.public_certificate_url.is_none());
+
+    download_link.clone().publish().await?;
+    proof = make_proof().await?;
+    assert!(proof.public_certificate_url.is_some());
+
     let content = proof.render_html(i18n::Lang::Es).expect("Content to be ready now");
 
     let bulletin = site.bulletin().find(&1).await?;

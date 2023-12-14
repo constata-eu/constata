@@ -8,12 +8,10 @@ import EndorsementsSection from '../components/endorsements_section';
 import EmailAddress from '../components/email_address_section';
 import OtherActions from '../components/other_actions';
 import Dashboard from './dashboard';
-import { VcPromptDashboard } from "./vc_prompt";
 import { Head1 } from '../theme';
 
 export default function MultiAppDashboard() {
   const {isLoading, data: accountState} = useGetOne( 'AccountState', { id: 1 });
-  const {useVerifier} = accountState || {};
 
   if (isLoading) return <Container maxWidth="md" id="constata_dashboard_loading">
     <Skeleton/>
@@ -21,5 +19,5 @@ export default function MultiAppDashboard() {
     <Skeleton/>
   </Container>;
 
-  return useVerifier ?  <VcPromptDashboard/> : <Dashboard/>;
+  return <Dashboard/>;
 };
