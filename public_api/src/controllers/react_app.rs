@@ -16,16 +16,6 @@ pub fn app() -> (ContentType, &'static str) {
   )
 }
 
-#[get("/vid_chain/redirect_uri?<code>&<scope>&<state>")]
-pub async fn vid_chain_redirect_uri(code: &str, scope: &str, state: &str) -> Redirect {
-  let uri = format!(
-    "/#/vid_chain/redirect_uri?code={code}&scope={scope}&state={state}",
-    scope = scope.replace(" ", "+"),
-    state = state.replace(" ", "+"),
-  );
-  Redirect::permanent(uri)
-}
-
 #[get("/<file..>", rank=2)]
 pub fn build_dir(file: PathBuf) -> Option<(ContentType, &'static [u8])> {
   let path = file.as_path();

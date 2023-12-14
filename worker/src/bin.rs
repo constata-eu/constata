@@ -31,9 +31,6 @@ async fn main() {
     )
   }
 
-  let prompts_site = site.clone();
-  handles.push(tokio::spawn(async move { prompts_site.vc_request().wait_for_request_scans().await; }));
-
   every![500, |s| {
     run!("workroom_create_received" { s.issuance().create_all_received().await });
     run!("workroom_complete_all_notified" { s.issuance().try_complete().await });

@@ -34,19 +34,15 @@ const ResponsiveAppBar = ({loggedIn, accountState}) => {
           <CloseIcon />
         </IconButton>
 
-        { !accountState?.useVerifier &&
-          <Button size="large" sx={{ "svg": { fontSize: "1em !important" }, fontSize: 40, mb: 2, textTransform: "uppercase"}} color="inverted" onClick={ () => navigate("/") } id="dashboard-mobile-menu-item"
-            startIcon={<DashboardIcon/>} 
-          >
-            { translate("certos.menu.dashboard") }
-          </Button>
-        }
+        <Button size="large" sx={{ "svg": { fontSize: "1em !important" }, fontSize: 40, mb: 2, textTransform: "uppercase"}} color="inverted" onClick={ () => navigate("/") } id="dashboard-mobile-menu-item"
+          startIcon={<DashboardIcon/>} 
+        >
+          { translate("certos.menu.dashboard") }
+        </Button>
 
-        { !accountState?.useVerifier &&
-          <Button size="large" sx={{ fontSize: 40, mb: 2, textTransform: "uppercase"}} color="inverted" onClick={ () => navigate("/Issuance") } id="issuances-mobile-menu-item">
-            { translate("certos.menu.issuances") }
-          </Button>
-        }
+        <Button size="large" sx={{ fontSize: 40, mb: 2, textTransform: "uppercase"}} color="inverted" onClick={ () => navigate("/Issuance") } id="issuances-mobile-menu-item">
+          { translate("certos.menu.issuances") }
+        </Button>
         <Button size="large"sx={{ fontSize: 40, mb: 2, textTransform: "uppercase"}} color="inverted" href="mailto:hola@constata.eu" target="_blank" id="help-mobile-menu-item">
           { translate("certos.menu.help") }
         </Button>
@@ -58,16 +54,12 @@ const ResponsiveAppBar = ({loggedIn, accountState}) => {
   </Box>
 
   const ComputerMenu = () => <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, justifyContent:"end" }} id="desktop-menu">
-    { !accountState?.useVerifier &&
       <Button sx={{ ml: 1, textTransform: "uppercase" }} variant="contained" color="highlight" onClick={ () => navigate("/") } startIcon={<DashboardIcon/>} id="dashboard-menu-item">
         { translate("certos.menu.dashboard") }
       </Button>
-    }
-    { !accountState?.useVerifier &&
       <Button sx={{ ml: 1, textTransform: "uppercase" }} color="highlight" onClick={ () => navigate("/Issuance") } id="issuances-menu-item">
         { translate("certos.menu.issuances") }
       </Button>
-    }
     <Button sx={{ ml: 1, textTransform: "uppercase" }} color="highlight" href="mailto:hola@constata.eu" target="_blank" id="help-menu-item">
       { translate("certos.menu.help") }
     </Button>

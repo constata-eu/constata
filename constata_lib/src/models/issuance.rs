@@ -394,18 +394,16 @@ describe!{
     let mut zipfile = zip::ZipArchive::new(std::io::Cursor::new(&payload))?;
 
     {
-      let mut inner_0 = zipfile.by_index(0).unwrap();
-      assert_eq!(inner_0.name(), "1_diploma.html");
-      let mut contents_0 = String::new();
-      inner_0.read_to_string(&mut contents_0).unwrap();
-      assert_that!(&contents_0, rematch("Lisa Simpson"));
+      let inner_a = zipfile.by_index(0).unwrap();
+      assert_eq!(inner_a.name(), "2_analítico.html");
     }
-
     {
-      let inner_2 = zipfile.by_index(1).unwrap();
-      assert_eq!(inner_2.name(), "2_analítico.html");
+      let mut inner_b = zipfile.by_index(1).unwrap();
+      assert_eq!(inner_b.name(), "1_diploma.html");
+      let mut contents_b = String::new();
+      inner_b.read_to_string(&mut contents_b).unwrap();
+      assert_that!(&contents_b, rematch("Lisa Simpson"));
     }
-
 
     let html_preview = Previewer::create(&payload, true)?.render_html(i18n::Lang::Es)?;
     std::fs::write("../target/artifacts/entry_preview_es_kyc.html", &html_preview)?;

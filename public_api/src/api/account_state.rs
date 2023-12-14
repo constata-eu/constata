@@ -31,8 +31,6 @@ pub struct AccountState {
   web_callbacks_url: Option<String>,
   #[graphql(description = "A custom logo URL for your organization, configured by us.")]
   logo_url: Option<String>,
-  #[graphql(description = "Whether your account has access to the Credentials Verifier feature.")]
-  use_verifier: bool,
 }
 
 #[derive(Debug, GraphQLObject, Serialize, Deserialize)]
@@ -74,7 +72,6 @@ impl AccountState {
       pending_invoice_link_url: d.pending_invoice_link_url,
       web_callbacks_url: d.org.attrs.web_callbacks_url,
       logo_url: d.org.attrs.logo_url,
-      use_verifier: d.org.attrs.use_verifier,
     })
   }
 }

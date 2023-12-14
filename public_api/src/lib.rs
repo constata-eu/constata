@@ -80,7 +80,6 @@ pub fn server(site: Site) -> rocket::Rocket<rocket::Build> {
     ])
     .mount("/graphql", routes![graphiql, get_handler, post_handler, introspect])
     .mount("/", routes![
-      react_app::vid_chain_redirect_uri,
       react_app::app,
       react_app::build_dir,
     ])
