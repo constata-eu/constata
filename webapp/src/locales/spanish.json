@@ -184,52 +184,6 @@
         "verify_later": "Podrá asociarla a su identidad por un cargo adicional."
       },
       "title": "Creando Firma"
-    },
-    "VcPrompt": {
-      "vcRequirementId": "Reglas",
-      "name": "Nombre"
-    },
-    "VcRequest": {
-      "promptId": "Punto de verificación",
-      "finishedAt": "Escaneado"
-    }
-  },
-  "vc_validator": {
-    "dashboard": {
-      "title": "Puntos de verificación",
-      "subtitle": "Los puntos de verificación de credenciales le permiten solicitar credenciales verificables presencialmente desde un móvil "
-    },
-    "new_prompt": {
-      "button_label": "Crear punto de verificación",
-      "nameHelperText": "Un buen nombre puede ser la ubicación de este punto de verificación, o la persona que lo utilizará. \"Entrada principal del museo\" o \"Vigilante de parquímetros #1234\".",
-      "vcRequirementIdHelperText": "Las reglas a aplicar al validar las credenciales. Contáctenos para crear nuevas reglas."
-    },
-    "prompt_list": {
-      "title": "Puntos de verificacion activos",
-      "empty_message":
-        "No hay puntos de verificación activos. Cree uno nuevo. Cuando lo haga, podrá configurarlo en un dispositivo móvil aquí."
-    },
-    "configure": {
-      "button_label": "Configurar en un móvil",
-      "description": "Escanee este código QR — o copie y comparta el link — para convertir cualquier móvil en un punto de verificacíón.",
-      "copy_to_clipboard": "Copiar link",
-      "copied_to_clipboard": "¡Link copiado!"
-    },
-    "request_list": {
-      "title": "Intentos recientes",
-      "empty_message": "Cuando la gente intente utilizar los puntos de verificación, lo verá aquí."
-    },
-    "kiosk": {
-      "instructions_1": "Utilice el escaner de QRs de VidWallet",
-      "accepted": "Credencial aceptada.",
-      "rejected": "Esa credencial no cumple los requisitos.",
-      "failed": "Hubo un error, intente otra vez.",
-      "redirect_success": "Credencial enviada. Puede cerrar esta ventana."
-    },
-    "archive_prompt": {
-      "title": "Archivar punto de verificación.",
-      "content": "Archive los puntos de verificación cuando deje de utilizarlos. El punto de verificación dejará de funcionar, pero su historial quedará intacto.",
-      "errorUpdating": "Ocurrió un error archivando este punto de verificación"
     }
   },
   "certos": {
