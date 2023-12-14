@@ -85,24 +85,6 @@ pub enum Error {
   Base64(#[from] base64::DecodeError),
 }
 
-impl From<ssi_jws::Error> for Error {
-  fn from(err: ssi_jws::Error) -> Error {
-    Error::Internal(format!("Error in ssi: {}", err))
-  }
-}
-
-impl From<url::ParseError> for Error {
-  fn from(err: url::ParseError) -> Error {
-    Error::Internal(format!("Error parsing URL: {}", err))
-  }
-}
-
-impl From<tokio_tungstenite::tungstenite::Error> for Error {
-  fn from(err: tokio_tungstenite::tungstenite::Error) -> Error {
-    Error::Internal(format!("Error in websocket: {}", err))
-  }
-}
-
 impl From<i18n::error::Error> for Error {
   fn from(err: i18n::error::Error) -> Error {
     Error::Internal(format!("Error in i18n: {}", err))
