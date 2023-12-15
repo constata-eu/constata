@@ -44,7 +44,6 @@ mod proof_integration {
 
       let content_path = "/tmp/content.html";
       std::fs::write(&content_path, &content).unwrap();
-      wait_here();
 
       d.goto(&format!("file://{}", content_path)).await;
       d.wait_for("#document_0 .previews .preview img").await;
