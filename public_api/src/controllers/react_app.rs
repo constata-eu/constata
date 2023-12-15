@@ -1,7 +1,6 @@
 use std::{path::{PathBuf}};
 use rocket::get;
 use rocket::http::ContentType;
-use rocket::response::Redirect;
 use include_dir::{include_dir, Dir};
 
 static FILES_DIR: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/static/certos");

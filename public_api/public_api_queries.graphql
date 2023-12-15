@@ -269,50 +269,7 @@ mutation UpdateWebCallbacksUrl($url: String) {
     pendingTycUrl
     pendingInvoiceLinkUrl
     webCallbacksUrl
-    __typename
-  }
-}
-mutation CreateVcPrompt($input: CreateVcPromptInput!) {
-  createVcPrompt(input: $input) {
-    id
-    name
-    rules
-    fullUrl
-    createdAt
-    archivedAt
-    __typename
-  }
-}
-mutation UpdateVcPrompt($input: UpdateVcPromptInput!) {
-  updateVcPrompt(input: $input) {
-    id
-    name
-    rules
-    fullUrl
-    createdAt
-    archivedAt
-    __typename
-  }
-}
-mutation CreateKioskVcRequest($input: Int) {
-  createKioskVcRequest(input: $input) {
-    id
-    description
-    vidchainUrl
-    state
-    stateNotes
-    startedAt
-    __typename
-  }
-}
-mutation UpdateKioskVcRequest($code: String!) {
-  updateKioskVcRequest(code: $code) {
-    id
-    description
-    vidchainUrl
-    state
-    stateNotes
-    startedAt
+    logoUrl
     __typename
   }
 }
@@ -672,66 +629,6 @@ query AllWebCallbackAttemptsMeta($page: Int, $perPage: Int, $sortField: String, 
     __typename
   }
 }
-query VcPrompt($id: Int!) {
-  VcPrompt(id: $id) {
-    id
-    name
-    rules
-    fullUrl
-    createdAt
-    archivedAt
-    __typename
-  }
-}
-query AllVcPrompts($page: Int, $perPage: Int, $sortField: String, $sortOrder: String, $filter: VcPromptFilter) {
-  allVcPrompts(page: $page, perPage: $perPage, sortField: $sortField, sortOrder: $sortOrder, filter: $filter) {
-    id
-    name
-    rules
-    fullUrl
-    createdAt
-    archivedAt
-    __typename
-  }
-}
-query AllVcPromptsMeta($page: Int, $perPage: Int, $sortField: String, $sortOrder: String, $filter: VcPromptFilter) {
-  _allVcPromptsMeta(page: $page, perPage: $perPage, sortField: $sortField, sortOrder: $sortOrder, filter: $filter) {
-    count
-    __typename
-  }
-}
-query VcRequest($id: Int!) {
-  VcRequest(id: $id) {
-    id
-    promptId
-    state
-    stateNotes
-    vcPresentation
-    did
-    startedAt
-    finishedAt
-    __typename
-  }
-}
-query AllVcRequests($page: Int, $perPage: Int, $sortField: String, $sortOrder: String, $filter: VcRequestFilter) {
-  allVcRequests(page: $page, perPage: $perPage, sortField: $sortField, sortOrder: $sortOrder, filter: $filter) {
-    id
-    promptId
-    state
-    stateNotes
-    vcPresentation
-    did
-    startedAt
-    finishedAt
-    __typename
-  }
-}
-query AllVcRequestsMeta($page: Int, $perPage: Int, $sortField: String, $sortOrder: String, $filter: VcRequestFilter) {
-  _allVcRequestsMeta(page: $page, perPage: $perPage, sortField: $sortField, sortOrder: $sortOrder, filter: $filter) {
-    count
-    __typename
-  }
-}
 query PreviewEntry($id: Int!) {
   PreviewEntry(id: $id) {
     id
@@ -808,6 +705,7 @@ query AccountState($id: Int!) {
     pendingTycUrl
     pendingInvoiceLinkUrl
     webCallbacksUrl
+    logoUrl
     __typename
   }
 }
@@ -853,17 +751,6 @@ query InvoiceLink($id: String!) {
     minimumSuggested
     pricePerToken
     invoiceUrl
-    __typename
-  }
-}
-query KioskVcRequest($id: Int!) {
-  KioskVcRequest(id: $id) {
-    id
-    description
-    vidchainUrl
-    state
-    stateNotes
-    startedAt
     __typename
   }
 }

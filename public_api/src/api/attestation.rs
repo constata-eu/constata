@@ -200,7 +200,7 @@ constata_lib::describe_one! {
         parked_documents: eq(0),
         processing_documents: eq(0),
         total_documents: eq(2),
-        admin_access_url: maybe_some(rematch("http://localhost:8000/safe/.*")),
+        admin_access_url: maybe_some(rematch("http://localhost:8000/#/safe/.*")),
       }}
     }});
 
