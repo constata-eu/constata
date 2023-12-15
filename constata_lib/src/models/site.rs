@@ -40,7 +40,6 @@ pub struct SiteSettings {
   pub testing_storage: Option<bool>,
   pub storage: StorageSettings,
   pub storage_backup: StorageSettings,
-  pub vidchain: VidchainSettings,
   pub email_bot_sender: Option<String>,
   pub customer_care_email: Option<String>,
   pub recaptcha_threshold: Option<f64>,
