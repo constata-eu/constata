@@ -2,10 +2,7 @@
 import { Button } from '@mui/material';
 import { useTranslate } from 'react-admin';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
-import TwitterIcon from '@mui/icons-material/Twitter';
 import ArticleIcon from '@mui/icons-material/Article';
-
-
 
 const ShareToSocialMedia = ({url, icon, id, text}) => {
   const translate = useTranslate();
@@ -55,7 +52,7 @@ const ShareToTwitter = ({url, text}) => {
   const href= new URL("https://twitter.com/intent/tweet?");
   href.searchParams.set("url", url);
   href.searchParams.set("text", text);
-  return <ShareToSocialMedia url={href.toString()} icon={<TwitterIcon />} id="share-on-twitter" text={"certos.download_proof_link.share.twitter"}/>
+  return <ShareToSocialMedia url={href.toString()} icon={ <>𝕏</> } id="share-on-twitter" text={"certos.download_proof_link.share.twitter"}/>
 }
   
 export {ShareToLinkedin, ShareToTwitter, ShareCertificateInLinkedin};

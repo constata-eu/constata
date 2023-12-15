@@ -181,8 +181,8 @@ we can say the "Document" existed at any point before that date, and the timesta
         showValidationInstructions();
         if(isSecureOrigin()) {
           await writeLoadingDetails(
-            "✅",
-            "Successful verification",
+            "🔒",
+            "Document Verified",
             ""
           );
         } else {
@@ -408,14 +408,12 @@ This data uses the algorithm that we've explained before.
     </ol>
   </div>
   <div id="validation_not_needed" class="hidden">
-    <h2>This is a trusted source</h2>
-    <h2>You're seeing this document in {{secure_origin}}, it's been verified before showing it to you.</h2>
+    <h2>🔒Trusted origin</h2>
+    <p>You're seeing this document in <strong>{{secure_origin}}</strong> which is a trusted origin, it's been verified before showing it to you.</p>
+    <p>Visit <a href="{{ secure_origin }}">{{secure_origin}}</a> to learn more about the guarantees it offers.</p>
   </div>
 
-  <h2 id="independent_validation">Independent verification in Bitcoin Blockchain</h2>
-  <p>
-    The quick validation ensures this certificate was issued by Constata and that the company endorses its contents.
-  </p>
+  <h2 id="independent_validation">⛓️ Independent verification in Bitcoin Blockchain</h2>
   <p>
     In case Constata's web validation is not available, or the company's endorsement was not enough, you can
     access a detailed audit of this certificate <a id="expand_audit_log" onclick="expandAuditLog()" href="#independent_validation">clicking here</a>.

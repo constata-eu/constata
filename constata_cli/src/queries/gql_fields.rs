@@ -30,7 +30,6 @@ pub const ENTRY: &'static str = "\
   publicVisitCount
   hasEmailCallback
   emailCallbackSentAt
-  payload
   adminAccessUrl
   __typename";
 

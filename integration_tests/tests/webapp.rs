@@ -153,6 +153,11 @@ mod webapp {
       let entry = c.site.entry().find(&1).await?;
       let doc = entry.document().await?.expect("entry's document");
       let token = alice.make_download_proof_link_from_doc(&doc, 30).await.token().await?;
+
+      d.wait_for("#constata_dashboard").await;
+      d.click("#logout-menu-item").await;
+      d.wait_for_text("h1", "Hello again!").await; 
+
       d.goto(&format!("http://localhost:8000/#/safe/{token}")).await;
       d.click("#safe-button-change-public-certificate-state").await;
       let title = "Curso de programación";
@@ -224,6 +229,7 @@ mod webapp {
       d.wait_for_text(".MuiAlert-message", r"Email address verified*").await;
       d.wait_for("a[href='/']").await;
 
+      d.goto("/").await;
       d.goto(&url).await;
       d.wait_for(".MuiAlert-outlinedWarning").await;
       d.goto("/").await;
@@ -286,6 +292,7 @@ mod webapp {
       check_i_am_in_buy_tokens_page(&d).await;
       d.close_window_and_go_to_handle_zero().await;
 
+      d.wait_for("#dashboard-menu-item").await;
       d.click("#dashboard-menu-item").await;
       d.click("#dashboard-buy-tokens").await;
       d.get_handles_and_go_to_window_one().await;
@@ -345,6 +352,7 @@ mod webapp {
 
     integration_test!{ safe_environment (c, d)
       async fn check_open_certificate(d: &Selenium) {
+        d.wait_until_gone("#loader_overlay").await;
         d.wait_for("#iframe-valid-certificate").await.enter_frame().await.expect("to enter frame");
         d.wait_for("#document_0 .previews .preview img").await;
         d.click("#document_0 .document-index .field-1 .link-save").await;
@@ -384,6 +392,7 @@ mod webapp {
       d.goto(&format!("http://localhost:8000/#/safe/{token}")).await;
       d.wait_for("#pending_docs_title").await;
       chain.simulate_stamping().await;
+      d.goto(&format!("http://localhost:8000/")).await;
       d.goto(&format!("http://localhost:8000/#/safe/{token}")).await;
       d.wait_until_gone("#pending_docs_title").await;
     }
@@ -403,6 +412,10 @@ mod webapp {
 
       let download_proof_link = set_up_download_proof_link(&alice, &mut chain).await?;
       let token = download_proof_link.token().await?;
+
+      d.wait_for("#constata_dashboard").await;
+      d.click("#logout-menu-item").await;
+      d.wait_for_text("h1", "Hello again!").await; 
 
       d.goto(&format!("http://localhost:8000/#/safe/{token}")).await;
       d.click("#safe-button-change-public-certificate-state").await;
@@ -706,12 +719,14 @@ mod webapp {
 
     async fn assert_rematch(d: &Selenium, tag: &str) {
       let source_code = d.driver.source().await.expect("the source code");
+      assert!(source_code.len() > 0, "no source code");
       assert!(source_code.rfind(tag).is_some(), "Could not find {}", tag);
     }
 
     async fn check_public_certificate(d: &Selenium, title: &str, description: &str, image: &str) {
       d.click("#go-to-public-certificate").await;
       d.get_handles_and_go_to_window_one().await;
+      d.wait_for("body").await;
       assert_rematch(&d, "<meta name=\"twitter:card\" content=\"summary_large_image\">").await;
       assert_rematch(&d, &format!("<meta name=\"twitter:title\" content=\"{title}\">")).await;
       assert_rematch(&d, &format!("<meta name=\"twitter:description\" content=\"{description}\">")).await;

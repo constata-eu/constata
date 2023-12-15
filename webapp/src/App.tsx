@@ -8,8 +8,8 @@ import authProvider from './components/auth_provider';
 import { ConstataLayout } from './views/layout';
 import Signup from './views/signup';
 import VerifyEmail from './views/verify_email';
-import MultiAppDashboard from './views/multi_app_dashboard';
 import Wizard from './views/wizard';
+import Dashboard from './views/dashboard';
 import Login from './views/login';
 import { IssuanceList, IssuanceShow } from "./views/issuance";
 import { TemplateList, TemplateShow } from "./views/template";
@@ -126,7 +126,7 @@ function App() {
   return (
     <Admin
       disableTelemetry
-      dashboard={MultiAppDashboard}
+      dashboard={Dashboard}
       dataProvider={dataProvider}
       authProvider={authProvider}
       i18nProvider={i18nProvider}
