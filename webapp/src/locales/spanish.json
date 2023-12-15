@@ -481,7 +481,7 @@
         "confirm_unpublish": "Los links que hayas puesto en redes sociales, en mensajes privados, y los PDF's abreviados que hayas compartido se invalidarán. La gente no podrá visualizar o verificarlos.",
         "text": "Puedes compartir un link a este certificado por mensaje privado, en redes sociales, o como un PDF abreviado. Lo mantendremos en línea para que cualquiera que reciba el link pueda visualizarlo y verificarlo. Si cambias de opinión puedes despublicarlo, y ellos perderán acceso.",
         "linkedin": "Compartir en Linkedin",
-        "twitter": "Compartir en Twitter",
+        "twitter": "Publicar",
         "abridged_pdfs": "PDF con links",
         "add_certificate_to_linkedin": "Agregar Certificado a Linkedin"
       },

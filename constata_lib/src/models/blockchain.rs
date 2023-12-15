@@ -165,7 +165,7 @@ impl Blockchain {
     Ok(
       self
         .client
-        .estimate_smart_fee(number_block, Some(EstimateMode::Conservative))?
+        .estimate_smart_fee(number_block, Some(EstimateMode::Economical))?
         .fee_rate
         .unwrap_or_else(|| Amount::from_sat(self.default_fee))
         .as_sat()

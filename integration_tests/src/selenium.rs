@@ -163,7 +163,6 @@ impl Selenium {
 
   pub async fn get_handles_and_go_to_window_one(&self) -> Vec<WindowHandle> {
     try_until(40, "there are two handles", || async { self.driver.windows().await.unwrap().len() > 1 }).await;
-
     let handles = self.driver.windows().await.expect("to get the window handles");
     self.driver.switch_to_window(handles[1].clone()).await.expect("to switch to window 1");
     handles

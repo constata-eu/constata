@@ -8,7 +8,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import logo from '../assets/logo_denim.png';
 
-const ResponsiveAppBar = ({loggedIn, accountState}) => {
+const ResponsiveAppBar = ({loggedIn}) => {
   const [menuOpen, setMenuOpen] = useSafeSetState(false);
   const logout = useLogout();
   const navigate = useNavigate();
@@ -73,15 +73,9 @@ const ResponsiveAppBar = ({loggedIn, accountState}) => {
       <Container maxWidth="md" style={{ padding: 0}}>
         <Toolbar sx={{ minHeight: "0 !important" }}>
           <Box sx={{ display: "flex"}} >
-            { 
-              (accountState?.logoUrl) ?
-                <img src={accountState.logoUrl} style={{ maxHeight: isSmall ? "30px" : "65px", width: "auto" }}/>
-            
-              :
-              <a href="https://constata.eu" style={{lineHeight: 0}} target="_blank" rel="noreferrer">
-                <img src={logo} alt={translate("certos.menu.logo")} style={{ height: isSmall ? "20px" : "30px", width: "auto" }}/>
-              </a>
-            }
+            <a href="https://constata.eu" style={{lineHeight: 0}} target="_blank" rel="noreferrer">
+              <img src={logo} alt={translate("certos.menu.logo")} style={{ height: isSmall ? "20px" : "30px", width: "auto" }}/>
+            </a>
           </Box>
           {loggedIn && <>
               <MobileMenu />
@@ -139,12 +133,12 @@ export const BareLayout = ({children}) => {
   )
 }
 
-export const ToolbarLayout = ({children, loggedIn, accountState}) => {
+export const ToolbarLayout = ({children, loggedIn}) => {
   return (
     <Root>
       <CssBaseline/>
       <AppFrame>
-        <ResponsiveAppBar loggedIn={loggedIn} accountState={accountState} />
+        <ResponsiveAppBar loggedIn={loggedIn}/>
         <Content>
           {children}
         </Content>
@@ -158,13 +152,5 @@ export const NoLoggedInLayout = ({ children }) => {
 };
 
 export const ConstataLayout = ({ children }) => {
-  const {isLoading, data: accountState} = useGetOne( 'AccountState', { id: 1 });
-
-  if (isLoading) return <Container>
-    <Skeleton/>
-    <Skeleton/>
-    <Skeleton/>
-  </Container>;
-  
-  return <ToolbarLayout loggedIn={true} accountState={accountState} children={children} />;
+  return <ToolbarLayout loggedIn={true} children={children} />;
 };

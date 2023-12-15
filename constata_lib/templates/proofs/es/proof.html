@@ -181,8 +181,8 @@ podemos decir que el "Documento" existía desde antes de esa fecha y el sello es
         showValidationInstructions();
         if(isSecureOrigin()) {
           await writeLoadingDetails(
-            "✅",
-            "Verificación exitosa",
+            "🔒",
+            "Documento Verificado",
             ""
           );
         } else {
@@ -409,14 +409,12 @@ Estos datos se usan en el algoritmo que vimos más arriba.
   </div>
 
   <div id="validation_not_needed" class="hidden">
-    <h2>Origen confiable</h2>
-    <h2>Está viendo este certificado en {{secure_origin}}, y fue verificado antes de mostrárselo.</h2>
+    <h2>🔒Origen confiable</h2>
+    <p>Está viendo este certificado en {{secure_origin}} que es un origen confiable, y fue verificado antes de mostrárselo.</p>
+    <p>Visite <a href="{{ secure_origin }}">{{secure_origin}}</a> para ver las garantías que ofrece.</p>
   </div>
 
-  <h2 id="independent_validation">Validación independiente con Blockchain de Bitcoin</h2>
-  <p>
-    La validación rápida asegura que este fichero fue generado por Constata y que la empresa avala su contenido.
-  </p>
+  <h2 id="independent_validation">⛓️ Validación independiente con Blockchain de Bitcoin</h2>
   <p>
     En caso de que el servicio de Constata no se encuentre disponible, o el aval no fuera suficiente, se puede
     acceder a una auditoría detallada de este certificado <a id="expand_audit_log" onclick="expandAuditLog()" href="#independent_validation">tocando aquí</a>.
