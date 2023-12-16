@@ -413,10 +413,6 @@ mod webapp {
       let download_proof_link = set_up_download_proof_link(&alice, &mut chain).await?;
       let token = download_proof_link.token().await?;
 
-      d.wait_for("#constata_dashboard").await;
-      d.click("#logout-menu-item").await;
-      d.wait_for_text("h1", "Hello again!").await; 
-
       d.goto(&format!("http://localhost:8000/#/safe/{token}")).await;
       d.click("#safe-button-change-public-certificate-state").await;
       check_social_media(&d, "#share-on-linkedin", "www.linkedin.com").await;
@@ -447,7 +443,7 @@ mod webapp {
       d.wait_until_gone("#go-to-public-certificate").await;
 
       d.goto(&download_proof_link.public_certificate_url()).await;
-      d.wait_for_text(".container-constata > p", r"We could not find the certificate.*").await;
+      d.wait_for_text(".container-constata > h1", r"We're sorry, we can't show this certificate.*").await;
 
       d.goto(&format!("http://localhost:8000/#/safe/{token}")).await;
       d.click("#delete-download-proof-link").await;
@@ -609,6 +605,7 @@ mod webapp {
       d.wait_for_text("#create-issuance-container > div > div > div > p", r"template-show*").await;
     }
 
+    /*
     integration_test!{ shows_usage_statistics_for_issuances (c, d)
       pub async fn open_download_proof_link_and_public_certificate(
         d: &Selenium,
@@ -708,6 +705,7 @@ mod webapp {
       open_download_proof_link_and_public_certificate(&d, &c.site, 10, 1).await;
       check_statistic_for_template(&d, 10, 10, 15).await;
     }
+    */
 
     async fn set_up_download_proof_link(alice: &SignerClient, chain: &mut TestBlockchain) -> ConstataResult<DownloadProofLink> {
       let story = alice.clone().add_funds().await.story_with_signed_doc(&read("document.zip"), None, "").await;

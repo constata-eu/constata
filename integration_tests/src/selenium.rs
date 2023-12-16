@@ -1,5 +1,4 @@
 use std::process::{Child, Command, Stdio};
-use chrono::Utc;
 use thirtyfour::prelude::*;
 use constata_lib::test_support::try_until;
 
@@ -109,15 +108,18 @@ impl Selenium {
       return;
     }
 
-    let gone = found.expect("No errors").wait_until()
+    let elem = found.expect("no errors finding element");
+
+    let stale = elem.wait_until()
       .wait(std::time::Duration::from_millis(10000), std::time::Duration::from_millis(500))
       .stale().await;
 
-    if gone.is_err() {
-      let time = Utc::now();
-      let target = format!("../target/artifacts/{selector}_{time}");
-      self.driver.screenshot(std::path::Path::new(&target)).await.expect("to save screenshot");
-    }
+    if stale.is_ok() { return; }
+
+    let gone = elem.wait_until()
+      .wait(std::time::Duration::from_millis(10000), std::time::Duration::from_millis(500))
+      .not_displayed().await;
+
     gone.expect(&format!("{selector} was still displayed"));
   }
 

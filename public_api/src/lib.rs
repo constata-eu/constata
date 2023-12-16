@@ -59,12 +59,9 @@ pub fn server(site: Site) -> rocket::Rocket<rocket::Build> {
     .manage(new_graphql_schema())
     .attach(ReCaptcha::fairing())
     .attach(cors)
-    /*
     .mount("/static", routes![
       static_files::styles,
-      static_files::bitcoin_libraries,
     ])
-    */
     .mount("/payments", routes![
       payments::handle_stripe_events,
       payments::handle_btcpay_webhooks,
@@ -80,6 +77,9 @@ pub fn server(site: Site) -> rocket::Rocket<rocket::Build> {
     ])
     .mount("/graphql", routes![graphiql, get_handler, post_handler, introspect])
     .mount("/", routes![
+      safe::safe,
+      safe::prompt,
+      safe::show,
       react_app::app,
       react_app::build_dir,
     ])
