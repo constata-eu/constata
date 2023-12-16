@@ -23,6 +23,7 @@ pub mod payments;
 pub mod terms_acceptance;
 pub mod public_certificates;
 pub mod react_app;
+pub mod safe;
 
 constata_lib::describe_one! {
   #[derive(Debug, PartialEq, Clone, serde::Deserialize)]

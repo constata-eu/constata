@@ -46,6 +46,11 @@ mod proof_integration {
       std::fs::write(&content_path, &content).unwrap();
 
       d.goto(&format!("file://{}", content_path)).await;
+      d.wait_for_text("#loader_detail_icon", "⛓️").await;
+      d.wait_for_text("#loader_detail_icon", "🔎").await;
+      d.wait_for_text("#loader_detail_icon", "⚠️").await;
+      d.wait_until_gone("#loader_overlay").await;
+
       d.wait_for("#document_0 .previews .preview img").await;
 
       d.click("#document_0 .document-index .field-1 .link-save").await;
@@ -73,6 +78,10 @@ mod proof_integration {
       
       d.fill_in("#certificate", content_path).await;
       d.wait_for("#iframe-valid-certificate").await.enter_frame().await.expect("to enter frame");
+      d.wait_for_text("#loader_detail_icon", "⛓️").await;
+      d.wait_for_text("#loader_detail_icon", "🔎").await;
+      d.wait_for_text("#loader_detail_icon", "🔒").await;
+      d.wait_until_gone("div#loader_detail_icon").await;
       d.wait_for("#document_0").await;
 
       d.click("#expand_audit_log").await;
@@ -97,6 +106,9 @@ mod proof_integration {
       c.bob().await.make_signed_document(&story, samples::multipart_email().as_bytes(), None).await; 
 
       d.goto(&format!("http://localhost:8000/safe/{token}")).await;
+      d.wait_for("#pending_docs_title").await;
+
+      d.goto(&format!("http://localhost:8000/#/safe/{token}")).await;
       d.wait_for("#pending_docs_title").await;
 
       chain.simulate_stamping().await;
@@ -125,6 +137,9 @@ mod proof_integration {
       let token = alice.make_download_proof_link_from_doc(&doc, 30).await.token().await?;
 
       d.goto(&format!("http://localhost:8000/safe/{token}/show")).await;
+      d.wait_for("#iframe-valid-certificate").await.enter_frame().await.expect("to enter frame");
+
+      d.goto(&format!("http://localhost:8000/#/safe/{token}/show")).await;
       d.wait_for("#iframe-valid-certificate").await.enter_frame().await.expect("to enter frame");
 
       d.wait_for_text(".meta-section p strong", r#"application/octet-stream"#).await;
