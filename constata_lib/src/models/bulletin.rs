@@ -3,15 +3,12 @@
  * State transitions are enforced by making the methods only available to each variant.
  */
 
-use crate::{ Site, Result, Error};
-use super::{*, document::*, bump::*};
+use super::*;
 use bitcoin::{
   consensus, hashes::hex::FromHex, util::psbt::serialize::Serialize as PsbtSerialize, BlockHash,
   Transaction, Txid, network::constants::Network,
 };
-use serde::Serialize;
 use duplicate::duplicate_item;
-use chrono::Utc;
 use num_traits::ToPrimitive;
 
 model!{
@@ -72,7 +69,7 @@ impl BulletinHub {
 
   /* This method was used to migrate populating block times for
    * bulletins that didn't have them */
-  pub async fn populate_block_times(&self) -> Result<()> {
+  pub async fn populate_block_times(&self) -> ConstataResult<()> {
     use chrono::NaiveDateTime;
     use bitcoincore_rpc::{Auth, Client, RpcApi};
     let client = Client::new(
@@ -92,7 +89,7 @@ impl BulletinHub {
 }
 
 impl Bulletin {
-  pub async fn payload(&self) -> Result<String> {
+  pub async fn payload(&self) -> ConstataResult<String> {
     let rows: Vec<String> = self.state.db.fetch_all_scalar(sqlx::query_scalar!(
       r#"(SELECT DISTINCT dp.hash as "hash!" FROM document_parts dp
         INNER JOIN documents d ON d.id = dp.document_id AND d.bulletin_id = $1)
@@ -172,7 +169,7 @@ impl flow_variant {
   pub fn submitted_at(&self) -> &Option<UtcDateTime> { self.0.submitted_at() }
   pub fn into_inner(self) -> Bulletin { self.0 }
   pub fn as_inner<'a>(&'a self) -> &'a Bulletin { &self.0 }
-  pub async fn payload(&self) -> Result<String> { self.0.payload().await }
+  pub async fn payload(&self) -> ConstataResult<String> { self.0.payload().await }
 }
 
 impl Bulletin {
@@ -194,7 +191,7 @@ impl Bulletin {
   [ in_published  ] [ is_published  ] [ "published" ] [ Published ];
 )]
 impl Bulletin {
-  pub fn in_state(&self) -> Result<state_struct> {
+  pub fn in_state(&self) -> ConstataResult<state_struct> {
     self.flow().in_state()
   }
 
@@ -211,7 +208,7 @@ impl Bulletin {
   [ in_published  ] [ is_published  ] [ Flow::Published(i) ] [ Published ];
 )]
 impl Flow {
-  pub fn in_state(&self) -> Result<state_struct> {
+  pub fn in_state(&self) -> ConstataResult<state_struct> {
     if let variant([inner]) = self {
       Ok(inner.clone())
     } else {
@@ -290,7 +287,7 @@ impl flow_variant {
 }
 
 impl Draft {
-  pub async fn propose(self) -> Result<Proposed> {
+  pub async fn propose(self) -> ConstataResult<Proposed> {
     /* We first set the bulletin to proposed then calculate the payload hash
      * to make sure we don't have a race condition and no new documents are
      * added to the current draft invalidating the payload hash.
@@ -321,7 +318,7 @@ impl Draft {
 }
 
 impl Proposed {
-  pub async fn submit(self, transaction: &Transaction) -> Result<Submitted> {
+  pub async fn submit(self, transaction: &Transaction) -> ConstataResult<Submitted> {
     let updated = self.0
       .update()
       .state("submitted".to_string())
@@ -335,7 +332,7 @@ impl Proposed {
 }
 
 impl Submitted {
-  pub async fn publish(self, block_hash: &BlockHash, block_time_seconds: u64) -> Result<Published> {
+  pub async fn publish(self, block_hash: &BlockHash, block_time_seconds: u64) -> ConstataResult<Published> {
     use chrono::NaiveDateTime;
     let naive_datetime = NaiveDateTime::from_timestamp_opt(block_time_seconds.try_into().expect("not_too_big_epoch"), 0).expect("naive_datetime");
     let block_time: DateTime<Utc> = DateTime::from_utc(naive_datetime, Utc);
@@ -356,7 +353,7 @@ impl Submitted {
     Ok(Published(updated))
   }
 
-  pub async fn needs_bump(&self) -> Result<bool> {
+  pub async fn needs_bump(&self) -> ConstataResult<bool> {
     let bump_count = self.bump_count().await?;
     let bump_interval = self.0.state.settings.bump_interval();
     if bump_count >= 2 {
@@ -377,7 +374,7 @@ impl Submitted {
     return Ok(false);
   }
   
-  pub async fn create_bump(self, transaction: &Transaction) -> Result<Bump> {
+  pub async fn create_bump(self, transaction: &Transaction) -> ConstataResult<Bump> {
     Ok(self.0.state.bump().insert(InsertBump {
         bulletin_id: self.id().clone(),
         started_at: Utc::now(),
@@ -395,7 +392,7 @@ impl Submitted {
    * If this method is called and there's a race condition we would have to
    * update the database with the correct TX information from the blockchain. BY HAND.
    */
-  pub async fn resubmit(self, transaction: &Transaction) -> Result<Submitted> {
+  pub async fn resubmit(self, transaction: &Transaction) -> ConstataResult<Submitted> {
     Proposed(self.0).submit(transaction).await
   }
 }
@@ -414,7 +411,7 @@ impl Published {
 
 describe! {
   use bitcoin::{consensus::deserialize, hashes::hex::FromHex, Block, Transaction};
-  use chrono::{prelude::*, Utc};
+  use chrono::Utc;
 
   dbtest!{ can_fetch_a_locked_current_bulletin (site, _c)
     let (_tx, bulletin) = site.bulletin().current_draft().await?;

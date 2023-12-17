@@ -1,6 +1,4 @@
 use super::*;
-use crate::Site;
-use chrono::{Duration, Utc};
 
 model!{
   state: Site,
@@ -32,13 +30,13 @@ model!{
 }
 
 impl AccessTokenHub {
-  pub async fn create(&self, person: &Person, kind: AccessTokenKind, duration_days: i64) -> sqlx::Result<AccessToken> {
+  pub async fn create(&self, person: &Person, kind: AccessTokenKind, duration_days: Option<i64>) -> sqlx::Result<AccessToken> {
     self.insert(InsertAccessToken{
       person_id: person.attrs.id,
       org_id: person.attrs.org_id,
       token: MagicLink::make_random_token(),
       kind,
-      auto_expires_on: Some(Utc::now() + Duration::days(duration_days)),
+      auto_expires_on: duration_days.map(|d| Utc::now() + Duration::days(d)),
     }).save().await
   }
 
@@ -54,9 +52,24 @@ impl AccessTokenHub {
 impl AccessToken {
   pub fn allows(&self, action: &str) -> bool {
     match self.kind() {
-      AccessTokenKind::VerifyEmail => action == "EmailAddressVerification" || action == "createEmailAddressVerification",
-      AccessTokenKind::InvoiceLink => action == "InvoiceLink" || action == "createInvoiceLink",
-      AccessTokenKind::DownloadProofLink => matches!(action, "DownloadProofLink" | "Proof" | "updateDownloadProofLink" | "deleteDownloadProofLink" | "AbridgedProofZip"),
+      AccessTokenKind::VerifyEmail => matches!(
+        action,
+        "EmailAddressVerification" |
+        "createEmailAddressVerification"
+      ),
+      AccessTokenKind::InvoiceLink => matches!(
+        action,
+        "InvoiceLink" |
+        "createInvoiceLink"
+      ),
+      AccessTokenKind::DownloadProofLink => matches!(
+        action,
+        "DownloadProofLink" |
+        "Proof" |
+        "updateDownloadProofLink" |
+        "deleteDownloadProofLink" |
+        "AbridgedProofZip"
+      ),
     }
   }
 
@@ -79,29 +92,32 @@ impl sqlx::postgres::PgHasArrayType for AccessTokenKind {
   }
 }
 
-
 describe! {
-  use crate::Result;
-
   dbtest!{ expire_old_access_tokens (site, c)
     let alice = c.alice().await;
     let person = alice.person().await;
     expire_old_and_assert_amount_of_expired_and_not_expired(&site, 0, 0).await?;
 
     let mut access_tokens = vec![];
-    access_tokens.push(site.access_token().create(&person, AccessTokenKind::DownloadProofLink, 30).await?);
-    access_tokens.push(site.access_token().create(&person, AccessTokenKind::VerifyEmail, 30).await?);
-    access_tokens.push(site.access_token().create(&person, AccessTokenKind::InvoiceLink, 30).await?);
-    access_tokens.push(site.access_token().create(&person, AccessTokenKind::DownloadProofLink, 30).await?);
-    access_tokens.push(site.access_token().create(&person, AccessTokenKind::VerifyEmail, 30).await?);
-    access_tokens.push(site.access_token().create(&person, AccessTokenKind::InvoiceLink, 30).await?);
+
+    for kind in [
+      AccessTokenKind::DownloadProofLink,
+      AccessTokenKind::VerifyEmail,
+      AccessTokenKind::InvoiceLink,
+      AccessTokenKind::DownloadProofLink,
+      AccessTokenKind::VerifyEmail,
+      AccessTokenKind::InvoiceLink,
+    ] {
+      access_tokens.push(site.access_token().create(&person, kind, Some(30)).await?);
+    }
+
     access_tokens[0].clone().update().auto_expires_on(Some(Utc::now() - Duration::hours(1))).save().await?;
     expire_old_and_assert_amount_of_expired_and_not_expired(&site, 1, 5).await?;
 
     access_tokens[1].clone().update().auto_expires_on(Some(Utc::now() - Duration::hours(1))).save().await?;
     expire_old_and_assert_amount_of_expired_and_not_expired(&site, 2, 4).await?;
 
-    access_tokens.push(site.access_token().create(&person, AccessTokenKind::InvoiceLink, 30).await?);
+    access_tokens.push(site.access_token().create(&person, AccessTokenKind::InvoiceLink, Some(30)).await?);
     expire_old_and_assert_amount_of_expired_and_not_expired(&site, 2, 5).await?;
 
     for access_token in access_tokens {
@@ -109,11 +125,11 @@ describe! {
     }
     expire_old_and_assert_amount_of_expired_and_not_expired(&site, 7, 0).await?;
 
-    site.access_token().create(&person, AccessTokenKind::InvoiceLink, 30).await?;
+    site.access_token().create(&person, AccessTokenKind::InvoiceLink, Some(30)).await?;
     expire_old_and_assert_amount_of_expired_and_not_expired(&site, 7, 1).await?;
   }
 
-  pub async fn expire_old_and_assert_amount_of_expired_and_not_expired(site: &Site, expired: usize, not_expired: usize) -> Result<()> {
+  pub async fn expire_old_and_assert_amount_of_expired_and_not_expired(site: &Site, expired: usize, not_expired: usize) -> ConstataResult<()> {
     site.access_token().expire_all_old_access_tokens().await?;
     assert_eq!(site.access_token().select().expired_eq(true).all().await?.len(), expired);
     assert_eq!(site.access_token().select().expired_eq(false).all().await?.len(), not_expired);

@@ -1,5 +1,5 @@
 use super::*;
-use gql_types::entry_graphql::{EntryFilter, SigningIteratorInput, UnsignedEntryPayload};
+use gql_types::{*, UnsignedEntryPayload};
 
 #[derive(serde::Serialize)]
 pub struct Iter<'a> {

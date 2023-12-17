@@ -24,14 +24,14 @@ async fn main() {
   }
 }
 
-async fn populate_block_times() -> Result<()> {
+async fn populate_block_times() -> ConstataResult<()> {
   Site::default().await.expect("Cannot load site")
     .bulletin()
     .populate_block_times().await?;
   Ok(())
 }
 
-async fn create_superadmin() -> Result<()> {
+async fn create_superadmin() -> ConstataResult<()> {
   let site = Site::default().await.expect("Cannot load site");
   let username: String = Input::new()
     .with_prompt("New username")
@@ -58,7 +58,7 @@ async fn create_superadmin() -> Result<()> {
   Ok(())
 }
 
-async fn populate_backup_storage() -> Result<()> {
+async fn populate_backup_storage() -> ConstataResult<()> {
   use constata_lib::models::Storable;
   let password = Password::with_theme(&ColorfulTheme::default())
     .with_prompt("Keyring password")
@@ -96,14 +96,14 @@ async fn populate_backup_storage() -> Result<()> {
   make_backup_copy!(document_part);
   make_backup_copy!(pubkey_domain_endorsement);
   make_backup_copy!(template);
-  make_backup_copy!(request);
+  make_backup_copy!(issuance);
   make_backup_copy!(entry);
   make_backup_copy!(kyc_request_evidence);
 
   Ok(())
 }
 
-async fn check_template_schemas() -> Result<()> {
+async fn check_template_schemas() -> ConstataResult<()> {
   let password = Password::with_theme(&ColorfulTheme::default())
     .with_prompt("Keyring password")
     .interact()

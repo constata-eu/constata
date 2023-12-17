@@ -2,9 +2,6 @@
  * An EmailCallback can be scheduled for a document, and will be triggered when the document is stamped.
  */
 use super::{*, mailers::EntryDone};
-use crate::{
-  Site, Error, Result,
-};
 
 model!{
   state: Site,
@@ -34,7 +31,7 @@ model!{
 }
 
 impl InsertEmailCallbackHub {
-  pub async fn validate_and_save(self) -> Result<EmailCallback> {
+  pub async fn validate_and_save(self) -> ConstataResult<EmailCallback> {
     if !validator::validate_email(self.address()) {
       return Err(Error::validation("address","not_an_email"));
     }
@@ -44,7 +41,7 @@ impl InsertEmailCallbackHub {
 }
 
 impl EmailCallback {
-  pub async fn mark_sent(self) -> Result<EmailCallback> {
+  pub async fn mark_sent(self) -> ConstataResult<EmailCallback> {
     let sendable = match self.document().await?.in_accepted() {
       Err(_) => false,
       Ok(accepted) => accepted.bulletin().await
@@ -59,7 +56,7 @@ impl EmailCallback {
     Ok(self.update().sent_at(Some(Utc::now())).save().await?)
   }
 
-  pub async fn render_mailer_html(&self) -> Result<String> {
+  pub async fn render_mailer_html(&self) -> ConstataResult<String> {
     EntryDone::new(&self.state, self.document_id(), self.custom_message().to_owned()).await?.render_html()
   }
 }

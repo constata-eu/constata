@@ -6,6 +6,23 @@ mod proof_integration {
       extensions::cdp::{ChromeDevTools, NetworkConditions},
     };
 
+    integration_test!{ proof_for_issuance_entry (c, d) 
+      let mut chain = TestBlockchain::new().await;
+      let key = TestBlockchain::default_private_key().await.unwrap();
+
+      let alice = c.alice().await;
+      alice.verify_email("apps.script.testing@constata.eu").await;
+      let entry = alice.make_entry_and_sign_it().await;
+      chain.fund_signer_wallet();
+      chain.simulate_stamping().await;
+      alice.make_download_proof_link_from_doc(&entry.document().await?.unwrap(), 30).await.publish().await?;
+
+      let content_es = entry.html_proof(&key, i18n::Lang::Es).await?.unwrap();
+      std::fs::write("../target/artifacts/entry_proof_es.html", &content_es).unwrap();
+      let content_en = entry.html_proof(&key, i18n::Lang::En).await?.unwrap();
+      std::fs::write("../target/artifacts/entry_proof_en.html", &content_en).unwrap();
+    }
+
     integration_test!{ proofs_integration_test (c, d)
       let mut chain = TestBlockchain::new().await;
       let key = TestBlockchain::default_private_key().await.unwrap();
@@ -29,6 +46,11 @@ mod proof_integration {
       std::fs::write(&content_path, &content).unwrap();
 
       d.goto(&format!("file://{}", content_path)).await;
+      d.wait_for_text("#loader_detail_icon", "⛓️").await;
+      d.wait_for_text("#loader_detail_icon", "🔎").await;
+      d.wait_for_text("#loader_detail_icon", "⚠️").await;
+      d.wait_until_gone("#loader_overlay").await;
+
       d.wait_for("#document_0 .previews .preview img").await;
 
       d.click("#document_0 .document-index .field-1 .link-save").await;
@@ -40,15 +62,14 @@ mod proof_integration {
       conditions.offline = true;
       dev_tools.set_network_conditions(&conditions).await?;
       d.goto(&format!("file://{}", content_path)).await;
-      d.wait_for_text("#message h1", r"NO SE PUDO VALIDAR EL CERTIFICADO.*").await;
+      d.wait_for_text("#message h1", r".*Cuidado, no se pudo verificar el certificado.*").await;
       conditions.offline = false;
       dev_tools.set_network_conditions(&conditions).await?;
 
       let corrupt_path = "/tmp/corrupt_content.html";
       std::fs::write(&corrupt_path, &content.replace("9f167c730f2d9eac8c187c6b2654b1860a4e4719b9f35916857e937acc25ea46", "ABC1")).unwrap();
       d.goto(&format!("file://{}", corrupt_path)).await;
-      d.wait_for_text("#message h1", r"CERTIFICADO INVÁLIDO.*").await;
-
+      d.wait_for_text("#message h1", r"CERTIFICADO INVÁLIDO*").await;
 
       d.goto("http://localhost:8000/safe").await;
       d.fill_in("#certificate", corrupt_path).await;
@@ -56,6 +77,8 @@ mod proof_integration {
       
       d.fill_in("#certificate", content_path).await;
       d.wait_for("#iframe-valid-certificate").await.enter_frame().await.expect("to enter frame");
+      d.wait_for_text("#loader_detail_icon", "🔒").await;
+      d.wait_until_gone("div#loader_detail_icon").await;
       d.wait_for("#document_0").await;
 
       d.click("#expand_audit_log").await;
@@ -80,6 +103,9 @@ mod proof_integration {
       c.bob().await.make_signed_document(&story, samples::multipart_email().as_bytes(), None).await; 
 
       d.goto(&format!("http://localhost:8000/safe/{token}")).await;
+      d.wait_for("#pending_docs_title").await;
+
+      d.goto(&format!("http://localhost:8000/#/safe/{token}")).await;
       d.wait_for("#pending_docs_title").await;
 
       chain.simulate_stamping().await;
@@ -108,6 +134,9 @@ mod proof_integration {
       let token = alice.make_download_proof_link_from_doc(&doc, 30).await.token().await?;
 
       d.goto(&format!("http://localhost:8000/safe/{token}/show")).await;
+      d.wait_for("#iframe-valid-certificate").await.enter_frame().await.expect("to enter frame");
+
+      d.goto(&format!("http://localhost:8000/#/safe/{token}/show")).await;
       d.wait_for("#iframe-valid-certificate").await.enter_frame().await.expect("to enter frame");
 
       d.wait_for_text(".meta-section p strong", r#"application/octet-stream"#).await;

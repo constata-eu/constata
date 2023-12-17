@@ -4,7 +4,7 @@ use bitcoin_wallet::{
   account::{Account, AccountAddressType, MasterAccount, MasterKeyEntropy, Unlocker},
   mnemonic::Mnemonic,
 };
-use constata_lib::Result;
+use constata_lib::ConstataResult;
 use dialoguer::{theme::ColorfulTheme, Password, Select};
 
 #[derive(Debug)]
@@ -16,7 +16,7 @@ pub struct WalletSetup {
 }
 
 impl WalletSetup {
-  pub fn new(network: Network, passphrase: &str) -> Result<Self> {
+  pub fn new(network: Network, passphrase: &str) -> ConstataResult<Self> {
     let mnemonic = Mnemonic::new_random(MasterKeyEntropy::Paranoid)?;
     let mut master = MasterAccount::from_mnemonic(&mnemonic, 0, network, passphrase, None)?;
 

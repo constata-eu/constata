@@ -1,4 +1,3 @@
-use crate::error::Result;
 use super::*;
 
 model!{
@@ -39,7 +38,7 @@ impl Subscription {
     Ok( std::cmp::max(self.attrs.max_monthly_gift - given, Decimal::ZERO) )
   }
 
-  pub async fn claim_monthly_gift(&self, up_to: Decimal) -> Result<Option<Gift>> {
+  pub async fn claim_monthly_gift(&self, up_to: Decimal) -> ConstataResult<Option<Gift>> {
     let remainder = self.monthly_gift_remainder().await?;
 
     if remainder <= Decimal::ZERO {

@@ -1,4 +1,3 @@
-use crate::error::*;
 use super::*;
 
 model!{
@@ -26,7 +25,7 @@ model!{
 }
 
 impl InsertPaymentHub {
-  pub async fn save_and_trigger_updates(self) -> Result<Payment> {
+  pub async fn save_and_trigger_updates(self) -> ConstataResult<Payment> {
     let payment = self.save().await?;
 
     if let Some(id) = payment.attrs.invoice_id {
@@ -47,7 +46,7 @@ impl InsertPaymentHub {
 }
 
 impl PaymentHub {
-  pub async fn from_btcpay_webhook(&self, webhook: &btcpay::Webhook) -> Result<Option<Payment>> {
+  pub async fn from_btcpay_webhook(&self, webhook: &btcpay::Webhook) -> ConstataResult<Option<Payment>> {
     if webhook.kind != btcpay::WebhookType::InvoiceSettled {
       return Ok(None)
     }
@@ -70,7 +69,7 @@ impl PaymentHub {
     }
   }
 
-  pub async fn from_invoice(&self, invoice_id: i32) -> Result<Option<Payment>> {
+  pub async fn from_invoice(&self, invoice_id: i32) -> ConstataResult<Option<Payment>> {
     let maybe_invoice = self.state.invoice()
       .select()
       .id_eq(&invoice_id)
@@ -85,7 +84,7 @@ impl PaymentHub {
     }
   }
 
-  pub async fn from_stripe_event(&self, e: &stripe::Event) -> Result<Option<Payment>> {
+  pub async fn from_stripe_event(&self, e: &stripe::Event) -> ConstataResult<Option<Payment>> {
     use stripe::{EventType, EventObject};
 
     if let (EventType::PaymentIntentSucceeded, EventObject::PaymentIntent(i)) = (&e.event_type, &e.data.object) {

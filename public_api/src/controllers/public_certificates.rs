@@ -4,7 +4,7 @@ use serde_json::json;
 use crate::RENDERER;
 
 #[get("/<token>?<show_content>")]
-pub async fn show(site: &State<Site>, token: String, key: &State<PrivateKey>, l: Lang, show_content: bool) -> Result<i18n::LocalizedResponse<'static>> {
+pub async fn show(site: &State<Site>, token: String, key: &State<PrivateKey>, l: Lang, show_content: bool) -> ConstataResult<i18n::LocalizedResponse<'static>> {
   let response = match site.download_proof_link().public_certificate_active(token).one().await {
     Err(_e) => RENDERER.i18n("certificates/", l, "not_found.html")?,
     Ok(download_proof_link) => {

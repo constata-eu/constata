@@ -1,33 +1,6 @@
-use crate::{
-  models::{
-    model,
-    hasher::hexdigest,
-    Site,
-    bulletin,
-    PersonId,
-    UtcDateTime,
-    Decimal,
-    Bulletin,
-    Person,
-    Story,
-    Org,
-    OrgDeletion,
-    DocumentSource,
-    document_part::{DocumentPart, SelectDocumentPartHub},
-    email_callback::*,
-    download_proof_link::*,
-    certos::entry::{Entry, SelectEntryHub},
-  },
-  signed_payload::SignedPayload,
-  Error, Result,
-};
-use rust_decimal_macros::dec;
-
+use super::*;
 use mailparse::*;
-use serde::Serialize;
-use serde_with::serde_as;
 use duplicate::duplicate_item;
-use chrono::{Utc, Duration};
 
 model!{
   state: Site,
@@ -121,7 +94,7 @@ impl Document {
     [ in_parked   ] [ Parked    ];
     [ in_accepted ] [ Accepted  ];
   )]
-  pub fn in_state(&self) -> Result<state> {
+  pub fn in_state(&self) -> ConstataResult<state> {
     self.flow().in_state()
   }
 }
@@ -132,7 +105,7 @@ impl Document {
   [ in_accepted ] [ is_accepted ] [ Flow::Accepted(i)  ] [ Accepted  ];
 )]
 impl Flow {
-  pub fn in_state(self) -> Result<state> {
+  pub fn in_state(self) -> ConstataResult<state> {
     if let variant([inner]) = self {
       Ok(inner)
     } else {
@@ -153,7 +126,7 @@ impl Flow {
 }
 
 impl Parked {
-  pub async fn delete_parked(&self) -> Result<()> {
+  pub async fn delete_parked(&self) -> ConstataResult<()> {
     if !self.0.reloaded().await?.can_be_deleted() {
       return Err(Error::validation("document/accepted", "this_documents_is_not_parked"));
     }
@@ -181,7 +154,7 @@ impl Document {
     self.document_part_scope().is_base_eq(true).one().await
   }
 
-  pub async fn attachments_count(&self) -> Result<i32> {
+  pub async fn attachments_count(&self) -> ConstataResult<i32> {
     Ok(self.document_part_scope().count().await? as i32)
   }
 
@@ -217,16 +190,16 @@ impl Document {
     }
   }
 
-  pub async fn size_in_megabytes(&self) -> Result<f64> {
+  pub async fn size_in_megabytes(&self) -> ConstataResult<f64> {
     let size = self.base_document_part().await?.attrs.size_in_bytes;
     Ok((size as f64) / 1024_f64 / 1024_f64)
   }
 
-  pub async fn friendly_name(&self) -> Result<String> {
+  pub async fn friendly_name(&self) -> ConstataResult<String> {
     Ok(self.base_document_part().await?.attrs.friendly_name)
   }
 
-  pub async fn create_parts(&self, payload: &[u8], filename: Option<&str>, mime: MimeOverride) -> Result<()> {
+  pub async fn create_parts(&self, payload: &[u8], filename: Option<&str>, mime: MimeOverride) -> ConstataResult<()> {
     let mime_and_ext = mime.unwrap_or_else(|| Self::mime_and_ext(payload, filename));
     match (mime_and_ext.0.as_str(), mime_and_ext.1.as_str()) {
       ("message/rfc822", _) => self.index_as_email(payload).await,
@@ -235,7 +208,7 @@ impl Document {
     }
   }
 
-  async fn index_as_file(&self, payload: &[u8], media_type: &str, ext: &str) -> Result<()> {
+  async fn index_as_file(&self, payload: &[u8], media_type: &str, ext: &str) -> ConstataResult<()> {
     self.state.document_part().create(
       true,
       self.id(),
@@ -247,7 +220,7 @@ impl Document {
     Ok(())
   }
 
-  async fn index_as_email(&self, main_payload: &[u8]) -> Result<()> {
+  async fn index_as_email(&self, main_payload: &[u8]) -> ConstataResult<()> {
     let parsed = parse_mail(&main_payload)?;
 
     if parsed.subparts.is_empty() && parsed.get_body_raw()?.is_empty() {
@@ -284,7 +257,7 @@ impl Document {
   }
 
   #[async_recursion::async_recursion]
-  async fn index_email_subparts(&self, subparts: &[mailparse::ParsedMail<'_>]) -> Result<()> {
+  async fn index_email_subparts(&self, subparts: &[mailparse::ParsedMail<'_>]) -> ConstataResult<()> {
     for part in subparts {
       let payload = part.get_body_raw()?;
       let (_, ext) = Self::mime_and_ext(&payload, None);
@@ -319,7 +292,7 @@ impl Document {
     Ok(())
   }
 
-  async fn index_as_zip(&self, payload: &[u8], is_base: bool) -> Result<()> {
+  async fn index_as_zip(&self, payload: &[u8], is_base: bool) -> ConstataResult<()> {
     use std::io::Read;
 
     let cursor = std::io::Cursor::new(payload);
@@ -392,14 +365,14 @@ impl Document {
     (mime.to_string(), ext)
   }
 
-  async fn create_download_proof_link(&self, duration_days: i64) -> Result<DownloadProofLink> {
+  async fn create_download_proof_link(&self, duration_days: i64) -> ConstataResult<DownloadProofLink> {
     Ok(self.state.download_proof_link()
       .insert(InsertDownloadProofLink::new(&self, duration_days).await?)
       .save().await?
     )
   }
 
-  pub async fn get_or_create_download_proof_link(&self, duration_days: i64) -> Result<DownloadProofLink> {
+  pub async fn get_or_create_download_proof_link(&self, duration_days: i64) -> ConstataResult<DownloadProofLink> {
     match self.active_download_proof_link().await? {
       Some(x) => Ok(x),
       _ => self.create_download_proof_link(duration_days).await
@@ -415,7 +388,7 @@ impl Document {
 
 impl DocumentHub {
   pub async fn create_from_signed_payload(&self, story: &Story, signed_payload: &SignedPayload, filename: Option<&str>)
-   -> Result<Document> {
+   -> ConstataResult<Document> {
     if !signed_payload.signed_ok()? {
       return Err(Error::validation("signed_payload", "wrong_signature"));
     }
@@ -434,7 +407,7 @@ impl DocumentHub {
 
   pub async fn create_and_index
   (&self, story: &Story, payload: &[u8], filename: Option<&str>, person_id: PersonId, mime_override: MimeOverride, sourced_from: DocumentSource, always_gift: bool)
-   -> Result<Document> {
+   -> ConstataResult<Document> {
     let org = story.org().await?;
     use std::time::{SystemTime, UNIX_EPOCH};
     let time = SystemTime::now().duration_since(UNIX_EPOCH).expect("Time went backwards").as_nanos();
@@ -474,7 +447,7 @@ impl DocumentHub {
     Ok(doc.reloaded().await?)
   }
 
-  pub async fn delete_old_parked(&self) -> Result<()> {
+  pub async fn delete_old_parked(&self) -> ConstataResult<()> {
     let delete_interval = self.state.settings.delete_old_parked_interval();
     for doc in self.state.document().all_old_parked(delete_interval).all().await? {
       doc.in_parked()?.delete_parked().await?;
@@ -485,7 +458,6 @@ impl DocumentHub {
 
 describe! {
   use rust_decimal_macros::dec;
-  use crate::models::{document_part_signature::*, document_part::*, };
 
   dbtest!{ documents_may_be_funded_from_subscription_gifts (_site, c)
     c.alice().await.accepted_document(&samples::multipart_email().as_bytes()).await;
@@ -1167,13 +1139,13 @@ describe! {
     assert_document_existance_is(false, sixty_days_parked).await?;
   }
 
-  async fn assert_document_existance_is(should_exist: bool, documents: Vec<Document>) -> Result<()> {
+  async fn assert_document_existance_is(should_exist: bool, documents: Vec<Document>) -> ConstataResult<()> {
     for document in documents {
       assert!(document.reloaded().await.is_ok() == should_exist)
     }
     Ok(())
   }
-  async fn create_parked(site: &Site, enterprise: &SignerClient, days_ago: i64) -> Result<Vec<Document>> {
+  async fn create_parked(site: &Site, enterprise: &SignerClient, days_ago: i64) -> ConstataResult<Vec<Document>> {
     let update_created_at = Utc::now() - Duration::days(days_ago);
     let mut parkeds = vec![];
     let counter = site.document().select().person_id_eq(enterprise.person_id.unwrap()).count().await?;
@@ -1185,7 +1157,7 @@ describe! {
     }
     Ok(parkeds)
   }
-  async fn create_accepted(alice: &SignerClient, enterprise: &SignerClient, days_ago: i64) -> Result<Vec<Document>> {
+  async fn create_accepted(alice: &SignerClient, enterprise: &SignerClient, days_ago: i64) -> ConstataResult<Vec<Document>> {
     let update_created_at = Utc::now() - Duration::days(days_ago);
     let accepted = alice.signed_document(b"hello world").await
       .update().created_at(update_created_at).save().await?;

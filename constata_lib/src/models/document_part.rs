@@ -1,14 +1,13 @@
 use crate::{
+  prelude::*,
   models::{
     model,
     hasher::hexdigest,
-    Site,
     Document,
     document_part_signature::*,
     storable::*,
   },
   signed_payload::SignedPayload,
-  Result,
 };
 
 model!{
@@ -45,7 +44,7 @@ impl DocumentPartHub {
     friendly_name: &str,
     content_type: &str,
     payload: &[u8],
-  ) -> Result<DocumentPart> {
+  ) -> ConstataResult<DocumentPart> {
     let hash = hexdigest(payload);
     let size_in_bytes = payload.len() as i32;
     let id = hexdigest(
@@ -86,7 +85,7 @@ impl DocumentPart {
     ).save_and_trigger_updates().await
   }
 
-  pub async fn contents(&self) -> Result<Vec<u8>> {
+  pub async fn contents(&self) -> ConstataResult<Vec<u8>> {
     self.storage_fetch().await
   }
 }

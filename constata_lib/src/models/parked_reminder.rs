@@ -1,4 +1,4 @@
-use super::super::{models::*, Result, Error};
+use super::*;
 use chrono::{Datelike, Timelike, Duration, Weekday};
 
 model!{
@@ -22,7 +22,7 @@ model!{
 }
 
 impl ParkedReminderHub {
-  pub async fn create_new_reminders(&self, now: UtcDateTime) -> Result<()> {
+  pub async fn create_new_reminders(&self, now: UtcDateTime) -> ConstataResult<()> {
     if !self.is_good_time_for_reminders(now).await? {
       return Ok(());
     }
@@ -38,7 +38,7 @@ impl ParkedReminderHub {
     Ok(())
   }
 
-  pub async fn is_good_time_for_reminders(&self, now: UtcDateTime) -> Result<bool> {
+  pub async fn is_good_time_for_reminders(&self, now: UtcDateTime) -> ConstataResult<bool> {
     let time = now.time();
     if time.hour() != 13 {
       return Ok(false);
@@ -50,7 +50,7 @@ impl ParkedReminderHub {
     return Ok((over_four_days && now.weekday() == Weekday::Mon) || over_a_week)
   }
 
-  pub async fn last_reminder_date(&self, now: UtcDateTime) -> Result<UtcDateTime> {
+  pub async fn last_reminder_date(&self, now: UtcDateTime) -> ConstataResult<UtcDateTime> {
     Ok(self.state.parked_reminder()
       .select()
       .order_by(ParkedReminderOrderBy::CreatedAt)
@@ -75,11 +75,11 @@ impl ParkedReminderHub {
 
 
 impl ParkedReminder {
-  pub async fn render_parked_mailer_html(&self) -> Result<String> {
+  pub async fn render_parked_mailer_html(&self) -> ConstataResult<String> {
     EmailParkedDocuments::new(self).await?.render_html()
   }
 
-  pub async fn mark_sent(self) -> Result<ParkedReminder> {
+  pub async fn mark_sent(self) -> ConstataResult<ParkedReminder> {
     if self.sent_at().is_some() {
       return Err(Error::validation("sent_at", "cannot_mark_as_sent"));
     }

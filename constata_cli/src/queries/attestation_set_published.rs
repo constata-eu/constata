@@ -1,10 +1,5 @@
 use super::*;
-use gql_types::{
-  attestation_graphql::{
-    Attestation,
-    AttestationSetPublishedInput,
-  }
-};
+use gql_types::*;
 
 #[derive(serde::Serialize, clap::Args)]
 #[serde(rename_all = "camelCase")]

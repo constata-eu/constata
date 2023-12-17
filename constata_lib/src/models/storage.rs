@@ -1,6 +1,4 @@
-use super::site::StorageSettings;
-use crate::error::{Error, Result};
-
+use super::{*, site::StorageSettings};
 use s3::{bucket::Bucket, creds::Credentials, request_trait::ResponseData};
 
 #[derive(Clone, Debug)]
@@ -11,7 +9,7 @@ pub struct Storage {
 }
 
 impl Storage {
-  pub fn new(settings: &StorageSettings, maybe_files_key: Option<&str>) -> Result<Self> {
+  pub fn new(settings: &StorageSettings, maybe_files_key: Option<&str>) -> ConstataResult<Self> {
     let credentials: Credentials = Credentials::new(
       Some(&settings.key),
       Some(&settings.secret),
@@ -31,7 +29,7 @@ impl Storage {
     Ok(Self { bucket, local, files_key })
   }
 
-  pub async fn put(&self, name: &str, payload: &[u8]) -> Result<()> {
+  pub async fn put(&self, name: &str, payload: &[u8]) -> ConstataResult<()> {
     let ciphertext: Vec<u8>;
 
     let bytes: &[u8] = if let Some(k) = &self.files_key {
@@ -54,7 +52,7 @@ impl Storage {
     Ok(())
   }
 
-  pub async fn get(&self, name: &str) -> Result<Vec<u8>> {
+  pub async fn get(&self, name: &str) -> ConstataResult<Vec<u8>> {
     let bytes = if self.local {
       std::fs::read(format!("/tmp/constata-local-{}-{}", self.bucket.region, name))?
     } else {
@@ -74,7 +72,7 @@ impl Storage {
     }
   }
 
-  pub fn error<T>(&self, action: &str, r: &ResponseData, filename: &str) -> Result<T> {
+  pub fn error<T>(&self, action: &str, r: &ResponseData, filename: &str) -> ConstataResult<T> {
     let content = format!("{:?}.{:?}.{}.{:?}",
       String::from_utf8_lossy(r.bytes()),
       r.status_code(),

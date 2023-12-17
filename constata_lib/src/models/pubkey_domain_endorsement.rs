@@ -1,12 +1,5 @@
-use super::*;
-use crate::{
-  models::{
-    PersonId,
-    hasher::hexdigest
-  },
-  signed_payload::SignedPayload,
-  Error, Result, Site,
-};
+use super::{ *, PersonId, hasher::hexdigest };
+use crate::signed_payload::SignedPayload;
 use bitcoin::{util::misc::MessageSignature, Address};
 use chrono::{Duration, Utc};
 use serde::{Deserialize, Serialize};
@@ -54,7 +47,7 @@ model!{
 derive_storable!(PubkeyDomainEndorsement, "pkde");
 
 impl PubkeyDomainEndorsementHub {
-  pub async fn create_from_signed_payload(&self, signed_payload: &SignedPayload) -> Result<Pending> {
+  pub async fn create_from_signed_payload(&self, signed_payload: &SignedPayload) -> ConstataResult<Pending> {
     if !signed_payload.signed_ok()? {
       return Err(Error::validation("signed_payload", "wrong_signature"));
     }
@@ -117,7 +110,7 @@ impl PubkeyDomainEndorsement {
     }
   }
 
-  pub async fn payload(&self) -> Result<Option<String>> {
+  pub async fn payload(&self) -> ConstataResult<Option<String>> {
     if self.evidence_hash().is_some() {
       let data = self.storage_fetch().await?;
       Ok(Some(String::from_utf8(data)?))
@@ -134,7 +127,7 @@ impl PubkeyDomainEndorsement {
   [ in_failed   ] [ is_failed   ] [ "failed"    ] [ Failed    ];
 )]
 impl PubkeyDomainEndorsement {
-  pub fn in_state(&self) -> Result<state_struct> {
+  pub fn in_state(&self) -> ConstataResult<state_struct> {
     self.flow().in_state()
   }
 
@@ -149,7 +142,7 @@ pub struct PubkeyDomainEndorsementForm {
 }
 
 impl PubkeyDomainEndorsementForm {
-  pub async fn save(&self, site: &Site) -> Result<Pending> {
+  pub async fn save(&self, site: &Site) -> ConstataResult<Pending> {
     site.pubkey_domain_endorsement().create_from_signed_payload(&self.signed_payload).await
   }
 }
@@ -186,7 +179,7 @@ impl flow_variant {
 impl flow_variant {
   pub fn bulletin_id(&self) -> &i32 { self.0.bulletin_id().as_ref().expect("Bulletin to be available here") }
   pub fn database_evidence(&self) -> &String { self.0.evidence().as_ref().expect("Evidence to be available here") }
-  pub async fn evidence(&self) -> Result<String> { self.0.payload().await.map(|e| e.expect("Evidence to be available here") ) }
+  pub async fn evidence(&self) -> ConstataResult<String> { self.0.payload().await.map(|e| e.expect("Evidence to be available here") ) }
 }
 
 #[duplicate_item(
@@ -196,7 +189,7 @@ impl flow_variant {
   [ in_failed   ] [ is_failed   ] [ Flow::Failed(i)    ] [ Failed    ];
 )]
 impl Flow {
-  pub fn in_state(&self) -> Result<state_struct> {
+  pub fn in_state(&self) -> ConstataResult<state_struct> {
     if let variant([inner]) = self {
       Ok(inner.clone())
     } else {
@@ -218,7 +211,7 @@ impl Flow {
 }
 
 impl PubkeyDomainEndorsementHub {
-  pub async fn process_all(&self) -> Result<Vec<Flow>> {
+  pub async fn process_all(&self) -> ConstataResult<Vec<Flow>> {
     let all = self.select()
       .state_eq(&"pending".to_string())
       .next_attempt_lte(&Utc::now())
@@ -235,7 +228,7 @@ impl PubkeyDomainEndorsementHub {
 }
 
 impl Pending {
-  async fn process(self) -> Result<Flow> {
+  async fn process(self) -> ConstataResult<Flow> {
     match self.fetch_evidence().await {
       Ok(evidence) => {
         let (tx, draft) = self.as_inner().state.bulletin().current_draft().await?;
@@ -269,7 +262,7 @@ impl Pending {
     }
   }
 
-  async fn fetch_evidence(&self) -> Result<EndorsementEvidence> {
+  async fn fetch_evidence(&self) -> ConstataResult<EndorsementEvidence> {
     use std::io::Read;
     let log = Site::default().await?.audit_log;
     let marker = log.start_marker();
@@ -420,7 +413,7 @@ describe! {
           .all().await.unwrap()
           .into_iter()
           .map(|x| x.in_pending().unwrap() )
-          .collect::<Vec<Pending>>()
+          .collect::<Vec<pubkey_domain_endorsement::Pending>>()
       }
     };
 

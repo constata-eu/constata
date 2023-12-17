@@ -1,11 +1,4 @@
 use super::*;
-
-use crate::{
-  Base64Standard,
-  Site,
-  Error,
-  Result,
-};
 use serde_with::serde_as;
 
 model!{
@@ -46,7 +39,7 @@ model!{
 }
 
 impl EmailAddressHub {
-  pub async fn validate_new_email(&self, address: &str, person_id: &PersonId) -> Result<bool> {
+  pub async fn validate_new_email(&self, address: &str, person_id: &PersonId) -> ConstataResult<bool> {
     match self.state.email_address().select().address_eq(&address.to_string()).verified_at_is_set(true).optional().await? {
       Some(email) => {
         if email.person_id() == person_id { return Ok(true); }
@@ -56,7 +49,7 @@ impl EmailAddressHub {
     }
   }
 
-  pub async fn create(&self, person: Person, address: &str, evidence: Vec<u8>, verified: bool, keep_private: bool) -> Result<EmailAddress> {
+  pub async fn create(&self, person: Person, address: &str, evidence: Vec<u8>, verified: bool, keep_private: bool) -> ConstataResult<EmailAddress> {
     if !validator::validate_email(address) {
       return Err(Error::validation("address","not_an_email"));
     }
@@ -66,12 +59,14 @@ impl EmailAddressHub {
     }
 
     let evidence_hash = hasher::hexdigest(&evidence);
+    let access_token = self.state.access_token()
+      .create(&person, AccessTokenKind::VerifyEmail, Some(30)).await?;
 
     Ok(self.insert(InsertEmailAddress{
       address: address.to_string(),
       person_id: person.attrs.id,
       org_id: person.attrs.org_id,
-      access_token_id: Some(self.state.access_token().create(&person, AccessTokenKind::VerifyEmail, 30).await?.attrs.id),
+      access_token_id: Some(access_token.attrs.id),
       verified_at: if verified { Some(Utc::now()) } else { None },
       evidence_hash,
       evidence,
@@ -79,7 +74,7 @@ impl EmailAddressHub {
     }).save().await?)
   }
 
-  pub async fn create_with_new_org(self, address: &str, evidence: Vec<u8>, verified: bool, lang: i18n::Lang, keep_private: bool) -> Result<EmailAddress> {
+  pub async fn create_with_new_org(self, address: &str, evidence: Vec<u8>, verified: bool, lang: i18n::Lang, keep_private: bool) -> ConstataResult<EmailAddress> {
     let tx = self.transactional().await?;
 
     let org = tx.state.org()
@@ -94,7 +89,7 @@ impl EmailAddressHub {
     Ok(email)
   }
 
-  pub async fn verify_with_token(self, token: &AccessToken) -> Result<EmailAddress> {
+  pub async fn verify_with_token(self, token: &AccessToken) -> ConstataResult<EmailAddress> {
     let mut found = self.select().access_token_id_eq(token.attrs.id).one().await?;
 
     if found.attrs.verified_at.is_none() {

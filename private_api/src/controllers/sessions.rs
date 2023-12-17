@@ -37,16 +37,11 @@ pub struct Session {
   token: String,
 }
 
-
 constata_lib::describe_one! {
   use google_authenticator::GoogleAuthenticator;
-  use constata_lib::models::{
-    admin_user::hash_pass,
-    Utc,
-  };
+  use constata_lib::models::admin_user::hash_pass;
   
   apitest!{ login_admin_user (db, c, client)
-
     db.admin_user().create("foo", "barz", AdminRole::SuperAdmin).await?;
     let admin = db.admin_user().find_from_credentials("foo", "barz").await.unwrap();
     let otp = GoogleAuthenticator::new().get_code(&admin.attrs.otp_seed, 0)?;
@@ -55,9 +50,9 @@ constata_lib::describe_one! {
     let body = body_login_admin_user("foo", "barz", &otp);
     let token = client.post_for_session_and_get_token("/sessions/", body).await;
 
-    let token_from_db = db.admin_user_session().find_active(&token, Utc::now())
-                            .await.unwrap().unwrap()
-                            .attrs.token;
+    let token_from_db = db.admin_user_session()
+      .find_active(&token, Utc::now()).await.unwrap().unwrap()
+      .attrs.token;
 
     assert_eq!(token, token_from_db);
   }

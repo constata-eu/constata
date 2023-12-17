@@ -179,6 +179,8 @@ type AccountState {
   pendingInvoiceLinkUrl: String
   "This should be an address on your own website such as 'https://yoursite.com/web_callbacks_from_constata' where we can notify you about done attestations, issuances, or pending token purchases."
   webCallbacksUrl: String
+  "A custom logo URL for your organization, configured by us."
+  logoUrl: String
 }
 
 "Your email account, as verified by Constata's email robot."
@@ -247,7 +249,7 @@ input KycRequestFilter {
   stateEq: String
 }
 
-"This is the best way to compose an Issuance incrementally. You can add new entries at any time before signing the Issuance. Entries will be validated as they are recevied, and then will be 'created' by our workers. In the unlikely case an entry passes validation and is received, but then an error when our worker tries to create it, the request will be marked as failed, as well as all other entries. "
+"This is the best way to compose an Issuance incrementally. You can add new entries at any time before signing the Issuance. Entries will be validated as they are recevied, and then will be 'created' by our workers. In the unlikely case an entry passes validation and is received, but then an error when our worker tries to create it, the issuance will be marked as failed, as well as all other entries. "
 input AppendEntriesToIssuanceInput {
   "The ID of the Issuance to which the entries are to be appended." issuanceId: Int!
   "An array of JSON objects corresponding to each recipient for whom you want to create a diploma, certificate of attendance or badge. ie: '[{\"name\":\"Alice\",\"motive\":\"Cream of the crop\"},{\"name\":\"Bob\",\"motive\":\"Accredited Expert\"}]'" entries: [EntryParams!]!
@@ -624,8 +626,6 @@ type Entry {
   hasEmailCallback: Boolean!
   "Date when the email was sent, if it has already been sent."
   emailCallbackSentAt: DateTime
-  "The data payload for this entry."
-  payload: String
   "The administrative access url for the direct recipient of this entry. They can use it to download, view or share the document."
   adminAccessUrl: String
 }

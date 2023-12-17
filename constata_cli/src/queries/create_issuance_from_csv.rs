@@ -1,8 +1,5 @@
 use super::*;
-use gql_types::issuance_graphql::{
-  Issuance,
-  CreateIssuanceFromCsvInput,
-};
+use gql_types::*;
 
 #[derive(serde::Serialize, clap::Args)]
 pub struct CreateIssuanceFromCsv {
