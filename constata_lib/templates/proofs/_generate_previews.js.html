@@ -23,7 +23,7 @@ function generatePreviews(){
       let text = (new TextDecoder()).decode(base64ToBytes(bytes));
       iframe.contentWindow.document.write(text);
       setTimeout(function(){
-        iframe.height = (iframe.contentDocument.querySelector("html").scrollHeight) + 'px';
+        iframe.height = (iframe.contentDocument.querySelector("html").scrollHeight + 10) + 'px';
       },50);
     }else if(type.startsWith("video")){
       container.appendChild(preview);
