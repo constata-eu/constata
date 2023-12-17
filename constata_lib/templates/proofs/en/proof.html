@@ -134,7 +134,7 @@ we can say the "Document" existed at any point before that date, and the timesta
         '🔎',
         'Verifying document integrity<div class="loader"><div class="loader-bar"></div></div>',
         `Looking for document ${doc.dataset.documentId} in verified bulletin #${doc.dataset.bulletinId}.`,
-        3000
+        500
       );
 
       for (part of document_parts) {
@@ -171,28 +171,31 @@ we can say the "Document" existed at any point before that date, and the timesta
         }
       }   
     }
+    await sleep(2000);
+
     return true;
   }
 
   window.onload = async function(){
     if(await ensure_running_on_secure_environment()){
-      if(await constataValidation()){
+      showValidationInstructions();
+      if(isSecureOrigin()) {
+        populateDatesFromSecureOriginInsteadOfBlockchains();
         generatePreviews();
-        showValidationInstructions();
-        if(isSecureOrigin()) {
-          await writeLoadingDetails(
-            "🔒",
-            "Document Verified",
-            ""
-          );
-        } else {
-          await writeLoadingDetails(
-            "⚠️",
-            "Only local verification",
-            "Verification was successful, but we suggest you also make the quick web verification. <br/>See instructions at the document's footer.",
-            5000
-          );
-        }
+        await writeLoadingDetails(
+          "🔒",
+          "Document Verified",
+          "Displayed from a secure origin."
+        );
+        document.getElementById("loader_overlay").style.display = "none";
+      } else if(await constataValidation()){
+        generatePreviews();
+        await writeLoadingDetails(
+          "⚠️",
+          "Only local verification",
+          "Verification was successful, but we suggest you also make the quick web verification. <br/>See instructions at the document's footer.",
+          8000
+        );
         document.getElementById("loader_overlay").style.display = "none";
       }
     }
@@ -220,7 +223,9 @@ we can say the "Document" existed at any point before that date, and the timesta
       You can also visualize it from another like a tablet, phone or computer.
     </div>
   </div>
-  <div id="message" class="hidden"></div>
+  <div class="message-wrapper">
+    <div id="message" class="hidden"></div>
+  </div>
 </div>
 
 <div id="mobile_warning" class="hidden">
@@ -243,13 +248,16 @@ This data uses the algorithm that we've explained before.
 
 {%- if doc_count > 1 -%}
 <div class="many-docs-notice">
-  Contains <strong>{{ doc_count }} documents</strong> registered
-  {% if bulletin_count > 1 %}
-    between <strong class="timestamp-{{ bulletin_ids | first }}">{loading date}</strong>
-    and <strong class="timestamp-{{ bulletin_ids | last }}">{loading date}</strong>.
-  {% else %}
-    on <strong class="timestamp-{{ bulletin_ids | first }}">{loading date}</strong>.
-  {% endif %}
+  Contains <strong>{{ doc_count }} documents</strong>
+  <span class="hide-if-unverified">
+    registered
+    {% if bulletin_count > 1 %}
+      between <strong class="timestamp-{{ bulletin_ids | first }}">{loading date}</strong>
+      and <strong class="timestamp-{{ bulletin_ids | last }}">{loading date}</strong>.
+    {% else %}
+      on <strong class="timestamp-{{ bulletin_ids | first }}">{loading date}</strong>.
+    {% endif %}
+  </span>
 </div>
 {%- endif -%}
 
@@ -321,7 +329,7 @@ This data uses the algorithm that we've explained before.
         <div class="payload hidden">{{ part.contents }}</div> 
 
         {% if part.object.is_base %}
-          <div class="signature">
+          <div class="signature hide-if-unverified">
             <div class="field">
               <b>Certification date on Bitcoin's blockchain:</b>
               <span class="timestamp-{{ doc.bulletin_id }}"><i>{loading date}</i></span>.
@@ -340,7 +348,7 @@ This data uses the algorithm that we've explained before.
               <b>Digitally signed by:</b>
               {{ macros_en::person_endorsements(person_id=signature.person_id, endorsements=endorsements[signature.person_id]) }}
             </div>
-            <div class="field">
+            <div class="field hide-if-unverified">
               <b>Signed on:</b>
               <span class="timestamp-{{ signature.bulletin_id }}">{loading date }</span>
             </div>
@@ -370,7 +378,7 @@ This data uses the algorithm that we've explained before.
 {% endfor %}
 
 {% for bulletin in bulletins %}
-  <div id="bulletin_{{bulletin.object.id}}" class="bulletin hidden" data-bulletin-id="{{bulletin.object.id}}" data-bulletin-hash="{{bulletin.object.hash}}" data-transaction-hash="{{ bulletin.object.transaction_hash }}">{{ bulletin.contents }}</div>
+  <div id="bulletin_{{bulletin.object.id}}" class="bulletin hidden" data-bulletin-id="{{bulletin.object.id}}" data-bulletin-date="{{ bulletin.object.block_time }}" data-bulletin-hash="{{bulletin.object.hash}}" data-transaction-hash="{{ bulletin.object.transaction_hash }}">{{ bulletin.contents }}</div>
 {% endfor %}
 
 {% if public_certificate_url %}
@@ -643,16 +651,23 @@ This data uses the algorithm that we've explained before.
 
   function showBlockchainTemporarilyUnavailableMessage() {
     showErrorMessage(`
-      <h1>⚠ CERTIFICATE COULD NOT BE VALIDATED</h1>
-      <h2>Queries to public blockchain copies failed.</h2>
+      <h1>⚠ Beware, the certificate could not be verified.</h1>
       <p>
-        Thi may be a temporary issue with these public bitcoin blockchain copies, or with your internet connection.
-        Revise su conexión y espera unos minutos.
+        This may be due to a temporary issue with your connection or internet provider.
       </p>
       <p>
-        If you continue without being able to validate this certificate and you need help, please contact us at
+        Or it could be your corporate network policies restrict access to our verification points.
+      </p>
+      <p>
+        <button onclick="dismissErrorMessage()">Display without verifying</button>
+      </p>
+      <p>
+        Verification is important when you need to trust the content being displayed. We suggest you try it from another device or internet connection.
+      </p>
+      <p>
+        If still can't verify this certificate and you need help, please contact us at
         <a href="https://constata.eu">Constata.eu</a>
-        or you can resort to any professional computer systems expert. 
+        or you can call in any professional computer systems expert. 
         The validation mechanism is included in this very certificate.
       </p>
     `);
