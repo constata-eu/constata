@@ -507,6 +507,11 @@ hr{
   font-size: 0.85em;
 }
 
+.print-dialog p {
+  flex: 1;
+  line-height: 1em;
+}
+
 button {
   font-size: 16px;
   background: #0b59ce;
@@ -517,28 +522,6 @@ button {
   cursor: pointer;
 }
 
-@media print {
-  html {
-    height: 297mm;
-  }
-  body {
-    height: 297mm;
-    font-size: 13px;
-  }
-  .watermark, .footer, .document-index, .document-part, .print-dialog, #audit_log {
-    display: none;
-  }
-  .previews .preview {
-    border: none;
-  }
-  iframe {
-    height: 297mm;
-  }
-  .preview.printable {
-    height: 297mm;
-  }
-
-  @page {
-    size: A4;
-  }
+.hidden {
+  display: none;
 }
