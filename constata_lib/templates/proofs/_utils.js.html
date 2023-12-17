@@ -25,6 +25,27 @@ function sleep(ms) {
   return new Promise(function(resolve){ setTimeout(resolve, ms)});
 }
 
+function dismissErrorMessage() {
+  generatePreviews();
+  showValidationInstructions();
+  for ( i of document.querySelectorAll(".hide-if-unverified") ){
+    i.style.display = "none";
+  }
+  document.getElementById("message").classList.add("hidden");
+  document.getElementById("loader_overlay").style.display = "none";
+}
+
+function populateDatesFromSecureOriginInsteadOfBlockchains(){
+  const bulletins = document.querySelectorAll('.bulletin');
+  for( bulletin of bulletins ) {
+    const bulletinDate = new Date(bulletin.dataset.bulletinDate)
+      .toLocaleString(undefined, { dateStyle: "medium", timeStyle: "long" });
+    const bulletinId = bulletin.dataset.bulletinId;
+    document.querySelectorAll(`.timestamp-${bulletinId}`)
+      .forEach(el => el.innerHTML = bulletinDate);
+  }
+}
+
 function expandAuditLog(){
   document.getElementById("audit_log").style.display = "flex";
 }
