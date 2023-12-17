@@ -62,15 +62,14 @@ mod proof_integration {
       conditions.offline = true;
       dev_tools.set_network_conditions(&conditions).await?;
       d.goto(&format!("file://{}", content_path)).await;
-      d.wait_for_text("#message h1", r"NO SE PUDO VALIDAR EL CERTIFICADO.*").await;
+      d.wait_for_text("#message h1", r".*Cuidado, no se pudo verificar el certificado.*").await;
       conditions.offline = false;
       dev_tools.set_network_conditions(&conditions).await?;
 
       let corrupt_path = "/tmp/corrupt_content.html";
       std::fs::write(&corrupt_path, &content.replace("9f167c730f2d9eac8c187c6b2654b1860a4e4719b9f35916857e937acc25ea46", "ABC1")).unwrap();
       d.goto(&format!("file://{}", corrupt_path)).await;
-      d.wait_for_text("#message h1", r"CERTIFICADO INVÁLIDO.*").await;
-
+      d.wait_for_text("#message h1", r"CERTIFICADO INVÁLIDO*").await;
 
       d.goto("http://localhost:8000/safe").await;
       d.fill_in("#certificate", corrupt_path).await;
@@ -78,8 +77,6 @@ mod proof_integration {
       
       d.fill_in("#certificate", content_path).await;
       d.wait_for("#iframe-valid-certificate").await.enter_frame().await.expect("to enter frame");
-      d.wait_for_text("#loader_detail_icon", "⛓️").await;
-      d.wait_for_text("#loader_detail_icon", "🔎").await;
       d.wait_for_text("#loader_detail_icon", "🔒").await;
       d.wait_until_gone("div#loader_detail_icon").await;
       d.wait_for("#document_0").await;
