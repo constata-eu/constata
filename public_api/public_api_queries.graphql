@@ -125,7 +125,6 @@ mutation SigningIterator($input: SigningIteratorInput!) {
       publicVisitCount
       hasEmailCallback
       emailCallbackSentAt
-      payload
       adminAccessUrl
       __typename
     }
@@ -270,6 +269,7 @@ mutation UpdateWebCallbacksUrl($url: String) {
     pendingTycUrl
     pendingInvoiceLinkUrl
     webCallbacksUrl
+    logoUrl
     __typename
   }
 }
@@ -289,7 +289,6 @@ query Entry($id: Int!) {
     publicVisitCount
     hasEmailCallback
     emailCallbackSentAt
-    payload
     adminAccessUrl
     __typename
   }
@@ -310,7 +309,6 @@ query AllEntries($page: Int, $perPage: Int, $sortField: String, $sortOrder: Stri
     publicVisitCount
     hasEmailCallback
     emailCallbackSentAt
-    payload
     adminAccessUrl
     __typename
   }
@@ -656,7 +654,6 @@ query UnsignedEntryPayload($id: Int!) {
       publicVisitCount
       hasEmailCallback
       emailCallbackSentAt
-      payload
       adminAccessUrl
       __typename
     }
@@ -682,7 +679,6 @@ query EntryHtmlExport($id: Int!) {
       publicVisitCount
       hasEmailCallback
       emailCallbackSentAt
-      payload
       adminAccessUrl
       __typename
     }
@@ -709,6 +705,7 @@ query AccountState($id: Int!) {
     pendingTycUrl
     pendingInvoiceLinkUrl
     webCallbacksUrl
+    logoUrl
     __typename
   }
 }

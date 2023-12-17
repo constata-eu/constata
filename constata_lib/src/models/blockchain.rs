@@ -1,9 +1,6 @@
-use crate::{
-  models::{
-    Site,
-    bulletin::{Flow, Draft, Proposed, Published, Submitted}
-  },
-  Error, Result,
+use super::{
+  *,
+  bulletin::{Flow, Draft, Proposed, Published, Submitted}
 };
 use bitcoin::{
   blockdata::{opcodes::all as opcodes, script::Builder},
@@ -38,7 +35,7 @@ pub struct Stats {
 }
 
 impl Blockchain {
-  pub async fn from_site(site: Site) -> Result<Blockchain> {
+  pub async fn from_site(site: Site) -> ConstataResult<Blockchain> {
     let keyring = site.keyring()?
       .ok_or_else(|| Error::Init("Cannot use blockchain with a site with no keyring".into()))?;
 
@@ -57,7 +54,7 @@ impl Blockchain {
     })
   }
 
-  pub async fn process(&mut self) -> Result<Flow> {
+  pub async fn process(&mut self) -> ConstataResult<Flow> {
     match self.site.bulletin().current().await? {
       Flow::Draft(b) => {
         self.propose(b).await?;
@@ -74,14 +71,14 @@ impl Blockchain {
     Ok(self.site.bulletin().current().await?)
   }
 
-  pub async fn propose(&mut self, draft: Draft) -> Result<()> {
+  pub async fn propose(&mut self, draft: Draft) -> ConstataResult<()> {
     if Utc::now() - *draft.started_at() > self.site.settings.minimum_bulletin_interval() {
       draft.propose().await?;
     }
     Ok(())
   }
 
-  pub async fn submit(&mut self, proposed: Proposed) -> Result<Submitted> {
+  pub async fn submit(&mut self, proposed: Proposed) -> ConstataResult<Submitted> {
     let transaction = self.build_and_sign(
       &hex::decode(proposed.hash()).expect("Should never store non-hex in DB"),
       self.get_utxos(Some(1))?,
@@ -95,7 +92,7 @@ impl Blockchain {
     Ok(submitted)
   }
 
-  pub async fn sync_submitted(&mut self, submitted: Submitted) -> Result<Option<Published>> {
+  pub async fn sync_submitted(&mut self, submitted: Submitted) -> ConstataResult<Option<Published>> {
     let raw_result = self.client.get_transaction(&submitted.txid(), Some(true));
 
     // The RPC -5 error means the transaction was not propagated correctly before.
@@ -120,7 +117,7 @@ impl Blockchain {
     };
   }
 
-  pub async fn bump_fee(&mut self) -> Result<(Transaction, Submitted)> {
+  pub async fn bump_fee(&mut self) -> ConstataResult<(Transaction, Submitted)> {
     let submitted = self.site.bulletin().current()
       .await?
       .in_submitted()
@@ -137,7 +134,7 @@ impl Blockchain {
     Ok((transaction, submitted))
   }
 
-  pub async fn resubmit(&mut self) -> Result<(Transaction, Transaction, Submitted)> {
+  pub async fn resubmit(&mut self) -> ConstataResult<(Transaction, Transaction, Submitted)> {
     let submitted = self.site.bulletin().current().await?.in_submitted()
       .map_err(|_| Error::Stamping("no_current_submitted_bulletin".to_string()))?;
 
@@ -156,7 +153,7 @@ impl Blockchain {
     Ok((old_transaction, transaction, resubmitted))
   }
 
-  fn get_utxos(&self, confirmations: Option<usize>) -> Result<Vec<ListUnspentResultEntry>> {
+  fn get_utxos(&self, confirmations: Option<usize>) -> ConstataResult<Vec<ListUnspentResultEntry>> {
     Ok(
       self
         .client
@@ -164,11 +161,11 @@ impl Blockchain {
     )
   }
 
-  fn sats_per_byte(&self, number_block: u16) -> Result<u64> {
+  fn sats_per_byte(&self, number_block: u16) -> ConstataResult<u64> {
     Ok(
       self
         .client
-        .estimate_smart_fee(number_block, Some(EstimateMode::Conservative))?
+        .estimate_smart_fee(number_block, Some(EstimateMode::Economical))?
         .fee_rate
         .unwrap_or_else(|| Amount::from_sat(self.default_fee))
         .as_sat()
@@ -176,11 +173,11 @@ impl Blockchain {
     )
   }
 
-  fn sats_per_byte_fast(&self) -> Result<u64> {
+  fn sats_per_byte_fast(&self) -> ConstataResult<u64> {
     self.sats_per_byte(1)
   }
 
-  fn sats_per_byte_economy(&self) -> Result<u64> {
+  fn sats_per_byte_economy(&self) -> ConstataResult<u64> {
     self.sats_per_byte(6)
   }
 
@@ -189,7 +186,7 @@ impl Blockchain {
     op_return: &[u8],
     raw_utxos: Vec<ListUnspentResultEntry>,
     sat_per_byte: u64,
-  ) -> Result<Transaction> {
+  ) -> ConstataResult<Transaction> {
     let (mut transaction, prevouts) = self.build_transaction(op_return, raw_utxos, sat_per_byte)?;
 
     self.master_account.sign(
@@ -207,7 +204,7 @@ impl Blockchain {
     op_return: &[u8],
     mut raw_utxos: Vec<ListUnspentResultEntry>,
     sat_per_byte: u64,
-  ) -> Result<(Transaction, HashMap<OutPoint, TxOut>)> {
+  ) -> ConstataResult<(Transaction, HashMap<OutPoint, TxOut>)> {
     let input_script_size = 139;
     let mut outputs = vec![TxOut {
       value: 546,
@@ -273,7 +270,7 @@ impl Blockchain {
     ))
   }
 
-  pub async fn stats(&self) -> Result<Stats> {
+  pub async fn stats(&self) -> ConstataResult<Stats> {
     let balance = self
       .client
       .list_unspent(None, None, Some(&[&self.address]), None, None)?
@@ -533,7 +530,7 @@ describe! {
     }
   }
 
-  async fn get_balance(chain: &TestBlockchain) -> Result<u64> {
+  async fn get_balance(chain: &TestBlockchain) -> ConstataResult<u64> {
     Ok(
       chain.blockchain.client
         .list_unspent(None, None, Some(&[&chain.blockchain.address]), None, None)?
@@ -541,18 +538,18 @@ describe! {
     )
   }
 
-  async fn get_fees(chain: &TestBlockchain, previous_balance: u64, txid: &Txid) -> Result<u64> {
+  async fn get_fees(chain: &TestBlockchain, previous_balance: u64, txid: &Txid) -> ConstataResult<u64> {
     let outputs_transaction_from_node: u64 = chain.blockchain.client
       .get_raw_transaction(txid, None)?.output.iter().map(|i| i.value).sum();
     Ok(previous_balance - outputs_transaction_from_node)
   }
 
-  async fn make_automated_bump(chain: &mut TestBlockchain, submitted: &Submitted) -> Result<u64> {
+  async fn make_automated_bump(chain: &mut TestBlockchain, submitted: &Submitted) -> ConstataResult<u64> {
     let previous_balance = get_balance(&chain).await?;
     assert!(&chain.blockchain.sync_submitted(submitted.clone()).await?.is_none());
     get_fees(chain, previous_balance, &submitted.last_bump().await?.txid()).await
   }
-  async fn make_manual_bump(chain: &mut TestBlockchain, submitted: &Submitted) -> Result<u64> {
+  async fn make_manual_bump(chain: &mut TestBlockchain, submitted: &Submitted) -> ConstataResult<u64> {
     let previous_balance = get_balance(&chain).await?;
     chain.blockchain.bump_fee().await.unwrap();
     get_fees(chain, previous_balance, &submitted.last_bump().await?.txid()).await

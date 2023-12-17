@@ -4,7 +4,6 @@
  * These mailers cannot receive any arbitrary parameters and do not wait on any condition to be sent.
  */
 use super::*;
-use crate::{ Site, Result };
 use serde_with::serde_as;
 use i18n::Context;
 
@@ -50,12 +49,12 @@ impl OutgoingEmailMessageHub {
 type HtmlAndAttachments = (String, Vec<(String, Vec<u8>, String)>);
 
 impl OutgoingEmailMessage {
-  pub async fn mark_sent(self) -> Result<()> {
+  pub async fn mark_sent(self) -> ConstataResult<()> {
     self.update().sent_at(Some(Utc::now())).save().await?;
     Ok(())
   }
 
-  pub async fn render_html(&self) -> Result<HtmlAndAttachments> {
+  pub async fn render_html(&self) -> ConstataResult<HtmlAndAttachments> {
     match self.kind() {
       OutgoingEmailMessageKind::Welcome => 
         self.render_welcome().await,
@@ -66,7 +65,7 @@ impl OutgoingEmailMessage {
     }
   }
 
-  pub async fn render_welcome(&self) -> Result<HtmlAndAttachments> {
+  pub async fn render_welcome(&self) -> ConstataResult<HtmlAndAttachments> {
     let credentials = self.person().await?.pubkey().await?.and_then(|o| o.into_credentials());
     let mut context = Context::new();
     context.insert("has_credentials", &credentials.is_some());
@@ -81,15 +80,15 @@ impl OutgoingEmailMessage {
     Ok((html, attach))
   }
 
-  pub async fn render_kyc_request_received(&self) -> Result<HtmlAndAttachments> {
+  pub async fn render_kyc_request_received(&self) -> ConstataResult<HtmlAndAttachments> {
     Ok((self.render("kyc_request_received.html", None).await?, vec![]))
   }
 
-  pub async fn render_email_verification(&self) -> Result<HtmlAndAttachments> {
+  pub async fn render_email_verification(&self) -> ConstataResult<HtmlAndAttachments> {
     Ok((self.render("email_verification.html", None).await?, vec![]))
   }
 
-  pub async fn render(&self, template: &str, extra_context: Option<Context>) -> Result<String> {
+  pub async fn render(&self, template: &str, extra_context: Option<Context>) -> ConstataResult<String> {
     let person = self.person().await?;
     let account_state = person.org().await?.account_state().await?;
     let address = self.email_address().await?;

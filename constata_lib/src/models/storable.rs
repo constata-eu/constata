@@ -1,4 +1,4 @@
-use crate::{Result, Site};
+use crate::prelude::*;
 
 #[rocket::async_trait]
 pub trait Storable: Sized {
@@ -10,20 +10,20 @@ pub trait Storable: Sized {
     format!("{}-{}", Self::PREFIX, self.id())
   }
 
-  async fn storage_put(&self, bytes: &[u8]) -> Result<()>{
+  async fn storage_put(&self, bytes: &[u8]) -> ConstataResult<()>{
     self.site().storage.put(&self.storage_id(), bytes).await?;
     self.storage_backup_put(bytes).await
   }
 
-  async fn storage_backup_put(&self, bytes: &[u8]) -> Result<()> {
+  async fn storage_backup_put(&self, bytes: &[u8]) -> ConstataResult<()> {
     self.site().storage_backup.put(&self.storage_id(), bytes).await
   }
 
-  async fn storage_fetch(&self) -> Result<Vec<u8>> {
+  async fn storage_fetch(&self) -> ConstataResult<Vec<u8>> {
     self.site().storage.get(&self.storage_id()).await
   }
 
-  async fn storage_backup_fetch(&self) -> Result<Vec<u8>> {
+  async fn storage_backup_fetch(&self) -> ConstataResult<Vec<u8>> {
     self.site().storage_backup.get(&self.storage_id()).await
   }
 }

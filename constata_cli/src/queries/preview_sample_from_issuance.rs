@@ -1,5 +1,4 @@
 use super::*;
-use gql_types::entry_graphql::PreviewEntry as Model;
 
 #[derive(clap::Args)]
 #[derive(serde::Serialize)]
@@ -15,10 +14,9 @@ pub struct PreviewSampleFromIssuance {
 }
 
 impl PreviewSampleFromIssuance {
-  pub fn run(self, client: &Client) -> ClientResult<Model> {
-    use crate::gql_types::EntryFilter;
+  pub fn run(self, client: &Client) -> ClientResult<gql_types::PreviewEntry> {
     let entries = AllEntries{
-      filter: EntryFilter{ issuance_id_eq: Some(self.issuance_id), ..Default::default() },
+      filter: gql_types::EntryFilter{ issuance_id_eq: Some(self.issuance_id), ..Default::default() },
       ..Default::default()
     }.run(&client)?;
 

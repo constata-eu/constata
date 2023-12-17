@@ -1,8 +1,4 @@
 use super::*;
-use crate::{
-  models::Site ,
-  Result,
-};
 
 model!{
   state: Site,
@@ -25,7 +21,7 @@ model!{
 derive_storable!(KycRequestEvidence, "kre");
 
 impl KycRequestEvidenceHub {
-  pub async fn create(self, kyc_request: &KycRequest, filename: &str, payload: &[u8]) -> Result<KycRequestEvidence> {
+  pub async fn create(self, kyc_request: &KycRequest, filename: &str, payload: &[u8]) -> ConstataResult<KycRequestEvidence> {
     let kyc_request_evidence = self.insert(InsertKycRequestEvidence {
       kyc_request_id: kyc_request.attrs.id,
       filename: filename.to_string(),
@@ -37,7 +33,7 @@ impl KycRequestEvidenceHub {
 }
 
 impl KycRequestEvidence {
-  pub async fn contents(&self) -> Result<Vec<u8>> {
+  pub async fn contents(&self) -> ConstataResult<Vec<u8>> {
     self.storage_fetch().await
   }
 }

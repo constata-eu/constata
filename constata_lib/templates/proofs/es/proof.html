@@ -60,8 +60,6 @@ podemos decir que el "Documento" existía desde antes de esa fecha y el sello es
     mostrarla en este certificaod.
     */
 
-    writeLoadingDetails("Verificando boletines")
-
     const bulletins = document.querySelectorAll('.bulletin');
     const public_blockchain_copies = {{ explorers | json_encode(pretty = true) }};
     let bulletin_dates = {};
@@ -69,15 +67,18 @@ podemos decir que el "Documento" existía desde antes de esa fecha y el sello es
     for( bulletin of bulletins ) {
       const bulletin_id = bulletin.dataset.bulletinId;
 
-      writeLoadingDetails(`Verificando boletin ${bulletin_id}`);
-
       const bulletin_fingerprint = await sha256sum( (new TextEncoder()).encode(bulletin.innerHTML) );
       const blockchain_transaction_id = bulletin.dataset.transactionHash;
 
       let blockchain_responses = [];
 
       for (url of public_blockchain_copies) {
-        writeLoadingDetails(`Verificando boletin ${bulletin_id} en ${url}`);
+        await writeLoadingDetails(
+          '⛓️',
+          'Consultando Blockchain<div class="loader"><div class="loader-bar"></div></div>',
+          `Verificando presencia del boletín #${bulletin_id} en la blockchain disponible en <a href="${url}">${url}</a>`,
+          1000
+        );
 
         try {
           const response = await fetch(url+blockchain_transaction_id);
@@ -129,7 +130,12 @@ podemos decir que el "Documento" existía desde antes de esa fecha y el sello es
     for( doc of documents ) {
       const bulletin = document.getElementById(`bulletin_${doc.dataset.bulletinId}`);
       const document_parts = doc.querySelectorAll('.document-part');
-      writeLoadingDetails(`Verificando la integridad del documento ${doc.dataset.documentId}`);
+      await writeLoadingDetails(
+        '🔎',
+        'Verificando integridad del documento<div class="loader"><div class="loader-bar"></div></div>',
+        `Buscando el documento ${doc.dataset.documentId} en el boletín verificado #${doc.dataset.bulletinId}.`,
+        500
+      );
 
       for (part of document_parts) {
         /*
@@ -165,24 +171,36 @@ podemos decir que el "Documento" existía desde antes de esa fecha y el sello es
         }
       }   
     }
+    await sleep(2000);
+
     return true;
   }
 
   window.onload = async function(){
     if(await ensure_running_on_secure_environment()){
-      if(window.location.origin === "{{ secure_origin }}") {
-        skipVerificationInSecureOrigin();
-      } else {
-        if(await constataValidation()){
-          generatePreviews();
-          document.getElementById("loader_overlay").style.display = "none";
-        }
+      showValidationInstructions();
+      if(isSecureOrigin()) {
+        populateDatesFromSecureOriginInsteadOfBlockchains();
+        generatePreviews();
+        await writeLoadingDetails(
+          "🔒",
+          "Documento Verificado",
+          "Visualizando desde un origen seguro.",
+          3000
+        );
+        document.getElementById("loader_overlay").style.display = "none";
+      } else if(await constataValidation()){
+        generatePreviews();
+        showValidationInstructions();
+        await writeLoadingDetails(
+          "⚠️",
+          "Solo verificación local",
+          "La verificación local fue exitosa, pero recomendamos además realizar la verificación rápida via web.<br/> Vea el final del documento para más detalles.",
+          8000
+        );
+        document.getElementById("loader_overlay").style.display = "none";
       }
     }
-  }
-
-  function writeLoadingDetails(text){
-    document.getElementById("loader_detail").innerHTML = text
   }
 </script>
 <meta charset="UTF-8">
@@ -192,18 +210,21 @@ podemos decir que el "Documento" existía desde antes de esa fecha y el sello es
 
 <body>
 <div id="loader_overlay" >
-  <div id="loader_spin" class="hidden"></div>
-  <p id="loader_detail">
-    Para validar y visualizar este certificado
-    <a href="{{ secure_origin }}/safe">
-      por favor dirígete al
-      entorno web seguro de Constata
-    </a>.
-    <br/>
-    <br/>
-    <br/>
-    También puedes visualizarlo desde otro dispositivo, como tu ordenador.
-  </p>
+  <div id="main_loading" class="hidden loader"></div>
+  <div id="loader_detail">
+    <div id="loader_detail_icon">⚠️</div>
+    <div id="loader_detail_title">
+      Entorno no compatible
+    </div>
+    <div id="loader_detail_text">
+      Para validar y visualizar este certificado
+      <a href="http://localhost:8000/safe">
+        por favor dirígete al
+        entorno web seguro de Constata
+      </a>.
+      También puedes visualizarlo desde otro dispositivo, como tu ordenador.
+    </div>
+  </div>
   <div class="message-wrapper">
     <div id="message" class="hidden"></div>
   </div>
@@ -362,6 +383,18 @@ Estos datos se usan en el algoritmo que vimos más arriba.
   <div id="bulletin_{{bulletin.object.id}}" class="bulletin hidden" data-bulletin-id="{{bulletin.object.id}}" data-bulletin-date="{{ bulletin.object.block_time }}" data-bulletin-hash="{{bulletin.object.hash}}" data-transaction-hash="{{ bulletin.object.transaction_hash }}">{{ bulletin.contents }}</div>
 {% endfor %}
 
+{% if public_certificate_url %}
+  <div class="hidden" id="public_certificate_url" data-url="{{public_certificate_url.0}}">{{public_certificate_url.1}}</div>
+{% endif %}
+
+<div id="print_dialog_template" class="hidden">
+  <button>🖨️ Papel o PDF</button>
+  <p>
+    Esta parte puede imprimirse en papel tamaño A4 o en PDF, sin márgenes.
+    Deberá quitar los márgenes en la vista previa de impresión.
+  </p>
+</div>
+
 <div class="footer">
   {{ macros::constata_svg_logo() }}
   <p>
@@ -375,17 +408,22 @@ Estos datos se usan en el algoritmo que vimos más arriba.
     por el medio que prefiera, y ellos podrán validarlo de forma independiente.
   </p>
 
-  <h2>Validación rápida via web</h2>
-  <ol>
-    <li>Ingrese a <a target="_blank" href="{{ secure_origin }}/safe">{{ secure_origin }}/safe</a>.</li>
-    <li>Seleccione este mismo fichero HTML.</li>
-    <li>Nuestra web analizará el fichero localmente en este dispositivo y lo mostrará nuevamente sólo si es válido.</li>
-  </ol>
+  <div id="validation_in_verifier" class="hidden">
+    <h2>Verificación rápida via web</h2>
+    <ol>
+      <li>Ingrese a <a target="_blank" href="{{ secure_origin }}/safe">{{ secure_origin }}/safe</a>.</li>
+      <li>Seleccione este mismo fichero HTML.</li>
+      <li>Nuestra web analizará el fichero localmente en este dispositivo y lo mostrará nuevamente sólo si es válido.</li>
+    </ol>
+  </div>
 
-  <h2 id="independent_validation">Validación independiente con Blockchain de Bitcoin</h2>
-  <p>
-    La validación rápida asegura que este fichero fue generado por Constata y que la empresa avala su contenido.
-  </p>
+  <div id="validation_not_needed" class="hidden">
+    <h2>🔒Origen confiable</h2>
+    <p>Está viendo este certificado en {{secure_origin}} que es un origen confiable, y fue verificado antes de mostrárselo.</p>
+    <p>Visite <a href="{{ secure_origin }}">{{secure_origin}}</a> para ver las garantías que ofrece.</p>
+  </div>
+
+  <h2 id="independent_validation">⛓️ Validación independiente con Blockchain de Bitcoin</h2>
   <p>
     En caso de que el servicio de Constata no se encuentre disponible, o el aval no fuera suficiente, se puede
     acceder a una auditoría detallada de este certificado <a id="expand_audit_log" onclick="expandAuditLog()" href="#independent_validation">tocando aquí</a>.
@@ -592,9 +630,13 @@ Estos datos se usan en el algoritmo que vimos más arriba.
 <script type="text/javascript">
   function isSecureEnvironment(){
     const l = window.location;
-    if(l.protocol === "file:" || l.protocol == "content:" || l.origin === "{{ secure_origin }}" ){
+    if(l.protocol === "file:" || l.protocol == "content:" || isSecureOrigin()){
       return true;
     }
+  }
+
+  function isSecureOrigin() {
+    return window.location.origin === "{{ secure_origin }}";
   }
 
   function showCorruptCertificateMessage() {

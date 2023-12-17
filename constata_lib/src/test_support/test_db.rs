@@ -1,31 +1,10 @@
+use crate::prelude::*;
+use crate::models::*;
 use super::read;
-use chrono::Utc;
-use crate::{
-  models::{
-    *,
-    person::*,
-    payment::*,
-    document::Accepted,
-    story::*,
-    bulletin::*,
-    kyc_endorsement::*,
-    invoice::*,
-    PaymentSource,
-    admin_user::{AdminUser, AdminRole},
-    invoice_link::*,
-    kyc_request::*,
-    download_proof_link::InsertDownloadProofLink,
-    TemplateSchemaField,
-  },
-  Result,
-  signed_payload::SignedPayload,
-};
 use bitcoin::{secp256k1, util::misc::MessageSignature, Address, Network, PrivateKey};
 use sqlx::types::Decimal;
 use std::process::Command;
 use std::str::FromStr;
-use rust_decimal_macros::dec;
-use chrono::TimeZone;
 use i18n::Lang;
 
 #[derive(Clone)]
@@ -299,11 +278,11 @@ impl SignerClient {
     self.make_signed_document(&self.make_story().await, message, filename).await
   }
 
-  pub async fn accepted_document(&self, message: &[u8]) -> Accepted {
+  pub async fn accepted_document(&self, message: &[u8]) -> document::Accepted {
     self.signed_document(message).await.in_accepted().expect("accepted")
   }
 
-  pub async fn accepted_document_with_filename(&self, message: &[u8], filename: Option<&str>) -> Accepted {
+  pub async fn accepted_document_with_filename(&self, message: &[u8], filename: Option<&str>) -> document::Accepted {
     self.signed_document_with_filename(message, filename).await.in_accepted().expect("accepted")
   }
 
@@ -344,7 +323,7 @@ impl SignerClient {
     SignedPayload::sign_with_key(message, &self.key)
   }
 
-  pub async fn sign_request_entry(&self, entry: Entry) -> EntrySignature {
+  pub async fn sign_issuance_entry(&self, entry: Entry) -> EntrySignature {
     EntrySignature {
       entry_id: entry.attrs.id,
       signature: SignedPayload::sign_with_key(&entry.storage_fetch().await.unwrap(), &self.key),
@@ -363,33 +342,33 @@ impl SignerClient {
    self.person_id.expect("Need to signup this signer client for testing first")
   }
 
-  pub async fn make_email(&self, address: &str) -> crate::models::email_address::EmailAddress {
+  pub async fn make_email(&self, address: &str) -> EmailAddress {
     self.db.site.email_address()
       .create(self.person().await, address, b"an email we received by them".to_vec(), false, false).await
       .expect("Email address to be saved")
   }
 
-  pub async fn verify_email(&self, address: &str) -> crate::models::email_address::EmailAddress {
+  pub async fn verify_email(&self, address: &str) -> EmailAddress {
     self.db.site.email_address()
       .create(self.person().await, address, b"an email we received by them".to_vec(), true, false).await
       .expect("Email address to be saved")
   }
 
-  pub async fn make_pubkey_domain_endorsement(&self) -> crate::models::PubkeyDomainEndorsement {
+  pub async fn make_pubkey_domain_endorsement(&self) -> PubkeyDomainEndorsement {
     self.make_pubkey_domain_endorsement_for_domain(b"https://example.com").await
   }
 
-  pub async fn make_pubkey_domain_endorsement_for_domain(&self, domain: &[u8]) -> crate::models::PubkeyDomainEndorsement {
+  pub async fn make_pubkey_domain_endorsement_for_domain(&self, domain: &[u8]) -> PubkeyDomainEndorsement {
     let payload = self.signed_payload(domain);
     let pending = PubkeyDomainEndorsementForm{ signed_payload: payload }.save(&self.db.site).await.unwrap().into_inner();
     pending.update().state("accepted".to_string()).save().await.unwrap()
   }
 
-  pub async fn make_org_deletion(&self, evidence: &[u8]) -> crate::models::org_deletion::OrgDeletion {
+  pub async fn make_org_deletion(&self, evidence: &[u8]) -> OrgDeletion {
     self.make_org_deletion_for(self.org().await.attrs.id, evidence).await
   }
 
-  pub async fn make_org_deletion_for(&self, org_id: i32, evidence: &[u8]) -> crate::models::org_deletion::OrgDeletion {
+  pub async fn make_org_deletion_for(&self, org_id: i32, evidence: &[u8]) -> OrgDeletion {
     let admin = self.db.site.admin_user().create("foo", "barz", AdminRole::Admin).await.unwrap();
     self.db.site.org_deletion().delete_org(
       org_id,
@@ -517,7 +496,7 @@ impl SignerClient {
       .save().await.unwrap()
   }
 
-  pub async fn make_gift(&self) -> crate::models::gift::Gift {
+  pub async fn make_gift(&self) -> Gift {
     self.db.site.gift().give_and_trigger_updates(
       self.person_id.unwrap(),
       Decimal::new(10, 0),
@@ -525,20 +504,13 @@ impl SignerClient {
       .await.unwrap()
   }
 
-  pub async fn make_download_proof_link_from_doc(&self, doc: &Document, valid_until: i64) -> crate::models::download_proof_link::DownloadProofLink {
+  pub async fn make_download_proof_link_from_doc(&self, doc: &Document, valid_until: i64) -> DownloadProofLink {
     self.db.site.download_proof_link()
       .insert(InsertDownloadProofLink::new(doc, valid_until).await.expect("to insert a download proof link"))
       .save().await.expect("to create a download proof link")
   }
 
-  pub async fn get_certos_id(&self) -> i32 {
-    self.org().await
-      .get_or_create_certos_app()
-      .await.unwrap()
-      .attrs.id
-  }
-
-  pub async fn make_template(&self, template_file: Vec<u8>) -> crate::models::certos::Template {
+  pub async fn make_template(&self, template_file: Vec<u8>) -> Template {
     let schema = serde_json::to_string(&vec![
       TemplateSchemaField::new("name", true, false, "Name".into(), "Nombre".into()),
       TemplateSchemaField::new("course", false, true, "Course".into(), "Curso".into()),
@@ -548,66 +520,64 @@ impl SignerClient {
     self.try_make_template(template_file, &schema).await.unwrap()
   }
 
-  pub async fn try_make_template(&self, template_file: Vec<u8>, schema: &str) -> Result<crate::models::certos::Template> {
+  pub async fn try_make_template(&self, template_file: Vec<u8>, schema: &str) -> ConstataResult<Template> {
     self.db.site.template()
       .insert(InsertTemplate{
-        app_id: self.get_certos_id().await,
         person_id: self.person_id.unwrap(),
         org_id: *self.org().await.id(),
         kind: TemplateKind::Diploma,
         name: "Test Template".to_string(),
-        size_in_bytes: template_file.len() as i32,
         schema: schema.to_string(),
         og_title_override: None,
         custom_message: Some("Hola {{ name }} te adjuntamos este novedoso certificado".to_string()),
       }).validate_and_save(&template_file).await
   }
   
-  pub async fn make_request(&self, template_id: i32, request_file: Vec<u8>) -> Result<Request> {
+  pub async fn make_issuance(&self, template_id: i32, issuance_file: Vec<u8>) -> ConstataResult<Issuance> {
     Wizard{
       person: self.person().await,
-      name: "certos_request.csv".to_string(),
+      name: "issuance.csv".to_string(),
       template: WizardTemplate::Existing {
         template_id,
       },
-      csv: request_file,
+      csv: issuance_file,
     }.process().await
   }
 
-  pub async fn make_signed_diplomas_issuance(&self) -> Result<Request> {
+  pub async fn make_signed_diplomas_issuance(&self) -> ConstataResult<Issuance> {
     let mut issuance = Wizard{
       person: self.person().await,
-      name: "default_certos_recipients.csv".to_string(),
+      name: "default_recipients.csv".to_string(),
       template: WizardTemplate::New {
         kind: TemplateKind::Diploma,
         logo: ImageOrText::Text("sample diploma".to_string()),
         name: "new template".to_string(),
       },
-      csv: read("default_certos_recipients.csv"),
+      csv: read("default_recipients.csv"),
     }.process().await?;
-    self.db.site.request().create_all_received().await?;
+    self.db.site.issuance().create_all_received().await?;
 
     issuance.reload().await?;
     let created = issuance.in_created()?;
     let mut signature = None;
     while let Some(next) = created.signing_iterator(signature).await? {
-      signature = Some(self.sign_request_entry(next).await);
+      signature = Some(self.sign_issuance_entry(next).await);
     }
     issuance.reload().await?;
     Ok(issuance)
   }
 
-  pub async fn make_entry_and_sign_it(&self) -> crate::models::certos::entry::Entry {
-    let template = self.make_template(read("certos_template.zip")).await;
-    let request = self.make_request(*template.id(), read("certos_request.csv")).await.expect("to create request");
-    self.db.site.request().create_all_received().await.expect("to create all entries");
+  pub async fn make_entry_and_sign_it(&self) -> Entry {
+    let template = self.make_template(read("template.zip")).await;
+    let issuance = self.make_issuance(*template.id(), read("issuance.csv")).await.expect("to create issuance");
+    self.db.site.issuance().create_all_received().await.expect("to create all entries");
 
     let mut signature = None;
-    let created = request.reloaded().await.expect("to reload request").in_created().expect("to get created requet");
+    let created = issuance.reloaded().await.expect("to reload issuance").in_created().expect("to get created requet");
     while let Some(next) = created.signing_iterator(signature).await.expect("to iterate sign") {
-      signature = Some(self.sign_request_entry(next).await);
+      signature = Some(self.sign_issuance_entry(next).await);
     }
 
-    request.entry_vec().await.expect("to get entry vec")[1].clone()
+    issuance.entry_vec().await.expect("to get entry vec")[1].clone()
   }
 }

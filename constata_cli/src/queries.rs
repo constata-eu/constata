@@ -49,7 +49,7 @@ export_verifiable_html_collection_template! {
 
 query_by_id_and_save_file_template!{
   entry_html_export,
-  gql_types::entry_graphql::EntryHtmlExport,
+  gql_types::EntryHtmlExport,
   EntryHtmlExport,
   "Id of the entry your want to export.",
   "\
@@ -70,7 +70,7 @@ query_by_id_and_save_file_template!{
 
 query_by_id_and_save_file_template!{
   attestation_html_export,
-  gql_types::attestation_graphql::AttestationHtmlExport,
+  gql_types::AttestationHtmlExport,
   AttestationHtmlExport,
   "Id of the attestation your want to export.",
   "\
@@ -91,7 +91,7 @@ query_by_id_and_save_file_template!{
 
 query_by_id_and_save_file_template!{
   unsigned_entry_payload,
-  gql_types::entry_graphql::UnsignedEntryPayload,
+  gql_types::UnsignedEntryPayload,
   UnsignedEntryPayload,
   "id of the entry whose payload you want to download.",
   "\
@@ -105,7 +105,7 @@ query_by_id_and_save_file_template!{
 
 query_by_id_and_save_file_template!{
   preview_entry,
-  gql_types::entry_graphql::PreviewEntry,
+  gql_types::PreviewEntry,
   PreviewEntry,
   "id of the entry you want preview",
   "\
@@ -123,7 +123,7 @@ query_by_id_and_save_file_template!{
 
 query_by_id_and_save_file_template!{
   issuance_export,
-  gql_types::issuance_graphql::IssuanceExport,
+  gql_types::IssuanceExport,
   IssuanceExport,
   "id of the issuance you want to export as CSV",
   "\
@@ -142,8 +142,8 @@ query_by_id_and_save_file_template!{
 collection_query_template!{
   all_issuances,
   AllIssuances,
-  gql_types::issuance_graphql::Issuance,
-  gql_types::issuance_graphql::IssuanceFilter,
+  gql_types::Issuance,
+  gql_types::IssuanceFilter,
   "IssuanceFilter",
   "allIssuances",
   "_allIssuancesMeta",
@@ -153,8 +153,8 @@ collection_query_template!{
 collection_query_template!{
   all_entries,
   AllEntries,
-  gql_types::entry_graphql::Entry,
-  gql_types::entry_graphql::EntryFilter,
+  gql_types::Entry,
+  gql_types::EntryFilter,
   "EntryFilter",
   "allEntries",
   "_allEntriesMeta",
@@ -164,8 +164,8 @@ collection_query_template!{
 collection_query_template!{
   all_templates,
   AllTemplates,
-  gql_types::template_graphql::Template,
-  gql_types::template_graphql::TemplateFilter,
+  gql_types::Template,
+  gql_types::TemplateFilter,
   "TemplateFilter",
   "allTemplates",
   "_allTemplatesMeta",
@@ -175,8 +175,8 @@ collection_query_template!{
 collection_query_template!{
   all_attestations,
   AllAttestations,
-  gql_types::attestation_graphql::Attestation,
-  gql_types::attestation_graphql::AttestationFilter,
+  gql_types::Attestation,
+  gql_types::AttestationFilter,
   "AttestationFilter",
   "allAttestations",
   "_allAttestationsMeta",
@@ -186,8 +186,8 @@ collection_query_template!{
 collection_query_template!{
   all_web_callbacks,
   AllWebCallbacks,
-  gql_types::web_callback_graphql::WebCallback,
-  gql_types::web_callback_graphql::WebCallbackFilter,
+  gql_types::WebCallback,
+  gql_types::WebCallbackFilter,
   "WebCallbackFilter",
   "allWebCallbacks",
   "_allWebCallbacksMeta",

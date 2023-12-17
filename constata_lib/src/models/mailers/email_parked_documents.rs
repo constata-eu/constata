@@ -1,6 +1,7 @@
-use super::super::{Invoice, ParkedReminder};
-use crate::Result;
-use serde::{Serialize};
+use crate::{
+  prelude::*,
+  models::{Invoice, ParkedReminder}
+};
 
 #[derive(Debug, Serialize)]
 pub struct EmailParkedDocuments {
@@ -18,7 +19,7 @@ pub struct EmailParkedDocuments {
 }
 
 impl EmailParkedDocuments {
-  pub async fn new(parked_reminder: &ParkedReminder) -> Result<Self> {
+  pub async fn new(parked_reminder: &ParkedReminder) -> ConstataResult<Self> {
     use num_traits::ToPrimitive;
 
     let org = parked_reminder.org().await?;
@@ -44,7 +45,7 @@ impl EmailParkedDocuments {
     })
   }
 
-  pub fn render_html(&self) -> Result<String> {
+  pub fn render_html(&self) -> ConstataResult<String> {
     Ok(crate::RENDERER.i18n_and_serialize("emails/in_layout", self.lang, "email_parked_documents.html", &self)?.to_utf8()?)
   }
 }

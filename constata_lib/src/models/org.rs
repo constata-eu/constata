@@ -1,23 +1,4 @@
-use crate::error::*;
-use super::{
-  *,
-  person::*,
-  story::*,
-  document::*,
-  subscription::*,
-  invoice::*,
-  invoice_link::*,
-  email_address::*,
-  pubkey::*,
-  pubkey_domain_endorsement::*,
-  kyc_endorsement::*,
-  terms_acceptance::*,
-  certos::app::*,
-  org_deletion::*,
-  kyc_request::*,
-  parked_reminder::*,
-  attestation::*,
-};
+use super::*;
 use chrono::Datelike;
 use i18n::Lang;
 
@@ -54,10 +35,9 @@ model!{
     Invoice(org_id),
     InvoiceLink(org_id),
     TermsAcceptance(org_id),
-    App(org_id),
     KycRequest(org_id),
     ParkedReminder(org_id),
-    Request(org_id),
+    Issuance(org_id),
     Template(org_id),
     Entry(org_id),
     Attestation(org_id),
@@ -95,7 +75,7 @@ model!{
 }
 
 impl OrgHub {  
-  pub async fn orgs_that_are_missing_tokens_count(&self) -> Result<i64> {
+  pub async fn orgs_that_are_missing_tokens_count(&self) -> ConstataResult<i64> {
     let count: i64 = self.state.db.fetch_one_scalar(sqlx::query_scalar!(r#"
       SELECT COUNT(DISTINCT d.org_id)::bigint as "count!" FROM documents d
       INNER JOIN terms_acceptances ta ON d.org_id = ta.org_id
@@ -107,7 +87,7 @@ impl OrgHub {
 }
 
 impl Org {
-  pub async fn subscription_or_err(&self) -> Result<Subscription> {
+  pub async fn subscription_or_err(&self) -> ConstataResult<Subscription> {
     self.subscription().await?
       .ok_or_else(|| Error::validation("organization_subscription","no_subscription"))
   }
@@ -128,7 +108,7 @@ impl Org {
     self.person_scope().one().await?.update().billing(true).save().await
   }
 
-  pub async fn name_for_on_behalf_of(&self) -> Result<String> {
+  pub async fn name_for_on_behalf_of(&self) -> ConstataResult<String> {
     if self.org_deletion().await?.is_some() {
       return Ok(format!("#{}", self.id()))
     }
@@ -160,7 +140,7 @@ impl Org {
     Ok(format!("#{}", self.id()))
   }
 
-  pub async fn account_state(&self) -> Result<AccountState> {
+  pub async fn account_state(&self) -> ConstataResult<AccountState> {
     AccountState::find_for(self.state.clone(), self.attrs.id).await
   }
 
@@ -185,7 +165,7 @@ impl Org {
     return (None, None);
   }
 
-  pub async fn get_or_create_stripe_customer_id(self) -> Result<stripe::CustomerId> {
+  pub async fn get_or_create_stripe_customer_id(self) -> ConstataResult<stripe::CustomerId> {
     use std::collections::HashMap;
     use stripe::{CreateCustomer, Customer};
    
@@ -206,7 +186,7 @@ impl Org {
     Ok(customer_id)
   }
 
-  pub async fn get_or_create_invoice_link(&self) -> Result<InvoiceLink> {
+  pub async fn get_or_create_invoice_link(&self) -> ConstataResult<InvoiceLink> {
     let maybe_existing = self.invoice_link_scope()
       .invoice_id_is_set(false)
       .optional().await?;
@@ -221,19 +201,8 @@ impl Org {
     }
   }
   
-  pub async fn get_or_create_terms_acceptance(&self) -> sqlx::Result<crate::models::terms_acceptance::TermsAcceptance> {
+  pub async fn get_or_create_terms_acceptance(&self) -> sqlx::Result<TermsAcceptance> {
     self.admin().await?.get_or_create_terms_acceptance().await
-  }
-
-  pub async fn get_or_create_certos_app(&self) -> sqlx::Result<App> {
-    let maybe_existing = self.app_scope().optional().await?;
-  
-    match maybe_existing {
-      Some(existing) => Ok(existing),
-      None => {
-        self.state.app().insert(InsertApp{ org_id: *self.id()}).save().await
-      }
-    }
   }
 }
 
@@ -244,15 +213,15 @@ impl Default for InsertOrg {
 }
 
 impl InsertOrgHub {
-  pub async fn save_and_subscribe(self, lang: Lang) -> Result<Org> {
+  pub async fn save_and_subscribe(self, lang: Lang) -> ConstataResult<Org> {
     self.save_and_subscribe_with_plan("Early Bird", Decimal::ZERO, Decimal::new(10,0), Decimal::ONE, lang).await
   }
 
-  pub async fn save_and_subscribe_enterprise(self, lang: Lang) -> Result<Org> {
+  pub async fn save_and_subscribe_enterprise(self, lang: Lang) -> ConstataResult<Org> {
     self.save_and_subscribe_with_plan("Enterprise", Decimal::new(20,0), Decimal::ZERO, Decimal::new(5,1), lang).await
   }
 
-  pub async fn save_and_subscribe_with_plan(mut self, name: &str, required: Decimal, gift: Decimal, price: Decimal, lang: Lang) -> Result<Org> {
+  pub async fn save_and_subscribe_with_plan(mut self, name: &str, required: Decimal, gift: Decimal, price: Decimal, lang: Lang) -> ConstataResult<Org> {
     let tx = self.state.org().transactional().await?;
     self.state.db = tx.state.db.clone();
     let temp_org = self.save().await?;

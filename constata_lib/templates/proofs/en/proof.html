@@ -59,8 +59,6 @@ we can say the "Document" existed at any point before that date, and the timesta
     so we can show it in this certificate.
     */
 
-    writeLoadingDetails("Verifying bulletins")
-
     const bulletins = document.querySelectorAll('.bulletin');
     const public_blockchain_copies = {{ explorers | json_encode(pretty = true) | safe }};
     let bulletin_dates = {};
@@ -68,15 +66,18 @@ we can say the "Document" existed at any point before that date, and the timesta
     for( bulletin of bulletins ) {
       const bulletin_id = bulletin.dataset.bulletinId;
 
-      writeLoadingDetails(`Verifying bulletin ${bulletin_id}`);
-
       const bulletin_fingerprint = await sha256sum( (new TextEncoder()).encode(bulletin.innerHTML) );
       const blockchain_transaction_id = bulletin.dataset.transactionHash;
 
       let blockchain_responses = [];
 
       for (url of public_blockchain_copies) {
-        writeLoadingDetails(`Verifying bulletin ${bulletin_id} atc ${url}`);
+        await writeLoadingDetails(
+          '⛓️',
+          'Querying Blockchain<div class="loader"><div class="loader-bar"></div></div>',
+          `Verifying bulletin #${bulletin_id} is present in the blockchain available at <a href="${url}">${url}</a>`,
+          1000
+        );
 
         try {
           const response = await fetch(url+blockchain_transaction_id);
@@ -129,7 +130,12 @@ we can say the "Document" existed at any point before that date, and the timesta
     for( doc of documents ) {
       const bulletin = document.getElementById(`bulletin_${doc.dataset.bulletinId}`);
       const document_parts = doc.querySelectorAll('.document-part');
-      writeLoadingDetails(`Verifying document integrity for ${doc.dataset.documentId}`);
+      await writeLoadingDetails(
+        '🔎',
+        'Verifying document integrity<div class="loader"><div class="loader-bar"></div></div>',
+        `Looking for document ${doc.dataset.documentId} in verified bulletin #${doc.dataset.bulletinId}.`,
+        500
+      );
 
       for (part of document_parts) {
         /*
@@ -165,24 +171,34 @@ we can say the "Document" existed at any point before that date, and the timesta
         }
       }   
     }
+    await sleep(2000);
+
     return true;
   }
 
   window.onload = async function(){
     if(await ensure_running_on_secure_environment()){
-      if(window.location.origin === "{{ secure_origin }}") {
-        skipVerificationInSecureOrigin();
-      } else {
-        if(await constataValidation()){
-          generatePreviews();
-          document.getElementById("loader_overlay").style.display = "none";
-        }
+      showValidationInstructions();
+      if(isSecureOrigin()) {
+        populateDatesFromSecureOriginInsteadOfBlockchains();
+        generatePreviews();
+        await writeLoadingDetails(
+          "🔒",
+          "Document Verified",
+          "Displayed from a secure origin."
+        );
+        document.getElementById("loader_overlay").style.display = "none";
+      } else if(await constataValidation()){
+        generatePreviews();
+        await writeLoadingDetails(
+          "⚠️",
+          "Only local verification",
+          "Verification was successful, but we suggest you also make the quick web verification. <br/>See instructions at the document's footer.",
+          8000
+        );
+        document.getElementById("loader_overlay").style.display = "none";
       }
     }
-  }
-
-  function writeLoadingDetails(text){
-    document.getElementById("loader_detail").innerHTML = text
   }
 </script>
 <meta charset="UTF-8">
@@ -192,18 +208,21 @@ we can say the "Document" existed at any point before that date, and the timesta
 
 <body>
 <div id="loader_overlay" >
-  <div id="loader_spin" class="hidden"></div>
-  <p id="loader_detail">
-    In order to validate this certificate
-    <a href="{{ secure_origin }}/safe">
-      please go to our 
-      safe environment.
-    </a>.
-    <br/>
-    <br/>
-    <br/>
-    You can also visualize it from another like a tablet, phone or computer.
-  </p>
+  <div id="main_loading" class="hidden loader"></div>
+  <div id="loader_detail">
+    <div id="loader_detail_icon">⚠️</div>
+    <div id="loader_detail_title">
+      Incompatible environment
+    </div>
+    <div id="loader_detail_text">
+      In order to validate this certificate
+      <a href="{{ secure_origin }}/safe">
+        please go to our 
+        safe environment.
+      </a>.
+      You can also visualize it from another like a tablet, phone or computer.
+    </div>
+  </div>
   <div class="message-wrapper">
     <div id="message" class="hidden"></div>
   </div>
@@ -362,6 +381,19 @@ This data uses the algorithm that we've explained before.
   <div id="bulletin_{{bulletin.object.id}}" class="bulletin hidden" data-bulletin-id="{{bulletin.object.id}}" data-bulletin-date="{{ bulletin.object.block_time }}" data-bulletin-hash="{{bulletin.object.hash}}" data-transaction-hash="{{ bulletin.object.transaction_hash }}">{{ bulletin.contents }}</div>
 {% endfor %}
 
+{% if public_certificate_url %}
+  <div class="hidden" id="public_certificate_url" data-url="{{public_certificate_url.0}}">{{public_certificate_url.1}}</div>
+{% endif %}
+
+<div id="print_dialog_template" class="hidden">
+  <button>🖨️ Paper or PDF</button>
+  <p>
+    This part of the document may be printed in A4 paper or in PDF, with no margins.
+    <br/>
+    You will have to remove the margins in the print preview.
+  </p>
+</div>
+
 <div class="footer">
   {{ macros::constata_svg_logo() }}
   <p>
@@ -375,17 +407,21 @@ This data uses the algorithm that we've explained before.
     to third parties by any means available to you, and the may validate it independently.
   </p>
 
-  <h2>Quick validation via web</h2>
-  <ol>
-    <li>Visit <a target="_blank" href="{{ secure_origin }}/safe">{{ secure_origin }}/safe</a>.</li>
-    <li>Select this HTML file.</li>
-    <li>Our web will analize the certificate locally in this device, and will show it to you again only if it's valid.</li>
-  </ol>
+  <div id="validation_in_verifier" class="hidden">
+    <h2>Quick web verification</h2>
+    <ol>
+      <li>Visit <a target="_blank" href="{{ secure_origin }}/safe">{{ secure_origin }}/safe</a>.</li>
+      <li>Select this HTML file.</li>
+      <li>Our web will analize the certificate locally in this device, and will show it to you again only if it's valid.</li>
+    </ol>
+  </div>
+  <div id="validation_not_needed" class="hidden">
+    <h2>🔒Trusted origin</h2>
+    <p>You're seeing this document in <strong>{{secure_origin}}</strong> which is a trusted origin, it's been verified before showing it to you.</p>
+    <p>Visit <a href="{{ secure_origin }}">{{secure_origin}}</a> to learn more about the guarantees it offers.</p>
+  </div>
 
-  <h2 id="independent_validation">Independent validation in Bitcoin Blockchain</h2>
-  <p>
-    The quick validation ensures this certificate was issued by Constata and that the company endorses its contents.
-  </p>
+  <h2 id="independent_validation">⛓️ Independent verification in Bitcoin Blockchain</h2>
   <p>
     In case Constata's web validation is not available, or the company's endorsement was not enough, you can
     access a detailed audit of this certificate <a id="expand_audit_log" onclick="expandAuditLog()" href="#independent_validation">clicking here</a>.
@@ -592,9 +628,13 @@ This data uses the algorithm that we've explained before.
 <script type="text/javascript">
   function isSecureEnvironment(){
     const l = window.location;
-    if(l.protocol === "file:" || l.protocol == "content:" || l.origin === "{{ secure_origin }}" ){
+    if(l.protocol === "file:" || l.protocol == "content:" || isSecureOrigin()){
       return true;
     }
+  }
+
+  function isSecureOrigin() {
+    return window.location.origin === "{{ secure_origin }}";
   }
 
   function showCorruptCertificateMessage() {

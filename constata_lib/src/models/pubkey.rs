@@ -5,15 +5,8 @@
 /// and validation for subsequent keys.
 /// The request to register a new public key must be signed by the corresponding private key.
 /// We can't add public keys to the system without their constent.
-use super::*;
-use crate::{
-  models::{person::*, hasher::hexdigest, Environment},
-  signed_payload::SignedPayload,
-  Base64Standard,
-  Site,
-  Error,
-  Result
-};
+use super::{*, hasher::hexdigest, Environment };
+use crate::{ signed_payload::SignedPayload, };
 use bitcoin::Address;
 use serde_with::serde_as;
 use std::str::FromStr;
@@ -81,7 +74,7 @@ impl Pubkey {
 }
 
 impl PubkeyHub {
-  pub async fn validate_pubkey_creation(&self, person_id: &PersonId, signed_payload: &SignedPayload) -> Result<String> {
+  pub async fn validate_pubkey_creation(&self, person_id: &PersonId, signed_payload: &SignedPayload) -> ConstataResult<String> {
     let id = signed_payload.signer.to_string();
 
     if self.state.person().find_optional(person_id).await?.is_none() {
@@ -106,7 +99,7 @@ impl PubkeyHub {
   pub async fn create_from_signed_payload(&self,
     person_id: PersonId,
     signed_payload: &SignedPayload
-  ) -> Result<Pubkey> {
+  ) -> ConstataResult<Pubkey> {
     let id = self.validate_pubkey_creation(&person_id, signed_payload).await?;
     Ok(self.create(id, person_id, signed_payload, None, None).await?)
   }
@@ -116,7 +109,7 @@ impl PubkeyHub {
     signed_payload: &SignedPayload,
     encrypted_key: &str,
     public_key: &str,
-  ) -> Result<Pubkey> {
+  ) -> ConstataResult<Pubkey> {
     let id = self.validate_pubkey_creation(&person_id, signed_payload).await?;
     Ok(self.create( id, person_id, signed_payload,
      Some(encrypted_key.to_string()), Some(public_key.to_string())
@@ -142,11 +135,11 @@ impl PubkeyHub {
 describe! {
   use std::str::FromStr;
 
-  pub async fn make_pubkey(p: &TestDb) -> Result<Pubkey> {
+  pub async fn make_pubkey(p: &TestDb) -> ConstataResult<Pubkey> {
     make_pubkey_with(&p, None, None).await
   }
 
-  pub async fn make_pubkey_with(p: &TestDb, maybe_person_id: Option<PersonId>, maybe_payload: Option<&[u8]>) -> Result<Pubkey> {
+  pub async fn make_pubkey_with(p: &TestDb, maybe_person_id: Option<PersonId>, maybe_payload: Option<&[u8]>) -> ConstataResult<Pubkey> {
     let person_id = if let Some(id) = maybe_person_id { id } else { p.make_person().await.attrs.id };
     let signed_payload = p.eve().await
       .signed_payload(maybe_payload.unwrap_or(b"Hello Constata.eu"));

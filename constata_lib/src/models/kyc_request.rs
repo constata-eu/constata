@@ -1,11 +1,8 @@
-use super::*;
-use crate::{
-  models::{
-    kyc_request_evidence::*,
-    PersonId, UtcDateTime, Site,
-  },
-  Result,
-  Error,
+use super::{
+  *,
+  kyc_request_evidence::*,
+  PersonId,
+  UtcDateTime,
 };
 use duplicate::duplicate_item;
 
@@ -59,7 +56,7 @@ model!{
 }
 
 impl InsertKycRequestHub {
-  pub async fn validate_and_save(self) -> Result<KycRequest> {
+  pub async fn validate_and_save(self) -> ConstataResult<KycRequest> {
     let person = self.state.person().find(self.attrs.person_id).await?;
 
     if person.kyc_request_scope().state_eq("pending".to_string()).optional().await?.is_some() {
@@ -71,7 +68,7 @@ impl InsertKycRequestHub {
 }
 
 impl KycRequest {
-  pub async fn evidence(&self) -> Result<Vec<Vec<u8>>> {
+  pub async fn evidence(&self) -> ConstataResult<Vec<Vec<u8>>> {
     let mut evidences = vec![];
     for ev in self.kyc_request_evidence_scope().order_by(KycRequestEvidenceOrderBy::Id).all().await? {
       evidences.push(ev.contents().await?);
@@ -93,7 +90,7 @@ impl KycRequest {
   [ in_processed ] [ is_processed ] [ "processed" ] [ Processed ];
 )]
 impl KycRequest {
-  pub fn in_state(&self) -> Result<state_struct> {
+  pub fn in_state(&self) -> ConstataResult<state_struct> {
     self.flow().in_state()
   }
 
@@ -129,7 +126,7 @@ impl flow_variant {
   [ in_processed ] [ is_processed ] [ Flow::Processed(i) ] [ Processed ];
 )]
 impl Flow {
-  pub fn in_state(&self) -> Result<state_struct> {
+  pub fn in_state(&self) -> ConstataResult<state_struct> {
     if let variant([inner]) = self {
       Ok(inner.clone())
     } else {
@@ -180,7 +177,7 @@ impl KycRequestProcessForm {
 }
 
 impl Pending {
-  pub async fn process_update(self, kyc_request_process_form: KycRequestProcessForm) -> Result<KycRequest> {
+  pub async fn process_update(self, kyc_request_process_form: KycRequestProcessForm) -> ConstataResult<KycRequest> {
     if kyc_request_process_form.is_empty().await {
       return Ok(self.0.update().state("processed".to_string()).save().await?);
     }

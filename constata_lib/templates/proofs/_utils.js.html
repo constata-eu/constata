@@ -1,15 +1,33 @@
 {% include "proofs/_generate_previews.js.html" %}
 
+function showValidationInstructions() {
+  const l = window.location;
+  const id = l.protocol === "file:" || l.protocol == "content:" ? "validation_in_verifier" : "validation_not_needed";
+  document.getElementById(id).classList.remove("hidden");
+}
+
 function showErrorMessage(text){
   let msg = document.getElementById("message");
   msg.innerHTML = text;
   msg.classList.remove("hidden");
   document.getElementById("loader_detail").style.display = "none";
-  document.getElementById("loader_spin").style.display = "none";
+  document.getElementById("main_loading").style.display = "none";
+}
+
+async function writeLoadingDetails(icon, title, text, duration){
+  document.getElementById("loader_detail_icon").innerHTML = icon;
+  document.getElementById("loader_detail_title").innerHTML = title;
+  document.getElementById("loader_detail_text").innerHTML = text;
+  await sleep(duration || 2000);
+}
+
+function sleep(ms) {
+  return new Promise(function(resolve){ setTimeout(resolve, ms)});
 }
 
 function dismissErrorMessage() {
   generatePreviews();
+  showValidationInstructions();
   for ( i of document.querySelectorAll(".hide-if-unverified") ){
     i.style.display = "none";
   }
@@ -17,7 +35,7 @@ function dismissErrorMessage() {
   document.getElementById("loader_overlay").style.display = "none";
 }
 
-function skipVerificationInSecureOrigin(){
+function populateDatesFromSecureOriginInsteadOfBlockchains(){
   const bulletins = document.querySelectorAll('.bulletin');
   for( bulletin of bulletins ) {
     const bulletinDate = new Date(bulletin.dataset.bulletinDate)
@@ -26,13 +44,6 @@ function skipVerificationInSecureOrigin(){
     document.querySelectorAll(`.timestamp-${bulletinId}`)
       .forEach(el => el.innerHTML = bulletinDate);
   }
-  generatePreviews();
-  document.getElementById("loader_overlay").style.display = "none";
-}
-
-function writeLoadingDetails(text){
-  document.getElementById("loader_spin").classList.remove("hidden");
-  document.getElementById("loader_detail").innerHTML = text;
 }
 
 function expandAuditLog(){

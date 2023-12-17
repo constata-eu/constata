@@ -1,4 +1,3 @@
-use crate::error::Result;
 use super::*;
 
 model!{
@@ -17,7 +16,7 @@ model!{
 }
 
 impl GiftHub {
-  pub async fn give_and_trigger_updates(&self, org_id: i32, tokens: Decimal, reason: &str) -> Result<Gift> {
+  pub async fn give_and_trigger_updates(&self, org_id: i32, tokens: Decimal, reason: &str) -> ConstataResult<Gift> {
     self.build(org_id, tokens, reason).save_and_trigger_updates().await
   }
 
@@ -32,7 +31,7 @@ impl GiftHub {
 }
 
 impl InsertGiftHub {
-  pub async fn save_and_trigger_updates(self) -> Result<Gift> {
+  pub async fn save_and_trigger_updates(self) -> ConstataResult<Gift> {
     let gift = self.save().await?;
     gift.state.org()
       .find(gift.org_id()).await?

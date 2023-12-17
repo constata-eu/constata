@@ -1,7 +1,8 @@
 use crate::{
+  prelude::*,
   graphql::*,
-  models::hasher::hexdigest, Base64Standard, Result as MyResult};
-use serde::{Deserialize, Serialize};
+  models::hasher::hexdigest
+};
 pub use rocket::{ http::Status, request::{FromRequest, Outcome, Request}};
 
 use bitcoin::{
@@ -64,7 +65,7 @@ impl SignedPayload {
     }
   }
 
-  pub fn signed_ok(&self) -> MyResult<bool> {
+  pub fn signed_ok(&self) -> ConstataResult<bool> {
     Ok(self.signature.is_signed_by_address(
       &secp256k1::Secp256k1::new(),
       &self.signer,
@@ -72,14 +73,14 @@ impl SignedPayload {
     )?)
   }
 
-  pub fn pubkey(&self) -> MyResult<bitcoin::PublicKey> {
+  pub fn pubkey(&self) -> ConstataResult<bitcoin::PublicKey> {
     Ok(self.signature.recover_pubkey(
       &secp256k1::Secp256k1::new(),
       SignedPayload::signed_msg_hash(&self.payload),
     )?)
   }
 
-  pub fn signer_as_p2wpkh(&self, network: Network) -> MyResult<String> {
+  pub fn signer_as_p2wpkh(&self, network: Network) -> ConstataResult<String> {
     Ok(Address::p2wpkh(&self.pubkey()?, network)?.to_string())
   }
 }

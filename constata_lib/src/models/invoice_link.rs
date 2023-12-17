@@ -1,9 +1,4 @@
 use super::*;
-use crate::{
-  Result,
-  Site
-};
-
 
 model!{
   state: Site,
@@ -26,7 +21,7 @@ model!{
 }
 
 impl InvoiceLink {
-  pub async fn make_invoice(self, payment_source: PaymentSource, tokens: Decimal) -> Result<Invoice> {
+  pub async fn make_invoice(self, payment_source: PaymentSource, tokens: Decimal) -> ConstataResult<Invoice> {
     let invoice = self.state.invoice().once(&self.org().await?, payment_source, tokens).await?;
     self.access_token().await?.expire().await?;
     self.update().invoice_id(Some(invoice.attrs.id)).save().await?;
@@ -51,9 +46,9 @@ impl InvoiceLink {
 }
 
 impl InsertInvoiceLink {
-  pub async fn from_org(org: &Org) -> Result<Self> {
+  pub async fn from_org(org: &Org) -> ConstataResult<Self> {
     let person = org.admin().await?;
-    let access_token = org.state.access_token().create(&person, AccessTokenKind::InvoiceLink, 30).await?;
+    let access_token = org.state.access_token().create(&person, AccessTokenKind::InvoiceLink, Some(30)).await?;
 
     Ok(Self{ org_id: *org.id(), access_token_id: *access_token.id() })
   }

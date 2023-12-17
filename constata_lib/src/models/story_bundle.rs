@@ -1,7 +1,6 @@
+use crate::prelude::*;
 use serde::Serialize;
-use crate::{ Result, Base64Standard};
 use super::{
-  Site,
   UtcDateTime,
   Decimal,
   PersonId,
@@ -28,7 +27,7 @@ pub struct StoryBundle {
 }
 
 impl StoryBundle {
-  pub async fn from_story(db_story: &DbStory) -> Result<StoryBundle> {
+  pub async fn from_story(db_story: &DbStory) -> ConstataResult<StoryBundle> {
     let mut documents = vec![];
     let mut bulletin_ids: HashSet<i32> = HashSet::new();
     let mut endorsements = HashMap::new();
@@ -58,7 +57,7 @@ impl StoryBundle {
   }
 }
 
-pub async fn bulletins_from_ids(site: &Site, set: HashSet<i32>) -> Result<HashMap<i32, bulletin::Flow>> {
+pub async fn bulletins_from_ids(site: &Site, set: HashSet<i32>) -> ConstataResult<HashMap<i32, bulletin::Flow>> {
   let mut bulletins = HashMap::new();
   for id in set {
     bulletins.insert(id, site.bulletin().find(&id).await?.flow());
@@ -83,7 +82,7 @@ pub struct Document {
 }
 
 impl Document {
-  pub async fn from_document(document: &DbDocument) -> Result<(Document, HashSet<i32>, HashSet<PersonId>)> {
+  pub async fn from_document(document: &DbDocument) -> ConstataResult<(Document, HashSet<i32>, HashSet<PersonId>)> {
     let mut bulletin_ids = HashSet::new();
     let mut person_ids = HashSet::new();
     let mut parts = vec![];
@@ -139,7 +138,7 @@ pub struct DocumentPart {
 }
 
 impl DocumentPart {
-  pub async fn from_part(part: DbDocumentPart) -> Result<DocumentPart> {
+  pub async fn from_part(part: DbDocumentPart) -> ConstataResult<DocumentPart> {
     let mut signatures = vec![];
 
     for sig in part.document_part_signature_vec().await?.into_iter() {
@@ -174,7 +173,7 @@ pub struct Signature {
 }
 
 impl Signature {
-  pub async fn from_sig(sig: DbDocumentPartSignature) -> Result<Signature> {
+  pub async fn from_sig(sig: DbDocumentPartSignature) -> ConstataResult<Signature> {
     let person_id = sig.pubkey().await?.attrs.person_id;
     Ok(Signature{
       id: sig.attrs.id,

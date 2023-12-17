@@ -1,12 +1,12 @@
-use super::*;
+use super::{
+  *,
+  document::Document,
+  template_kind::TemplateKind,
+};
 use i18n::{Lang, renderer::RendererFs};
 use std::io::BufWriter;
 use std::path::Path;
 use qrcode_generator::QrCodeEcc;
-use crate::{
-  models::{ document::Document, template_kind::TemplateKind},
-  Result,
-};
 use printpdf::{
   *,
   lopdf::{
@@ -20,7 +20,7 @@ pub struct AbridgedPdfGenerator {
 }
 
 impl AbridgedPdfGenerator {
-  pub async fn generate(link: &DownloadProofLink, l: Lang) -> Result<Vec<u8>> {
+  pub async fn generate(link: &DownloadProofLink, l: Lang) -> ConstataResult<Vec<u8>> {
     let document = link.document().await?;
     let bulletin = document.in_accepted()?.bulletin().await?.in_published()?;
     let url = link.public_certificate_url();
@@ -76,7 +76,7 @@ impl AbridgedPdfGenerator {
     Ok(writer.into_inner()?)
   }
 
-  async fn signers(document: &Document, l: Lang) -> Result<Vec<String>> {
+  async fn signers(document: &Document, l: Lang) -> ConstataResult<Vec<String>> {
     let mut signers: Vec<String> = vec![];
     for part in document.document_part_vec().await?.into_iter() {
       for sig in &part.document_part_signature_vec().await? {
@@ -88,7 +88,7 @@ impl AbridgedPdfGenerator {
     Ok(signers)
   }
 
-  async fn values_based_on_template_kind_and_schema(document: &Document, l: Lang) -> Result<(String, String, Vec<(String, String)>)> {
+  async fn values_based_on_template_kind_and_schema(document: &Document, l: Lang) -> ConstataResult<(String, String, Vec<(String, String)>)> {
     let tuple = match document.entry_optional().await? {
       Some(entry) => {
         let (title, verification_call_to_action) = match entry.template_kind().await? {
@@ -106,7 +106,7 @@ impl AbridgedPdfGenerator {
           ),
         };
 
-        let schema = entry.request().await?.template().await?.parsed_schema()?;
+        let schema = entry.issuance().await?.template().await?.parsed_schema()?;
         let params = entry.parsed_params()?;
 
         let mut fields = vec![];
@@ -230,7 +230,7 @@ impl LayerBuilder {
     textwrap::wrap(&no_newline, options).iter().map(|i| i.to_string() ).collect::<Vec<String>>()
   }
 
-  fn add_qr_code(&self, url: &str) -> Result<()> {
+  fn add_qr_code(&self, url: &str) -> ConstataResult<()> {
     let qr: String = qrcode_generator::to_svg_to_string(&url, QrCodeEcc::Low, 300, None::<&str>)?;
     let svg = Svg::parse(&qr)?;
     let transform = SvgTransform {

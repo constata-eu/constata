@@ -1,15 +1,6 @@
 mod abridged_pdf_generator;
 use abridged_pdf_generator::AbridgedPdfGenerator;
-
-use super::{*, blockchain::PrivateKey};
-use crate::{
-  models::{
-    template_kind::TemplateKind,
-  },
-  Site,
-  Result,
-};
-use chrono::Utc;
+use super::{*, blockchain::PrivateKey, template_kind::TemplateKind};
 
 model!{
   state: Site,
@@ -55,11 +46,11 @@ model!{
 }
 
 impl DownloadProofLink {
-  pub async fn token(&self) -> Result<String> {
+  pub async fn token(&self) -> ConstataResult<String> {
     Ok(self.access_token().await?.attrs.token)
   }                              
 
-  pub async fn valid_until(&self) -> Result<Option<UtcDateTime>> {
+  pub async fn valid_until(&self) -> ConstataResult<Option<UtcDateTime>> {
     Ok(self.access_token().await?.attrs.auto_expires_on)
   }
 
@@ -71,19 +62,15 @@ impl DownloadProofLink {
     self.document().await?.entry_optional().await
   }    
 
-  pub async fn html_proof(&self, key: &PrivateKey, lang: i18n::Lang) -> Result<String> {
+  pub async fn html_proof(&self, key: &PrivateKey, lang: i18n::Lang) -> ConstataResult<String> {
     self.document().await?
       .story().await?
       .proof(self.state.settings.network, &key).await?
       .render_html(lang)
   }
 
-  pub async fn full_url(&self) -> Result<String> {
-    Ok(format!("{}/download-proof/{}", &self.state.settings.url, self.token().await?))
-  }
-
-  pub async fn safe_env_url(&self) -> Result<String> {
-    Ok(format!("{}/safe/{}", &self.state.settings.url, self.token().await?))
+  pub async fn safe_env_url(&self) -> ConstataResult<String> {
+    Ok(format!("{}/#/safe/{}", &self.state.settings.url, self.token().await?))
   }
 
   pub fn public_certificate_url(&self) -> String {
@@ -111,7 +98,7 @@ impl DownloadProofLink {
     self.clone().update().public_visit_count(*self.public_visit_count() + 1).save().await
   }
 
-  pub async fn image_url(&self) -> Result<String> {
+  pub async fn image_url(&self) -> ConstataResult<String> {
     let image = match self.org().await?.attrs.logo_url {
       Some(url) => url,
       None => self.state.settings.default_logo_url().to_string(),
@@ -120,21 +107,21 @@ impl DownloadProofLink {
     Ok(image)
   }
 
-  pub async fn title(&self) -> Result<Option<String>> {
+  pub async fn title(&self) -> ConstataResult<Option<String>> {
     if let Some(entry) = self.entry_optional().await? {
      entry.title().await
     } else {
       Ok(None)
     }
   }
-  pub async fn template_kind(&self) -> Result<Option<TemplateKind>> {
+  pub async fn template_kind(&self) -> ConstataResult<Option<TemplateKind>> {
     Ok(match self.entry_optional().await? {
       Some(e) => Some(e.template_kind().await?),
       None => None,
     })
   }
 
-  pub async fn share_on_social_networks_call_to_action(&self, l: &i18n::Lang) -> Result<String> {
+  pub async fn share_on_social_networks_call_to_action(&self, l: &i18n::Lang) -> ConstataResult<String> {
     let share_on_social_networks_call_to_action = match self.document().await?.entry_optional().await? {
       Some(entry) => {
         match entry.template_kind().await? {
@@ -149,7 +136,7 @@ impl DownloadProofLink {
     Ok(share_on_social_networks_call_to_action)
   }
 
-  pub async fn abridged_pdfs_zip(&self, l: i18n::Lang) -> Result<(String, Vec<u8>)> {
+  pub async fn abridged_pdfs_zip(&self, l: i18n::Lang) -> ConstataResult<(String, Vec<u8>)> {
     use std::io::Write;
     use zip::write::FileOptions;
 
@@ -183,10 +170,11 @@ impl DownloadProofLink {
 }
 
 impl InsertDownloadProofLink {
-  pub async fn new(document: &Document, duration_days: i64) -> Result<Self> {
+  pub async fn new(document: &Document, duration_days: i64) -> ConstataResult<Self> {
     let org = document.org().await?;
     let person = org.admin().await?;
-    let access_token = org.state.access_token().create(&person, AccessTokenKind::DownloadProofLink, duration_days).await?;
+    let access_token = org.state.access_token()
+      .create(&person, AccessTokenKind::DownloadProofLink, Some(duration_days)).await?;
 
     Ok(Self{
       document_id: document.attrs.id.clone(),
@@ -199,6 +187,7 @@ impl InsertDownloadProofLink {
 
 describe! {
   use std::collections::HashMap;
+
   regtest!{ create_public_certificate_and_switch_state (_db, c, mut chain)
     let alice = c.alice().await;
     let entry = alice.make_entry_and_sign_it().await;
@@ -207,6 +196,9 @@ describe! {
     let doc = entry.reloaded().await?.document().await?.expect("to get entry's document");
     let download_proof_link = alice.make_download_proof_link_from_doc(&doc, 30).await;
     let access_token = download_proof_link.access_token().await?;
+
+    assert_that!(&download_proof_link.public_certificate_url(), rematch(r#":8000/certificate/"#));
+    assert_that!(&download_proof_link.safe_env_url().await?, rematch(r#":8000/#/safe/"#));
 
     download_proof_link.publish().await?;
     assert_that!(download_proof_link.reloaded().await?.published_at().is_some());
@@ -225,7 +217,7 @@ describe! {
       "This diploma is certified by the Bitcoin blockchain!".to_string()
     );
 
-    let template = entry.request().await?.template().await?;
+    let template = entry.issuance().await?.template().await?;
     template.clone().update().kind(TemplateKind::Attendance).save().await?;
     assert_eq!(
       download_proof_link.share_on_social_networks_call_to_action(&i18n::Lang::En).await?,
@@ -273,7 +265,7 @@ describe! {
       "https://constata.eu/assets/images/logo.png".to_string()
     );
 
-    let template = entry.request().await?.template().await?;
+    let template = entry.issuance().await?.template().await?;
     let mut params: HashMap<String, String> = serde_json::from_str::<HashMap<String, String>>(entry.params())?;
     params.insert("motive".to_string(), "Curso de manejo".to_string());
     entry.clone().update().params(serde_json::to_string(&params).unwrap()).save().await?;

@@ -8,24 +8,61 @@ function generatePreviews(){
     const friendly_name = doc.dataset.friendlyName;
     const bytes = doc.querySelectorAll(".payload")[0].innerHTML;
 
+    const printDialog = document.getElementById("print_dialog_template");
+
     if(type == "application/pdf" && navigator.mimeTypes["application/pdf"]) {
       container.appendChild(preview);
       preview.innerHTML = `<object data="data:${type};base64,${bytes}" type="${type}"></object>`;
     }else if(type.startsWith("image")){
+      preview.classList.add("printable");
       container.appendChild(preview);
       preview.innerHTML = `<img src="data:${type};base64,${bytes}"/>`;
     }else if(type.startsWith("text")){
+      preview.classList.add("printable");
       container.appendChild(preview);
       const iframe = document.createElement('iframe', { sandbox: null});
       preview.appendChild(iframe);
       let text = (new TextDecoder()).decode(base64ToBytes(bytes));
       iframe.contentWindow.document.write(text);
       setTimeout(function(){
-        iframe.height = (iframe.contentWindow.document.body.scrollHeight + 10) + 'px';
+        iframe.height = (iframe.contentDocument.querySelector("html").scrollHeight + 10) + 'px';
       },50);
+
+      const newDialog = document.createElement('div');
+      newDialog.classList.add("print-dialog");
+      newDialog.innerHTML = printDialog.innerHTML;
+      newDialog.querySelector("button").onclick = function(){ iframe.contentWindow.print() };
+      preview.appendChild(newDialog);
+
     }else if(type.startsWith("video")){
       container.appendChild(preview);
       preview.innerHTML = `<video controls src="data:${type};base64,${bytes}"/>`;
+    }
+  }
+
+  let qr_node = document.getElementById("public_certificate_url");
+  if(qr_node) {
+    let svg = qr_node.querySelector("svg");
+    svg.setAttribute("viewBox", "0 0 1024 1024");
+    svg.setAttribute("width", "100%");
+    svg.setAttribute("height", "100%");
+
+    for (iframe of document.querySelectorAll(".preview iframe")) {
+      let inside = iframe.contentDocument || iframe.contentWindow.document;
+      let container = inside.getElementById("constata_public_url_qr_code");
+      if (container) {
+        container.style.display = "block";
+        for (qr_container of inside.querySelectorAll(".qr-container")) {
+          qr_container.innerHTML = qr_node.innerHTML;
+        }
+        for (in_inner of inside.querySelectorAll(".public-url-in-inner-html")) {
+          in_inner.innerHTML = qr_node.dataset.url;
+        }
+        for (in_href of inside.querySelectorAll(".public-url-in-anchor")) {
+          in_href.setAttribute("href", qr_node.dataset.url);
+          in_href.setAttribute("target", "_blank");
+        }
+      }
     }
   }
 }

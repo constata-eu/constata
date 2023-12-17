@@ -1,4 +1,4 @@
-use constata_lib::models::{Site, Utc};
+use constata_lib::prelude::*;
 use email_bot::EmailBot;
 use log::*;
 use std::time::Duration;
@@ -7,6 +7,7 @@ use std::time::Duration;
 async fn main() {
   let site = Site::from_stdin_password().await.unwrap();
   site.audit_log.start();
+
   let mut handles = vec![];
 
   macro_rules! every {
@@ -23,16 +24,16 @@ async fn main() {
 
   macro_rules! run {
     ($name:literal {$($blk:tt)*}) => (
-      println!("Running: {}", $name);
+      //println!("Running: {}", $name);
       if let Err(err) = { $($blk)* } {
         error!("Error in {}: {:?}", $name, err);
       }
     )
   }
 
-  every![100, |s| {
-    run!("workroom_create_received" { s.request().create_all_received().await });
-    run!("workroom_complete_all_notified" { s.request().try_complete().await });
+  every![500, |s| {
+    run!("workroom_create_received" { s.issuance().create_all_received().await });
+    run!("workroom_complete_all_notified" { s.issuance().try_complete().await });
     run!("attempting_webhooks" { s.web_callback().attempt_all_pending().await });
   }];
 

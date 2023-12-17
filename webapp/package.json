@@ -1,0 +1,82 @@
+{
+  "name": "web_app_certos",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@craco/craco": "^6.4.5",
+    "@emotion/css": "^11.9.0",
+    "@emotion/react": "^11.9.0",
+    "@emotion/styled": "^11.8.1",
+    "@graphiql/react": "^0.17.0",
+    "@graphiql/toolkit": "^0.8.2",
+    "@mui/icons-material": "^5.6.2",
+    "@mui/x-data-grid": "^5.10.0",
+    "bip32": "^3.1.0",
+    "bip39": "^3.0.4",
+    "bitcoinjs-lib": "^4.0",
+    "bitcoinjs-message": "^2.2.0",
+    "buffer": "*",
+    "countrily": "*",
+    "cra-template": "1.2.0",
+    "csv-stringify": "*",
+    "csvtojson": "*",
+    "ecpair": "*",
+    "final-form": "^4.20.7",
+    "graphiql": "^2.4.0",
+    "graphql": "*",
+    "graphql-tag": "*",
+    "graphql-ws": "^5.12.0",
+    "lodash": "*",
+    "miscreant": "0.3.2",
+    "ncp": "2.0.0",
+    "patch-package": "*",
+    "ra-data-graphql-simple": "^4.0.3",
+    "ra-data-simple-rest": "^4.0.3",
+    "ra-i18n-polyglot": "*",
+    "ra-input-rich-text": "^4.0.3",
+    "ra-language-english": "*",
+    "ra-language-spanish": "*",
+    "react": "^18.2.0",
+    "react-admin": "^4.4.1",
+    "react-dom": "^18.2.0",
+    "react-final-form": "^6.5.9",
+    "react-google-recaptcha-v3": "*",
+    "react-iframe": "^1.8.5",
+    "react-scripts": "*",
+    "react-scripts-ts": "*",
+    "react-qr-code": "*",
+    "stream-browserify": "*",
+    "tiny-secp256k1": "*",
+    "typescript": "*",
+    "uuid": "*",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start": "REACT_APP_CERTOS_API_DOMAIN=http://localhost:8000 craco start",
+    "build": "craco build",
+    "clean": "rm build/asset-manifest.json",
+    "move": "rm -rf ../public_api/static/certos/static/js/* && rm -rf ../target/debug/.fingerprint/public_api* && ncp build ../public_api/static/certos/ && git add ../public_api/static/certos",
+    "prod": "npm run build && npm run clean && npm run move",
+    "test": "craco test",
+    "eject": "react-scripts-ts eject",
+    "postinstall": "patch-package"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

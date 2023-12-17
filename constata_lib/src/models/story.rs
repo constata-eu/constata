@@ -1,4 +1,5 @@
 use crate::{
+  prelude::*,
   models::{
     model,
     hasher::hexdigest,
@@ -11,11 +12,8 @@ use crate::{
     story_snapshot::*,
     document::*,
     download_proof_link::*,
-    Site,
     Proof,
   },
-  Result,
-  Error,
 };
 use bitcoin::{ PrivateKey, network::constants::Network };
 use i18n::Lang;
@@ -73,11 +71,11 @@ impl StoryHub {
 }
 
 impl Story {
-  pub async fn proof<'b>(&self, network: Network, key: &'b PrivateKey) -> Result<Proof<'b>> {
+  pub async fn proof<'b>(&self, network: Network, key: &'b PrivateKey) -> ConstataResult<Proof<'b>> {
     Proof::new(&self, network, key).await
   }
 
-  pub async fn hash(&self) -> Result<String> {
+  pub async fn hash(&self) -> ConstataResult<String> {
     let docs: String = self.documents().await?.into_iter().map(|d| d.attrs.id ).collect();
 
     let preimage = format!("{}-{}-{}-{}",
@@ -90,7 +88,7 @@ impl Story {
     Ok(hexdigest(preimage.as_bytes()))
   }
 
-  pub async fn get_or_create_snapshot(&self) -> Result<StorySnapshot> {
+  pub async fn get_or_create_snapshot(&self) -> ConstataResult<StorySnapshot> {
     let hash = self.hash().await?;
 
     match self.state.story_snapshot().select().hash_eq(&hash).optional().await? {
@@ -109,7 +107,7 @@ impl Story {
       .all().await
   }
 
-  pub async fn get_or_create_download_proof_link(&self, duration_days: i64) -> Result<Option<DownloadProofLink>> {
+  pub async fn get_or_create_download_proof_link(&self, duration_days: i64) -> ConstataResult<Option<DownloadProofLink>> {
     let maybe_document = self.document_scope().order_by(DocumentOrderBy::CreatedAt).one().await;
 
     if let Ok(document) = maybe_document {
@@ -129,7 +127,7 @@ impl Story {
       .all().await
   }
 
-  pub async fn published_documents(&self) -> Result<Vec<document::Accepted>> {
+  pub async fn published_documents(&self) -> ConstataResult<Vec<document::Accepted>> {
     let mut published = vec![];
     for doc in self.documents().await?.into_iter() {
       if let Ok(accepted) = doc.in_accepted() {
@@ -156,7 +154,7 @@ impl Story {
     Ok(pending)
   }
   
-  pub async fn has_accepted_docs(&self) -> Result<bool> {
+  pub async fn has_accepted_docs(&self) -> ConstataResult<bool> {
     for doc in self.pending_docs().await?.into_iter() {
       if doc.is_accepted() {
         return Ok(true);
@@ -170,7 +168,7 @@ impl Story {
     &self,
     maybe_evidence: Vec<Vec<u8>>,
     maybe_model: Option<T>
-  ) -> Result<()>  {
+  ) -> ConstataResult<()>  {
     let admin = self.org().await?.admin().await?;
   
     for evidence in &maybe_evidence {
@@ -191,7 +189,7 @@ impl Story {
     Ok(())
   }
 
-  pub fn handle_uniqueness_error(&self, document: Result<Document>) -> Result<()>  {
+  pub fn handle_uniqueness_error(&self, document: ConstataResult<Document>) -> ConstataResult<()>  {
     match document {
       Ok(_) => Ok(()),
       Err(Error::Validation { field, message }) => {
@@ -204,7 +202,7 @@ impl Story {
     }
   }
 
-  pub async fn attestation(&self) -> Result<Option<Attestation>> {
+  pub async fn attestation(&self) -> ConstataResult<Option<Attestation>> {
     Ok(self.attestation_scope().optional().await?)
   }
 }
