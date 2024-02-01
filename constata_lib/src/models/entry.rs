@@ -103,7 +103,7 @@ impl Entry {
 
   pub async fn admin_access_link(&self) -> ConstataResult<Option<DownloadProofLink>> {
     let Some(doc) = self.document().await? else { return Ok(None) };
-    Ok(Some(doc.get_or_create_download_proof_link(30).await?))
+    Ok(Some(doc.get_or_create_download_proof_link(360 * 5).await?))
   }
 
   pub async fn admin_access_url(&self) -> ConstataResult<Option<String>> {
