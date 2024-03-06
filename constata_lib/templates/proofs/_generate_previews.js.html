@@ -51,7 +51,7 @@ function generatePreviews(){
       let inside = iframe.contentDocument || iframe.contentWindow.document;
       let container = inside.getElementById("constata_public_url_qr_code");
       if (container) {
-        container.style.display = "block";
+        container.classList.remove("hidden");
         for (qr_container of inside.querySelectorAll(".qr-container")) {
           qr_container.innerHTML = qr_node.innerHTML;
         }
