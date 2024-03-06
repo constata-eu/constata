@@ -174,11 +174,11 @@ impl Blockchain {
   }
 
   fn sats_per_byte_fast(&self) -> ConstataResult<u64> {
-    self.sats_per_byte(1)
+    self.sats_per_byte(6)
   }
 
   fn sats_per_byte_economy(&self) -> ConstataResult<u64> {
-    self.sats_per_byte(6)
+    self.sats_per_byte(10)
   }
 
   fn build_and_sign(
