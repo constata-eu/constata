@@ -364,7 +364,6 @@ describe!{
   use std::io::Read; 
   use std::collections::HashMap;
   use bitcoin::network::constants::Network;
-  use crate::models::*;
 
   regtest!{ process_one_issuance_from_an_arbitrary_template (site, c, mut chain)
     let alice = c.alice().await;

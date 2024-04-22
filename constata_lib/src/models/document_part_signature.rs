@@ -2,6 +2,7 @@ use crate::{
   models::{
     model,
     Site,
+    Bulletin,
     pubkey::*,
     document_part::*,
   },
@@ -24,6 +25,7 @@ model!{
     bulletin_id: Option<i32>,
   },
   belongs_to {
+    Bulletin(bulletin_id),
     Pubkey(pubkey_id),
     DocumentPart(document_part_id),
   }

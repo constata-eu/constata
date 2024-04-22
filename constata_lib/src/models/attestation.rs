@@ -1,7 +1,8 @@
 use crate::{
+  ConstataResult,
   signed_payload::SignedPayload,
   models::{
-    *,
+    InsertEmailCallback,
     model,
     Person,
     Story,
@@ -94,6 +95,7 @@ pub mod for_api {
   use super::*;
   use rust_decimal_macros::dec;
   use num_traits::ToPrimitive;
+  use crate::models::endorsement_for_api::EndorsementManifest;
 
   #[derive(Debug, Clone, GraphQLObject, serde::Serialize, serde::Deserialize)]
   #[serde(rename_all = "camelCase")]
@@ -120,6 +122,36 @@ pub mod for_api {
     pub admin_access_url: Option<String>,
     pub public_certificate_url: Option<String>,
     pub created_at: UtcDateTime,
+    pub documents: Vec<AttestationDocument>
+  }
+
+  #[derive(Debug, Clone, GraphQLObject, serde::Serialize, serde::Deserialize)]
+  #[serde(rename_all = "camelCase")]
+  #[graphql(description = "A document that is part of a whole attestation")]
+  pub struct AttestationDocument {
+    certification_date: Option<UtcDateTime>,
+    parts: Vec<AttestationDocumentPart>
+  }
+
+  #[derive(Debug, Clone, GraphQLObject, serde::Serialize, serde::Deserialize)]
+  #[serde(rename_all = "camelCase")]
+  #[graphql(description = "A part of a document. IE: a zip file is part 0, then every file contained is another part.")]
+  pub struct AttestationDocumentPart {
+    friendly_name: String,
+    hash: String,
+    is_base: bool,
+    signatures: Vec<AttestationSignature>
+  }
+
+  #[derive(Debug, Clone, GraphQLObject, serde::Serialize, serde::Deserialize)]
+  #[serde(rename_all = "camelCase")]
+  #[graphql(description = "One of possibly many signatures applied to an attestation document")]
+  pub struct AttestationSignature {
+    certification_date: Option<UtcDateTime>,
+    public_key: String,
+    signature: String,
+    signature_hash: String,
+    endorsement_manifest: EndorsementManifest
   }
 
   pub async fn from_model(d: super::Attestation) -> ConstataResult<Attestation> {
@@ -133,6 +165,7 @@ pub mod for_api {
     let mut done_documents = 0;
     let mut parked_documents = 0;
     let mut processing_documents = 0;
+    let mut documents = vec![];
 
     for doc in &story.documents().await? {
       tokens_cost += doc.attrs.cost;
@@ -141,7 +174,8 @@ pub mod for_api {
       } else {
         tokens_owed += doc.attrs.cost;
       }
-      if doc.bulletin().await?.map(|b| b.is_published()).unwrap_or(false) {
+      let bulletin = doc.bulletin().await?;
+      if bulletin.as_ref().map(|b| b.is_published()).unwrap_or(false) {
         done_documents += 1;
       } else if doc.is_parked() {
         parked_documents += 1;
@@ -151,6 +185,34 @@ pub mod for_api {
       for cb in doc.email_callback_scope().all().await? {
         email_admin_access_url_to.insert(cb.attrs.address);
       }
+
+      let mut parts = vec![];
+      for part in doc.document_part_vec().await? {
+        let mut signatures = vec![];
+        for signature in part.document_part_signature_vec().await? {
+            let certification_date = signature.bulletin().await?.and_then(|b| b.attrs.block_time);
+            let pubkey = signature.pubkey().await?;
+            let endorsement_manifest = EndorsementManifest::from_person(&pubkey.person().await?, i18n::Lang::En).await?;
+            signatures.push(AttestationSignature{
+                certification_date,
+                public_key: pubkey.attrs.id,
+                signature: base64::encode(signature.attrs.signature),
+                signature_hash: signature.attrs.signature_hash,
+                endorsement_manifest
+            });
+        }
+        parts.push(AttestationDocumentPart{
+            friendly_name: part.attrs.friendly_name,
+            hash: part.attrs.hash,
+            is_base: part.attrs.is_base,
+            signatures
+        });
+      }
+
+      documents.push(AttestationDocument{
+        certification_date: bulletin.and_then(|b| b.attrs.block_time),
+        parts
+      });
     }
 
     let state = if done_documents > 0 {
@@ -213,6 +275,7 @@ pub mod for_api {
       tokens_paid: tokens_paid.to_f64().unwrap_or(0.0),
       tokens_owed: tokens_owed.to_f64().unwrap_or(0.0),
       last_doc_date,
+      documents
     })
   }
 }
