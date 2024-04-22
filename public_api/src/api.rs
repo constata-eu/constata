@@ -48,7 +48,6 @@ constata_lib::pub_mods!{
     AttestationSetPublishedInput,
     AttestationHtmlExport
   };
-  endorsement_manifest::{EndorsementManifest};
   email_address::{EmailAddress, EmailAddressFilter, EmailAddressInput, EmailAddressVerification};
   signup::{Signup, SignupInput};
   download_proof_link::{DownloadProofLink, DownloadProofLinkInput, AbridgedProofZip};
@@ -259,8 +258,8 @@ make_graphql_query!{
   }
 
   #[graphql(name="EndorsementManifest")]
-  async fn endorsement_manifest(context: &Context, _id: i32) -> FieldResult<EndorsementManifest> {
-    EndorsementManifest::from_context(context).await
+  async fn endorsement_manifest(context: &Context, _id: i32) -> FieldResult<db::endorsement::for_api::EndorsementManifest> {
+    Ok(db::endorsement::for_api::EndorsementManifest::from_person(&context.person(), context.lang).await?)
   }
 
   #[graphql(name="EmailAddressVerification")]

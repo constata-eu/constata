@@ -28,7 +28,6 @@ pub_mods!{
   previewer;
   pubkey_domain_endorsement;
   pubkey;
-  endorsement;
   mailers;
   magic_link;
   download_proof_link;
@@ -42,7 +41,6 @@ pub_mods!{
   kyc_request;
   kyc_request_evidence;
   parked_reminder;
-  attestation;
   outgoing_email_message;
   outgoing_email_message_kind;
   access_token;
@@ -56,12 +54,16 @@ pub_mods!{
   entry;
   template_kind;
   wizard;
+  attestation;
 }
 
 pub_mods!{
   story_bundle::StoryBundle;
   document_bundle::DocumentBundle;
 }
+
+pub mod endorsement;
+pub use endorsement::{Endorsement, for_api as endorsement_for_api};
 
 pub mod btcpay;
 pub use mailers::email_parked_documents::*;
