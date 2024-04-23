@@ -204,6 +204,8 @@ constata_lib::describe_one! {
       }}
     }});
 
+    assert!(!done.attestation.documents.is_empty());
+
     let search = all::Variables{
       page: Some(0),
       sort_field: Some("createdAt".to_string()),

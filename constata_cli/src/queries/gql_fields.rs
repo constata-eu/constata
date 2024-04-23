@@ -84,6 +84,7 @@ pub const ATTESTATION: &'static str = "\
   adminAccessUrl
   publicCertificateUrl
   createdAt
+  documents
   __typename";
 
 pub const ACCOUNT_STATE: &'static str = "\
