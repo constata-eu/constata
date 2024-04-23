@@ -98,6 +98,12 @@ type KycEndorsementManifest {
   updatedAt: DateTime!
 }
 
+"A document that is part of a whole attestation"
+type AttestationDocument {
+  certificationDate: DateTime
+  parts: [AttestationDocumentPart!]!
+}
+
 "The public key of a Person is used to sign certificates created through Issuances and Attestations. It's also used to authenticate to this API."
 type Pubkey {
   "Unique ID of the pubkey, corresponds to a mainnet bitcoin address."
@@ -113,8 +119,6 @@ input IssuanceFilter {
   stateEq: String
   nameLike: String
 }
-
-scalar Addr
 
 "A list of WebCallbacks we've sent you or are working on sending you, to help you debug your web callbacks integration."
 type WebCallback {
@@ -142,17 +146,17 @@ enum WebCallbackState {
   FAILED
 }
 
-enum TemplateKind {
-  DIPLOMA
-  ATTENDANCE
-  BADGE
-}
-
 enum WebCallbackResultCode {
   OK
   NETWORK_ERROR
   NO_CALLBACKS_URL_FOR_ORG
   NON_SUCCESS_RESPONSE
+}
+
+enum TemplateKind {
+  DIPLOMA
+  ATTENDANCE
+  BADGE
 }
 
 "This is your organization's account information and stats."
@@ -182,6 +186,8 @@ type AccountState {
   "A custom logo URL for your organization, configured by us."
   logoUrl: String
 }
+
+scalar Addr
 
 "Your email account, as verified by Constata's email robot."
 type EmailEndorsementManifest {
@@ -322,6 +328,7 @@ type Attestation {
   adminAccessUrl: String
   publicCertificateUrl: String
   createdAt: DateTime!
+  documents: [AttestationDocument!]!
 }
 
 "Contains the verifiable HTML for this certified entry."
@@ -476,6 +483,15 @@ type Mutation {
   updateWebCallbacksUrl(url: String): AccountState!
 }
 
+"One of possibly many signatures applied to an attestation document"
+type AttestationSignature {
+  certificationDate: DateTime
+  publicKey: String!
+  signature: String!
+  signatureHash: String!
+  endorsementManifest: EndorsementManifest!
+}
+
 "Every attempt we made to deliver a WebCallback to your web_callbacks_url"
 type WebCallbackAttempt {
   "Unique identifier for this Entry, across all Issuances."
@@ -572,6 +588,14 @@ type Invoice {
   description: String!
   "Visit this url to continue your payment."
   url: String!
+}
+
+"A part of a document. IE: a zip file is part 0, then every file contained is another part."
+type AttestationDocumentPart {
+  friendlyName: String!
+  hash: String!
+  isBase: Boolean!
+  signatures: [AttestationSignature!]!
 }
 
 input TemplateFilter {

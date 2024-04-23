@@ -78,6 +78,10 @@ mutation CreateAttestation($input: AttestationInput!) {
     adminAccessUrl
     publicCertificateUrl
     createdAt
+    documents {
+      certificationDate
+      __typename
+    }
     __typename
   }
 }
@@ -104,6 +108,10 @@ mutation AttestationSetPublished($input: AttestationSetPublishedInput!) {
     adminAccessUrl
     publicCertificateUrl
     createdAt
+    documents {
+      certificationDate
+      __typename
+    }
     __typename
   }
 }
@@ -534,6 +542,10 @@ query Attestation($id: Int!) {
     adminAccessUrl
     publicCertificateUrl
     createdAt
+    documents {
+      certificationDate
+      __typename
+    }
     __typename
   }
 }
@@ -560,6 +572,10 @@ query AllAttestations($page: Int, $perPage: Int, $sortField: String, $sortOrder:
     adminAccessUrl
     publicCertificateUrl
     createdAt
+    documents {
+      certificationDate
+      __typename
+    }
     __typename
   }
 }
