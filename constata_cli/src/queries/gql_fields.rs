@@ -84,7 +84,39 @@ pub const ATTESTATION: &'static str = "\
   adminAccessUrl
   publicCertificateUrl
   createdAt
-  documents
+  documents {
+    certificationDate
+    parts {
+        friendlyName
+        hash
+        isBase
+        signatures {
+            certificationDate
+            publicKey
+            signature
+            signatureHash
+            endorsementManifest {
+                text
+                websites
+                kyc {
+                    name
+                    lastName
+                    idNumber
+                    idType
+                    birthdate
+                    nationality
+                    country
+                    jobTitle
+                    legalEntityName
+                    legalEntityCountry
+                    legalEntityRegistration
+                    legalEntityTaxId
+                    updatedAt
+                }
+            }
+        }
+    }
+  }
   __typename";
 
 pub const ACCOUNT_STATE: &'static str = "\
