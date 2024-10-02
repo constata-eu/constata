@@ -652,6 +652,10 @@ type Entry {
   emailCallbackSentAt: DateTime
   "The administrative access url for the direct recipient of this entry. They can use it to download, view or share the document."
   adminAccessUrl: String
+  "Indicates the public certificate url returned is active and can be seen publicly."
+  isPublished: Boolean!
+  "The publicly accessible URL for this entry, which could be converted into a QR code. Only available if the entry has been published."
+  publicCertificateUrl: String
 }
 
 "This object show us the information of a kyc request"

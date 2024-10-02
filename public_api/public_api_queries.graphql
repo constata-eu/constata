@@ -134,6 +134,8 @@ mutation SigningIterator($input: SigningIteratorInput!) {
       hasEmailCallback
       emailCallbackSentAt
       adminAccessUrl
+      isPublished
+      publicCertificateUrl
       __typename
     }
     bytes
@@ -298,6 +300,8 @@ query Entry($id: Int!) {
     hasEmailCallback
     emailCallbackSentAt
     adminAccessUrl
+    isPublished
+    publicCertificateUrl
     __typename
   }
 }
@@ -318,6 +322,8 @@ query AllEntries($page: Int, $perPage: Int, $sortField: String, $sortOrder: Stri
     hasEmailCallback
     emailCallbackSentAt
     adminAccessUrl
+    isPublished
+    publicCertificateUrl
     __typename
   }
 }
@@ -671,6 +677,8 @@ query UnsignedEntryPayload($id: Int!) {
       hasEmailCallback
       emailCallbackSentAt
       adminAccessUrl
+      isPublished
+      publicCertificateUrl
       __typename
     }
     bytes
@@ -696,6 +704,8 @@ query EntryHtmlExport($id: Int!) {
       hasEmailCallback
       emailCallbackSentAt
       adminAccessUrl
+      isPublished
+      publicCertificateUrl
       __typename
     }
     verifiableHtml
