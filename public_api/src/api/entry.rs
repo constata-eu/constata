@@ -35,6 +35,11 @@ pub struct Entry {
   pub email_callback_sent_at: Option<UtcDateTime>,
   #[graphql(description = "The administrative access url for the direct recipient of this entry. They can use it to download, view or share the document.")]
   pub admin_access_url: Option<String>,
+
+  #[graphql(description = "Indicates the public certificate url returned is active and can be seen publicly.")]
+  pub is_published: bool,
+  #[graphql(description = "The publicly accessible URL for this entry, which could be converted into a QR code. Only available if the entry has been published.")]
+  pub public_certificate_url: Option<String>,
 }
 
 #[derive(Clone, Default, Debug, GraphQLInputObject, Serialize, Deserialize)]
@@ -53,7 +58,6 @@ pub struct EntryFilter {
   #[arg(long, help="Filter entries where the params contain this text")]
   pub params_like: Option<String>,
 }
-
 
 #[rocket::async_trait]
 impl Showable<db::Entry, EntryFilter> for Entry {
@@ -104,10 +108,10 @@ impl Showable<db::Entry, EntryFilter> for Entry {
     let document = d.document().await?;
     let story_id = if let Some(d) = document.as_ref() { Some(d.story().await?.attrs.id) } else { None };
 
-    let (admin_visited, public_visit_count, admin_access_url) = if let Some(l) = d.admin_access_link().await? {
-      (l.attrs.admin_visited, l.attrs.public_visit_count, Some(l.safe_env_url().await?))
+    let (admin_visited, public_visit_count, admin_access_url, is_published, public_certificate_url) = if let Some(l) = d.admin_access_link().await? {
+      (l.attrs.admin_visited, l.attrs.public_visit_count, Some(l.safe_env_url().await?), l.published_at().is_some(), Some(l.public_certificate_url()))
     } else {
-      (false, 0, None)
+      (false, 0, None, false, None)
     };
 
     Ok(Entry {
@@ -125,7 +129,9 @@ impl Showable<db::Entry, EntryFilter> for Entry {
       story_id,
       admin_visited,
       public_visit_count,
-      admin_access_url
+      admin_access_url,
+      is_published,
+      public_certificate_url
     })
   }
 }

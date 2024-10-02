@@ -6,10 +6,8 @@ pub_mods!{
   site;
   audit_log;
   blockchain;
-  bulletin;
   story;
   story_snapshot;
-  document;
   document_part;
   document_source;
   document_part_signature;
@@ -26,7 +24,6 @@ pub_mods!{
   person;
   proof;
   previewer;
-  pubkey_domain_endorsement;
   pubkey;
   mailers;
   magic_link;
@@ -38,7 +35,6 @@ pub_mods!{
   kyc_endorsement;
   org_deletion;
   deletion_reason;
-  kyc_request;
   kyc_request_evidence;
   parked_reminder;
   outgoing_email_message;
@@ -46,12 +42,10 @@ pub_mods!{
   access_token;
   storable;
   template_schema;
-  web_callback;
   bump;
   storage;
   template;
   issuance;
-  entry;
   template_kind;
   wizard;
   attestation;
@@ -61,6 +55,23 @@ pub_mods!{
   story_bundle::StoryBundle;
   document_bundle::DocumentBundle;
 }
+
+pub mod document;
+pub use document::{Document, DocumentHub, SelectDocumentHub};
+pub mod bulletin;
+pub use bulletin::{Bulletin, BulletinHub};
+
+pub mod entry;
+pub use entry::{Entry, EntryHub, SelectEntryHub, InsertEntry, EntryOrderBy};
+
+pub mod web_callback;
+pub use web_callback::{WebCallback, SelectWebCallbackHub};
+
+pub mod pubkey_domain_endorsement;
+pub use pubkey_domain_endorsement::{PubkeyDomainEndorsement, SelectPubkeyDomainEndorsementHub};
+
+pub mod kyc_request;
+pub use kyc_request::{KycRequest, SelectKycRequestHub, InsertKycRequest};
 
 pub mod endorsement;
 pub use endorsement::{Endorsement, for_api as endorsement_for_api};

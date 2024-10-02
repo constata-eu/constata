@@ -353,6 +353,7 @@ constata_lib::describe_one! {
       *,
       create_issuance_from_json as create,
       issuance as show,
+      all_entries,
       append_entries_to_issuance as append,
     };
 
@@ -460,5 +461,86 @@ constata_lib::describe_one! {
         entries_count: eq(4),
       }}
     }});
+
+    let entries: all_entries::ResponseData = client.gql(&AllEntries::build_query(entries_vars(1))).await;
+    assert_that!(&entries.all_entries, all_elements_satisfy(|e: &all_entries::AllEntriesAllEntries| !e.is_published && e.public_certificate_url.is_none()));
   }
+
+  fulltest!{ issuance_entries_have_the_public_certificate_url (site, c, client, mut chain)
+    client.signer.verify_email("test@example.com").await;
+
+    use gql::{
+      *,
+      create_issuance_from_json as create,
+      issuance as show,
+    };
+
+    let entries = vec![
+      serde_json::json!({
+        "name": "Kenny Mcormic",
+        "recipient_identification": "AB-12345",
+        "custom_text": "Artísta plastilínico",
+        "motive": "Arte con plastilina",
+        "date": "3 de marzo de 1999",
+        "place": "Sout Park",
+        "shared_text": "Gracias a todos por venir",
+      }).to_string(),
+    ];
+
+    let vars = create::Variables{
+      input: create::CreateIssuanceFromJsonInput {
+        entries,
+        name: "testing".to_string(),
+        template_id: None,
+        new_kind: Some(create::TemplateKind::DIPLOMA),
+        new_name: Some("nuevo diploma".to_string()),
+        new_logo_text: Some("nuevo texto del logo".to_string()),
+        new_logo_image: None::<String>,
+      }
+    };
+
+    let _received: create::ResponseData = client.gql(&CreateIssuanceFromJson::build_query(vars)).await;
+    site.issuance().create_all_received().await?;
+
+    let created: show::ResponseData = client.gql(&Issuance::build_query(show::Variables{ id: 1 })).await;
+
+    assert_that!(&created, structure!{ show::ResponseData {
+      issuance: structure! { show::IssuanceIssuance {
+        id: eq(1),
+        state: rematch("created"),
+      }}
+    }});
+
+    let mut issuance = site.issuance().find(created.issuance.id as i32).await.unwrap();
+    let mut signature = None;
+    while let Some(next) = issuance.in_created()?.signing_iterator(signature).await? {
+      signature = Some(client.signer.sign_issuance_entry(next).await);
+    }
+
+    chain.fund_signer_wallet();
+    chain.simulate_stamping().await;
+    site.issuance().try_complete().await?;
+    issuance.reload().await?;
+    assert!(issuance.is_completed());
+    let entries: all_entries::ResponseData = client.gql(&AllEntries::build_query(entries_vars(1))).await;
+    assert_that!(&entries.all_entries, all_elements_satisfy(|e: &all_entries::AllEntriesAllEntries| e.is_published && e.public_certificate_url.is_some()));
+  }
+
+    use crate::test_support::gql::all_entries;
+    fn entries_vars(issuance_id: i64) -> all_entries::Variables {
+        all_entries::Variables{
+          filter: Some(all_entries::EntryFilter {
+            issuance_id_eq: Some(issuance_id),
+            ids: None,
+            id_eq: None,
+            state_eq: None,
+            document_id_eq: None,
+            params_like: None
+          }),
+          page: None,
+          per_page: None,
+          sort_field: None,
+          sort_order: None,
+        }
+    }
 }

@@ -249,6 +249,8 @@ pub mod gql {
     AppendEntriesToIssuance,
     Issuance,
     AllIssuances,
+    Entry,
+    AllEntries,
     UpdateWebCallbacksUrl,
     WebCallback,
     AllWebCallbacks,

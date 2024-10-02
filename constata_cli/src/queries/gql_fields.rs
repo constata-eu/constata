@@ -31,6 +31,8 @@ pub const ENTRY: &'static str = "\
   hasEmailCallback
   emailCallbackSentAt
   adminAccessUrl
+  isPublished
+  publicCertificateUrl
   __typename";
 
 pub const UNSIGNED_ENTRY_PAYLOAD: &'static str = formatcp!("\

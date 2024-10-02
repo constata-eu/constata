@@ -111,6 +111,11 @@ impl Entry {
     link.safe_env_url().await.map(|v| Some(v))
   }
 
+  pub async fn public_certificate_url(&self) -> ConstataResult<Option<String>> {
+    let Some(link) = self.admin_access_link().await? else { return Ok(None) };
+    Ok(Some(link.public_certificate_url()))
+  }
+
   pub async fn html_proof(&self, key: &PrivateKey, lang: i18n::Lang) -> ConstataResult<Option<String>> {
     let Some(doc) = self.document().await? else { return Ok(None) };
 
@@ -302,7 +307,7 @@ impl Signed {
   pub async fn try_complete(self) -> ConstataResult<bool> {
     let doc = self.document().await?;
 
-    doc.get_or_create_download_proof_link(30).await?;
+    let download_proof_link = doc.get_or_create_download_proof_link(30).await?;
 
     let is_published = if let Ok(accepted) = doc.in_accepted() {
       accepted.bulletin().await?.is_published()
@@ -318,6 +323,8 @@ impl Signed {
     if !is_published || pending_notification {
       return Ok(false)
     }
+
+    download_proof_link.publish().await?;
 
     self.into_inner().update().state("completed".to_string()).save().await?;
     Ok(true)
