@@ -2,7 +2,7 @@ use crate::prelude::*;
 pub use sqlx::{self, types::Decimal};
 use sqlx_models_orm::model;
 
-pub_mods!{
+pub_mods! {
   site;
   audit_log;
   blockchain;
@@ -51,30 +51,40 @@ pub_mods!{
   attestation;
 }
 
-pub_mods!{
+pub_mods! {
   story_bundle::StoryBundle;
   document_bundle::DocumentBundle;
 }
 
 pub mod document;
-pub use document::{Document, DocumentHub, SelectDocumentHub};
+pub use document::{Document, DocumentHub, DocumentOrderBy, SelectDocument, SelectDocumentHub};
 pub mod bulletin;
-pub use bulletin::{Bulletin, BulletinHub};
+pub use bulletin::{Bulletin, BulletinHub, BulletinOrderBy, SelectBulletin, SelectBulletinHub};
 
 pub mod entry;
-pub use entry::{Entry, EntryHub, SelectEntryHub, InsertEntry, EntryOrderBy};
+pub use entry::{Entry, EntryHub, EntryOrderBy, InsertEntry, SelectEntry, SelectEntryHub};
 
 pub mod web_callback;
-pub use web_callback::{WebCallback, SelectWebCallbackHub};
+pub use web_callback::{
+  SelectWebCallback, SelectWebCallbackAttempt, SelectWebCallbackHub, WebCallback,
+  WebCallbackAttempt, WebCallbackAttemptOrderBy, WebCallbackKind, WebCallbackOrderBy,
+  WebCallbackResultCode, WebCallbackState,
+};
 
 pub mod pubkey_domain_endorsement;
-pub use pubkey_domain_endorsement::{PubkeyDomainEndorsement, SelectPubkeyDomainEndorsementHub};
+pub use pubkey_domain_endorsement::{
+  PubkeyDomainEndorsement, PubkeyDomainEndorsementOrderBy, SelectPubkeyDomainEndorsement,
+  SelectPubkeyDomainEndorsementHub,
+};
 
 pub mod kyc_request;
-pub use kyc_request::{KycRequest, SelectKycRequestHub, InsertKycRequest};
+pub use kyc_request::{
+  InsertKycRequest, KycRequest, KycRequestOrderBy, KycRequestProcessForm, SelectKycRequest,
+  SelectKycRequestHub,
+};
 
 pub mod endorsement;
-pub use endorsement::{Endorsement, for_api as endorsement_for_api};
+pub use endorsement::{for_api as endorsement_for_api, Endorsement};
 
 pub mod btcpay;
 pub use mailers::email_parked_documents::*;
