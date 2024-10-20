@@ -124,6 +124,7 @@ impl Blockchain {
       .map_err(|_| Error::Stamping("no_current_submitted_bulletin".to_string()))?;
 
     let sats = self.sats_per_byte_fast()?;
+    println!("Using sats per byte: {sats}");
     let calculated_sats = sats + (sats * (submitted.bump_count().await?.to_u64().unwrap_or(0) + 1) / 10);
     let utxos = self.get_utxos(None)?;
     let transaction = self.build_and_sign(b"bumpfee", utxos.clone(), calculated_sats)?;
@@ -162,23 +163,23 @@ impl Blockchain {
   }
 
   fn sats_per_byte(&self, number_block: u16) -> ConstataResult<u64> {
-    Ok(
-      self
+    let calculated = self
         .client
         .estimate_smart_fee(number_block, Some(EstimateMode::Economical))?
         .fee_rate
         .unwrap_or_else(|| Amount::from_sat(self.default_fee))
         .as_sat()
-        / 1_000,
-    )
+        / 1_000;
+
+    Ok(calculated.max(2).min(30))
   }
 
   fn sats_per_byte_fast(&self) -> ConstataResult<u64> {
-    self.sats_per_byte(6)
+    self.sats_per_byte(3)
   }
 
   fn sats_per_byte_economy(&self) -> ConstataResult<u64> {
-    self.sats_per_byte(10)
+    self.sats_per_byte(6)
   }
 
   fn build_and_sign(

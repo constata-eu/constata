@@ -1,5 +1,10 @@
 use crate::prelude::*;
-use crate::models::*;
+use crate::models::{
+  *,
+  kyc_request::KycRequestProcessForm,
+  pubkey_domain_endorsement::PubkeyDomainEndorsementForm,
+  bulletin::InsertBulletin,
+};
 use super::read;
 use bitcoin::{secp256k1, util::misc::MessageSignature, Address, Network, PrivateKey};
 use sqlx::types::Decimal;
