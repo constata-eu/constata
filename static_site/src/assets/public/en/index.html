@@ -3,26 +3,25 @@
 {% block layout_overrides %}{% endblock %}
 
 {% block body %}
-{% set request_demo_url = "mailto:hola@constata.eu?subject=Hi, I'd like to book a demo&body=You can reply to this email to schedule it." %}
-{% set enquiry_about_plans = "mailto:hola@constata.eu?subject=I have some questions about pricing and features&body=You can reply to this email to schedule a meeting." %}
-{% set enquiry_about_integration = "mailto:hola@constata.eu?subject=I have a technical question about an integration&body=You can reply to this email to schedule a meeting.c" %}
-
 <div id="product" class="container">
   <div class="text-and-image first">
     <div class="main-text">
-      <h1>We digitize the issuance of academic degrees.</h1>
+      <h1>
+        Shifting Our Focus to the Foundations
+      </h1>
       <p>
-        We turn diplomas into <strong>verifiable electronic credentials</strong> with <strong>Bitcoin blockchain</strong> technology
-        &mdash; and we make a <strong>marketing tool</strong> out of them.
+        Our mission to help shape the post-Bitcoin society and economy is taking us in a new direction: building basic
+        infrastructure and services for projects that we believe are even more valuable than our diploma-issuance app.
       </p>
-      <div class="button-row">
-        <a href="{{ url }}" class="btn btn-filled">
-          Start issuing
-        </a>
-        <a href="{{ request_demo_url }}" class="btn btn-outlined">
-          Book a demo
-        </a>
-      </div>
+      <p>
+        We poured a lot of love and effort into this service, and while we’re no longer developing it, it will remain
+        available in read-only mode. All cert/ificates will continue to be verifiable here for the next few years.
+      </p>
+      <p>
+        But before we can rebuild certification authorities on Bitcoin, the foundation has to be laid: robust sovereign
+        computing platforms, publicly accessible financial instruments, and transparent institutions that replace costly
+        bureaucracy and gatekeeping with clear rules, software protections, and open, directly democratic communities.
+      </p>
     </div>
     <div class="main-image">
       <div class="phone">
@@ -32,347 +31,16 @@
             <div class="phone-camera"></div>
             <span class="bat">93%</span>
           </div>
-          <img src="/images/diploma_mobile_en.png" alt="responsive verifiable diploma" />
+          <div style="transform: scale(0.5); transform-origin: 0 0; width: 200%; height: 200%; flex: 1 0 auto;">
+            <iframe style="border: none" width="100%" height="100%" src="https://explorer.rootstock.io">
+            </iframe>
+          </div>
         </div>
         <div class="phone-button top"></div>
         <div class="phone-button bottom"></div>
       </div>
     </div>
   </div>
-
-  <div class="text-and-image image-first">
-    <div class="main-image">
-      <img src="/images/admin_en.png" alt="responsive verifiable diploma" />
-    </div>
-    <div class="main-text">
-      <h2>The tool you need to manage diplomas.</h2>
-      <p>
-        <ul>
-          <li>Issue and <strong>deliver via email</strong> from a CSV file.</li>
-          <li>Look up your previous issuances &mdash; get reception notifications and visitor metrics.</li>
-          <li>Multiple long term storage options.</li>
-          <li><strong>Public verification</strong>, free and forever.</li>
-          <li>Whether you use a mobile or laptop, your signature never leaves your device.</li>
-        </ul>
-      </p>
-      <div class="button-row">
-        <a href="{{ url }}" class="btn btn-filled">
-          Go to the tool
-        </a>
-        <a href="{{ request_demo_url }}" class="btn btn-outlined">
-          Book a demo
-        </a>
-      </div>
-    </div>
-  </div>
-
-  <div class="text-and-image">
-    <div class="main-text">
-      <h2>A novel format.</h2>
-      <p>
-        Our diplomas are issued in a <strong>verifiable HTML format</strong>
-        that can be viewed and verified from any browser, without installing anything.
-      </p>
-      <p>
-        They are <strong>timestamped</strong> on the Bitcoin blockchain and <strong>electronically signed</strong> by your company — they are more secure and versatile than paper diplomas.
-      </p>
-      <p>
-        Our custom designs <strong>protect your brand</strong> on all screen sizes and allow you to <strong>attach other documents</strong> such as academic history, audio, video, and photos.
-      </p>
-      <p>
-        We also provide <a href="/english.pdf" target="_blank">an abridged PDF presentation</a> that links back to the original.
-      </p>
-      <p>
-        And they are not just diplomas, they can be <strong>attendance certificates</strong> or <strong>badges</strong>.
-      </p>
-      <div class="button-row">
-        <a href="https://api.constata.eu/certificate/sheep+voting+alias+subplot+impurity" class="btn btn-outlined" target="_blank">
-          See diploma
-        </a>
-        <a href="https://api.constata.eu/certificate/predefine+bauble+snooper+obnoxious+barometer" class="btn btn-outlined" target="_blank">
-          See attendance certificate
-        </a>
-      </div>
-    </div>
-    <div class="main-image">
-      <div class="video-tablet">
-        <div class="video-tablet-inner">
-          <video autoplay muted loop >
-            <source src="/diploma.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-          </video>
-          <div class="video-tablet-button"> </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="text-and-image image-first">
-    <div class="main-image">
-      <div class="laptop">
-        <div class="laptop-screen">
-          <div class="laptop-screen-inner">
-            <img src="/images/share_english.png" />
-            <div class="laptop-brand-bar">ConsPad X1</div>
-          </div>
-        </div>
-        <div class="laptop-keyboard">
-          <div class="laptop-keyboard-indent">
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="main-text">
-      <h2>Students share online.</h2>
-      <p>
-        Each diploma has a <strong>self-management administrative access</strong> where the student can share it on <strong>social media</strong>, instant message, or <strong>PDF</strong>.
-      </p>
-      <p>
-        Diplomas can be unpublished, preventing further access from the shared links and pdfs.
-      </p>
-      <p>
-        They can also be downloaded locally, giving maximum <strong>protection and sovereignty</strong> over the data &mdash; 
-        anyone with the file can verify it for free forever.
-      </p>
-      <div class="button-row">
-        <a href="{{ url }}" class="btn btn-filled">
-          Start using it
-        </a>
-        <a href="{{ request_demo_url }}" class="btn btn-outlined">
-          Book a Demo
-        </a>
-      </div>
-    </div>
-  </div>
 </div>
 
-<div class="bg-blue">
-  <div class="container">
-    <div id="pricing" class="pricing section">
-      <h2>We can start today.</h2>
-      <div class="in-columns">
-        <p>
-          We have plans that allow for gradual hiring &mdash;
-          start the free trial and <a href="{{ enquiry_about_plans }}">contact us</a> so we can guide you.
-        </p>
-        <p>
-          <a href="https://api.constata.eu/terms_acceptance/show">Here</a> you can see
-          our terms and conditions, as well as our privacy and data protection policies.
-        </p>
-      </div>
-      <div class="plan-cards">
-        <div class="card">
-          <h3>Free Trial</h3>
-          <hr/>
-          <p>Access to the web application.</p>
-          <p>Standard template with your logo.</p>
-          <p>No issuer data verification.</p>
-          <p>Up to 10 free diplomas per month.</p>
-          <p>Access via API.</p>
-          <p>No initial or maintenance cost.</p>
-          <br/>
-          <a class="btn btn-filled buttons" href="{{ url }}">Sign up</a>
-        </div>
-        <div class="card">
-          <h3>Basic Plan</h3>
-          <hr/>
-          <p>Access to the web application.</p>
-          <p>
-            Custom diploma template.
-            <br/>
-            <sub>And possibility of annexes.</sub>
-          </p>
-          <p>Issuer data verification.</p>
-          <p>
-            Bonus on the first issuance.
-            <br/>
-            <sub>Up to 200 diplomas.</sub>
-          </p>
-          <p>Advice on integration via API.</p>
-          <p>
-            1200 EUR one-time payment.
-            <br/>
-            <sub>Divided into 6 monthly payments.</sub>
-          </p>
-          <p>
-            1EUR per MB issued.
-            <br/>
-            <sub>Approximately 1EUR per diploma.</sub>
-          </p>
-          <br/>
-          <a class="btn btn-filled buttons" href="{{ url }}">Sign up</a>
-        </div>
-        <div class="card">
-          <h3>Advanced Plan</h3>
-          <hr/>
-          <p>Access to the web application.</p>
-          <p>Multiple diploma templates.</p>
-          <p>Issuer data verification.</p>
-          <p>Flat rate with quantity discount.</p>
-          <p>Custom integration development.</p>
-          <p>
-            Price tailored to your needs.
-          </p>
-          <br/>
-          <div class="buttons">
-            <a class="btn btn-outlined" href="{{ enquiry_about_plans }}">Contact us</a>
-            <a class="btn btn-filled" href="{{ url }}">Sign up</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="container">
-  <div class="title-and-text">
-    <div>
-      <h2>We know how to take care of your company's data and reputation.</h2>
-    </div>
-    <div class="main-text">
-      <p>
-        We are a trusted service provider under the <strong>EIDAS regulation</strong> and
-        use the blockchain with the largest number of independent nodes &mdash; <strong>bitcoin's</strong>.
-      </p>
-      <p>
-        Interactions on our website are digitally signed on your device.
-      </p>
-      <p>
-        We store data for at least 5 years, and you can download it to your infrastructure.
-      </p>
-      <p>
-        Diplomas remain verifiable by third parties even if CONSTATA ceases to exist.
-      </p>
-    </div>
-  </div>
-
-  <div class="terminal card section">
-    <div class="crt"></div>
-    <div class="content">
-      <h2>OPEN AND FLEXIBLE SOFTWARE</h2>
-      0. We create a unique and multi-device style for your diplomas.
-
-      1. Data from each issuance is exportable to .CSV from the web.
-
-      2. You can use other email delivery services like Mailchimp.
-
-      3. We have a FULL API to integrate the process into your software.
-
-      4. We do custom integrations.
-
-      5. The code for CONSTATA is available on Github.
-
-    </div>
-    <div>
-      <a class="outlined inverted" href="/issue_diplomas.html">SEE DOCUMENTATION</a> <a class="outlined" href="{{ enquiry_about_integration }}">TALK TO OUR TEAM</a>
-    </div>
-  </div>
-
-  <div class="we-work-with section">
-    <div class="title">
-      <h2>We want to work with you
-        as we do with them:</h2>
-      <div class="action">
-        <a href="{{ request_demo_url }}" class="btn btn-filled">
-          Contact us
-        </a>
-      </div>
-    </div>
-    <div class="logos">
-      <a href="https://www.camaramadrid.es/" target="_blank" rel="noopener">
-        <img src="/images/camara_madrid.svg" alt="Madrid Chamber of Commerce" />
-      </a>
-      <a href="https://larrosa.pro/" target="_blank" rel="noreferrer noopener">
-        <img alt="Larrosa music group" src="/images/larrosa.png" />
-      </a>
-      <a href="https://camarafintech.org/" target="_blank" rel="noopener">
-        <img src="/images/camara_fintech.png" alt="Fintech Chamber Argentina" />
-      </a>
-      <a href="https://www.colegiopadrearrupe.org/" target="_blank" rel="noreferrer noopener">
-        <img alt="Colegio Padre Arrupe" src="/images/arrupe.png" />
-      </a>
-      <a href="https://www.plataforma5.la/" target="_blank" rel="noreferrer noopener">
-        <img alt="P5 Logo" src="/images/plataforma_5.svg" />
-      </a>
-    </div>
-  </div>
-</div>
-
-<div class="bg-blue">
-  <div class="container">
-    <h2>More about Constata</h2>
-    <div class="in-columns more-about-constata">
-      <div>
-        <h4>Also adds value to official titles.</h4>
-        <p>
-          Official education degrees are only issued by an <strong>official entity</strong>.
-        </p>
-        <p>
-          They are required from the student by the public administration and other official bodies of the same country &mdash;
-          but often <strong>they are not easy to present and verify in the private sector</strong>, especially in other countries.
-        <p>
-        <p>
-          An approved official title <strong>can be attached to the diploma issued by Constata</strong>,
-          providing it with the advantages of management, dissemination, and quick verification, without losing the possibility of official verification.
-        </p>
-      </div>
-
-      <div>
-        <h4>We don't advertise on your diplomas.</h4>
-        <p>
-          The issuance of diplomas can achieve a lot of publicity, you can use them to advertise your company &mdash; as long as your students approve it.
-        </p>
-        <p>
-          Constata only appears as a third-party to facilitate verification.  We do not sell your students' data or attention. We will never send them any kind of commercial offers.
-        </p>
-      </div>
-
-      <div>
-        <h4>We work in Europe and Latin America.</h4>
-        <p>Our team is distributed in several cities in Spain and Argentina.</p>
-        <p>
-          Due to geographical and political affinity, we develop our solution by observing European regulations and the idiosyncrasies of Latin America.
-        </p>
-      </div>
-
-      <div>
-        <h4>The generated signature only works on Constata.</h4>
-        <p>
-          You can take your Constata digital signature to another device, just by copying the
-          <strong>firma.json</strong> file that is generated when you register and start
-          using the web application from there &mdash; without installing or configuring anything.
-        </p>
-        <p>
-          This also means that <strong>you cannot use another digital signature</strong>
-          from another provider to issue diplomas.
-        </p>
-        <p>
-          This limitation is not as bad as it sounds, it is a good idea to use
-          different signatures for different areas.
-        </p>
-      </div>
-
-      <div>
-        <h4>We are computer technicians and lawyers.</h4>
-        <p>We have experience as educators, in technology and data regulation, and have been using bitcoin since 2011.</p>
-        <p>This fusion of experiences and abilities gives us a unique perspective on data integrity and legal validity.</p>
-      </div>
-
-      <div>
-        <h4>We do not offer a visual diploma editor.</h4>
-        <p>
-          Capturing the identity of an institution in a functional diploma is an art.
-        </p>
-        <p>
-          Visual editors are inflexible, or burden your team with work, with below average results.
-        </p>
-        <p>
-          We offer a complete solution &mdash; and if there are digital artists on your team, we can work with them.
-        </p>
-      </div>
-    </div>
-  </div>
-</div>
 {% endblock body %}
-
-

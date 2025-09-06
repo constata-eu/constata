@@ -5,8 +5,8 @@
     border-style: solid none solid none;
     border-width: 1px;
     border-color: #e8f4fe;
-    background: rgb(233,245,255);
-    background: linear-gradient(0deg, rgba(233,245,255,1) 0%, rgba(255,255,255,1) 5%, rgba(255,255,255,1) 95%, rgba(233,245,255,1) 100%);
+    background: rgb(233, 245, 255);
+    background: linear-gradient(0deg, rgba(233, 245, 255, 1) 0%, rgba(255, 255, 255, 1) 5%, rgba(255, 255, 255, 1) 95%, rgba(233, 245, 255, 1) 100%);
 
     .in-columns {
       column-rule-color: #e8f4fe;
@@ -15,6 +15,7 @@
 
   .container {
     padding: 2em;
+
     @media (max-width: 768px) {
       padding: 0.5em;
     }
@@ -40,14 +41,18 @@
   ul {
     list-style: square;
   }
-  p, li {
+
+  p,
+  li {
     line-height: 1.6;
+
     &.warning-text {
       font-family: "Manrope", sans-serif;
       font-weight: bold;
     }
 
-    strong, a {
+    strong,
+    a {
       text-transform: uppercase;
       font-size: 0.8em;
       letter-spacing: 0;
@@ -109,7 +114,8 @@
     margin: 2em 0 4em 0;
 
 
-    p, .terminal {
+    p,
+    .terminal {
       margin: 0 0 1em 0;
       break-inside: avoid-column;
       page-break-inside: avoid;
@@ -162,6 +168,7 @@
     gap: 3em;
     margin: 5em 0 7em 0;
     align-items: center;
+
     .main-text {
       flex: 55%;
       min-width: 55%;
@@ -173,6 +180,7 @@
 
     p {
       margin: 1em 0 0 0;
+
       &:first-child {
         margin-top: 0;
       }
@@ -230,6 +238,7 @@
       border-top: 1px solid #c6c6c6;
       border-radius: 0 0 200px 200px;
       height: 10px;
+
       .laptop-keyboard-indent {
         height: 5px;
         border-radius: 0 0 10px 10px;
@@ -241,15 +250,16 @@
   }
 
   .phone {
-    align-self: center;
+    align-self: stretch;
     border: 2px outset #333;
     border-radius: 20px;
     position: relative;
+    display: flex;
 
     .phone-inner {
       flex-direction: column;
       border-radius: 18px;
-      background: rgb(0,0,0);
+      background: rgb(0, 0, 0);
       overflow: hidden;
       padding: 15px 0px;
       display: flex;
@@ -265,6 +275,7 @@
       height: 20px;
       background: #333;
       border-radius: 14px 14px 0 0;
+      flex: 2 0 auto;
 
       .phone-camera {
         width: 10px;
@@ -272,10 +283,11 @@
         align-self: center;
         border: 1px solid #444;
         border-radius: 100px;
-        background: radial-gradient(circle, rgba(0,0,0,1) 0%, rgba(115,115,115,1) 25%, rgba(0,0,0,1) 50%, rgba(115,115,115,1) 75%, rgba(0,0,0,1) 100%);
+        background: radial-gradient(circle, rgba(0, 0, 0, 1) 0%, rgba(115, 115, 115, 1) 25%, rgba(0, 0, 0, 1) 50%, rgba(115, 115, 115, 1) 75%, rgba(0, 0, 0, 1) 100%);
       }
 
-      .carrier, .bat {
+      .carrier,
+      .bat {
         flex: 1 1 0;
         font-size: 0.5em;
         text-transform: uppercase;
@@ -313,15 +325,17 @@
     display: flex;
     gap: 3em;
     margin: 0 0 7em 0;
-    align-items: center;
+    align-items: stretch;
 
-    h2, h1 {
+    h2,
+    h1 {
       margin-top: 0;
     }
 
     &.first {
       margin-top: calc(2em + 1.2vw);
     }
+
     &:last-child {
       margin-bottom: 3.5em;
     }
@@ -350,18 +364,18 @@
         position: relative;
 
         .video-tablet-inner {
-          background: rgb(0,0,0);
+          background: rgb(0, 0, 0);
           background: linear-gradient(322deg, rgb(225 225 225) 0%, rgb(240 240 240) 50%, rgb(247 247 247) 50%, rgb(240 240 240) 100%);
           padding: 20px 30px 20px 20px;
           display: flex;
           gap: 11px;
+
           @media (max-width: 768px) {
             padding: 15px 30px 15px 15px;
           }
 
-          video {
+          iframe {
             border: 1px solid #eee;
-            aspect-ratio: auto 480 / 340;
             max-height: 100%;
             max-width: 100%;
           }
@@ -418,6 +432,7 @@
       justify-content: center;
       margin-top: 0;
     }
+
     .in-columns {
       margin: 2em 0;
     }
@@ -442,6 +457,7 @@
 
         p {
           margin: 0;
+
           sub {
             color: #666;
           }
@@ -485,11 +501,13 @@
         min-width: 55%;
         margin: 0;
       }
+
       .action {
         min-width: 35%;
         display: flex;
         align-items: center;
         justify-content: flex-end;
+
         a {
           margin: 0;
         }
@@ -518,7 +536,8 @@
     @media (max-width: 768px) {
       .logos {
         flex-direction: column;
-        a  {
+
+        a {
           align-self: center;
         }
       }
@@ -530,10 +549,10 @@
       margin-top: 0;
       margin-bottom: 1em;
     }
-    & > div {
+
+    &>div {
       page-break-inside: avoid;
       margin-bottom: 3em;
     }
   }
 }
-

@@ -18,13 +18,15 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;800&family=VT323&family=Inter:wght@100;200;300;400;500;600;700;800;900&family=Inter:wght@100;200;300;400;500;600;700;800;900&subset=latin&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;800&family=VT323&family=Inter:wght@100;200;300;400;500;600;700;800;900&family=Inter:wght@100;200;300;400;500;600;700;800;900&subset=latin&display=swap"
+    rel="stylesheet">
 
-  <link href="/reset.css" rel="stylesheet"/>
-  <link href="/style.css" rel="stylesheet"/>
+  <link href="/reset.css" rel="stylesheet" />
+  <link href="/style.css" rel="stylesheet" />
 
-  <meta name="description" content="{{ description | default(value=default_description) }}"/>
-  <meta name="robots" content="follow, index, max-snippet:-1, max-video-preview:-1, max-image-preview:large"/>
+  <meta name="description" content="{{ description | default(value=default_description) }}" />
+  <meta name="robots" content="follow, index, max-snippet:-1, max-video-preview:-1, max-image-preview:large" />
   <link rel="canonical" href="https://constata.eu/{{ lang }}/" />
 
   <meta property="og:locale" content="{{ lang }}" />
@@ -46,8 +48,8 @@
   <meta name="twitter:site" content="@constataeu" />
   <meta name="twitter:creator" content="@constataeu" />
   <meta name="twitter:image" content="https://constata.eu/images/og/cover.png" />
-  <link rel="alternate" href="https://constata.eu/es/" hreflang="es"/>
-  <link rel="alternate" href="https://constata.eu/en/" hreflang="en"/>
+  <link rel="alternate" href="https://constata.eu/es/" hreflang="es" />
+  <link rel="alternate" href="https://constata.eu/en/" hreflang="en" />
   <meta name="msapplication-TileImage" content="https://constata.eu/icons/cropped-favicon-270x270.png" />
 </head>
 
@@ -59,7 +61,8 @@
           <img src="/logo-constata.svg" alt="" class="img-fluid">
         </a>
       </div>
-      <div class="open-mobile-menu" onclick="this.parentElement.getElementsByClassName('menu')[0].classList.add('open')">
+      <div class="open-mobile-menu"
+        onclick="this.parentElement.getElementsByClassName('menu')[0].classList.add('open')">
         <a class"btn btn-link" href="#">
           <svg width="1em" height="1em" focusable="false" aria-hidden="true" fill="currentColor" viewBox="0 0 24 24">
             <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path>
@@ -67,26 +70,16 @@
         </a>
       </div>
       <div class="menu">
-        <a href="/#product" class="nav nav-link">
-          {{ menu_label_product }}
-        </a>
-        <a href="/#pricing" class="nav nav-link">
-          {{ menu_label_prices }}
-        </a>
-        <a href="/issue_diplomas.html" class="nav nav-link">
-          {{ menu_label_api }}
-        </a>
         <div class="buttons">
-          <a href="{{ menu_mailto_link }}" class="nav btn btn-outlined">
-            {{ menu_label_contact_us }}
-          </a>
           <a href="{{ api_url }}" class="nav btn btn-filled" target="_blank">
             {{ menu_label_access_app }}
           </a>
         </div>
         <a href="#" class="btn close-mobile-menu" onclick="this.parentElement.classList.remove('open')">
-          <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
-            <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+          <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-x-lg"
+            viewBox="0 0 16 16">
+            <path
+              d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z" />
           </svg>
         </a>
       </div>
@@ -100,45 +93,36 @@
 
   <footer>
     <div class="container">
-      <h2 class="tagline">
-        {{ footer_tagline }}
-      </h2>
-      <div class="two-columns">
-        <div class="social many-rows">
-          <a href="https://twitter.com/constataEu">Twitter</a>
-          <a href="https://www.linkedin.com/company/constata-eu">LinkedIn</a>
-          <a href="https://www.instagram.com/constataEu/">Instagram</a>
-          <a href="https://www.facebook.com/constataEu">Facebook</a>
-          <a href="https://github.com/constata-eu">GitHub</a>
+      <div class="many-rows">
+        <div class="validity-notice">
+          {{ footer_validity_notice }}
         </div>
-        <div class="many-rows">
-          <div class="validity-notice">
-            {{ footer_validity_notice }}
+        <div class="legal two-colums">
+          <div class="many-rows left">
+            <a href="https://api.constata.eu/terms_acceptance/show" target="_blank">
+              {{ footer_terms_and_conditions }}
+            </a>
+            <a href="https://api.constata.eu/certificate/1966-45-ba7d706639829f42008110faeac542fdcf4f1b5b3fd80f7c6240a80707d549d0-173d0940412151e8"
+              target="_blank">
+              {{ footer_statement_of_contracting_practices }}
+            </a>
+            <div class="no-cookies">
+              {{ footer_no_cookies }}
+            </div>
           </div>
-          <div class="legal two-colums">
-            <div class="many-rows left">
-              <a href="https://api.constata.eu/terms_acceptance/show" target="_blank">
-                {{ footer_terms_and_conditions }}
-              </a>
-              <a href="https://api.constata.eu/certificate/1966-45-ba7d706639829f42008110faeac542fdcf4f1b5b3fd80f7c6240a80707d549d0-173d0940412151e8" target="_blank">
-                {{ footer_statement_of_contracting_practices }}
-              </a>
-              <div class="no-cookies">
-                {{ footer_no_cookies }}
-              </div>
-            </div>
-            <div class="many-rows right">
-              <a href="https://api.constata.eu/terms_acceptance/show/#privacy_policies" target="_blank">
-                {{ footer_privacy_policy }}
-              </a>
-              <a href="https://api.constata.eu/certificate/413-45-08846b46d0f800cce9010043ffd2557fe302a9d8d96dbe1afe04e9b8fca4254a" target="_blank">
-                {{ footer_code_of_conduct }}
-              </a>
-            </div>
+          <div class="many-rows right">
+            <a href="https://api.constata.eu/terms_acceptance/show/#privacy_policies" target="_blank">
+              {{ footer_privacy_policy }}
+            </a>
+            <a href="https://api.constata.eu/certificate/413-45-08846b46d0f800cce9010043ffd2557fe302a9d8d96dbe1afe04e9b8fca4254a"
+              target="_blank">
+              {{ footer_code_of_conduct }}
+            </a>
           </div>
         </div>
       </div>
     </div>
   </footer>
 </body>
+
 </html>
