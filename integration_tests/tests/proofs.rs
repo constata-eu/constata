@@ -1,3 +1,4 @@
+/*
 mod proof_integration {
   constata_lib::describe_one! {
     use bitcoin::network::constants::Network;
@@ -6,7 +7,7 @@ mod proof_integration {
       extensions::cdp::{ChromeDevTools, NetworkConditions},
     };
 
-    integration_test!{ proof_for_issuance_entry (c, d) 
+    integration_test!{ proof_for_issuance_entry (c, d)
       let mut chain = TestBlockchain::new().await;
       let key = TestBlockchain::default_private_key().await.unwrap();
 
@@ -37,7 +38,7 @@ mod proof_integration {
       chain.fund_signer_wallet();
       chain.simulate_stamping().await;
 
-      c.bob().await.make_signed_document(&story, samples::multipart_email().as_bytes(), None).await; 
+      c.bob().await.make_signed_document(&story, samples::multipart_email().as_bytes(), None).await;
       chain.simulate_stamping().await;
 
       let content = story.proof(Network::Regtest, &key).await?.render_html(i18n::Lang::Es).unwrap();
@@ -74,7 +75,7 @@ mod proof_integration {
       d.goto("http://localhost:8000/safe").await;
       d.fill_in("#certificate", corrupt_path).await;
       d.wait_for("#invalid-certificate").await;
-      
+
       d.fill_in("#certificate", content_path).await;
       d.wait_for("#iframe-valid-certificate").await.enter_frame().await.expect("to enter frame");
       d.wait_for_text("#loader_detail_icon", "🔒").await;
@@ -100,7 +101,7 @@ mod proof_integration {
 
       let token = alice.make_download_proof_link_from_doc(&doc, 30).await.token().await?;
 
-      c.bob().await.make_signed_document(&story, samples::multipart_email().as_bytes(), None).await; 
+      c.bob().await.make_signed_document(&story, samples::multipart_email().as_bytes(), None).await;
 
       d.goto(&format!("http://localhost:8000/safe/{token}")).await;
       d.wait_for("#pending_docs_title").await;
@@ -143,3 +144,4 @@ mod proof_integration {
     }
   }
 }
+*/

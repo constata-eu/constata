@@ -5,18 +5,24 @@ mod webapp {
       prelude::*,
       models::*,
     };
+    use constata_lib::test_support::wait_here;
     use bitcoin::network::constants::Network;
     use std::env;
 
     integration_test!{ signs_up_and_creates_issuance (c, d)
-      let mut chain = TestBlockchain::new().await;
+      //let mut chain = TestBlockchain::new().await;
       fill_signup_form(&d).await;
       d.wait_for("#constata_dashboard").await;
+      /*
       let path = d.check_downloads_for_file("signature.json").await;
       std::fs::write("../target/artifacts/signature.json", std::fs::read(&path).unwrap()).unwrap();
-      
+
       let email = c.site.email_address().select().one().await.unwrap();
       c.site.email_address().verify_with_token(&email.access_token().await.unwrap().unwrap()).await.unwrap();
+      */
+
+      wait_here();
+      /*
 
       create_wizard(&d, &c.site, 2, "testing-template", true).await;
       d.click("#preview-1").await;
@@ -33,8 +39,10 @@ mod webapp {
       chain.fund_signer_wallet();
       chain.simulate_stamping().await;
       try_until(40, "bulletin_is_published", || async { c.site.bulletin().find(1).await.unwrap().is_published() }).await;
+      */
     }
 
+    /*
     integration_test!{ has_issuances_admin (c, d)
       let mut chain = TestBlockchain::new().await;
       let alice = signup(&c, &d, false).await;
@@ -51,7 +59,7 @@ mod webapp {
       d.fill_in("input#paramsLike", "stan").await;
       d.wait_for_text(".MuiTablePagination-displayedRows", "1-1 of 1").await;
     }
- 
+
     integration_test!{ issues_diplomas_from_csv_and_completes_them (c, d)
       let mut chain = TestBlockchain::new().await;
 
@@ -120,7 +128,7 @@ mod webapp {
         og_title_override: Some("Curso de programación".to_string()),
         custom_message: Some("Mensaje custom".to_string()),
       }).validate_and_save(&payload).await?;
-      
+
       d.click("a[href='#/wizard']").await;
       d.click("#templateId").await;
       autoselect_first_option(&d).await;
@@ -156,7 +164,7 @@ mod webapp {
 
       d.wait_for("#constata_dashboard").await;
       d.click("#logout-menu-item").await;
-      d.wait_for_text("h1", "Hello again!").await; 
+      d.wait_for_text("h1", "Hello again!").await;
 
       d.goto(&format!("http://localhost:8000/#/safe/{token}")).await;
       d.click("#safe-button-change-public-certificate-state").await;
@@ -180,14 +188,14 @@ mod webapp {
     integration_test!{ login_and_logout (c, d)
       signup(&c, &d, true).await;
       d.click("#logout-menu-item").await;
-      d.wait_for_text("h1", "Hello again!").await; 
+      d.wait_for_text("h1", "Hello again!").await;
 
       d.click("#button_use_another_signature").await;
       d.click(".ra-confirm").await;
-      d.wait_for_text("h1", "Hello").await; 
+      d.wait_for_text("h1", "Hello").await;
 
       d.fill_in("input[type='file']", &signature_file()).await;
-      d.wait_for_text("h1", "Hello again!").await; 
+      d.wait_for_text("h1", "Hello again!").await;
 
       d.fill_in("#password", "password").await;
       d.click("button[type='submit']").await;
@@ -235,7 +243,7 @@ mod webapp {
       d.goto("/").await;
       d.click("#button_use_another_signature").await;
       d.click(".ra-confirm").await;
-      d.wait_for_text("h1", "Hello").await; 
+      d.wait_for_text("h1", "Hello").await;
       fill_signup_form(&d).await;
       d.wait_for_text(".MuiAlert-message", r"This email address is in use*").await;
     }
@@ -247,7 +255,7 @@ mod webapp {
       d.click("#section-email-address-edit .ra-input-keepPrivate").await;
       d.click("#section-email-address-edit button").await;
       d.wait_for_text("#section-email-address-show .MuiTypography-body2", r"Will never show*").await;
-      
+
       let person = c.site.person().find(&1).await?;
       let email = person.email_address().await?.expect("to have an email address at this instance.");
       assert_eq!(&email.attrs.address, "otro.email@gmail.com");
@@ -278,7 +286,7 @@ mod webapp {
         d.wait_for_text("#pay-with-bitcoin", r"Pay with Bitcoin*").await;
         d.wait_for("#invoice-link-buy button").await;
       }
-      
+
       let bob = c.bob().await;
       let token = bob.make_invoice_link().await.access_token().await?.attrs.token;
       d.goto(&format!("http://localhost:8000/#/invoice/{}", token)).await;
@@ -549,7 +557,7 @@ mod webapp {
         d.click("#dashboard-menu-item").await;
         d.click("a[href='#/wizard']").await;
       }
-  
+
       async fn archive_template_one_and_verify_was_archived(d: &Selenium) {
         d.click("#archive-button").await;
         confirm_archive_template(d).await;
@@ -557,7 +565,7 @@ mod webapp {
         d.click("#dashboard-menu-item").await;
         d.click("#templates").await;
       }
-  
+
       async fn unarchive_template_one_and_verify_was_unarchived(d: &Selenium) {
         d.click("#unarchive-button").await;
         d.wait_for_text(".MuiDialog-container h2", r"Are you sure you want to UNARCHIVE this template?*").await;
@@ -591,7 +599,7 @@ mod webapp {
       let selector = format!(".datagrid-body > tr:nth-child(2) #archive-button");
       d.click(&selector).await;
       confirm_archive_template(&d).await;
-      
+
       d.click("#templateId").await;
       d.driver
         .action_chain()
@@ -623,7 +631,7 @@ mod webapp {
           d.close_window_and_go_to_handle_zero().await;
         }
       }
-  
+
       pub async fn check_statistic(
         d: &Selenium,
         admin_visited_count: i32,
@@ -672,7 +680,7 @@ mod webapp {
       for entry in c.site.issuance().find(&1).await?.entry_vec().await? {
         entry.in_signed()?.try_complete().await?;
       }
-      
+
       check_statistic_for_template(&d, 0, 5, 0).await;
       check_statistic(&d, 0, 0, 5, "No", 0).await;
       open_download_proof_link_and_public_certificate(&d, &c.site, 1, 1).await;
@@ -687,7 +695,7 @@ mod webapp {
       check_statistic(&d, 5, 10, 1, "Yes", 1).await;
 
       check_statistic_for_template(&d, 5, 5, 10).await;
-      
+
       d.goto(&format!("http://localhost:8000/#")).await;
       create_wizard(&d, &c.site, 5, "", false).await;
       sign_wizard(&d).await;
@@ -730,7 +738,7 @@ mod webapp {
       assert_rematch(&d, &format!("<meta name=\"twitter:description\" content=\"{description}\">")).await;
       assert_rematch(&d, "<meta name=\"twitter:creator\" content=\"@constataEu\">").await;
       assert_rematch(&d, &format!("<meta name=\"twitter:image\" content=\"{image}\">")).await;
-      
+
       assert_rematch(&d, "<meta property=\"og:type\" content=\"website\">").await;
       assert_rematch(&d, &format!("<meta property=\"og:title\" content=\"{title}\">")).await;
       assert_rematch(&d, &format!("<meta property=\"og:description\" content=\"{description}\">")).await;
@@ -743,7 +751,7 @@ mod webapp {
       d.goto("http://localhost:8000/not_found").await;
       d.goto("http://localhost:8000").await;
       d.wait_until_gone("[role='alert']").await;
-      d.wait_for_text("h1", "Hello again!").await; 
+      d.wait_for_text("h1", "Hello again!").await;
       d.fill_in("#password", "password").await;
       d.click("button[type='submit']").await;
       d.wait_for("#constata_dashboard").await;
@@ -757,6 +765,7 @@ mod webapp {
       d.wait_for_text("#preview_container h2", "Review and sign").await;
     }
 
+    */
     async fn fill_signup_form(d: &Selenium) {
       d.goto("http://localhost:8000").await;
       d.wait_until_gone("[role='alert']").await;

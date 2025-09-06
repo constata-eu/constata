@@ -156,6 +156,7 @@ impl Showable<db::WebCallbackAttempt, WebCallbackAttemptFilter> for WebCallbackA
   }
 }
 
+/*
 constata_lib::describe_one! {
   fulltest!{ can_list_web_callbacks (site, c, client, mut chain)
     use constata_lib::test_support::mock_callbacks_url;
@@ -218,3 +219,4 @@ constata_lib::describe_one! {
     assert_eq!(attempts.all_web_callback_attempts.len(), 1);
   }
 }
+*/

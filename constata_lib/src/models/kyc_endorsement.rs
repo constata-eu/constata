@@ -1,9 +1,7 @@
 use super::*;
-use crate::{
-  models::{ PersonId, UtcDateTime, Site, },
-};
+use crate::models::{PersonId, Site, UtcDateTime};
 
-model!{
+model! {
   state: Site,
   table: kyc_endorsements,
   struct KycEndorsement {
@@ -56,6 +54,7 @@ model!{
   },
 }
 
+/*
 describe! {
   regtest!{ can_make_kyc_endorsement (site, c, _chain)
     let alice = c.alice().await;
@@ -75,3 +74,4 @@ describe! {
     assert_eq!(kyc_endorsement.story().await?.documents().await?.len(), 1);
   }
 }
+*/

@@ -39,7 +39,7 @@ macro_rules! apitest {
 
 #[cfg(test)]
 macro_rules! fulltest {
-  ($i:ident($site:ident, $c:ident, $($client:ident)+, $($chain:ident)+) $($e:tt)* ) => {
+  ($i:ident($site:ident, $c:ident, $($client:ident)+) $($e:tt)* ) => {
     test!{ $i
       #[allow(unused_imports)]
       use crate::test_support::gql;
@@ -49,7 +49,6 @@ macro_rules! fulltest {
       let $c = TestDb::new().await?;
       let $site = $c.site.clone();
       let $($client)+ = crate::test_support::PublicApiClient::new($c.alice().await).await;
-      let $($chain)+ = TestBlockchain::new().await;
       $($e)*
     }
   };

@@ -185,21 +185,21 @@
       "errorUpdating": "Error modifying Template"
     }
   },
-	"certos": {
-		"account_state": {
-			"pending_invoice": {
-				"button": "Choose payment method",
+  "certos": {
+    "account_state": {
+      "pending_invoice": {
+        "button": "Choose payment method",
         "text": "You have one issuance pending certification |||| You have %{smart_count} documents pending certification.",
         "text_2": "You must buy one Constata token |||| You must buy %{smart_count} Constata tokens",
         "text_3": "for a total of €%{smart_count} so we can proceed with the certification. If you're having trouble paying, contact us.",
-				"title": "There's a pending payment."
-			},
-			"pending_tyc": {
-				"button": "See terms and privacy policy",
-				"text": "There were changes to our terms and conditions, and our privacy policy, we won't be able to certificate anything until you accept them.",
-				"title": "You must accept our terms and privacy policy."
-			}
-		},
+        "title": "There's a pending payment."
+      },
+      "pending_tyc": {
+        "button": "See terms and privacy policy",
+        "text": "There were changes to our terms and conditions, and our privacy policy, we won't be able to certificate anything until you accept them.",
+        "title": "You must accept our terms and privacy policy."
+      }
+    },
     "balance": {
       "title": "Token Balance",
       "text": "Constata tokens can be used to issue certified diplomas and documents. The minimum charge for each individual document issued is 1 token.",
@@ -207,217 +207,219 @@
       "balance_amount": "You have 1 token |||| You have %{smart_count} tokens.",
       "monthly_gift_remainder": "Your next token will be free of charge |||| Your next %{smart_count} tokens will be free of charge."
     },
-		"actions": {
-			"confirm": "Confirm",
-			"created": "Element created",
-			"error_select_file": "You must select a file",
-			"error_select_name": "You must enter a name",
-			"file_selected": "selected",
-			"loading": "Loading...",
-			"payload": "Download file",
-			"reject": "Reject",
-			"select_csv_file": "Select a .csv file",
-			"select_zip_file": "Select a .zip file",
+    "actions": {
+      "confirm": "Confirm",
+      "created": "Element created",
+      "error_select_file": "You must select a file",
+      "error_select_name": "You must enter a name",
+      "file_selected": "selected",
+      "loading": "Loading...",
+      "payload": "Download file",
+      "reject": "Reject",
+      "select_csv_file": "Select a .csv file",
+      "select_zip_file": "Select a .zip file",
       "copy_to_clipboard": "Link copied to clipboard"
-		},
-		"dashboard": {
-			"email": {
-				"no_email_yet": "Verify your email address for free, so your certificate recipients can identify you. Constata will not send automatic email notifications to recipients unless you verify your email address.",
-				"not_verified": "Not verified. Check your inbox.",
-				"save": "Save",
-				"title": "Email Address",
-				"verified": "Verified address"
-			},
-			"endorsement": {
-				"existing": {
-					"call_to_action": "Request changes",
-					"lead": "Your issued certificates will show this information next to your signature.",
-					"received": "We've received your request for changes, we'll process it in the next few days.",
-					"title": "Verified identity"
-				},
-				"loading": "Identity verification",
-				"not_yet": {
-					"call_to_action": "Request verification",
-					"cost": "The identity verification is a service for natural persons and companies, for an extra fee, and lasts 3 years.",
-					"custom_template": "Custom template",
-					"description": "Constata can verify your identity and show it on your certificates adding security, validity and status.",
-					"lead": "Your issuances do not specify your identity as the issuer.",
-					"received": "We have received your request for verification. We'll get in touch soon.",
-					"title": "Unverified identity",
-					"verification": "Verification"
-				}
-			},
-			"issue": {
-				"button": "Issue certificates",
-				"text": "BITCOIN'S BLOCKCHAIN guarantees immutability and date, CONSTATA verifies your identity.",
-				"title": "Issue diplomas, certificates of attendance, and badges"
-			},
-			"pending_signatures": {
-				"text": "Review and sign them so that we can complete the issuance process",
-				"title": "Unsigned issuances"
-			},
-			"recent": {
-				"text": "These are your recently certified and notified issuances",
-				"title": "Recent issuances"
-			},
-			"signed": {
-				"text": "We are currently working on certifying and notifying these issuances.",
-				"title": "In progress"
-			},
+    },
+    "dashboard": {
+      "no_more_issuance": "Starting September 2025, Constata's diploma issuance service will be discontinued. No new diplomas can be issued.",
+      "download_and_view": "You can still use this app to view and download your past issuances, which will remain valid.",
+      "email": {
+        "no_email_yet": "Verify your email address for free, so your certificate recipients can identify you. Constata will not send automatic email notifications to recipients unless you verify your email address.",
+        "not_verified": "Not verified. Check your inbox.",
+        "save": "Save",
+        "title": "Email Address",
+        "verified": "Verified address"
+      },
+      "endorsement": {
+        "existing": {
+          "call_to_action": "Request changes",
+          "lead": "Your issued certificates will show this information next to your signature.",
+          "received": "We've received your request for changes, we'll process it in the next few days.",
+          "title": "Verified identity"
+        },
+        "loading": "Identity verification",
+        "not_yet": {
+          "call_to_action": "Request verification",
+          "cost": "The identity verification is a service for natural persons and companies, for an extra fee, and lasts 3 years.",
+          "custom_template": "Custom template",
+          "description": "Constata can verify your identity and show it on your certificates adding security, validity and status.",
+          "lead": "Your issuances do not specify your identity as the issuer.",
+          "received": "We have received your request for verification. We'll get in touch soon.",
+          "title": "Unverified identity",
+          "verification": "Verification"
+        }
+      },
+      "issue": {
+        "button": "Issue certificates",
+        "text": "BITCOIN'S BLOCKCHAIN guarantees immutability and date, CONSTATA verifies your identity.",
+        "title": "Issue diplomas, certificates of attendance, and badges"
+      },
+      "pending_signatures": {
+        "text": "Review and sign them so that we can complete the issuance process",
+        "title": "Unsigned issuances"
+      },
+      "recent": {
+        "text": "These are your recently certified and notified issuances",
+        "title": "Recent issuances"
+      },
+      "signed": {
+        "text": "We are currently working on certifying and notifying these issuances.",
+        "title": "In progress"
+      },
       "unseen": {
         "see": "See ",
         "more": " more"
       },
-      "other_actions" : {
+      "other_actions": {
         "title": "Other actions",
         "templates": "See all Templates",
         "graphiql": "Go to Graphiql"
       }
-		},
-		"entry": {
-			"name": "Entry",
-			"notified": "Notified on",
-			"notify_at_sign": "Will be notified (after signing)",
-			"preview": "Preview",
-			"states": {
-				"completed": "Entry completed",
-				"created": "Entry created",
-				"failed": "Entry failed",
-				"received": "Entry received",
-				"signed": "Entry signed"
-			},
-			"with_notify": "Will be notified",
-			"without_notify": "Wont be notified"
-		},
-		"errors": {
-			"config_json": "Invalid signature.json file",
-			"default": "An unexpected error ocurred",
-			"downloadPayload": "Error: Document could not be downloaded",
-			"downloadProof": "Error: Certificate could not be downloaded",
-			"not_an_email": "Error: Invalid email detected, check your csv file for malformed email addresses",
-			"onlyMessage": "An error ocurred",
-			"password": "Invalid password"
-		},
-		"kyc_request": {
-			"cancel": "Cancel",
-			"create_button": "Request verification",
-			"edit_button": "Request changes",
-			"edit_title": "Request changes to your details",
-			"evidence_text": {
-				"end": "It's possible that we ask you to attach more documents when we review your request",
-				"start": "Attach a photo of your national id or other files that can help us verify your identity"
-			},
-			"fields": {
-				"birthdate": "Birth date",
-				"country": "Current country",
-				"email": "Email address",
-				"idNumber": "National Id Number",
-				"jobTitle": "Job title",
-				"keepPrivate": "Do not show my email in my issuances",
-				"lastName": "Last Name",
-				"legalEntityCountry": "Your legal entity's Country",
-				"legalEntityName": "Legal entity's name",
-				"legalEntityRegistration": "Legal entity's registration number",
-				"legalEntityTaxId": "Legal entity's tax id",
-				"legalEntityLinkedinId": "Legal entity's Linkedin id",
-				"name": "Names",
-				"nationality": "Nationality"
-			},
-			"helper_text": {
-				"birthdate": "",
-				"country": "Country of residence, or that issued your national id",
-				"email": "We'll write you to this email to verify your details.",
-				"emailWillShow": "Will be shown in your issued certificates",
-				"emailWontShow": "Will never show in your issued certificates",
-				"evidence": "Touch here to select your files",
-				"idNumber": "Must be currently valid",
-				"jobTitle": "Or role within your company, ex: Literature teacher, Regional director.",
-				"lastName": "",
-				"legalEntityCountry": "",
-				"legalEntityName": "Company, NGO, or government organization.",
-				"legalEntityRegistration": "Business registry number, license, etc.",
-				"legalEntityTaxId": "",
-				"legalEntityLinkedinId": "",
-				"name": "",
-				"nationality": ""
-			},
-			"privacy_policy": "Remember our privacy policy.",
-			"submit": "Send request",
-			"text": "Complete your personal details and we will email you to verify them. You only need to fill the fields and backing documents for the data you want to have verified. Once verified, it will show next to your signature on all your emissions.",
-			"title": "Request identity verification"
-		},
-		"login": {
-			"confirm_logout": "Sure you own a different signature?",
-			"confirm_logout_text": "This option is only useful if you have several signatures, or if this is a shared device between many signers. If you continue, you'll need to provide your password protected signature.json to access again",
-			"create_signature": "Create a signature",
-			"invalid_password": "Wrong password",
-			"known_user": {
-				"access": "Access",
-				"text": "Type in your digital signature password to access.",
-				"title": "Hello again!",
-				"use_another_signature": "Use a different signature",
-				"using_signature": "Using signature:"
-			},
-			"must_select": "You must select another file",
-			"unknown_user": {
-				"error_invalid_file": "The signature file is invalid. You must use a signature.json file created with Constata's tools.",
-				"select_config_file": "Select signature.json",
-				"text": "In order to use CONSTATA you need a digital signature. If this is your first time around here, don't worry, we help you create it.",
-				"title": "Hello!"
-			},
-			"use_different_signature": "Use another signature"
-		},
-		"menu": {
+    },
+    "entry": {
+      "name": "Entry",
+      "notified": "Notified on",
+      "notify_at_sign": "Will be notified (after signing)",
+      "preview": "Preview",
+      "states": {
+        "completed": "Entry completed",
+        "created": "Entry created",
+        "failed": "Entry failed",
+        "received": "Entry received",
+        "signed": "Entry signed"
+      },
+      "with_notify": "Will be notified",
+      "without_notify": "Wont be notified"
+    },
+    "errors": {
+      "config_json": "Invalid signature.json file",
+      "default": "An unexpected error ocurred",
+      "downloadPayload": "Error: Document could not be downloaded",
+      "downloadProof": "Error: Certificate could not be downloaded",
+      "not_an_email": "Error: Invalid email detected, check your csv file for malformed email addresses",
+      "onlyMessage": "An error ocurred",
+      "password": "Invalid password"
+    },
+    "kyc_request": {
+      "cancel": "Cancel",
+      "create_button": "Request verification",
+      "edit_button": "Request changes",
+      "edit_title": "Request changes to your details",
+      "evidence_text": {
+        "end": "It's possible that we ask you to attach more documents when we review your request",
+        "start": "Attach a photo of your national id or other files that can help us verify your identity"
+      },
+      "fields": {
+        "birthdate": "Birth date",
+        "country": "Current country",
+        "email": "Email address",
+        "idNumber": "National Id Number",
+        "jobTitle": "Job title",
+        "keepPrivate": "Do not show my email in my issuances",
+        "lastName": "Last Name",
+        "legalEntityCountry": "Your legal entity's Country",
+        "legalEntityName": "Legal entity's name",
+        "legalEntityRegistration": "Legal entity's registration number",
+        "legalEntityTaxId": "Legal entity's tax id",
+        "legalEntityLinkedinId": "Legal entity's Linkedin id",
+        "name": "Names",
+        "nationality": "Nationality"
+      },
+      "helper_text": {
+        "birthdate": "",
+        "country": "Country of residence, or that issued your national id",
+        "email": "We'll write you to this email to verify your details.",
+        "emailWillShow": "Will be shown in your issued certificates",
+        "emailWontShow": "Will never show in your issued certificates",
+        "evidence": "Touch here to select your files",
+        "idNumber": "Must be currently valid",
+        "jobTitle": "Or role within your company, ex: Literature teacher, Regional director.",
+        "lastName": "",
+        "legalEntityCountry": "",
+        "legalEntityName": "Company, NGO, or government organization.",
+        "legalEntityRegistration": "Business registry number, license, etc.",
+        "legalEntityTaxId": "",
+        "legalEntityLinkedinId": "",
+        "name": "",
+        "nationality": ""
+      },
+      "privacy_policy": "Remember our privacy policy.",
+      "submit": "Send request",
+      "text": "Complete your personal details and we will email you to verify them. You only need to fill the fields and backing documents for the data you want to have verified. Once verified, it will show next to your signature on all your emissions.",
+      "title": "Request identity verification"
+    },
+    "login": {
+      "confirm_logout": "Sure you own a different signature?",
+      "confirm_logout_text": "This option is only useful if you have several signatures, or if this is a shared device between many signers. If you continue, you'll need to provide your password protected signature.json to access again",
+      "create_signature": "Create a signature",
+      "invalid_password": "Wrong password",
+      "known_user": {
+        "access": "Access",
+        "text": "Type in your digital signature password to access.",
+        "title": "Hello again!",
+        "use_another_signature": "Use a different signature",
+        "using_signature": "Using signature:"
+      },
+      "must_select": "You must select another file",
+      "unknown_user": {
+        "error_invalid_file": "The signature file is invalid. You must use a signature.json file created with Constata's tools.",
+        "select_config_file": "Select signature.json",
+        "text": "In order to use CONSTATA you need a digital signature. If this is your first time around here, don't worry, we help you create it.",
+        "title": "Hello!"
+      },
+      "use_different_signature": "Use another signature"
+    },
+    "menu": {
       "logo": "Logo",
-			"dashboard": "Dashboard",
-			"help": "Help",
-			"logout": "Logout",
-			"issuances": "Issuances",
+      "dashboard": "Dashboard",
+      "help": "Help",
+      "logout": "Logout",
+      "issuances": "Issuances",
       "login": "Login"
-		},
-		"issuance": {
-			"create": "Start issuing",
-			"csv": "CSV file",
+    },
+    "issuance": {
+      "create": "Start issuing",
+      "csv": "CSV file",
       "export_csv": "Export issuance to CSV",
       "export_filename": "constata_issuance_%{id}.csv",
-			"errors": {
-				"CsvErrorUnequalLengths": "CSV Error: Header column count does not match values",
-				"CsvErrorUnexpected": "Unexpected error processing csv file",
-				"CsvErrorUtf8": "CSV Error: non utf-8 file",
-				"template_error_csv_and_template_are_incompatibles": "Template Error: The csv file does not provide all the values needed by the selected template.",
-				"template_error_unexpected": "Unexpected error expanding template"
-			},
-			"invalid_template": "You must select a valid template",
-			"loading": "Loading...",
-			"message_confirm": "Enter your password to sign this issuance.",
-			"name": "Issuance",
-			"sign_completed": "Issuance signed correctly",
-			"sign_request": "Sign issuance",
-			"states": {
-				"completed": "Completed",
-				"created": "Documents Created",
-				"failed": "Failed",
-				"received": "Received",
-				"signed": "Signed"
-			}
-		},
-		"show": {
-			"details": "Details"
-		},
-		"template": {
-			"download_zip": "Download ZIP",
-			"evidence": "Source ZIP",
-			"loading": "Loading...",
-			"name": "Template"
-		},
-		"verify_email": {
-			"contact_us": "Contact us",
-			"expired": "The verification link has been used or has expired",
-			"go_to_dashboard": "Go to dashboard",
-			"loading": "Verifying your email address.",
-			"other_error": "An error ocurred, it may be caused by a temporary issue or it may be related to your internet connection.",
-			"success": "Email address verified."
-		},
+      "errors": {
+        "CsvErrorUnequalLengths": "CSV Error: Header column count does not match values",
+        "CsvErrorUnexpected": "Unexpected error processing csv file",
+        "CsvErrorUtf8": "CSV Error: non utf-8 file",
+        "template_error_csv_and_template_are_incompatibles": "Template Error: The csv file does not provide all the values needed by the selected template.",
+        "template_error_unexpected": "Unexpected error expanding template"
+      },
+      "invalid_template": "You must select a valid template",
+      "loading": "Loading...",
+      "message_confirm": "Enter your password to sign this issuance.",
+      "name": "Issuance",
+      "sign_completed": "Issuance signed correctly",
+      "sign_request": "Sign issuance",
+      "states": {
+        "completed": "Completed",
+        "created": "Documents Created",
+        "failed": "Failed",
+        "received": "Received",
+        "signed": "Signed"
+      }
+    },
+    "show": {
+      "details": "Details"
+    },
+    "template": {
+      "download_zip": "Download ZIP",
+      "evidence": "Source ZIP",
+      "loading": "Loading...",
+      "name": "Template"
+    },
+    "verify_email": {
+      "contact_us": "Contact us",
+      "expired": "The verification link has been used or has expired",
+      "go_to_dashboard": "Go to dashboard",
+      "loading": "Verifying your email address.",
+      "other_error": "An error ocurred, it may be caused by a temporary issue or it may be related to your internet connection.",
+      "success": "Email address verified."
+    },
     "invoice_link": {
       "expired": {
         "title": "Expired",
@@ -520,19 +522,19 @@
         "text_2": "for more information."
       }
     },
-		"wizard": {
-			"creating": {
-				"error": "Oops, we have a problem generating the previews",
-				"error_text": "Make sure your internet conection is workning. Otherwise, it may be an issue on our end, and we will appreciate for you to contact us about it.",
-				"text": "This may take a few seconds.",
-				"title": "Generating previews"
-			},
-			"done": {
-				"begin": "From this point, the rest of the process will be carried out by constata. In a few minutes we will issue",
+    "wizard": {
+      "creating": {
+        "error": "Oops, we have a problem generating the previews",
+        "error_text": "Make sure your internet conection is workning. Otherwise, it may be an issue on our end, and we will appreciate for you to contact us about it.",
+        "text": "This may take a few seconds.",
+        "title": "Generating previews"
+      },
+      "done": {
+        "begin": "From this point, the rest of the process will be carried out by constata. In a few minutes we will issue",
         "begin_need_token": "After your payment we will issue",
         "buy_tokens": "Buy tokens",
-				"email": "via email to all recipients",
-				"go_to_dashboard": "Go to dashboard",
+        "email": "via email to all recipients",
+        "go_to_dashboard": "Go to dashboard",
         "kind_text": {
           "ATTENDANCE": {
             "and_we": " and we will send it |||| and we will send them ",

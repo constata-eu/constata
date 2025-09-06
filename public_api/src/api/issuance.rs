@@ -345,8 +345,9 @@ impl Showable<db::Issuance, IssuanceFilter> for Issuance {
   }
 }
 
+/*
 constata_lib::describe_one! {
-  fulltest!{ can_create_an_issuance (site, c, client, _chain)
+  fulltest!{ can_create_an_issuance (site, c, client)
     client.signer.verify_email("test@example.com").await;
 
     use gql::{
@@ -544,3 +545,4 @@ constata_lib::describe_one! {
         }
     }
 }
+*/

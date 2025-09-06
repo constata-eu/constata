@@ -222,6 +222,8 @@
       "copy_to_clipboard": "Link copiado al portapapeles"
     },
     "dashboard": {
+      "no_more_issuance": "A partir de septiembre de 2025, el servicio de emisión de diplomas de Constata será descontinuado. No se podrán emitir nuevos diplomas.",
+      "download_and_view": "Aún podrás usar esta aplicación para ver y descargar tus emisiones anteriores, que seguirán siendo válidas.",
       "email": {
         "no_email_yet": "Verifique su correo electrónico sin costo, para que los destinatarios de sus emisiones puedan identificarle. Constata no enviará notificaciones por correo electrónico a los destinatarios de sus certificados hasta que no verifique su propio correo.",
         "not_verified": "No verificado. Revise su casilla de correo.",
@@ -269,7 +271,7 @@
         "see": "Ver ",
         "more": " más"
       },
-      "other_actions" : {
+      "other_actions": {
         "title": "Otras acciones",
         "templates": "Ver todas las Plantillas",
         "graphiql": "Ir a Graphiql"

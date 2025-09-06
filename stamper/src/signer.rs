@@ -18,6 +18,9 @@ async fn main() {
     )
     .get_matches();
 
+  println!("Stamping has been disabled");
+
+  /*
   let mut blockchain = Blockchain::from_site(Site::from_stdin_password().await.unwrap()).await.unwrap();
 
   match matches.value_of("ACTION").unwrap() {
@@ -79,4 +82,5 @@ async fn main() {
     }
     e => println!("Unknown option {}", e),
   }
+  */
 }

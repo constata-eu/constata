@@ -207,6 +207,7 @@ impl Story {
   }
 }
 
+/*
 describe! {
   regtest!{ creates_story_for_document_and_can_append_new_documents (_site, c, mut chain)
     let alice = c.alice().await;
@@ -262,3 +263,4 @@ describe! {
     }
   }
 }
+*/

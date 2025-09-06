@@ -31,11 +31,13 @@ async fn main() {
     )
   }
 
+  /*
   every![500, |s| {
     run!("workroom_create_received" { s.issuance().create_all_received().await });
     run!("workroom_complete_all_notified" { s.issuance().try_complete().await });
     run!("attempting_webhooks" { s.web_callback().attempt_all_pending().await });
   }];
+  */
 
   every![10000, |s| {
     match EmailBot::new(s.clone()).await {

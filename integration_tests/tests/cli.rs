@@ -1,3 +1,5 @@
+/*
+
 mod cli {
   constata_lib::describe_one! {
     use integration_tests::*;
@@ -19,7 +21,7 @@ mod cli {
         "--new-kind=diploma",
         "--new-name=2nd_template",],
         "/templateName", "2nd_template");
-      
+
       assert_command("create-issuance-from-csv", &[
         "--csv-file",
         "integration_tests/static/cli_test_issuances_from_csv.csv",
@@ -46,7 +48,7 @@ mod cli {
       chain.fund_signer_wallet();
       chain.simulate_stamping().await;
       db.site.issuance().try_complete().await?;
-      
+
       assert_command("issuance-export", &["3"], "/id", 3);
       assert_command("all-issuances", &["--id-eq", "2"], "/allIssuances/0/state", "completed");
       assert_command("all-issuances", &["--id-eq", "3"], "/allIssuances/0/state", "completed");
@@ -54,7 +56,7 @@ mod cli {
       run_command("entry-html-export", &["4", "target/artifacts/cli_entry_export.html"]);
       failed_command("entry-html-export", &["20", "target/artifacts/cli_entry_export.html"]);
       run_command("all-entries-html-export", &["target/artifacts"]);
-            
+
     }
 
     api_integration_test!{ create_attestations(db, mut chain)
@@ -73,17 +75,17 @@ mod cli {
         "-m",
         "Bart"],
         "/personId", 1);
-        
+
       assert_command("all-attestations", &["--id-eq", "2"], "/allAttestations/0/state", "processing");
 
       chain.fund_signer_wallet();
       chain.simulate_stamping().await;
-      
+
       assert_command("all-attestations", &["--id-eq", "2"], "/allAttestations/0/state", "done");
       assert_command("all-attestations", &[], "/_allAttestationsMeta/count", 2);
       assert_command("all-attestations", &["--markers-like", "John"], "/allAttestations/0/markers", "John Doe");
       assert_none("all-attestations", &["--markers-like", "nasa"], "/allAttestations/0");
-      assert_command("attestation-html-export", &["2"], "/attestation/id", 2);     
+      assert_command("attestation-html-export", &["2"], "/attestation/id", 2);
 
       assert_none("all-attestations", &["--id-eq", "2"], "/allAttestations/0/publicCertificateUrl");
       assert!(
@@ -103,12 +105,12 @@ mod cli {
       assert_eq!(json.get("id").unwrap(), 1);
     }
 
-    
+
     api_integration_test!{ help(db, _chain)
       db.alice().await.write_signature_json_artifact();
       run_command("--help", &[]);
     }
- 
+
     fn run_command(command: &str, args: &[&str]) -> String {
       let params = [
         &["run", "-p", "constata-cli", "--","--config=target/artifacts/signature.json",
@@ -134,7 +136,7 @@ mod cli {
     }
 
     fn assert_command<T>(command: &str, args: &[&str], pointer: &str, expected_value: T)
-      where 
+      where
         T: std::fmt::Debug + 'static,
         for<'a> &'a serde_json::Value: PartialEq<T>
     {
@@ -171,3 +173,4 @@ mod cli {
     }
   }
 }
+*/

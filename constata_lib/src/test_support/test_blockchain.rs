@@ -1,14 +1,16 @@
-use crate::models::{Blockchain, Site};
+//use crate::models::{Blockchain, Site};
+use bitcoin::PrivateKey;
 use bitcoincore_rpc::{bitcoin::Address, Auth, Client, RpcApi};
 use std::io::{BufRead, BufReader};
 use std::process::{Child, Command, Stdio};
-use bitcoin::PrivateKey;
 
 pub struct TestBlockchain {
-  pub blockchain: Blockchain,
-  pub regtest: Regtest,
+  //pub blockchain: Blockchain,
+  //pub regtest: Regtest,
 }
 
+/*
+// Stamper has been disabled.
 impl TestBlockchain {
   pub async fn new() -> Self {
     Self {
@@ -126,3 +128,4 @@ impl std::ops::Drop for Regtest {
     self.kill();
   }
 }
+*/

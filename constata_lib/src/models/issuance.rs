@@ -360,6 +360,7 @@ impl Failed {
   }
 }
 
+/*
 describe!{
   use std::io::Read; 
   use std::collections::HashMap;
@@ -801,3 +802,4 @@ describe!{
     alice.make_issuance(*template.id() ,issuance_file).await
   }
 }
+*/

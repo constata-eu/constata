@@ -15,6 +15,7 @@ pub async fn show(
   Ok(Json(client.get_raw_transaction_info(&txid, None)?))
 }
 
+/*
 constata_lib::describe_one! {
   fulltest!{ gets_transaction_info_from_blockchain (site, c, client, mut chain)
     client.signer.signed_documents(b"alice").await;
@@ -40,3 +41,4 @@ constata_lib::describe_one! {
     assert_that!(&tx, rematch(&published.hash()));
   }
 }
+*/

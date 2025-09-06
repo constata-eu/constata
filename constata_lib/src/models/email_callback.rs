@@ -61,6 +61,7 @@ impl EmailCallback {
   }
 }
 
+/*
 describe! {
   regtest!{ creates_an_email_callback_and_sets_it_sent (ref site, c, mut chain)
     let all = ||{ async { site.email_callback().select().all().await.unwrap() }};
@@ -129,3 +130,4 @@ describe! {
     })
   }
 }
+*/

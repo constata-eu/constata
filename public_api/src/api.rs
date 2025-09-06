@@ -313,8 +313,10 @@ pub struct Mutation;
 #[graphql_object(context=Context, scalar = GqlScalar)]
 impl Mutation {
   pub async fn create_signup(context: &Context, input: SignupInput) -> ConstataResult<Signup> {
+    //return Err(constata_lib::Error::validation("auth", "no_signups_allowed"));
     input.process(context).await
   }
+  /*
 
   pub async fn create_issuance_from_csv(context: &Context, input: CreateIssuanceFromCsvInput) -> FieldResult<Issuance> {
     input.process(context).await
@@ -391,6 +393,7 @@ impl Mutation {
     org = org.update().web_callbacks_url(url).save().await?;
     AccountState::from_db(org.account_state().await?)
   }
+  */
 }
 
 // A root schema consists of a query and a mutation.

@@ -409,6 +409,7 @@ impl Published {
   }
 }
 
+/*
 describe! {
   use bitcoin::{consensus::deserialize, hashes::hex::FromHex, Block, Transaction};
   use chrono::Utc;
@@ -618,3 +619,4 @@ describe! {
     deserialize(&hex_block).unwrap()
   }
 }
+*/

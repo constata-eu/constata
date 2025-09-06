@@ -129,12 +129,11 @@ macro_rules! dbtest {
 
 #[macro_export]
 macro_rules! regtest {
-  ($i:ident($($site:ident)+, $c:ident, $($chain:ident)+) $($e:tt)* ) => {
+  ($i:ident($($site:ident)+, $c:ident), $($e:tt)* ) => {
     test!{ $i
       time_test::time_test!("regtest env");
       let $c = TestDb::new().await?;
       let $($site)+ = $c.site.clone();
-      let $($chain)+ = TestBlockchain::new().await;
       $($e)*
     }
   }

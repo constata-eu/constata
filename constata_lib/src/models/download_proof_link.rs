@@ -231,6 +231,7 @@ describe! {
     );
   }
 
+  /*
   regtest!{ gets_abridged_pdf_version (_db, c, mut chain)
     let alice = c.alice().await;
     alice.make_kyc_endorsement().await;
@@ -285,4 +286,5 @@ describe! {
       "https://logodeprueba.com".to_string()
     );
   }
+  */
 }

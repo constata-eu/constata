@@ -1,20 +1,20 @@
 use super::{
+  bulletin::{Draft, Flow, Proposed, Published, Submitted},
   *,
-  bulletin::{Flow, Draft, Proposed, Published, Submitted}
-};
-use bitcoin::{
-  blockdata::{opcodes::all as opcodes, script::Builder},
-  Address, Amount, BlockHash, OutPoint, Script, SigHashType, Transaction, TxIn, TxOut
 };
 pub use bitcoin::PrivateKey;
+use bitcoin::{
+  blockdata::{opcodes::all as opcodes, script::Builder},
+  Address, Amount, BlockHash, OutPoint, Script, SigHashType, Transaction, TxIn, TxOut,
+};
 use bitcoin_wallet::account::{MasterAccount, Unlocker};
+use bitcoincore_rpc::bitcoincore_rpc_json::EstimateMode;
 use bitcoincore_rpc::jsonrpc::error as rpc_error;
 use bitcoincore_rpc::Error::JsonRpc;
 use bitcoincore_rpc::{json::ListUnspentResultEntry, Auth, Client, RpcApi};
-use bitcoincore_rpc::bitcoincore_rpc_json::EstimateMode;
 use chrono::Utc;
-use std::collections::HashMap;
 use num_traits::ToPrimitive;
+use std::collections::HashMap;
 
 pub struct Blockchain {
   pub site: Site,
@@ -34,6 +34,7 @@ pub struct Stats {
   pub current_bulletin: Flow,
 }
 
+/*
 impl Blockchain {
   pub async fn from_site(site: Site) -> ConstataResult<Blockchain> {
     let keyring = site.keyring()?
@@ -49,7 +50,7 @@ impl Blockchain {
       master_account: keyring.master_account,
       unlocker: keyring.unlocker,
       address: keyring.address,
-      client,
+      //client,
       default_fee: 30_000,
     })
   }
@@ -65,7 +66,7 @@ impl Blockchain {
       Flow::Submitted(b) => {
         self.sync_submitted(b).await?;
       }
-      _ => {} 
+      _ => {}
     }
 
     Ok(self.site.bulletin().current().await?)
@@ -129,9 +130,9 @@ impl Blockchain {
     let utxos = self.get_utxos(None)?;
     let transaction = self.build_and_sign(b"bumpfee", utxos.clone(), calculated_sats)?;
     self.client.send_raw_transaction(&transaction)?;
-    
+
     submitted.clone().create_bump(&transaction).await?;
-    
+
     Ok((transaction, submitted))
   }
 
@@ -556,3 +557,4 @@ describe! {
     get_fees(chain, previous_balance, &submitted.last_bump().await?.txid()).await
   }
 }
+*/

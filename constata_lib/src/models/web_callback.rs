@@ -321,6 +321,7 @@ impl Pending {
   }
 }
 
+/*
 describe! {
   regtest!{ sends_callback_for_attestation_done (site, c, mut chain)
     let alice = c.alice().await;
@@ -423,3 +424,4 @@ describe! {
     assert_that!(&delta, geq(Duration::minutes(minutes - 1)));
   }
 }
+*/

@@ -50,6 +50,7 @@ impl<'r> FromRequest<'r> for RequestMeta {
   }
 }
 
+/*
 constata_lib::describe_one! {
   #[derive(Debug, PartialEq, Clone, serde::Deserialize)]
   struct ApiTermsAcceptance { token: String }
@@ -87,3 +88,4 @@ constata_lib::describe_one! {
     assert_that!(&page, rematch("GENERAL CONTRACTING CONDITIONS"));
   }
 }
+*/

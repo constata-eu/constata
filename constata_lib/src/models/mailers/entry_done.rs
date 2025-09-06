@@ -39,6 +39,7 @@ impl EntryDone {
   }
 }
 
+/*
 describe! {
   regtest!{ renders_cc_emails (site, c, mut chain)
     let alice = c.alice().await.add_funds().await;
@@ -97,3 +98,4 @@ describe! {
     assert_that!(&content, rematch("Constata, a trust service provider, transmits"));
   }
 }
+*/

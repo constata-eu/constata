@@ -17,6 +17,7 @@ impl Selenium {
       .output().expect("Could not create downloads dir");
 
     let mut caps = DesiredCapabilities::chrome();
+    caps.set_binary("chromedrivers/chrome-linux/chrome");
     caps.add_chrome_option(
       "prefs",
       serde_json::json![{
@@ -40,6 +41,28 @@ impl Selenium {
     } else {
       driver_path = local_driver_path.clone();
     }
+
+    let opts = vec![
+        "--no-default-browser-check",
+        "--disable-component-update",
+        "--no-sandbox",
+        "--disable-gpu",
+        "--window-size=1920,1080",
+        "--disable-popup-blocking",
+        "--enable-logging",
+        "--v=1",
+        "--disable-features=IsolateOrigins,site-per-process",
+        "--disable-dev-shm-usage",
+        "--disable-software-rasterizer",
+        "--disable-site-isolation-trials",
+        "--remote-debugging-port=9222",
+        "--allow-insecure-localhost",
+        "--ignore-certificate-errors",
+        "--allow-file-access-from-files",
+    ];
+
+    caps.add_chrome_option("args", serde_json::to_value(opts).unwrap()).unwrap();
+
 
     Command::new("killall").args(&["-9", &driver_path])
       .output().expect("Could not kill previous server");

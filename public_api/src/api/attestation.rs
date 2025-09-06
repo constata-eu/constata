@@ -119,6 +119,7 @@ impl AttestationSetPublishedInput {
   }
 }
 
+/*
 constata_lib::describe_one! {
   fulltest!{ can_create_an_attestation (_site, c, client, mut chain)
     use chrono::prelude::*;
@@ -290,3 +291,4 @@ constata_lib::describe_one! {
     assert!(&nothing.all_attestations.is_empty());
   }
 }
+*/

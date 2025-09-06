@@ -255,6 +255,7 @@ impl<'a> Proof<'a> {
   }
 }
 
+/*
 describe! {
   use bitcoin::Network;
 
@@ -358,3 +359,4 @@ describe! {
     );
   }
 }
+*/
